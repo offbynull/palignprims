@@ -88,15 +88,15 @@ namespace offbynull::pairwise_aligner::local {
         }
 
         ED& get_edge_data(const E& edge) {
-            return std::get<2>(get_edge());
+            return std::get<2>(get_edge(edge));
         }
 
         N get_edge_from(const E& edge) {
-            return std::get<0>(get_edge());
+            return std::get<0>(get_edge(edge));
         }
 
         N get_edge_to(const E& edge) {
-            return std::get<1>(get_edge());
+            return std::get<1>(get_edge(edge));
         }
 
         std::tuple<N, N, ED&> get_edge(const E& edge) {
