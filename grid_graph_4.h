@@ -171,7 +171,7 @@ namespace offbynull::grid_graph::grid_graph {
             auto down_range { std::views::iota(0u, down_node_cnt) };
             auto right_range { std::views::iota(0u, right_node_cnt) };
             return std::views::cartesian_product(down_range, right_range)
-                | std::views::transform([this](const auto & p) noexcept {
+                | std::views::transform([&](const auto & p) noexcept {
                     std::pair<T, T> node { std::get<0>(p), std::get<1>(p) };
                     return this->get_outputs(node);
                 })

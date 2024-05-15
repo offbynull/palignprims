@@ -25,6 +25,7 @@ tests_src = [
         'tests/test_pairwise_local_alignment_graph.cpp',
         'tests/test_pairwise_global_alignment_graph.cpp',
         'tests/test_pairwise_fitting_alignment_graph.cpp',
+        'tests/test_pairwise_extended_gap_alignment_graph.cpp',
         'tests/test_backtracker.cpp',
         'tests/test_global_aligner.cpp'
 ]
