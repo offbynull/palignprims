@@ -76,23 +76,37 @@ namespace {
         x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
     }
 
-    CONTINUE TESTING;
-    CONTINUE TESTING;
-    CONTINUE TESTING;
-    CONTINUE TESTING;
-    CONTINUE TESTING;
-    /*
     TEST(PairwiseExtendedGapAlignmentGraphTest, NodesExist) {
         auto x = [](auto&& g) {
-            EXPECT_TRUE(g.has_node({0u, 0u}));
-            EXPECT_TRUE(g.has_node({0u, 1u}));
-            EXPECT_TRUE(g.has_node({0u, 2u}));
-            EXPECT_FALSE(g.has_node({0u, 3u}));
-            EXPECT_TRUE(g.has_node({1u, 0u}));
-            EXPECT_TRUE(g.has_node({1u, 1u}));
-            EXPECT_TRUE(g.has_node({1u, 2u}));
-            EXPECT_FALSE(g.has_node({1u, 3u}));
-            EXPECT_FALSE(g.has_node({2u, 3u}));
+            EXPECT_TRUE(g.has_node({layer::DIAGONAL, 0u, 0u}));
+            EXPECT_TRUE(g.has_node({layer::DIAGONAL, 0u, 1u}));
+            EXPECT_TRUE(g.has_node({layer::DIAGONAL, 0u, 2u}));
+            EXPECT_FALSE(g.has_node({layer::DIAGONAL, 0u, 3u}));
+            EXPECT_TRUE(g.has_node({layer::DIAGONAL, 1u, 0u}));
+            EXPECT_TRUE(g.has_node({layer::DIAGONAL, 1u, 1u}));
+            EXPECT_TRUE(g.has_node({layer::DIAGONAL, 1u, 2u}));
+            EXPECT_FALSE(g.has_node({layer::DIAGONAL, 1u, 3u}));
+            EXPECT_FALSE(g.has_node({layer::DIAGONAL, 2u, 3u}));
+
+            EXPECT_FALSE(g.has_node({layer::DOWN, 0u, 0u}));
+            EXPECT_FALSE(g.has_node({layer::DOWN, 0u, 1u}));
+            EXPECT_FALSE(g.has_node({layer::DOWN, 0u, 2u}));
+            EXPECT_FALSE(g.has_node({layer::DOWN, 0u, 3u}));
+            EXPECT_TRUE(g.has_node({layer::DOWN, 1u, 0u}));
+            EXPECT_TRUE(g.has_node({layer::DOWN, 1u, 1u}));
+            EXPECT_TRUE(g.has_node({layer::DOWN, 1u, 2u}));
+            EXPECT_FALSE(g.has_node({layer::DOWN, 1u, 3u}));
+            EXPECT_FALSE(g.has_node({layer::DOWN, 2u, 3u}));
+
+            EXPECT_FALSE(g.has_node({layer::RIGHT, 0u, 0u}));
+            EXPECT_TRUE(g.has_node({layer::RIGHT, 0u, 1u}));
+            EXPECT_TRUE(g.has_node({layer::RIGHT, 0u, 2u}));
+            EXPECT_FALSE(g.has_node({layer::RIGHT, 0u, 3u}));
+            EXPECT_FALSE(g.has_node({layer::RIGHT, 1u, 0u}));
+            EXPECT_TRUE(g.has_node({layer::RIGHT, 1u, 1u}));
+            EXPECT_TRUE(g.has_node({layer::RIGHT, 1u, 2u}));
+            EXPECT_FALSE(g.has_node({layer::RIGHT, 1u, 3u}));
+            EXPECT_FALSE(g.has_node({layer::RIGHT, 2u, 3u}));
         };
         x(create_vector_grid<float>(2u, 3u));
         x(create_array_grid<float, 2u, 3u>());
@@ -102,12 +116,12 @@ namespace {
 
     TEST(PairwiseExtendedGapAlignmentGraphTest, RightEdgesExist) {
         auto x = [](auto&& g) {
-            EXPECT_TRUE(g.has_edge({{0u, 0u}, {0u, 1u}}));
-            EXPECT_TRUE(g.has_edge({{0u, 1u}, {0u, 2u}}));
-            EXPECT_FALSE(g.has_edge({{0u, 2u}, {0u, 3u}}));
-            EXPECT_TRUE(g.has_edge({{1u, 0u}, {1u, 1u}}));
-            EXPECT_TRUE(g.has_edge({{1u, 1u}, {1u, 2u}}));
-            EXPECT_FALSE(g.has_edge({{1u, 2u}, {1u, 3u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 0u, 0u}, {layer::RIGHT, 0u, 1u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 0u, 1u}, {layer::RIGHT, 0u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DIAGONAL, 0u, 2u}, {layer::RIGHT, 0u, 3u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 1u, 0u}, {layer::RIGHT, 1u, 1u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 1u, 1u}, {layer::RIGHT, 1u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DIAGONAL, 1u, 2u}, {layer::RIGHT, 1u, 3u}}));
         };
         x(create_vector_grid<float>(2u, 3u));
         x(create_array_grid<float, 2u, 3u>());
@@ -117,12 +131,12 @@ namespace {
 
     TEST(PairwiseExtendedGapAlignmentGraphTest, DownEdgesExist) {
         auto x = [](auto&& g) {
-            EXPECT_TRUE(g.has_edge({{0u, 0u}, {1u, 0u}}));
-            EXPECT_FALSE(g.has_edge({{1u, 0u}, {2u, 0u}}));
-            EXPECT_TRUE(g.has_edge({{0u, 1u}, {1u, 1u}}));
-            EXPECT_FALSE(g.has_edge({{1u, 1u}, {2u, 1u}}));
-            EXPECT_TRUE(g.has_edge({{0u, 2u}, {1u, 2u}}));
-            EXPECT_FALSE(g.has_edge({{1u, 2u}, {2u, 2u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 0u, 0u}, {layer::DOWN, 1u, 0u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DIAGONAL, 1u, 0u}, {layer::DOWN, 2u, 0u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 0u, 1u}, {layer::DOWN, 1u, 1u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DIAGONAL, 1u, 1u}, {layer::DOWN, 2u, 1u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 0u, 2u}, {layer::DOWN, 1u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DIAGONAL, 1u, 2u}, {layer::DOWN, 2u, 2u}}));
         };
         x(create_vector_grid<float>(2u, 3u));
         x(create_array_grid<float, 2u, 3u>());
@@ -132,12 +146,49 @@ namespace {
 
     TEST(PairwiseExtendedGapAlignmentGraphTest, DiagEdgesExist) {
         auto x = [](auto&& g) {
-            EXPECT_TRUE(g.has_edge({{0u, 0u}, {1u, 1u}}));
-            EXPECT_FALSE(g.has_edge({{1u, 0u}, {2u, 1u}}));
-            EXPECT_TRUE(g.has_edge({{0u, 1u}, {1u, 2u}}));
-            EXPECT_FALSE(g.has_edge({{1u, 1u}, {2u, 2u}}));
-            EXPECT_FALSE(g.has_edge({{0u, 2u}, {1u, 3u}}));
-            EXPECT_FALSE(g.has_edge({{1u, 2u}, {2u, 3u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 0u, 0u}, {layer::DIAGONAL, 1u, 1u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DIAGONAL, 1u, 0u}, {layer::DIAGONAL, 2u, 1u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 0u, 1u}, {layer::DIAGONAL, 1u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DIAGONAL, 1u, 1u}, {layer::DIAGONAL, 2u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DIAGONAL, 0u, 2u}, {layer::DIAGONAL, 1u, 3u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DIAGONAL, 1u, 2u}, {layer::DIAGONAL, 2u, 3u}}));
+        };
+        x(create_vector_grid<float>(2u, 3u));
+        x(create_array_grid<float, 2u, 3u>());
+        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+    }
+
+    TEST(PairwiseExtendedGapAlignmentGraphTest, DownFreeRidgeEdgesExist) {
+        auto x = [](auto&& g) {
+            EXPECT_FALSE(g.has_edge({{layer::DOWN, 0u, 0u}, {layer::DIAGONAL, 0u, 0u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DOWN, 0u, 1u}, {layer::DIAGONAL, 0u, 1u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DOWN, 0u, 2u}, {layer::DIAGONAL, 0u, 2u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DOWN, 1u, 0u}, {layer::DIAGONAL, 1u, 0u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DOWN, 1u, 1u}, {layer::DIAGONAL, 1u, 1u}}));
+            EXPECT_TRUE(g.has_edge({{layer::DOWN, 1u, 2u}, {layer::DIAGONAL, 1u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DOWN, 1u, 3u}, {layer::DIAGONAL, 1u, 3u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DOWN, 2u, 2u}, {layer::DIAGONAL, 2u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::DOWN, 2u, 3u}, {layer::DIAGONAL, 2u, 3u}}));
+        };
+        x(create_vector_grid<float>(2u, 3u));
+        x(create_array_grid<float, 2u, 3u>());
+        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+    }
+
+
+    TEST(PairwiseExtendedGapAlignmentGraphTest, RightFreeRidgeEdgesExist) {
+        auto x = [](auto&& g) {
+            EXPECT_FALSE(g.has_edge({{layer::RIGHT, 0u, 0u}, {layer::DIAGONAL, 0u, 0u}}));
+            EXPECT_TRUE(g.has_edge({{layer::RIGHT, 0u, 1u}, {layer::DIAGONAL, 0u, 1u}}));
+            EXPECT_TRUE(g.has_edge({{layer::RIGHT, 0u, 2u}, {layer::DIAGONAL, 0u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::RIGHT, 1u, 0u}, {layer::DIAGONAL, 1u, 0u}}));
+            EXPECT_TRUE(g.has_edge({{layer::RIGHT, 1u, 1u}, {layer::DIAGONAL, 1u, 1u}}));
+            EXPECT_TRUE(g.has_edge({{layer::RIGHT, 1u, 2u}, {layer::DIAGONAL, 1u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::RIGHT, 1u, 3u}, {layer::DIAGONAL, 1u, 3u}}));
+            EXPECT_FALSE(g.has_edge({{layer::RIGHT, 2u, 2u}, {layer::DIAGONAL, 2u, 2u}}));
+            EXPECT_FALSE(g.has_edge({{layer::RIGHT, 2u, 3u}, {layer::DIAGONAL, 2u, 3u}}));
         };
         x(create_vector_grid<float>(2u, 3u));
         x(create_array_grid<float, 2u, 3u>());
@@ -149,23 +200,24 @@ namespace {
         auto x = [](auto&& g) {
             using E = typename std::remove_reference_t<decltype(g)>::E;
 
+            // Coming out of DIAGONAL
             {
                 std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-                for (auto _e : g.get_outputs( std::pair{ 0u, 0u } )) {
+                for (auto _e : g.get_outputs( {layer::DIAGONAL, 0u, 0u } )) {
                     actual.insert(_e);
                 }
                 EXPECT_EQ(
                     actual,
                     (std::set<E> {
-                        std::pair { std::pair{0u, 0u}, std::pair{0u, 1u} },
-                        std::pair { std::pair{0u, 0u}, std::pair{1u, 0u} },
-                        std::pair { std::pair{0u, 0u}, std::pair{1u, 1u} }
+                        { {layer::DIAGONAL, 0u, 0u}, {layer::RIGHT, 0u, 1u} },
+                        { {layer::DIAGONAL, 0u, 0u}, {layer::DOWN, 1u, 0u} },
+                        { {layer::DIAGONAL, 0u, 0u}, {layer::DIAGONAL, 1u, 1u} }
                     })
                 );
             }
             {
                 std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-                for (auto _e : g.get_outputs( std::pair{ 1u, 2u } )) {
+                for (auto _e : g.get_outputs( { layer::DIAGONAL, 1u, 2u } )) {
                     actual.insert(_e);
                 }
                 EXPECT_EQ(
@@ -175,25 +227,53 @@ namespace {
             }
             {
                 std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-                for (auto _e : g.get_outputs( std::pair{ 0u, 2u } )) {
+                for (auto _e : g.get_outputs( { layer::DIAGONAL, 0u, 2u } )) {
                     actual.insert(_e);
                 }
                 EXPECT_EQ(
                     actual,
                     (std::set<E> {
-                        std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} }
+                         { {layer::DIAGONAL, 0u, 2u}, {layer::DOWN, 1u, 2u} }
                     })
                 );
             }
             {
                 std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-                for (auto _e : g.get_outputs( std::pair{ 1u, 0u } )) {
+                for (auto _e : g.get_outputs( { layer::DIAGONAL, 1u, 0u } )) {
                     actual.insert(_e);
                 }
                 EXPECT_EQ(
                     actual,
                     (std::set<E> {
-                        std::pair { std::pair{1u, 0u}, std::pair{1u, 1u} }
+                         { {layer::DIAGONAL, 1u, 0u}, {layer::RIGHT, 1u, 1u} }
+                    })
+                );
+            }
+
+            // Coming out of DOWN
+            {
+                std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
+                for (auto _e : g.get_outputs( { layer::DOWN, 1u, 2u } )) {
+                    actual.insert(_e);
+                }
+                EXPECT_EQ(
+                    actual,
+                    (std::set<E> {
+                         { {layer::DOWN, 1u, 2u}, {layer::DIAGONAL, 1u, 2u} }
+                    })
+                );
+            }
+
+            // Coming out of RIGHT
+            {
+                std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
+                for (auto _e : g.get_outputs( { layer::RIGHT, 1u, 2u } )) {
+                    actual.insert(_e);
+                }
+                EXPECT_EQ(
+                    actual,
+                    (std::set<E> {
+                         { {layer::RIGHT, 1u, 2u}, {layer::DIAGONAL, 1u, 2u} }
                     })
                 );
             }
@@ -203,7 +283,7 @@ namespace {
         x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
         x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
     }
-
+/*
     TEST(PairwiseExtendedGapAlignmentGraphTest, GetInputs) {
         auto x = [](auto&& g) {
             using E = typename std::remove_reference_t<decltype(g)>::E;
