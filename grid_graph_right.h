@@ -358,7 +358,7 @@ namespace offbynull::grid_graph::grid_graph_right {
 
     template<typename _ND, typename _ED, typename T = unsigned int, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_vector_grid(T down_cnt, T right_cnt) {
+    auto create_vector(T down_cnt, T right_cnt) {
         size_t size = down_cnt * right_cnt;
         return grid_graph_right<_ND, _ED, std::vector<_ND>, std::vector<edge_data_set<_ED>>, T, error_check> {
             down_cnt,
@@ -370,7 +370,7 @@ namespace offbynull::grid_graph::grid_graph_right {
 
     template<typename _ND, typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_array_grid() {
+    auto create_array() {
         constexpr size_t size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
         return grid_graph_right<_ND, _ED, std::array<_ND, size>, std::array<edge_data_set<_ED>, size>, T, error_check> {
             STATIC_DOWN_CNT,
@@ -382,7 +382,7 @@ namespace offbynull::grid_graph::grid_graph_right {
 
     template<typename _ND, typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_small_vector_grid(T down_cnt, T right_cnt) {
+    auto create_small_vector(T down_cnt, T right_cnt) {
         constexpr size_t stack_size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
         size_t actual_size = down_cnt * right_cnt;
         return grid_graph_right<_ND, _ED, boost::container::small_vector<_ND, stack_size>, boost::container::small_vector<edge_data_set<_ED>, stack_size>, T, error_check> {
@@ -395,7 +395,7 @@ namespace offbynull::grid_graph::grid_graph_right {
 
     template<typename _ND, typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_static_vector_grid(T down_cnt, T right_cnt) {
+    auto create_static_vector(T down_cnt, T right_cnt) {
         constexpr size_t stack_size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
         size_t actual_size = down_cnt * right_cnt;
         return grid_graph_right<_ND, _ED, boost::container::static_vector<_ND, stack_size>, boost::container::static_vector<edge_data_set<_ED>, stack_size>, T, error_check> {

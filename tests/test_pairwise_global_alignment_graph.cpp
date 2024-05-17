@@ -16,10 +16,10 @@ namespace {
                 })
             );
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, ListEdges) {
@@ -46,10 +46,10 @@ namespace {
                 })
             );
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, NodesExist) {
@@ -64,10 +64,10 @@ namespace {
             EXPECT_FALSE(g.has_node({1u, 3u}));
             EXPECT_FALSE(g.has_node({2u, 3u}));
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, RightEdgesExist) {
@@ -79,10 +79,10 @@ namespace {
             EXPECT_TRUE(g.has_edge({{1u, 1u}, {1u, 2u}}));
             EXPECT_FALSE(g.has_edge({{1u, 2u}, {1u, 3u}}));
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, DownEdgesExist) {
@@ -94,10 +94,10 @@ namespace {
             EXPECT_TRUE(g.has_edge({{0u, 2u}, {1u, 2u}}));
             EXPECT_FALSE(g.has_edge({{1u, 2u}, {2u, 2u}}));
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, DiagEdgesExist) {
@@ -109,10 +109,10 @@ namespace {
             EXPECT_FALSE(g.has_edge({{0u, 2u}, {1u, 3u}}));
             EXPECT_FALSE(g.has_edge({{1u, 2u}, {2u, 3u}}));
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, GetOutputs) {
@@ -168,10 +168,10 @@ namespace {
                 );
             }
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, GetInputs) {
@@ -227,10 +227,10 @@ namespace {
                 );
             }
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, GetOutputDegree) {
@@ -240,10 +240,10 @@ namespace {
             EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 2u } ), 1);
             EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 0u } ), 1);
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, GetInputDegree) {
@@ -253,9 +253,37 @@ namespace {
             EXPECT_EQ(g.get_in_degree(std::pair{ 0u, 2u } ), 1);
             EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 0u } ), 1);
         };
-        x(create_vector_grid<float>(2u, 3u));
-        x(create_array_grid<float, 2u, 3u>());
-        x(create_small_vector_grid<float, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<float, 2u, 3u>(2u, 3u));
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
+    }
+
+    TEST(PairwiseGlobalAlignmentGraphTest, BuildTest) {
+        auto weight_lookup {
+            [](const std::optional<std::reference_wrapper<const char>>& v_elem, const std::optional<std::reference_wrapper<const char>>& w_elem) {
+                if (v_elem == std::nullopt || w_elem == std::nullopt) {
+                    return -1.0;
+                } else if ((*v_elem).get() == (*w_elem).get()) {
+                    return 1.0;
+                } else {
+                    return 0.0;
+                }
+            }
+        };
+        auto x {
+            [](auto&& g) {
+                EXPECT_EQ(g.get_edge_data({{ 0u, 0u }, { 0u, 1u }}), -1.0);  // a and -
+                EXPECT_EQ(g.get_edge_data({{ 0u, 0u }, { 1u, 0u }}), -1.0);  // - and b
+                EXPECT_EQ(g.get_edge_data({{ 0u, 0u }, { 1u, 1u }}), 0.0);   // a and b
+                EXPECT_EQ(g.get_edge_data({{ 1u, 0u }, { 1u, 1u }}), -1.0);  // b and -
+                EXPECT_EQ(g.get_edge_data({{ 1u, 0u }, { 2u, 0u }}), -1.0);  // - and b
+                EXPECT_EQ(g.get_edge_data({{ 1u, 0u }, { 2u, 1u }}), 1.0);   // b and b
+            }
+        };
+        x(create_vector_and_assign<double, char>(std::string { "ab" }, std::string { "b" }, weight_lookup));
+        x(create_array_and_assign<double, char, 3u, 2u>(std::string { "ab" }, std::string { "b" }, weight_lookup));
+        x(create_small_vector_and_assign<double, char, 3u, 2u>(std::string { "ab" }, std::string { "b" }, weight_lookup));
+        x(create_static_vector_and_assign<double, char, 3u, 2u>(std::string { "ab" }, std::string { "b" }, weight_lookup));
     }
 }

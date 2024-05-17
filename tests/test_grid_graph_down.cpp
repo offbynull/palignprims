@@ -16,10 +16,10 @@ namespace {
                 })
             );
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
     TEST(GridGraphRightTest, ListEdges) {
@@ -40,10 +40,10 @@ namespace {
                 })
             );
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
     TEST(GridGraphRightTest, NodesExist) {
@@ -58,10 +58,10 @@ namespace {
             EXPECT_FALSE(g.has_node({1u, 3u}));
             EXPECT_FALSE(g.has_node({2u, 3u}));
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
     TEST(GridGraphRightTest, RightEdgesExist) {
@@ -73,10 +73,10 @@ namespace {
             EXPECT_FALSE(g.has_edge({{1u, 1u}, {1u, 2u}}));
             EXPECT_FALSE(g.has_edge({{1u, 2u}, {1u, 3u}}));
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
     TEST(GridGraphRightTest, DownEdgesExist) {
@@ -88,10 +88,10 @@ namespace {
             EXPECT_TRUE(g.has_edge({{0u, 2u}, {1u, 2u}}));
             EXPECT_FALSE(g.has_edge({{1u, 2u}, {2u, 2u}}));
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
     TEST(GridGraphRightTest, DiagEdgesExist) {
@@ -103,10 +103,10 @@ namespace {
             EXPECT_FALSE(g.has_edge({{0u, 2u}, {1u, 3u}}));
             EXPECT_FALSE(g.has_edge({{1u, 2u}, {2u, 3u}}));
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
     TEST(GridGraphRightTest, GetOutputs) {
@@ -158,10 +158,10 @@ namespace {
                 );
             }
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
     TEST(GridGraphRightTest, GetInputs) {
@@ -213,10 +213,10 @@ namespace {
                 );
             }
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
     TEST(GridGraphRightTest, GetOutputDegree) {
@@ -226,10 +226,10 @@ namespace {
             EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 2u } ), 1);
             EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 0u } ), 0);
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
     TEST(GridGraphRightTest, GetInputDegree) {
@@ -239,9 +239,9 @@ namespace {
             EXPECT_EQ(g.get_in_degree(std::pair{ 0u, 2u } ), 0);
             EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 0u } ), 1);
         };
-        x(create_vector_grid<std::string, std::string>(2u, 3u));
-        x(create_array_grid<std::string, std::string, 2u, 3u>());
-        x(create_small_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
-        x(create_static_vector_grid<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_vector<std::string, std::string>(2u, 3u));
+        x(create_array<std::string, std::string, 2u, 3u>());
+        x(create_small_vector<std::string, std::string, 2u, 3u>(2u, 3u));
+        x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 }

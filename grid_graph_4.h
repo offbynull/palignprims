@@ -15,8 +15,6 @@
 namespace offbynull::grid_graph::grid_graph {
     template<typename _ED>
     struct edge_data_set {
-        _ED right;
-        _ED down;
         _ED diag;
     };
 
@@ -35,6 +33,8 @@ namespace offbynull::grid_graph::grid_graph {
     private:
         _ND_CONTAINER nodes;
         _ED_CONTAINER edges;
+
+        _ED indel_ed;
 
         auto construct_full_edge(N n1, N n2) {
             return std::tuple<E, N, N, ED*> {
@@ -56,12 +56,21 @@ namespace offbynull::grid_graph::grid_graph {
             T _down_node_cnt,
             T _right_node_cnt,
             std::function<_ND_CONTAINER(T, T)> nd_container_creator,
-            std::function<_ED_CONTAINER(T, T)> ed_container_creator
+            std::function<_ED_CONTAINER(T, T)> ed_container_creator,
+            ED indel_data
         )
         : down_node_cnt{_down_node_cnt}
         , right_node_cnt{_right_node_cnt}
         , nodes{nd_container_creator(_down_node_cnt, _right_node_cnt)}
-        , edges{ed_container_creator(_down_node_cnt, _right_node_cnt)} {}
+        , edges{ed_container_creator(_down_node_cnt, _right_node_cnt)}
+        , indel_ed{indel_data} {}
+
+        grid_graph(
+            T _down_node_cnt,
+            T _right_node_cnt,
+            std::function<_ND_CONTAINER(T, T)> nd_container_creator,
+            std::function<_ED_CONTAINER(T, T)> ed_container_creator
+        ) : grid_graph{_down_node_cnt, _right_node_cnt, nd_container_creator, ed_container_creator, {}} {}
 
         void update_node_data(const N& node, ND&& data) {
             if constexpr (error_check) {
@@ -92,9 +101,9 @@ namespace offbynull::grid_graph::grid_graph {
             auto [n1_down, n1_right] = edge.first;
             auto [n2_down, n2_right] = edge.second;
             if (n1_down == n2_down && n1_right + 1u == n2_right) {
-                this->edges[to_raw_idx(n1_down, n1_right)].right = std::forward<ED>(data);
+                indel_ed = std::forward<ED>(data);
             } else if (n1_down + 1u == n2_down && n1_right == n2_right) {
-                this->edges[to_raw_idx(n1_down, n1_right)].down = std::forward<ED>(data);
+                indel_ed = std::forward<ED>(data);
             } else if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
                 this->edges[to_raw_idx(n1_down, n1_right)].diag = std::forward<ED>(data);;
             }
@@ -109,9 +118,9 @@ namespace offbynull::grid_graph::grid_graph {
             auto [n1_down, n1_right] = edge.first;
             auto [n2_down, n2_right] = edge.second;
             if (n1_down == n2_down && n1_right + 1u == n2_right) {
-                return this->edges[to_raw_idx(n1_down, n1_right)].right;
+                return indel_ed;
             } else if (n1_down + 1u == n2_down && n1_right == n2_right) {
-                return this->edges[to_raw_idx(n1_down, n1_right)].down;
+                return indel_ed;
             } else if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
                 return this->edges[to_raw_idx(n1_down, n1_right)].diag;
             }
@@ -372,7 +381,7 @@ namespace offbynull::grid_graph::grid_graph {
 
     template<typename _ND, typename _ED, typename T = unsigned int, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_vector_grid(T down_cnt, T right_cnt) {
+    auto create_vector(T down_cnt, T right_cnt) {
         size_t size = down_cnt * right_cnt;
         return grid_graph<_ND, _ED, std::vector<_ND>, std::vector<edge_data_set<_ED>>, T, error_check> {
             down_cnt,
@@ -384,7 +393,7 @@ namespace offbynull::grid_graph::grid_graph {
 
     template<typename _ND, typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_array_grid() {
+    auto create_array() {
         constexpr size_t size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
         return grid_graph<_ND, _ED, std::array<_ND, size>, std::array<edge_data_set<_ED>, size>, T, error_check> {
             STATIC_DOWN_CNT,
@@ -396,7 +405,7 @@ namespace offbynull::grid_graph::grid_graph {
 
     template<typename _ND, typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_small_vector_grid(T down_cnt, T right_cnt) {
+    auto create_small_vector(T down_cnt, T right_cnt) {
         constexpr size_t stack_size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
         size_t actual_size = down_cnt * right_cnt;
         return grid_graph<_ND, _ED, boost::container::small_vector<_ND, stack_size>, boost::container::small_vector<edge_data_set<_ED>, stack_size>, T, error_check> {
@@ -409,7 +418,7 @@ namespace offbynull::grid_graph::grid_graph {
 
     template<typename _ND, typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_static_vector_grid(T down_cnt, T right_cnt) {
+    auto create_static_vector(T down_cnt, T right_cnt) {
         constexpr size_t stack_size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
         size_t actual_size = down_cnt * right_cnt;
         return grid_graph<_ND, _ED, boost::container::static_vector<_ND, stack_size>, boost::container::static_vector<edge_data_set<_ED>, stack_size>, T, error_check> {

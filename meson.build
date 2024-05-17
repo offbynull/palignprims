@@ -1,12 +1,28 @@
 project('untitled', 'cpp',
-        version : '1.0.0',
+        version : '0.0.1',
         default_options : ['warning_level=everything', 'cpp_std=c++23'])
 
 
 boost_dep = dependency('boost', modules : ['container'])
-deps = [boost_dep]
-untitled = executable('untitled', ['main.cpp'], dependencies : deps, cpp_args : '-fconcepts-diagnostics-depth=9999', install : true)  # Upgrade meson and then enable cpp_debugstl : true
-test('test', untitled)
+
+example = executable(
+        'untitled',
+        ['main.cpp'],
+        dependencies : [boost_dep],
+        cpp_args : '-fconcepts-diagnostics-depth=9999',
+        install : true
+)
+test('test', example)
+
+
+library = shared_library(
+        'obnaligner',
+        sources: ['library.cpp'],
+        dependencies: [boost_dep],
+        install: true,
+        version: meson.project_version(),
+        soversion: meson.project_version()
+)
 
 
 gtest = subproject('gtest')
@@ -29,5 +45,10 @@ tests_src = [
         'tests/test_backtracker.cpp',
         'tests/test_global_aligner.cpp'
 ]
-test_exec = executable('gtest-all',  tests_src, dependencies : [boost_dep, gtest_dep, gmock_dep], cpp_args : ['-D_GLIBCXX_DEBUG'])
+test_exec = executable(
+        'gtest-all',
+        tests_src,
+        dependencies : [boost_dep, gtest_dep, gmock_dep],
+        cpp_args : ['-D_GLIBCXX_DEBUG']
+)
 test('gtest tests', test_exec)
