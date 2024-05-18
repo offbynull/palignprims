@@ -537,7 +537,7 @@ namespace offbynull::pairwise_aligner::extended_gap {
         const auto& v,  // random access container
         const auto& w,  // random access container
         const _ED gap_weight,
-        const std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> weight_lookup
+        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> && weight_lookup
     ) {
         static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
         if constexpr (error_check) {
@@ -569,54 +569,47 @@ namespace offbynull::pairwise_aligner::extended_gap {
         }
     }
 
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
-        WRITE FUNCTION BELOW CORRECTLY -- USE CODE ABOVE AND FILL IN;
     template<typename ELEM, typename T = unsigned int, bool error_check = true>
     std::optional<std::tuple<std::optional<std::reference_wrapper<const ELEM>>, std::optional<std::reference_wrapper<const ELEM>>>> edge_to_elements(
-        const std::pair<std::pair<T, T>, std::pair<T, T>>& e,  // edge
+        const std::pair<std::pair<T, T>, std::pair<T, T>>& edge,
         const auto& v,  // random access container
         const auto& w   // random access container
     ) {
-        // using N = std::pair<T, T>;
-        // using E = std::pair<N, N>;
-        if (e.type == edge_type::FREE_RIDE) {
+        const auto& [n1, n2] { edge };
+        const auto& [n1_layer, n1_down, n1_right] { n1 };
+        const auto& [n2_layer, n2_down, n2_right] { n2 };
+        if (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL) {  // match
+            if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
+                if constexpr (error_check) {
+                    if (n1_down >= v.size() or n1_right >= w.size()) {
+                        throw std::runtime_error("Out of bounds");
+                    }
+                }
+                return { { { v[n1_down] }, { w[n1_right] } } };
+            }
+        } else if ((n1_layer == layer::DOWN && n2_layer == layer::DOWN)  // extended indel
+            || (n1_layer == layer::DIAGONAL && n2_layer == layer::DOWN)) {  // indel
+            if (n1_down + 1u == n2_down && n1_right == n2_right) {
+                if constexpr (error_check) {
+                    if (n1_down >= v.size()) {
+                        throw std::runtime_error("Out of bounds");
+                    }
+                }
+                return { { { v[n1_down] }, std::nullopt } };
+            }
+        } else if ((n1_layer == layer::RIGHT && n2_layer == layer::RIGHT)  // extended indel
+            || (n1_layer == layer::DIAGONAL && n2_layer == layer::RIGHT)) {  // indel
+            if (n1_down == n2_down && n1_right + 1u == n2_right) {
+                if constexpr (error_check) {
+                    if (n1_right >= w.size()) {
+                        throw std::runtime_error("Out of bounds");
+                    }
+                }
+                return { { std::nullopt, { v[n1_down] } } };
+            }
+        } else if ((n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL)  // freeride
+            || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL)) {  // freeride
             return std::nullopt;
-        }
-        const auto& [n1, n2] {e};
-        const auto& [n1_down, n1_right] {n1.inner_edge};
-        const auto& [n2_down, n2_right] {n2.inner_edge};
-        if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
-            if constexpr (error_check) {
-                if (n1_down >= v.size() or n1_right >= w.size()) {
-                    throw std::runtime_error("Out of bounds");
-                }
-            }
-            return { { { v[n1_down] }, { w[n1_right] } } };
-        } else if (n1_down + 1u == n2_down && n1_right == n2_right) {
-            if constexpr (error_check) {
-                if (n1_down >= v.size()) {
-                    throw std::runtime_error("Out of bounds");
-                }
-            }
-            return { { { v[n1_down] }, std::nullopt } };
-        } else if (n1_down == n2_down && n1_right + 1u == n2_right) {
-            if constexpr (error_check) {
-                if (n1_right >= w.size()) {
-                    throw std::runtime_error("Out of bounds");
-                }
-            }
-            return { { std::nullopt, { v[n1_down] } } };
         }
         if constexpr (error_check) {
             throw std::runtime_error("Bad edge");
