@@ -1,11 +1,11 @@
-#include "grid_graph_right.h"
+#include "grid_graph.h"
 #include "gtest/gtest.h"
 #include <iostream>
 
-using namespace offbynull::grid_graph::grid_graph_right;
+using namespace offbynull::grid_graph::grid_graph;
 
 namespace {
-    TEST(GridGraphRightTest, ListNodes) {
+    TEST(GridGraphTest4, ListNodes) {
         auto x = [](auto&& g) {
             auto n = g.get_nodes();
             EXPECT_EQ(
@@ -22,7 +22,7 @@ namespace {
         x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
-    TEST(GridGraphRightTest, ListEdges) {
+    TEST(GridGraphTest4, ListEdges) {
         auto x = [](auto&& g) {
             using E = typename std::remove_reference_t<decltype(g)>::E;
 
@@ -37,7 +37,12 @@ namespace {
                     std::pair { std::pair{0u, 0u}, std::pair{0u, 1u} },
                     std::pair { std::pair{0u, 1u}, std::pair{0u, 2u} },
                     std::pair { std::pair{1u, 0u}, std::pair{1u, 1u} },
-                    std::pair { std::pair{1u, 1u}, std::pair{1u, 2u} }
+                    std::pair { std::pair{1u, 1u}, std::pair{1u, 2u} },
+                    std::pair { std::pair{0u, 0u}, std::pair{1u, 0u} },
+                    std::pair { std::pair{0u, 1u}, std::pair{1u, 1u} },
+                    std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} },
+                    std::pair { std::pair{0u, 0u}, std::pair{1u, 1u} },
+                    std::pair { std::pair{0u, 1u}, std::pair{1u, 2u} }
                 })
             );
         };
@@ -47,7 +52,7 @@ namespace {
         x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
-    TEST(GridGraphRightTest, NodesExist) {
+    TEST(GridGraphTest4, NodesExist) {
         auto x = [](auto&& g) {
             EXPECT_TRUE(g.has_node({0u, 0u}));
             EXPECT_TRUE(g.has_node({0u, 1u}));
@@ -65,7 +70,7 @@ namespace {
         x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
-    TEST(GridGraphRightTest, RightEdgesExist) {
+    TEST(GridGraphTest4, RightEdgesExist) {
         auto x = [](auto&& g) {
             EXPECT_TRUE(g.has_edge({{0u, 0u}, {0u, 1u}}));
             EXPECT_TRUE(g.has_edge({{0u, 1u}, {0u, 2u}}));
@@ -80,13 +85,13 @@ namespace {
         x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
-    TEST(GridGraphRightTest, DownEdgesExist) {
+    TEST(GridGraphTest4, DownEdgesExist) {
         auto x = [](auto&& g) {
-            EXPECT_FALSE(g.has_edge({{0u, 0u}, {1u, 0u}}));
+            EXPECT_TRUE(g.has_edge({{0u, 0u}, {1u, 0u}}));
             EXPECT_FALSE(g.has_edge({{1u, 0u}, {2u, 0u}}));
-            EXPECT_FALSE(g.has_edge({{0u, 1u}, {1u, 1u}}));
+            EXPECT_TRUE(g.has_edge({{0u, 1u}, {1u, 1u}}));
             EXPECT_FALSE(g.has_edge({{1u, 1u}, {2u, 1u}}));
-            EXPECT_FALSE(g.has_edge({{0u, 2u}, {1u, 2u}}));
+            EXPECT_TRUE(g.has_edge({{0u, 2u}, {1u, 2u}}));
             EXPECT_FALSE(g.has_edge({{1u, 2u}, {2u, 2u}}));
         };
         x(create_vector<std::string, std::string>(2u, 3u));
@@ -95,11 +100,11 @@ namespace {
         x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
-    TEST(GridGraphRightTest, DiagEdgesExist) {
+    TEST(GridGraphTest4, DiagEdgesExist) {
         auto x = [](auto&& g) {
-            EXPECT_FALSE(g.has_edge({{0u, 0u}, {1u, 1u}}));
+            EXPECT_TRUE(g.has_edge({{0u, 0u}, {1u, 1u}}));
             EXPECT_FALSE(g.has_edge({{1u, 0u}, {2u, 1u}}));
-            EXPECT_FALSE(g.has_edge({{0u, 1u}, {1u, 2u}}));
+            EXPECT_TRUE(g.has_edge({{0u, 1u}, {1u, 2u}}));
             EXPECT_FALSE(g.has_edge({{1u, 1u}, {2u, 2u}}));
             EXPECT_FALSE(g.has_edge({{0u, 2u}, {1u, 3u}}));
             EXPECT_FALSE(g.has_edge({{1u, 2u}, {2u, 3u}}));
@@ -110,7 +115,7 @@ namespace {
         x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
-    TEST(GridGraphRightTest, GetOutputs) {
+    TEST(GridGraphTest4, GetOutputs) {
         auto x = [](auto&& g) {
             using E = typename std::remove_reference_t<decltype(g)>::E;
 
@@ -122,7 +127,9 @@ namespace {
                 EXPECT_EQ(
                     actual,
                     (std::set<E> {
-                        std::pair { std::pair{0u, 0u}, std::pair{0u, 1u} }
+                        std::pair { std::pair{0u, 0u}, std::pair{0u, 1u} },
+                        std::pair { std::pair{0u, 0u}, std::pair{1u, 0u} },
+                        std::pair { std::pair{0u, 0u}, std::pair{1u, 1u} }
                     })
                 );
             }
@@ -143,7 +150,9 @@ namespace {
                 }
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {})
+                    (std::set<E> {
+                        std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} }
+                    })
                 );
             }
             {
@@ -165,7 +174,7 @@ namespace {
         x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
-    TEST(GridGraphRightTest, GetInputs) {
+    TEST(GridGraphTest4, GetInputs) {
         auto x = [](auto&& g) {
             using E = typename std::remove_reference_t<decltype(g)>::E;
 
@@ -187,7 +196,9 @@ namespace {
                 EXPECT_EQ(
                     actual,
                     (std::set<E> {
-                        std::pair { std::pair{1u, 1u}, std::pair{1u, 2u} }
+                        std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} },
+                        std::pair { std::pair{1u, 1u}, std::pair{1u, 2u} },
+                        std::pair { std::pair{0u, 1u}, std::pair{1u, 2u} }
                     })
                 );
             }
@@ -210,7 +221,9 @@ namespace {
                 }
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {})
+                    (std::set<E> {
+                        std::pair { std::pair{0u, 0u}, std::pair{1u, 0u} }
+                    })
                 );
             }
         };
@@ -220,11 +233,11 @@ namespace {
         x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
-    TEST(GridGraphRightTest, GetOutputDegree) {
+    TEST(GridGraphTest4, GetOutputDegree) {
         auto x = [](auto&& g) {
-            EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 0u } ), 1);
+            EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 0u } ), 3);
             EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 2u } ), 0);
-            EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 2u } ), 0);
+            EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 2u } ), 1);
             EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 0u } ), 1);
         };
         x(create_vector<std::string, std::string>(2u, 3u));
@@ -233,12 +246,12 @@ namespace {
         x(create_static_vector<std::string, std::string, 2u, 3u>(2u, 3u));
     }
 
-    TEST(GridGraphRightTest, GetInputDegree) {
+    TEST(GridGraphTest4, GetInputDegree) {
         auto x = [](auto&& g) {
             EXPECT_EQ(g.get_in_degree(std::pair{ 0u, 0u } ), 0);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 2u } ), 1);
+            EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 2u } ), 3);
             EXPECT_EQ(g.get_in_degree(std::pair{ 0u, 2u } ), 1);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 0u } ), 0);
+            EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 0u } ), 1);
         };
         x(create_vector<std::string, std::string>(2u, 3u));
         x(create_array<std::string, std::string, 2u, 3u>());

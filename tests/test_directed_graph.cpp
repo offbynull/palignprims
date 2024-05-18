@@ -1,4 +1,4 @@
-#include "directed_graph_2.h"
+#include "directed_graph.h"
 #include "gtest/gtest.h"
 
 namespace {

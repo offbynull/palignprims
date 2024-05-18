@@ -1,14 +1,23 @@
 #ifndef DIRECTED_GRAPH_H
 #define DIRECTED_GRAPH_H
 
+#include <ranges>
 #include <map>
 #include <set>
-#include <vector>
 #include <tuple>
 #include <stdexcept>
+#include <format>
+#include <string>
+#include <utility>
 
-template<typename N, typename ND, typename E, typename ED, bool error_check = true>
+template<typename _N, typename _ND, typename _E, typename _ED, bool error_check = true>
 class directed_graph {
+public:
+    using N = _N;
+    using ND = _ND;
+    using E = _E;
+    using ED = _ED;
+
 private:
     std::map<N, std::set<E>> node_outbound {};
     std::map<N, std::set<E>> node_inbound {};
@@ -16,7 +25,7 @@ private:
     std::map<E, std::tuple<N, N, ED>> edges {};
     
     template<typename K, typename V>
-    void del_map_key(std::map<K, V> &map, K key) {
+    void del_map_key(std::map<K, V> &map, const K& key) {
         auto iter = map.find(key);
         if (iter != map.end()) {
             map.erase(iter);
@@ -24,7 +33,7 @@ private:
     }
 
     template<typename V>
-    void del_set(std::set<V> &set, V val) {
+    void del_set(std::set<V> &set, const V& val) {
         auto iter = set.find(val);
         if (iter != set.end()) {
             set.erase(iter);
@@ -32,7 +41,7 @@ private:
     }
 
 public:
-    void insert_node(N node, ND data) {
+    void insert_node(const N& node, ND&& data) {
         if constexpr (error_check) {
             if (has_node(node)) {
                 throw std::runtime_error {"Node already exists"};
@@ -40,38 +49,44 @@ public:
         }
         this->node_outbound[node] = {};
         this->node_inbound[node] = {};
-        this->node_data[node] = data;
+        this->node_data[node] = std::forward<ND>(data);
     }
     
-    void delete_node(N node) {
+    void delete_node(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
-        std::set<E> outbound_copy = this->node_outbound[node];
-        for (auto edge_id : outbound_copy) {
+        std::set<E> outbound_copy = this->node_outbound[node]; // done to prevent concurrent modification problems
+        for (const auto& edge_id : outbound_copy) {
             auto& [from_node, to_node, _] = this->edges[edge_id];
             del_set(this->node_outbound[from_node], edge_id);
             del_set(this->node_inbound[to_node], edge_id);
             del_map_key(this->edges, edge_id);
         }
-        // _node_inbound mirrors _node_outbound, so you don"t have to do the above again for _node_inbound
+        std::set<E> inbound_copy = this->node_inbound[node]; // done to prevent concurrent modification problems
+        for (const auto& edge_id : inbound_copy) {
+            auto& [from_node, to_node, _] = this->edges[edge_id];
+            del_set(this->node_outbound[from_node], edge_id);
+            del_set(this->node_inbound[to_node], edge_id);
+            del_map_key(this->edges, edge_id);
+        }
         del_map_key(this->node_inbound, node);
         del_map_key(this->node_outbound, node);
         del_map_key(this->node_data, node);
     }
     
-    void update_node_data(N node, ND data) {
+    void update_node_data(const N& node, ND&& data) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
-        this->node_data[node] = data;
+        this->node_data[node] = std::forward<ND>(data);
     }
     
-    ND get_node_data(N node) {
+    ND& get_node_data(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
@@ -80,7 +95,7 @@ public:
         return this->node_data[node];
     }
     
-    void insert_node_between_edge(N new_node, ND new_node_data, E existing_edge, E from_edge, ED from_edge_data, E to_edge, ED to_edge_data) {
+    void insert_node_between_edge(const N& new_node, ND&& new_node_data, const E& existing_edge, const E& from_edge, ED&& from_edge_data, const E& to_edge, ED&& to_edge_data) {
         if constexpr (error_check) {
             if (has_node(new_node)) {
                 throw std::runtime_error {"Node already exists"};
@@ -95,14 +110,14 @@ public:
                 throw std::runtime_error {"To edge already exists"};
             }
         }
-        auto& [node_from, node_to, _] = this->get_edge(existing_edge);
-        this->insert_node(new_node, new_node_data);
-        this->delete_edge(existing_edge);
-        this->insert_edge(from_edge, node_from, new_node, from_edge_data);
-        this->insert_edge(to_edge, new_node, node_to, to_edge_data);
+        const auto& [node_from, node_to, _] = this->get_edge(existing_edge);
+        this->insert_node(new_node, std::forward<ND>(new_node_data));
+        this->insert_edge(from_edge, node_from, new_node, std::forward<ED>(from_edge_data));
+        this->insert_edge(to_edge, new_node, node_to, std::forward<ED>(to_edge_data));
+        this->delete_edge(existing_edge); // must happen at end, otherwise bad memory access
     }
 
-    void insert_edge(E edge, N from_node, N to_node, ED data) {
+    void insert_edge(const E& edge, const N& from_node, const N& to_node, ED&& data) {
         if constexpr (error_check) {
             if (!has_node(from_node)) {
                 throw std::runtime_error {"From node doesn't exist"};
@@ -114,26 +129,26 @@ public:
                 throw std::runtime_error {"Edge already exists"};
             }
         }
-        this->edges[edge] = std::tuple<N, N, ED> {from_node, to_node, data};
+        this->edges[edge] = std::tuple<N, N, ED> {from_node, to_node, std::forward<ED>(data)};
         this->node_inbound[to_node].insert(edge);
         this->node_outbound[from_node].insert(edge);
     }
 
-    void delete_edge(E edge, bool remove_from_if_isolated = false, bool remove_to_if_isolated = false) {
+    void delete_edge(const E& edge, bool remove_from_if_isolated = false, bool remove_to_if_isolated = false) {
         if constexpr (error_check) {
             if (!has_edge(edge)) {
                 throw std::runtime_error {"Edge doesn't exist"};
             }
         }
         auto& [from_node, to_node, _] = this->edges[edge];
-        if constexpr (error_check) {
-            if (!has_node(from_node)) {
-                throw std::runtime_error {"This should never happen"};
-            }
-            if (!has_node(to_node)) {
-                throw std::runtime_error {"This should never happen"};
-            }
-        }
+        // if constexpr (error_check) {
+        //     if (!has_node(from_node)) {
+        //         throw std::runtime_error {"This should never happen"};
+        //     }
+        //     if (!has_node(to_node)) {
+        //         throw std::runtime_error {"This should never happen"};
+        //     }
+        // }
         del_set(this->node_outbound[from_node], edge);
         del_set(this->node_inbound[to_node], edge);
         // from and to may be the same -- if they are, and you"ve removed the from, make sure you don"t try to remove to
@@ -157,18 +172,16 @@ public:
         del_map_key(this->edges, edge);
     }
 
-    void update_edge_data(E edge, ED data) {
+    void update_edge_data(const E& edge, ED&& data) {
         if constexpr (error_check) {
             if (!has_edge(edge)) {
                 throw std::runtime_error {"Edge doesn't exist"};
             }
         }
-        auto& [from_node, to_node, _] = this->edges[edge];
-        this->delete_edge(edge);
-        this->insert_edge(edge, from_node, to_node, data);
+        std::get<2>(this->edges[edge]) = std::forward<ED>(data);
     }
 
-    ED get_edge_data(E edge) {
+    ED& get_edge_data(const E& edge) {
         if constexpr (error_check) {
             if (!has_edge(edge)) {
                 throw std::runtime_error {"Edge doesn't exist"};
@@ -177,7 +190,7 @@ public:
         return std::get<2>(this->edges[edge]);
     }
 
-    N get_edge_from(E edge) {
+    const N& get_edge_from(const E& edge) {
         if constexpr (error_check) {
             if (!has_edge(edge)) {
                 throw std::runtime_error {"Edge doesn't exist"};
@@ -186,7 +199,7 @@ public:
         return std::get<0>(this->edges[edge]);
     }
 
-    N get_edge_to(E edge) {
+    const N& get_edge_to(const E& edge) {
         if constexpr (error_check) {
             if (!has_edge(edge)) {
                 throw std::runtime_error {"Edge doesn't exist"};
@@ -195,193 +208,174 @@ public:
         return std::get<1>(this->edges[edge]);
     }
 
-    std::tuple<N, N, ED> get_edge(E edge) {
+    std::tuple<const N&, const N&, ED&> get_edge(const E& edge) {
         if constexpr (error_check) {
             if (!has_edge(edge)) {
                 throw std::runtime_error {"Edge doesn't exist"};
             }
         }
-        return this->edges[edge];
+        auto& ref = edges[edge];
+        return std::tuple<const N&, const N&, ED&> {std::get<0>(ref), std::get<1>(ref), std::get<2>(ref)};
     }
 
-    std::vector<N> get_root_nodes() {
-        std::vector<N> ret {};
-        for (auto& n : this->get_nodes()) {
-            if (this->get_in_degree(n) == 0) {
-                ret.push_back(n);
-            }
-        }
+    auto get_root_nodes() {
+        auto ret { this->get_nodes() | std::views::filter([this](const auto& n) noexcept { return this->get_in_degree(n) == 0u; }) };
         return ret;
     }
 
-    N get_root_node() {
-        std::vector roots = std::vector(this->get_root_nodes());
-        if (roots.size() != 1) {
+    const N& get_root_node() {
+        auto range = this->get_root_nodes();
+        auto it = range.begin();
+        const N& ret = *it;
+        ++it;
+        if (it != range.end()) {
             throw std::runtime_error { "Exactly 1 root node required" };
         }
-        return roots[0];
-    }
-
-    std::vector<N> get_leaf_nodes() {
-        std::vector<N> ret {};
-        for (auto& n : this->get_nodes()) {
-            if (this->get_out_degree(n) == 0) {
-                ret.push_back(n);
-            }
-        }
         return ret;
     }
 
-    std::vector<N> get_nodes() {
-        std::vector<N> keys;
-        for (const auto& pair : this->node_outbound) {
-            keys.push_back(pair.first);
-        }
-        return keys;
+    auto get_leaf_nodes() {
+        auto ret { this->get_nodes() | std::views::filter([this](const auto& n) noexcept { return this->get_out_degree(n) == 0u; }) };
+        return ret;
     }
 
-    std::vector<E> get_edges() {
-        std::vector<E> keys;
-        for (const auto& pair : this->node_outbound) {
-            keys.push_back(pair.first);
-        }
-        return keys;
+    auto get_nodes() {
+        return this->node_outbound | std::views::transform([](auto& p) noexcept { return std::reference_wrapper<const N>(p.first); });
     }
 
-    bool has_node(N node) {
+    auto get_edges() {
+        return this->edges | std::views::transform([](auto& p) noexcept { return std::reference_wrapper<const E>(p.first); });
+    }
+
+    bool has_node(const N& node) {
         return this->node_outbound.contains(node);
     }
 
-    bool has_edge(E edge) {
+    bool has_edge(const E& edge) {
         return this->edges.contains(edge);
     }
 
-    std::vector<std::tuple<E, N, N, ED>> get_outputs_full(N node) {
+    auto get_outputs_full(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
-        std::vector<std::tuple<E, N, N, ED>> ret {};
-        for (auto& e : this->node_outbound[node]) {
-            auto& [from_node, to_node, edge_data] = this->get_edge(e);
-            ret.push_back(std::tuple<> {e, from_node, to_node, edge_data});
-        }
-        return ret;
+        return this->node_outbound[node] | std::views::transform([this](auto& e) noexcept {
+            const auto& [from_node, to_node, edge_data] = this->get_edge(e);
+            return std::tuple<const E&, const N&, const N&, ED&> {e, from_node, to_node, edge_data};
+        });
     }
 
-    std::tuple<E, N, N, ED> get_output_full(N node) {
+    std::tuple<const E&, const N&, const N&, ED&> get_output_full(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
         auto it = this->get_outputs_full(node).begin();
-        auto& ret = &it;
-        it++;
+        const auto& ret = *it;
+        ++it;
         if (it != this->get_outputs_full(node).end()) {
             throw std::runtime_error {"More than one edge exists"};
         }
         return ret;
     }
 
-    std::vector<std::tuple<E, N, N, ED>> get_inputs_full(N node) {
+    auto get_inputs_full(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
-        std::vector<std::tuple<E, N, N, ED>> ret {};
-        for (auto& e : this->node_inbound[node]) {
-            auto& [from_node, to_node, edge_data] = this->get_edge(e);
-            ret.push_back(std::tuple<> {e, from_node, to_node, edge_data});
-        }
-        return ret;
+        return this->node_inbound[node] | std::views::transform([this](auto& e) noexcept {
+            const auto& [from_node, to_node, edge_data] = this->get_edge(e);
+            return std::tuple<const E&, const N&, const N&, ED&> {e, from_node, to_node, edge_data};
+        });
     }
 
-    std::tuple<E, N, N, ED> get_input_full(N node) {
+    std::tuple<const E&, const N&, const N&, ED&> get_input_full(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
         auto it = this->get_inputs_full(node).begin();
-        auto& ret = &it;
-        it++;
-        if (it != this->get_outputs_full(node).end()) {
+        const auto& ret = *it;
+        ++it;
+        if (it != this->get_inputs_full(node).end()) {
             throw std::runtime_error {"More than one edge exists"};
         }
         return ret;
     }
 
-    std::vector<E> get_outputs(N node) {
+    auto get_outputs(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
-        auto& found = this->node_outbound[node];
-        return std::vector(found.begin(), found.end());
+        return this->node_outbound[node] | std::views::transform([this](auto& e) noexcept -> const E& { return e; });
     }
 
-    E get_output(N node) {
+    const E& get_output(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
         auto it = this->get_outputs(node).begin();
-        auto& ret = &it;
-        it++;
+        const auto& ret = *it;
+        ++it;
         if (it != this->get_outputs_full(node).end()) {
             throw std::runtime_error {"More than one edge exists"};
         }
         return ret;
     }
 
-    std::vector<E> get_inputs(N node) {
+    auto get_inputs(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
-        return this->node_inbound[node];
+        return this->node_inbound[node] | std::views::transform([this](auto& e) noexcept -> const E& { return e; });
     }
 
-    E get_input(N node) {
+    const E& get_input(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
         auto it = this->get_inputs(node).begin();
-        auto& ret = &it;
-        it++;
+        const auto& ret = *it;
+        ++it;
         if (it != this->get_outputs_full(node).end()) {
             throw std::runtime_error {"More than one edge exists"};
         }
         return ret;
     }
 
-    bool has_outputs(N node) {
+    bool has_outputs(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
-        return this->get_outputs(node).begin() != this->get_outputs(node).end();
+        return this->get_outputs(node).size() > 0u;
     }
 
-    bool has_inputs(N node) {
+    bool has_inputs(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
             }
         }
-        return this->get_inputs(node).begin() != this->get_inputs(node).end();
+        return this->get_inputs(node).size() > 0u;
     }
 
-    int get_out_degree(N node) {
+    size_t get_out_degree(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
@@ -390,7 +384,7 @@ public:
         return this->node_outbound[node].size();
     }
 
-    int get_in_degree(N node) {
+    size_t get_in_degree(const N& node) {
         if constexpr (error_check) {
             if (!has_node(node)) {
                 throw std::runtime_error {"Node doesn't exist"};
@@ -401,9 +395,9 @@ public:
 
     std::string to_string() {
         std::string out {};
-        for (auto node : this->get_nodes()) {
+        for (const N& node : this->get_nodes()) {
             out += std::format("node {}: {}\n", node, this->get_node_data(node));
-            for (auto edge : this->get_outputs(node)) {
+            for (const E& edge : this->get_outputs(node)) {
                 auto [from_node, to_node, edge_data] = this->get_edge(edge);
                 out += std::format("  edge {} pointing to node {}: {}\n", edge, to_node, edge_data);
             }
@@ -412,20 +406,13 @@ public:
     }
 };
 
-// template<>
-// struct std::formatter<directed_graph<std::string, std::string, std::string, std::string>> : std::formatter<std::string> {
-//     auto format(directed_graph<std::string, std::string, std::string, std::string> g, format_context& ctx) {
-//         std::string ret {"hi"};
-//         // for (auto node : g.get_nodes()) {
-//             // out += std::format("{}\n", node);
-//             // out += std::format("{}: {}\n", node, g.get_node_data(node));
-//             // for (auto edge : g.get_outputs(node)) {
-//             //     auto [from_node, to_node, edge_data] = g.get_edge(edge);
-//             //     out += std::format("    {} pointing to {}: {}\n", edge, to_node, edge_data);
-//             // }
-//         // }
-//         return format_to(ctx.out(), "{}", ret);
-//     }
-// };
+/*
+template<typename N, typename ND, typename E, typename ED>
+struct std::formatter<directed_graph<N, ND, E, ED>> : std::formatter<std::string> {
+    auto format(const directed_graph<N, ND, E, ED>& g, format_context& ctx) const {
+        return format_to(ctx.out(), "{}", g.to_string());  // WONT WORK WITHOUT MAKING to_string() CONST?
+    }
+};
+*/
 
 #endif //DIRECTED_GRAPH_H

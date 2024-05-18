@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 #include <functional>
-#include "grid_graph_4.h"
+#include "grid_graph.h"
 #include "utils.h"
 
 namespace offbynull::pairwise_aligner::local {
@@ -401,7 +401,7 @@ namespace offbynull::pairwise_aligner::local {
         auto& g,  // graph
         const auto& v,  // random access container
         const auto& w,  // random access container
-        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> && weight_lookup
+        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> weight_lookup
     ) {
         static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
         if constexpr (error_check) {
@@ -531,7 +531,7 @@ namespace offbynull::pairwise_aligner::local {
     auto create_vector_and_assign(
         const auto& v,  // range
         const auto& w,  // range
-        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> && weight_lookup
+        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> weight_lookup
     ) {
         static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
         auto v_node_cnt = v.size() + 1u;
@@ -546,7 +546,7 @@ namespace offbynull::pairwise_aligner::local {
     auto create_array_and_assign(
         const auto& v,  // range
         const auto& w,  // range
-        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> && weight_lookup
+        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> weight_lookup
     ) {
         static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
         auto v_node_cnt = v.size() + 1u;
@@ -566,7 +566,7 @@ namespace offbynull::pairwise_aligner::local {
     auto create_small_vector_and_assign(
         const auto& v,  // range
         const auto& w,  // range
-        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> && weight_lookup
+        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> weight_lookup
     ) {
         static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
         auto v_node_cnt = v.size() + 1u;
@@ -581,7 +581,7 @@ namespace offbynull::pairwise_aligner::local {
     auto create_static_vector_and_assign(
         const auto& v,  // range
         const auto& w,  // range
-        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> && weight_lookup
+        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> weight_lookup
     ) {
         static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
         auto v_node_cnt = v.size() + 1u;

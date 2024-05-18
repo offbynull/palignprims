@@ -30,20 +30,13 @@ gtest_dep = gtest.get_variable('gtest_dep')
 gmock_dep = gtest.get_variable('gmock_dep')
 tests_src = [
         'tests/gtest-all.cpp',
-        'tests/test_directed_graph_2.cpp',
-        'tests/test_grid_graph_2.cpp',
-        'tests/test_grid_graph_3.cpp',
-        'tests/test_grid_graph_4.cpp',
-        'tests/test_grid_graph_4.cpp',
-        'tests/test_grid_graph_right.cpp',
-        'tests/test_grid_graph_down.cpp',
-        'tests/test_grid_graph_diagonal.cpp',
+        'tests/test_directed_graph.cpp',
+        'tests/test_grid_graph.cpp',
         'tests/test_pairwise_local_alignment_graph.cpp',
         'tests/test_pairwise_global_alignment_graph.cpp',
         'tests/test_pairwise_fitting_alignment_graph.cpp',
         'tests/test_pairwise_extended_gap_alignment_graph.cpp',
         'tests/test_backtracker.cpp',
-        'tests/test_global_aligner.cpp'
 ]
 test_exec = executable(
         'gtest-all',
