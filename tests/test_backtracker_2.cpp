@@ -31,12 +31,10 @@ namespace {
         auto g { create_vector<ND, ED>(2u, 3u) };
         g.update_edge_data({ {0u, 0u}, {0u, 1u} }, -1.0); // this updates ALL indel edges
         g.update_edge_data({ {0u, 0u}, {1u, 1u} }, 3.0);
-        auto [path, weight] = *offbynull::aligner::backtracker::find_max_path(
+        auto [path, weight] = offbynull::aligner::backtracker::find_max_path(
             g,
             g.get_root_node(),
             *g.get_leaf_nodes().begin(),
-            [&g](N node, std::optional<double> weight, std::optional<E> edge) { g.update_node_data(node, { weight, edge }); },
-            [&g](N node) { return g.get_node_data(node); },
             [&g](E edge) { return g.get_edge_data(edge); }
         );
         for (const E& e : path) {
@@ -80,12 +78,10 @@ namespace {
         g.insert_edge(std::pair { std::pair{0u, 1u}, std::pair{1u, 2u} }, std::pair{0u, 1u}, std::pair{1u, 2u}, 0.0);
         g.update_edge_data({ {0u, 0u}, {0u, 1u} }, 1.1);
         g.update_edge_data({ {1u, 1u}, {1u, 2u} }, 1.4);
-        auto [path, weight] = *offbynull::aligner::backtracker::find_max_path(
+        auto [path, weight] = offbynull::aligner::backtracker::find_max_path(
             g,
             g.get_root_node(),
             *g.get_leaf_nodes().begin(),
-            [&g](N node, std::optional<double> weight, std::optional<E> edge) { g.update_node_data(node, { weight, edge }); },
-            [&g](N node) { return g.get_node_data(node); },
             [&g](E edge) { return g.get_edge_data(edge); }
         );
         for (const E& e : path) {
