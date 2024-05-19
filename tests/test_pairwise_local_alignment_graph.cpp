@@ -6,6 +6,66 @@
 using namespace offbynull::pairwise_aligner::local;
 
 namespace {
+    template<typename _ED, typename T = unsigned int, bool error_check = true>
+        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    auto create_vector(T down_cnt, T right_cnt) {
+        return pairwise_local_alignment_graph<
+            _ED,
+            T,
+            offbynull::graph::graph_helpers::VectorAllocator<node_data<_ED, T>, T>,
+            offbynull::graph::graph_helpers::VectorAllocator<_ED, T>,
+            error_check
+        > {
+            down_cnt,
+            right_cnt
+        };
+    }
+
+    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
+        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    auto create_array() {
+        return pairwise_local_alignment_graph<
+            _ED,
+            T,
+            offbynull::graph::graph_helpers::ArrayAllocator<node_data<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::graph::graph_helpers::ArrayAllocator<_ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            error_check
+        > {
+            STATIC_DOWN_CNT,
+            STATIC_RIGHT_CNT
+        };
+    }
+
+    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
+        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    auto create_small_vector(T down_cnt, T right_cnt) {
+        return pairwise_local_alignment_graph<
+            _ED,
+            T,
+            offbynull::graph::graph_helpers::StaticVectorAllocator<node_data<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::graph::graph_helpers::StaticVectorAllocator<_ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            error_check
+        > {
+            down_cnt,
+            right_cnt
+        };
+    }
+
+    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
+    requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    auto create_static_vector(T down_cnt, T right_cnt) {
+        return pairwise_local_alignment_graph<
+            _ED,
+            T,
+            offbynull::graph::graph_helpers::SmallVectorAllocator<node_data<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::graph::graph_helpers::SmallVectorAllocator<_ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            error_check
+        > {
+            down_cnt,
+            right_cnt
+        };
+    }
+
     TEST(PairwiseLocalAlignmentGraph, ListNodes) {
         auto x = [](auto&& g) {
             auto n = g.get_nodes();

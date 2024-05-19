@@ -6,13 +6,29 @@
 #include <format>
 
 namespace {
+    template<typename _ND, typename _ED, typename T = unsigned int, bool error_check = true>
+        requires std::is_integral_v<T> && std::is_unsigned_v<T>
+    auto create_vector(T down_cnt, T right_cnt) {
+        return offbynull::grid_graph::grid_graph::grid_graph<
+            _ND,
+            _ED,
+            T,
+            offbynull::graph::graph_helpers::VectorAllocator<_ND, T>,
+            offbynull::graph::graph_helpers::VectorAllocator<_ED, T>,
+            error_check
+        > {
+            down_cnt,
+            right_cnt
+        };
+    }
+
     TEST(BacktrackText, FindMaxPathOnGridGraph) {
         using N = std::pair<unsigned int, unsigned int>;
         using E = std::pair<N, N>;
         using ND = std::tuple<std::optional<double>, std::optional<E>>;
         using ED = double;
 
-        auto g { offbynull::grid_graph::grid_graph::create_vector<ND, ED>(2u, 3u) };
+        auto g { create_vector<ND, ED>(2u, 3u) };
         g.update_edge_data({ {0u, 0u}, {0u, 1u} }, -1.0); // this updates ALL indel edges
         g.update_edge_data({ {0u, 0u}, {1u, 1u} }, 3.0);
         auto [path, weight] = *find_max_path(

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <format>
-#include "directed_graph_2.h"
+#include "directed_graph.h"
 #include "pairwise_global_alignment_graph.h"
 
 void test_global() {

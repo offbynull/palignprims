@@ -5,6 +5,62 @@
 using namespace offbynull::pairwise_aligner::extended_gap;
 
 namespace {
+    template<typename _ED, typename T = unsigned int, bool error_check = true>
+        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    auto create_vector(T down_cnt, T right_cnt) {
+        return pairwise_extended_alignment_graph<
+            _ED,
+            T,
+            offbynull::graph::graph_helpers::VectorAllocator<slot<_ED, T>, T>,
+            error_check
+        > {
+            down_cnt,
+            right_cnt
+        };
+    }
+
+    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
+        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    auto create_array() {
+        return pairwise_extended_alignment_graph<
+            _ED,
+            T,
+            offbynull::graph::graph_helpers::ArrayAllocator<slot<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            error_check
+        > {
+            STATIC_DOWN_CNT,
+            STATIC_RIGHT_CNT
+        };
+    }
+
+    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
+        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    auto create_small_vector(T down_cnt, T right_cnt) {
+        return pairwise_extended_alignment_graph<
+            _ED,
+            T,
+            offbynull::graph::graph_helpers::StaticVectorAllocator<slot<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            error_check
+        > {
+            down_cnt,
+            right_cnt
+        };
+    }
+
+    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
+    requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    auto create_static_vector(T down_cnt, T right_cnt) {
+        return pairwise_extended_alignment_graph<
+            _ED,
+            T,
+            offbynull::graph::graph_helpers::SmallVectorAllocator<slot<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            error_check
+        > {
+            down_cnt,
+            right_cnt
+        };
+    }
+
     TEST(PairwiseExtendedGapAlignmentGraphTest, ListNodes) {
         auto x = [](auto&& g) {
             using N = typename std::remove_reference_t<decltype(g)>::N;

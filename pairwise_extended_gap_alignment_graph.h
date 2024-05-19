@@ -5,12 +5,12 @@
 #include <tuple>
 #include <stdexcept>
 #include <format>
-#include <string>
 #include <utility>
 #include <vector>
 #include <functional>
 #include "boost/container/static_vector.hpp"
 #include "boost/container/small_vector.hpp"
+#include "graph_helpers.h"
 #include "utils.h"
 
 namespace offbynull::pairwise_aligner::extended_gap {
@@ -20,7 +20,7 @@ namespace offbynull::pairwise_aligner::extended_gap {
         RIGHT
     };
 
-    template<typename _ED, typename T = unsigned int>
+    template<typename _ED, typename T>
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     class node_data {
     private:
@@ -32,7 +32,8 @@ namespace offbynull::pairwise_aligner::extended_gap {
         ED backtracking_weight;
     };
 
-    template<typename _ED, typename T = unsigned int>
+    template<typename _ED, typename T>
+        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     struct slot {
         using ED = _ED;
         using ND = node_data<_ED, T>;
@@ -45,7 +46,12 @@ namespace offbynull::pairwise_aligner::extended_gap {
         // freeride edges from down/right layers to diagonal layer all use the same _ED obj, so not placed here   
     };
 
-    template<typename _ED, typename _SLOT_CONTAINER, typename T = unsigned int, bool error_check = true>
+    template<
+        typename _ED,
+        typename T = unsigned int,
+        typename _SLOT_ALLOCATOR = offbynull::graph::graph_helpers::VectorAllocator<slot<_ED, T>, T, false>,
+        bool error_check = true
+    >
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     class pairwise_extended_alignment_graph {
     public:
@@ -55,7 +61,7 @@ namespace offbynull::pairwise_aligner::extended_gap {
         using ED = _ED;
 
     private:
-        _SLOT_CONTAINER slots;
+        decltype(std::declval<_SLOT_ALLOCATOR>().allocate(0u, 0u)) slots;
         _ED extended_indel_ed;
         _ED initial_indel_ed;
         _ED freeride_ed;
@@ -80,14 +86,14 @@ namespace offbynull::pairwise_aligner::extended_gap {
         pairwise_extended_alignment_graph(
             T _down_node_cnt,
             T _right_node_cnt,
-            std::function<_SLOT_CONTAINER(T, T)> slot_container_creator,
             ED initial_indel_weight = 0.0,
             ED extended_indel_weight = 0.0,
-            ED freeride_weight = 0.0
+            ED freeride_weight = 0.0,
+            _SLOT_ALLOCATOR slot_container_creator = {}
         )
         : down_node_cnt{_down_node_cnt}
         , right_node_cnt{_right_node_cnt}
-        , slots{slot_container_creator(_down_node_cnt, _right_node_cnt)}
+        , slots{slot_container_creator.allocate(_down_node_cnt, _right_node_cnt)}
         , initial_indel_ed{initial_indel_weight}
         , extended_indel_ed{extended_indel_weight}
         , freeride_ed{freeride_weight} {}
@@ -509,157 +515,90 @@ namespace offbynull::pairwise_aligner::extended_gap {
             return this->get_inputs(node).size();
         }
 
-        std::string to_string() {
-            std::string out {};
-            for (const N& node : this->get_nodes()) {
-                out += std::format("node {}: {}\n", node, this->get_node_data(node));
-                for (const E& edge : this->get_outputs(node)) {
-                    auto [from_node, to_node, edge_data] = this->get_edge(edge);
-                    out += std::format("  edge {} pointing to node {}: {}\n", edge, to_node, edge_data);
+        template<typename ELEM>
+        void assign_weights(
+            const auto& v,  // random access container
+            const auto& w,  // random access container
+            std::function<ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> && weight_lookup,
+            const ED gap_weight,
+            const ED freeride_weight = {}
+        ) {
+            static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
+            if constexpr (error_check) {
+                if (down_node_cnt != v.size() + 1u || right_node_cnt != w.size() + 1u) {
+                    throw std::runtime_error("Mismatching node count");
                 }
             }
-            return out;
-        }
-    };
-
-
-
-
-
-
-
-
-
-    template<typename _ED, typename ELEM, bool error_check = true>
-        requires std::is_floating_point_v<_ED>
-    void assign_weights(
-        auto& g,  // graph
-        const auto& v,  // random access container
-        const auto& w,  // random access container
-        const _ED gap_weight,
-        std::function<_ED(const std::optional<std::reference_wrapper<const ELEM>>&, const std::optional<std::reference_wrapper<const ELEM>>&)> && weight_lookup
-    ) {
-        static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
-        if constexpr (error_check) {
-            if (g.down_node_cnt != v.size() + 1u || g.right_node_cnt != w.size() + 1u) {
-                throw std::runtime_error("Mismatching node count");
+            for (const auto& edge : get_edges()) {
+                const auto& [n1, n2] { edge };
+                const auto& [n1_layer, n1_down, n1_right] { n1 };
+                const auto& [n2_layer, n2_down, n2_right] { n2 };
+                if ((n1_layer == layer::DOWN && n2_layer == layer::DOWN)
+                        || n1_layer == layer::RIGHT && n2_layer == layer::RIGHT) {  // gap
+                    update_edge_data(edge, gap_weight);
+                } else if ((n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL)
+                        || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL)) {  // freeride
+                    update_edge_data(edge, 0.0);
+                } else {
+                    std::optional<std::reference_wrapper<const ELEM>> v_elem { std::nullopt };
+                    if (n1_down + 1u == n2_down) {
+                        v_elem = { v[n1_down] };
+                    }
+                    std::optional<std::reference_wrapper<const ELEM>> w_elem { std::nullopt };
+                    if (n1_right + 1u == n2_right) {
+                        w_elem = { w[n1_right] };
+                    }
+                    update_edge_data(edge, weight_lookup(v_elem, w_elem));
+                }
             }
         }
-        for (const auto& edge : g.get_edges()) {
+
+        template<typename ELEM>
+        static std::optional<std::tuple<std::optional<std::reference_wrapper<const ELEM>>, std::optional<std::reference_wrapper<const ELEM>>>> edge_to_elements(
+            const E& edge,
+            const auto& v,  // random access container
+            const auto& w   // random access container
+        ) {
             const auto& [n1, n2] { edge };
             const auto& [n1_layer, n1_down, n1_right] { n1 };
             const auto& [n2_layer, n2_down, n2_right] { n2 };
-            if ((n1_layer == layer::DOWN && n2_layer == layer::DOWN)
-                    || n1_layer == layer::RIGHT && n2_layer == layer::RIGHT) {  // gap
-                g.update_edge_data(edge, gap_weight);
-            } else if ((n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL)
-                    || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL)) {  // freeride
-                g.update_edge_data(edge, 0.0);
-            } else {
-                std::optional<std::reference_wrapper<const ELEM>> v_elem { std::nullopt };
-                if (n1_down + 1u == n2_down) {
-                    v_elem = { v[n1_down] };
+            if (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL) {  // match
+                if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
+                    if constexpr (error_check) {
+                        if (n1_down >= v.size() or n1_right >= w.size()) {
+                            throw std::runtime_error("Out of bounds");
+                        }
+                    }
+                    return { { { v[n1_down] }, { w[n1_right] } } };
                 }
-                std::optional<std::reference_wrapper<const ELEM>> w_elem { std::nullopt };
-                if (n1_right + 1u == n2_right) {
-                    w_elem = { w[n1_right] };
+            } else if ((n1_layer == layer::DOWN && n2_layer == layer::DOWN)  // extended indel
+                || (n1_layer == layer::DIAGONAL && n2_layer == layer::DOWN)) {  // indel
+                if (n1_down + 1u == n2_down && n1_right == n2_right) {
+                    if constexpr (error_check) {
+                        if (n1_down >= v.size()) {
+                            throw std::runtime_error("Out of bounds");
+                        }
+                    }
+                    return { { { v[n1_down] }, std::nullopt } };
                 }
-                g.update_edge_data(edge, weight_lookup(v_elem, w_elem));
+            } else if ((n1_layer == layer::RIGHT && n2_layer == layer::RIGHT)  // extended indel
+                || (n1_layer == layer::DIAGONAL && n2_layer == layer::RIGHT)) {  // indel
+                if (n1_down == n2_down && n1_right + 1u == n2_right) {
+                    if constexpr (error_check) {
+                        if (n1_right >= w.size()) {
+                            throw std::runtime_error("Out of bounds");
+                        }
+                    }
+                    return { { std::nullopt, { v[n1_down] } } };
+                }
+            } else if ((n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL)  // freeride
+                || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL)) {  // freeride
+                return std::nullopt;
+            }
+            if constexpr (error_check) {
+                throw std::runtime_error("Bad edge");
             }
         }
-    }
-
-    template<typename ELEM, typename T = unsigned int, bool error_check = true>
-    std::optional<std::tuple<std::optional<std::reference_wrapper<const ELEM>>, std::optional<std::reference_wrapper<const ELEM>>>> edge_to_elements(
-        const std::pair<std::pair<T, T>, std::pair<T, T>>& edge,
-        const auto& v,  // random access container
-        const auto& w   // random access container
-    ) {
-        const auto& [n1, n2] { edge };
-        const auto& [n1_layer, n1_down, n1_right] { n1 };
-        const auto& [n2_layer, n2_down, n2_right] { n2 };
-        if (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL) {  // match
-            if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
-                if constexpr (error_check) {
-                    if (n1_down >= v.size() or n1_right >= w.size()) {
-                        throw std::runtime_error("Out of bounds");
-                    }
-                }
-                return { { { v[n1_down] }, { w[n1_right] } } };
-            }
-        } else if ((n1_layer == layer::DOWN && n2_layer == layer::DOWN)  // extended indel
-            || (n1_layer == layer::DIAGONAL && n2_layer == layer::DOWN)) {  // indel
-            if (n1_down + 1u == n2_down && n1_right == n2_right) {
-                if constexpr (error_check) {
-                    if (n1_down >= v.size()) {
-                        throw std::runtime_error("Out of bounds");
-                    }
-                }
-                return { { { v[n1_down] }, std::nullopt } };
-            }
-        } else if ((n1_layer == layer::RIGHT && n2_layer == layer::RIGHT)  // extended indel
-            || (n1_layer == layer::DIAGONAL && n2_layer == layer::RIGHT)) {  // indel
-            if (n1_down == n2_down && n1_right + 1u == n2_right) {
-                if constexpr (error_check) {
-                    if (n1_right >= w.size()) {
-                        throw std::runtime_error("Out of bounds");
-                    }
-                }
-                return { { std::nullopt, { v[n1_down] } } };
-            }
-        } else if ((n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL)  // freeride
-            || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL)) {  // freeride
-            return std::nullopt;
-        }
-        if constexpr (error_check) {
-            throw std::runtime_error("Bad edge");
-        }
-    }
-
-    template<typename _ED, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_vector(T down_cnt, T right_cnt) {
-        size_t size = down_cnt * right_cnt;
-        return pairwise_extended_alignment_graph<_ED, std::vector<slot<_ED, T>>, T, error_check> {
-            down_cnt,
-            right_cnt,
-            [size] (T, T) { return std::vector<slot<_ED, T>>(size); }
-        };
-    }
-
-    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_array() {
-        constexpr size_t size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
-        return pairwise_extended_alignment_graph<_ED, std::array<slot<_ED, T>, size>, T, error_check> {
-            STATIC_DOWN_CNT,
-            STATIC_RIGHT_CNT,
-            [] (T, T) { return std::array<slot<_ED, T>, size>{}; }
-        };
-    }
-
-    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_small_vector(T down_cnt, T right_cnt) {
-        constexpr size_t stack_size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
-        size_t actual_size = down_cnt * right_cnt;
-        return pairwise_extended_alignment_graph<_ED, boost::container::small_vector<slot<_ED, T>, stack_size>, T, error_check> {
-            down_cnt,
-            right_cnt,
-            [actual_size] (T, T) { return boost::container::small_vector<slot<_ED, T>, stack_size>(actual_size); }
-        };
-    }
-
-    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_static_vector(T down_cnt, T right_cnt) {
-        constexpr size_t stack_size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
-        size_t actual_size = down_cnt * right_cnt;
-        return pairwise_extended_alignment_graph<_ED, boost::container::static_vector<slot<_ED, T>, stack_size>, T, error_check> {
-            down_cnt,
-            right_cnt,
-            [actual_size] (T, T) { return boost::container::static_vector<slot<_ED, T>, stack_size>(actual_size); }
-        };
-    }
+    };
 }
 #endif //PAIRWISE_EXTENDED_GAP_ALIGNMENT_GRAPH_H
