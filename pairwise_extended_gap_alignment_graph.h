@@ -20,23 +20,11 @@ namespace offbynull::pairwise_aligner::extended_gap {
         RIGHT
     };
 
-    template<typename _ED, typename T>
-        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
-    class node_data {
-    private:
-        using N = std::tuple<layer, T, T>;
-        using E = std::pair<N, N>;
-        using ED = _ED;
-    public:
-        E backtracking_edge;
-        ED backtracking_weight;
-    };
-
-    template<typename _ED, typename T>
+    template<typename _ND, typename _ED, typename T>
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     struct slot {
         using ED = _ED;
-        using ND = node_data<_ED, T>;
+        using ND = _ND;
         ND down_nd;
         ND diagonal_nd;
         ND right_nd;
@@ -47,16 +35,17 @@ namespace offbynull::pairwise_aligner::extended_gap {
     };
 
     template<
+        typename _ND,
         typename _ED,
         typename T = unsigned int,
-        typename _SLOT_ALLOCATOR = offbynull::graph::graph_helpers::VectorAllocator<slot<_ED, T>, T, false>,
+        typename _SLOT_ALLOCATOR = offbynull::graph::graph_helpers::VectorAllocator<slot<_ND, _ED, T>, T, false>,
         bool error_check = true
     >
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     class pairwise_extended_alignment_graph {
     public:
         using N = std::tuple<layer, T, T>;
-        using ND = node_data<_ED, T>;
+        using ND = _ND;
         using E = std::pair<N, N>;
         using ED = _ED;
 

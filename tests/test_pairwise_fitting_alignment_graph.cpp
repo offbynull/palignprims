@@ -10,9 +10,10 @@ namespace {
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_vector(T down_cnt, T right_cnt) {
         return pairwise_fitting_alignment_graph<
+            std::tuple<>,
             _ED,
             T,
-            offbynull::graph::graph_helpers::VectorAllocator<node_data<_ED, T>, T>,
+            offbynull::graph::graph_helpers::VectorAllocator<std::tuple<>, T>,
             offbynull::graph::graph_helpers::VectorAllocator<_ED, T>,
             error_check
         > {
@@ -25,9 +26,10 @@ namespace {
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_array() {
         return pairwise_fitting_alignment_graph<
+            std::tuple<>,
             _ED,
             T,
-            offbynull::graph::graph_helpers::ArrayAllocator<node_data<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::graph::graph_helpers::ArrayAllocator<std::tuple<>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             offbynull::graph::graph_helpers::ArrayAllocator<_ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
@@ -40,9 +42,10 @@ namespace {
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_small_vector(T down_cnt, T right_cnt) {
         return pairwise_fitting_alignment_graph<
+            std::tuple<>,
             _ED,
             T,
-            offbynull::graph::graph_helpers::StaticVectorAllocator<node_data<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::graph::graph_helpers::StaticVectorAllocator<std::tuple<>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             offbynull::graph::graph_helpers::StaticVectorAllocator<_ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
@@ -55,9 +58,10 @@ namespace {
     requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_static_vector(T down_cnt, T right_cnt) {
         return pairwise_fitting_alignment_graph<
+            std::tuple<>,
             _ED,
             T,
-            offbynull::graph::graph_helpers::SmallVectorAllocator<node_data<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::graph::graph_helpers::SmallVectorAllocator<std::tuple<>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             offbynull::graph::graph_helpers::SmallVectorAllocator<_ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {

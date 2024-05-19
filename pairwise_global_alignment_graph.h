@@ -11,22 +11,11 @@
 #include "grid_graph.h"
 
 namespace offbynull::pairwise_aligner::global {
-    template<typename _ED, typename T>
-        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
-    class node_data {
-    private:
-        using N = std::pair<T, T>;
-        using E = std::pair<N, N>;
-        using ED = _ED;
-    public:
-        E backtracking_edge;
-        ED backtracking_weight;
-    };
-
     template<
+        typename _ND,
         typename _ED,
         typename T = unsigned int,
-        typename _ND_ALLOCATOR = offbynull::graph::graph_helpers::VectorAllocator<node_data<_ED, T>, T, false>,
+        typename _ND_ALLOCATOR = offbynull::graph::graph_helpers::VectorAllocator<_ND, T, false>,
         typename _ED_ALLOCATOR = offbynull::graph::graph_helpers::VectorAllocator<_ED, T, false>,
         bool error_check = true
     >
@@ -36,10 +25,10 @@ namespace offbynull::pairwise_aligner::global {
         using N = std::pair<T, T>;
         using E = std::pair<N, N>;
         using ED = _ED;
-        using ND = node_data<_ED, T>;
+        using ND = _ND;
 
     private:
-        offbynull::grid_graph::grid_graph::grid_graph<ND, _ED, T, _ND_ALLOCATOR, _ED_ALLOCATOR, error_check> g;
+        offbynull::grid_graph::grid_graph::grid_graph<ND, ED, T, _ND_ALLOCATOR, _ED_ALLOCATOR, error_check> g;
 
     public:
         const T down_node_cnt;

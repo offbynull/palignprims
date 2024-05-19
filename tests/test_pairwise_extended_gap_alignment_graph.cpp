@@ -9,9 +9,10 @@ namespace {
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_vector(T down_cnt, T right_cnt) {
         return pairwise_extended_alignment_graph<
+            std::tuple<>,
             _ED,
             T,
-            offbynull::graph::graph_helpers::VectorAllocator<slot<_ED, T>, T>,
+            offbynull::graph::graph_helpers::VectorAllocator<slot<std::tuple<>,_ED, T>, T>,
             error_check
         > {
             down_cnt,
@@ -23,9 +24,10 @@ namespace {
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_array() {
         return pairwise_extended_alignment_graph<
+            std::tuple<>,
             _ED,
             T,
-            offbynull::graph::graph_helpers::ArrayAllocator<slot<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::graph::graph_helpers::ArrayAllocator<slot<std::tuple<>, _ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             STATIC_DOWN_CNT,
@@ -37,9 +39,10 @@ namespace {
         requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_small_vector(T down_cnt, T right_cnt) {
         return pairwise_extended_alignment_graph<
+            std::tuple<>,
             _ED,
             T,
-            offbynull::graph::graph_helpers::StaticVectorAllocator<slot<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::graph::graph_helpers::StaticVectorAllocator<slot<std::tuple<>, _ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,
@@ -51,9 +54,10 @@ namespace {
     requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_static_vector(T down_cnt, T right_cnt) {
         return pairwise_extended_alignment_graph<
+            std::tuple<>,
             _ED,
             T,
-            offbynull::graph::graph_helpers::SmallVectorAllocator<slot<_ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::graph::graph_helpers::SmallVectorAllocator<slot<std::tuple<>, _ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,
