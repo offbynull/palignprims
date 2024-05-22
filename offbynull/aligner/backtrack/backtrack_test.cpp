@@ -1,4 +1,4 @@
-#include "offbynull/aligner/graph/graph_helpers.h"
+#include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/grid_allocators.h"
 #include "offbynull/aligner/graphs/grid_graph.h"
 #include "offbynull/aligner/graphs/directed_graph.h"

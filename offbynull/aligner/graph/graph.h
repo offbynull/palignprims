@@ -1,13 +1,11 @@
-#ifndef OFFBYNULL_ALIGNER_GRAPH_GRAPH_HELPERS_H
-#define OFFBYNULL_ALIGNER_GRAPH_GRAPH_HELPERS_H
+#ifndef OFFBYNULL_ALIGNER_GRAPH_GRAPH_H
+#define OFFBYNULL_ALIGNER_GRAPH_GRAPH_H
 
 #include <concepts>
 #include <iterator>
-#include <format>
-#include <string>
 #include <ranges>
 
-namespace offbynull::aligner::graph::graph_helpers {
+namespace offbynull::aligner::graph::graph {
     template<typename T, typename ... Ts>
     concept one_of = (std::same_as<T, Ts> || ...);
 
@@ -61,40 +59,6 @@ namespace offbynull::aligner::graph::graph_helpers {
             { g.get_out_degree(n) } -> std::same_as<size_t>;
             { g.get_in_degree(n) } -> std::same_as<size_t>;
         };
-
-    template <typename T, typename V>
-    concept random_access_range_of_type = std::ranges::random_access_range<T> && std::same_as<std::ranges::range_reference_t<T>, V&>;
-
-    template <typename T, typename SIZE_T>
-    concept allocator =
-        std::unsigned_integral<SIZE_T> &&
-        requires(T t, SIZE_T size) {
-            typename T::ELEM;
-            { t.allocate(size, size) } -> random_access_range_of_type<typename T::ELEM>;
-        };
-
-
-
-
-
-
-
-
-
-
-
-
-    std::string graph_to_string(const auto &g) {
-        std::string out {};
-        for (const auto& node : g.get_nodes()) {
-            out += std::format("node {}: {}\n", node, g.get_node_data(node));
-            for (const auto& edge : g.get_outputs(node)) {
-                auto [from_node, to_node, edge_data] = g.get_edge(edge);
-                out += std::format("  edge {} pointing to node {}: {}\n", edge, to_node, edge_data);
-            }
-        }
-        return out;
-    }
 }
 
-#endif //OFFBYNULL_ALIGNER_GRAPH_GRAPH_HELPERS_H
+#endif //OFFBYNULL_ALIGNER_GRAPH_GRAPH_H

@@ -1,4 +1,4 @@
-#include "offbynull/aligner/graph/graph_helpers.h"
+#include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/grid_allocators.h"
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 #include "gtest/gtest.h"
@@ -8,14 +8,14 @@ namespace {
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::layer;
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::slot;
 
-    template<typename _ED, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    template<typename ED, typename T = unsigned int, bool error_check = true>
+        requires std::is_floating_point_v<ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_vector(T down_cnt, T right_cnt) {
         return pairwise_extended_gap_alignment_graph<
             std::tuple<>,
-            _ED,
+            ED,
             T,
-            offbynull::aligner::graph::grid_allocators::VectorAllocator<slot<std::tuple<>,_ED, T>, T>,
+            offbynull::aligner::graph::grid_allocators::VectorAllocator<slot<std::tuple<>,ED, T>, T>,
             error_check
         > {
             down_cnt,
@@ -23,14 +23,14 @@ namespace {
         };
     }
 
-    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    template<typename ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
+        requires std::is_floating_point_v<ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_array() {
         return pairwise_extended_gap_alignment_graph<
             std::tuple<>,
-            _ED,
+            ED,
             T,
-            offbynull::aligner::graph::grid_allocators::ArrayAllocator<slot<std::tuple<>, _ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_allocators::ArrayAllocator<slot<std::tuple<>, ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             STATIC_DOWN_CNT,
@@ -38,14 +38,14 @@ namespace {
         };
     }
 
-    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    template<typename ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
+        requires std::is_floating_point_v<ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_small_vector(T down_cnt, T right_cnt) {
         return pairwise_extended_gap_alignment_graph<
             std::tuple<>,
-            _ED,
+            ED,
             T,
-            offbynull::aligner::graph::grid_allocators::StaticVectorAllocator<slot<std::tuple<>, _ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_allocators::StaticVectorAllocator<slot<std::tuple<>, ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,
@@ -53,14 +53,14 @@ namespace {
         };
     }
 
-    template<typename _ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-    requires std::is_floating_point_v<_ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    template<typename ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
+    requires std::is_floating_point_v<ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_static_vector(T down_cnt, T right_cnt) {
         return pairwise_extended_gap_alignment_graph<
             std::tuple<>,
-            _ED,
+            ED,
             T,
-            offbynull::aligner::graph::grid_allocators::SmallVectorAllocator<slot<std::tuple<>, _ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_allocators::SmallVectorAllocator<slot<std::tuple<>, ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,
@@ -70,7 +70,7 @@ namespace {
 
     TEST(PairwiseExtendedGapAlignmentGraphTest, ConceptCheck) {
         using G = pairwise_extended_gap_alignment_graph<std::string, std::string>;
-        static_assert(offbynull::aligner::graph::graph_helpers::readable_graph<G>);
+        static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
     }
 
     TEST(PairwiseExtendedGapAlignmentGraphTest, ListNodes) {

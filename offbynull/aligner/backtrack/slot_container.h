@@ -2,6 +2,7 @@
 #define OFFBYNULL_ALIGNER_BACKTRACK_SLOT_CONTAINER_H
 
 #include <cstddef>
+#include <iterator>
 #include "offbynull/aligner/backtrack/allocators.h"
 
 namespace offbynull::aligner::backtrack::slot_container {
@@ -11,6 +12,12 @@ namespace offbynull::aligner::backtrack::slot_container {
         size_t unwalked_parent_cnt;
         E backtracking_edge;
         double backtracking_weight;
+
+        slot(N node_, size_t unwalked_parent_cnt_)
+        : node{node_}
+        , unwalked_parent_cnt{unwalked_parent_cnt_}
+        , backtracking_edge{}
+        , backtracking_weight{} {}
     };
 
     template<
@@ -21,15 +28,15 @@ namespace offbynull::aligner::backtrack::slot_container {
     class slot_container {
     private:
         struct slots_comparator {
-            bool operator()(const slot<N, E>& lhs, const slot<N, E>& rhs) const {
+            bool operator()(const slot<N, E>& lhs, const slot<N, E>& rhs) const noexcept {
                 return lhs.node < rhs.node;
             }
 
-            bool operator()(const slot<N, E>& lhs, const N& rhs) const {
+            bool operator()(const slot<N, E>& lhs, const N& rhs) const noexcept {
                 return lhs.node < rhs;
             }
 
-            bool operator()(const N& lhs, const slot<N, E>& rhs) const {
+            bool operator()(const N& lhs, const slot<N, E>& rhs) const noexcept {
                 return lhs < rhs.node;
             }
         };
@@ -62,11 +69,12 @@ namespace offbynull::aligner::backtrack::slot_container {
 
         std::pair<size_t, slot<N, E>&> find(const auto& node) {
             auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
-            size_t idx { it - slots.begin() };
+            auto dist_from_beginning { std::ranges::distance(slots.begin(), it) };
+            size_t idx { static_cast<size_t>(dist_from_beginning) };
             slot<N, E>& slot { *it };
             return { idx, slot };
         }
     };
 }
 
-#endif //OFFBYNULL_ALIGNER_BACKTRACK_
+#endif //OFFBYNULL_ALIGNER_BACKTRACK_SLOT_CONTAINER_H

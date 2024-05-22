@@ -4,7 +4,6 @@
 #include <ranges>
 #include <tuple>
 #include <stdexcept>
-#include <format>
 #include <utility>
 #include "boost/container/static_vector.hpp"
 #include "offbynull/aligner/graph/grid_allocator.h"
@@ -15,28 +14,28 @@ namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::aligner::graph::grid_allocators::VectorAllocator;
 
     template<
-        typename _ND,
-        typename _ED,
+        typename ND_,
+        typename ED_,
         std::unsigned_integral T = unsigned int,
-        grid_allocator<T> _ND_ALLOCATOR = VectorAllocator<_ND, T, false>,
-        grid_allocator<T> _ED_ALLOCATOR = VectorAllocator<_ED, T, false>,
+        grid_allocator<T> ND_ALLOCATOR_ = VectorAllocator<ND_, T, false>,
+        grid_allocator<T> ED_ALLOCATOR_ = VectorAllocator<ED_, T, false>,
         bool error_check = true
     >
     class grid_graph {
     public:
         using N = std::pair<T, T>;
-        using ND = _ND;
+        using ND = ND_;
         using E = std::pair<N, N>;
-        using ED = _ED;
+        using ED = ED_;
 
         const T down_node_cnt;
         const T right_node_cnt;
 
     private:
-        decltype(std::declval<_ND_ALLOCATOR>().allocate(0u, 0u)) nodes;
-        decltype(std::declval<_ED_ALLOCATOR>().allocate(0u, 0u)) edges;
+        decltype(std::declval<ND_ALLOCATOR_>().allocate(0u, 0u)) nodes;
+        decltype(std::declval<ED_ALLOCATOR_>().allocate(0u, 0u)) edges;
 
-        _ED indel_ed;
+        ED_ indel_ed;
 
         auto construct_full_edge(N n1, N n2) {
             return std::tuple<E, N, N, ED*> {
@@ -57,9 +56,9 @@ namespace offbynull::aligner::graphs::grid_graph {
         grid_graph(
             T _down_node_cnt,
             T _right_node_cnt,
-            _ED indel_data = {},
-            _ND_ALLOCATOR nd_container_creator = {},
-            _ED_ALLOCATOR ed_container_creator = {}
+            ED indel_data = {},
+            ND_ALLOCATOR_ nd_container_creator = {},
+            ED_ALLOCATOR_ ed_container_creator = {}
         )
         : down_node_cnt{_down_node_cnt}
         , right_node_cnt{_right_node_cnt}
@@ -120,6 +119,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                 return this->edges[to_raw_idx(n1_down, n1_right)];
             }
             // throw std::runtime_error("This shouldn't happen if error checking is enabled");
+            std::unreachable();
         }
 
         N get_edge_from(const E& edge) {

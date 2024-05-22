@@ -6,17 +6,16 @@
 #include <set>
 #include <tuple>
 #include <stdexcept>
-#include <string>
 #include <utility>
 
 namespace offbynull::aligner::graphs::directed_graph {
-    template<typename _N, typename _ND, typename _E, typename _ED, bool error_check = true>
+    template<typename N_, typename ND_, typename E_, typename ED_, bool error_check = true>
     class directed_graph {
     public:
-        using N = _N;
-        using ND = _ND;
-        using E = _E;
-        using ED = _ED;
+        using N = N_;
+        using ND = ND_;
+        using E = E_;
+        using ED = ED_;
 
     private:
         std::map<N, std::set<E>> node_outbound {};

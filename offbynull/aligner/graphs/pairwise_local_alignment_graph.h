@@ -34,11 +34,11 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     };
 
     template<
-        typename _ND,
-        typename _ED,
+        typename ND_,
+        typename ED_,
         std::unsigned_integral T = unsigned int,
-        grid_allocator<T> _ND_ALLOCATOR = VectorAllocator<_ND, T, false>,
-        grid_allocator<T> _ED_ALLOCATOR = VectorAllocator<_ED, T, false>,
+        grid_allocator<T> ND_ALLOCATOR_ = VectorAllocator<ND_, T, false>,
+        grid_allocator<T> ED_ALLOCATOR_ = VectorAllocator<ED_, T, false>,
         bool error_check = true
     >
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
@@ -46,11 +46,11 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     public:
         using N = std::pair<T, T>;
         using E = edge<T>;
-        using ED = _ED;
-        using ND = _ND;
+        using ED = ED_;
+        using ND = ND_;
 
     private:
-        grid_graph<ND, ED, T, _ND_ALLOCATOR, _ED_ALLOCATOR, error_check> g;
+        grid_graph<ND, ED, T, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check> g;
         ED freeride_ed;
 
     public:
@@ -62,8 +62,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             T _right_node_cnt,
             ED indel_data = {},
             ED freeride_data = {},
-            _ND_ALLOCATOR nd_container_creator = {},
-            _ED_ALLOCATOR ed_container_creator = {}
+            ND_ALLOCATOR_ nd_container_creator = {},
+            ED_ALLOCATOR_ ed_container_creator = {}
         )
         : g{_down_node_cnt, _right_node_cnt, indel_data, nd_container_creator, ed_container_creator}
         , freeride_ed{freeride_data}

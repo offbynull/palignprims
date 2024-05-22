@@ -150,7 +150,6 @@ namespace offbynull::aligner::backtrack::backtrack {
             const typename G::N& end_node,
             std::function<double(typename G::E)> get_edge_weight_func
     ) {
-        using N = typename G::N;
         using E = typename G::E;
         auto slots {
             populate_weights_and_backtrack_pointers(

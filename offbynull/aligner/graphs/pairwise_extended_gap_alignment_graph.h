@@ -22,35 +22,33 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         RIGHT
     };
 
-    template<typename _ND, typename _ED, std::unsigned_integral T>
+    template<typename ND, typename ED, std::unsigned_integral T>
     struct slot {
-        using ED = _ED;
-        using ND = _ND;
         ND down_nd;
         ND diagonal_nd;
         ND right_nd;
         ED to_next_diagonal_ed;  // match edges between nodes in the diagonal layer
-        // gap edges between nodes in down/right layers all use the same _ED obj, so not placed here
-        // indel edges from diagonal layer to down/right layers all use the same _ED obj, so not placed here
-        // freeride edges from down/right layers to diagonal layer all use the same _ED obj, so not placed here   
+        // gap edges between nodes in down/right layers all use the same ED obj, so not placed here
+        // indel edges from diagonal layer to down/right layers all use the same ED obj, so not placed here
+        // freeride edges from down/right layers to diagonal layer all use the same ED obj, so not placed here
     };
 
     template<
-        typename _ND,
-        typename _ED,
+        typename ND_,
+        typename ED_,
         std::unsigned_integral T = unsigned int,
-        grid_allocator<T> _SLOT_ALLOCATOR = VectorAllocator<slot<_ND, _ED, T>, T, false>,
+        grid_allocator<T> SLOT_ALLOCATOR_ = VectorAllocator<slot<ND_, ED_, T>, T, false>,
         bool error_check = true
     >
     class pairwise_extended_gap_alignment_graph {
     public:
         using N = std::tuple<layer, T, T>;
-        using ND = _ND;
+        using ND = ND_;
         using E = std::pair<N, N>;
-        using ED = _ED;
+        using ED = ED_;
 
     private:
-        decltype(std::declval<_SLOT_ALLOCATOR>().allocate(0u, 0u)) slots;
+        decltype(std::declval<SLOT_ALLOCATOR_>().allocate(0u, 0u)) slots;
         ED extended_indel_ed;
         ED initial_indel_ed;
         ED freeride_ed;
@@ -78,7 +76,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             ED initial_indel_data = {},
             ED extended_indel_data = {},
             ED freeride_data = {},
-            _SLOT_ALLOCATOR slot_container_creator = {}
+            SLOT_ALLOCATOR_ slot_container_creator = {}
         )
         : down_node_cnt{_down_node_cnt}
         , right_node_cnt{_right_node_cnt}
