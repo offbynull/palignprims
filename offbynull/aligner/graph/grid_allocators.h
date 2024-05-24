@@ -13,18 +13,18 @@ namespace offbynull::aligner::graph::grid_allocators {
 
     template<typename ELEM_, typename T, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    class VectorAllocator {
+    class VectorGridAllocator {
     public:
         using ELEM = ELEM_;
         std::vector<ELEM> allocate(T down_node_cnt, T right_node_cnt) {
             return std::vector<ELEM>(down_node_cnt * right_node_cnt);
         }
     };
-    static_assert(grid_allocator<VectorAllocator<int, size_t>, size_t>);  // Sanity check
+    static_assert(grid_allocator<VectorGridAllocator<int, size_t>, size_t>);  // Sanity check
 
     template<typename ELEM_, typename T, T STATIC_DOWN_CNT, T STATIC_RIGHT_CNT, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    class ArrayAllocator {
+    class ArrayGridAllocator {
     private:
         static constexpr T size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
     public:
@@ -38,11 +38,11 @@ namespace offbynull::aligner::graph::grid_allocators {
             return std::array<ELEM, size>{};
         }
     };
-    static_assert(grid_allocator<ArrayAllocator<int, size_t, 0u, 0u>, size_t>);  // Sanity check
+    static_assert(grid_allocator<ArrayGridAllocator<int, size_t, 0u, 0u>, size_t>);  // Sanity check
 
     template<typename ELEM_, typename T, T STATIC_DOWN_CNT, T STATIC_RIGHT_CNT, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    class StaticVectorAllocator {
+    class StaticVectorGridAllocator {
     private:
         static constexpr T max_size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
     public:
@@ -56,11 +56,11 @@ namespace offbynull::aligner::graph::grid_allocators {
             return boost::container::static_vector<ELEM, max_size>(down_node_cnt * right_node_cnt);
         }
     };
-    static_assert(grid_allocator<StaticVectorAllocator<int, size_t, 0u, 0u>, size_t>);  // Sanity check
+    static_assert(grid_allocator<StaticVectorGridAllocator<int, size_t, 0u, 0u>, size_t>);  // Sanity check
 
     template<typename ELEM_, typename T, T STATIC_DOWN_CNT, T STATIC_RIGHT_CNT, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    class SmallVectorAllocator {
+    class SmallVectorGridAllocator {
     private:
         static constexpr T max_stack_size = STATIC_DOWN_CNT * STATIC_RIGHT_CNT;
     public:
@@ -69,7 +69,7 @@ namespace offbynull::aligner::graph::grid_allocators {
             return boost::container::small_vector<ELEM, max_stack_size>(down_node_cnt * right_node_cnt);
         }
     };
-    static_assert(grid_allocator<SmallVectorAllocator<int, size_t, 0u, 0u>, size_t>);  // Sanity check
+    static_assert(grid_allocator<SmallVectorGridAllocator<int, size_t, 0u, 0u>, size_t>);  // Sanity check
 }
 
 #endif //OFFBYNULL_ALIGNER_GRAPH_GRID_ALLOCATORS_H

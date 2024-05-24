@@ -15,8 +15,8 @@ namespace {
             _ND,
             _ED,
             T,
-            offbynull::aligner::graph::grid_allocators::VectorAllocator<_ND, T>,
-            offbynull::aligner::graph::grid_allocators::VectorAllocator<_ED, T>,
+            offbynull::aligner::graph::grid_allocators::VectorGridAllocator<_ND, T>,
+            offbynull::aligner::graph::grid_allocators::VectorGridAllocator<_ED, T>,
             error_check
         > {
             down_cnt,

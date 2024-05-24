@@ -1,16 +1,35 @@
 #include <iostream>
 #include <functional>
-#include <offbynull/aligner/backtrack/backtrack.h>
-#include <offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h>
-
+#include <utility>
+#include <stdfloat>
+#include "offbynull/aligner/backtrack/backtrack.h"
 #include "offbynull/aligner/graphs/pairwise_global_alignment_graph.h"
 #include "offbynull/aligner/graph/utils.h"
 
+using offbynull::aligner::backtrack::backtrack::find_max_path;
+using offbynull::aligner::backtrack::slot_container::slot;
+using offbynull::aligner::graph::graph::readable_graph;
+using offbynull::aligner::graph::grid_allocator::grid_allocator;
+using offbynull::aligner::graph::grid_allocators::VectorGridAllocator;
+using offbynull::aligner::graph::grid_allocators::ArrayGridAllocator;
+using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
+using offbynull::aligner::backtrack::allocator::allocator;
+using offbynull::aligner::backtrack::allocators::VectorAllocator;
+using offbynull::aligner::backtrack::allocators::ArrayAllocator;
+using offbynull::aligner::backtrack::allocators::StaticVectorAllocator;
+
+using ND = std::tuple<>;
+
+template<
+    bool error_check=true,
+    std::unsigned_integral INDEXER=std::size_t,
+    std::floating_point ED=std::float64_t
+>
 auto global(
     std::ranges::range auto&& v,
     std::ranges::range auto&& w,
     std::function<
-        double(
+        ED(
             const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
             const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
         )
@@ -18,20 +37,23 @@ auto global(
 ) {
     static_assert(!std::is_rvalue_reference_v<decltype(v)>, "v cannot be an rvalue reference: Function returns references into v, meaning v should continue to exist once function returns.");
     static_assert(!std::is_rvalue_reference_v<decltype(w)>, "w cannot be an rvalue reference: Function returns references into w, meaning w should continue to exist once function returns.");
-    using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
-    using offbynull::aligner::backtrack::backtrack::find_max_path;
 
-    pairwise_global_alignment_graph<std::tuple<>, double, size_t> graph { v.size() + 1u, w.size() + 1u };
-    // using N = decltype(graph)::N;
-    using E = decltype(graph)::E;
-    graph.assign_weights<double>(
+    using ND_ALLOCATOR=VectorGridAllocator<ND, INDEXER, error_check>;
+    using ED_ALLOCATOR=VectorGridAllocator<ED, INDEXER, error_check>;
+    pairwise_global_alignment_graph<ND, ED, INDEXER, ND_ALLOCATOR, ED_ALLOCATOR> graph { v.size() + 1u, w.size() + 1u };
+    graph.template assign_weights<ED>(
         v,
         w,
         weight_lookup,
-        [](double& edge_data, double weight) { edge_data = weight; }
+        [](ED& edge_data, ED weight) { edge_data = weight; }
     );
+    using G = decltype(graph);
+    using N = typename G::N;
+    using E = typename G::E;
+    using SLOT_ALLOCATOR=VectorAllocator<slot<N, E>, error_check>;
+    using PATH_ALLOCATOR=VectorAllocator<E, error_check>;
     auto [path, weight] {
-        find_max_path(
+        find_max_path<G, SLOT_ALLOCATOR, PATH_ALLOCATOR, error_check>(
             graph,
             graph.get_root_node(),
             *graph.get_leaf_nodes().begin(),
@@ -47,53 +69,107 @@ auto global(
     );
 }
 
-int main() {
-    std::string v { "hello" };
-    std::string w { "mellow" };
-    auto [elements, weight] {
-        global(
-            v,
-            w,
-            [](const auto& v_elem, const auto& w_elem) -> double {
-                if (!v_elem.has_value() || !w_elem.has_value()) {
-                    return 0.0;
-                }
-                return v_elem.value().get() == w_elem.value().get() ? 1.0 : 0.0;
-            }
+template<
+    typename V_ELEM,
+    std::size_t V_SIZE,
+    typename W_ELEM,
+    std::size_t W_SIZE,
+    bool error_check=true,
+    std::unsigned_integral INDEXER=std::size_t,
+    std::floating_point ED=std::float64_t
+>
+auto global_stack(
+    std::array<V_ELEM, V_SIZE>& v,
+    std::array<W_ELEM, W_SIZE>& w,
+    std::function<
+        ED(
+            const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
+            const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
+        )
+    > weight_lookup
+) {
+    static_assert(!std::is_rvalue_reference_v<decltype(v)>, "v cannot be an rvalue reference: Function returns references into v, meaning v should continue to exist once function returns.");
+    static_assert(!std::is_rvalue_reference_v<decltype(w)>, "w cannot be an rvalue reference: Function returns references into w, meaning w should continue to exist once function returns.");
+
+    constexpr INDEXER v_node_cnt { V_SIZE + 1u };
+    constexpr INDEXER w_node_cnt { W_SIZE + 1u };
+    // Create graph
+    using ND_ALLOCATOR=ArrayGridAllocator<ND, INDEXER, v_node_cnt, w_node_cnt, error_check>;
+    using ED_ALLOCATOR=ArrayGridAllocator<ED, INDEXER, v_node_cnt, w_node_cnt, error_check>;
+    pairwise_global_alignment_graph<ND, ED, INDEXER, ND_ALLOCATOR, ED_ALLOCATOR> graph { v_node_cnt, w_node_cnt };
+    graph.template assign_weights<ED>(
+        v,
+        w,
+        weight_lookup,
+        [](ED& edge_data, ED weight) { edge_data = weight; }
+    );
+    using G = decltype(graph);
+    using N = typename G::N;
+    using E = typename G::E;
+    // Find max path
+    using SLOT_ALLOCATOR=ArrayAllocator<slot<N, E>, G::node_count(v_node_cnt, w_node_cnt), error_check>;
+    using PATH_ALLOCATOR=StaticVectorAllocator<E, G::longest_path_edge_count(v_node_cnt, w_node_cnt), error_check>;
+    auto [path, weight] {
+        find_max_path<G, SLOT_ALLOCATOR, PATH_ALLOCATOR, error_check>(
+            graph,
+            graph.get_root_node(),
+            *graph.get_leaf_nodes().begin(),
+            [&](const E& e) { return graph.get_edge_data(e); }
         )
     };
-    std::string v_align {};
-    std::string w_align {};
-    for (const auto& [v_elem_opt, w_elem_opt] : elements) {
-        v_align += (v_elem_opt.has_value() ? *v_elem_opt : '-');
-        w_align += (w_elem_opt.has_value() ? *w_elem_opt : '-');
-    }
-    std::cout << v_align << std::endl;
-    std::cout << w_align << std::endl;
+    // Return
+    return std::make_pair(
+        std::move(path)
+            | std::views::transform([&](const auto& edge) { return graph.edge_to_elements(edge, v, w); })
+            | std::views::filter([](const auto& elem_pair) { return elem_pair.has_value(); })
+            | std::views::transform([](const auto& elem_pair) { return *elem_pair; }),
+        weight
+    );
+}
+
+int main() {
+    auto weight_lookup {
+        [](const auto& v_elem, const auto& w_elem) -> double {
+            if (!v_elem.has_value() || !w_elem.has_value()) {
+                return 0.0;
+            }
+            return v_elem.value().get() == w_elem.value().get() ? 1.0 : 0.0;
+        }
+    };
+    auto print {
+        [](auto& elements) {
+            std::string v_align {};
+            std::string w_align {};
+            for (const auto& [v_elem_opt, w_elem_opt] : elements) {
+                v_align += (v_elem_opt.has_value() ? *v_elem_opt : '-');
+                w_align += (w_elem_opt.has_value() ? *w_elem_opt : '-');
+            }
+            std::cout << v_align << std::endl;
+            std::cout << w_align << std::endl;
+        }
+    };
+
+    // dynamic
+    // std::string v { "hello" };
+    // std::string w { "mellow" };
+    // auto [elements, weight] {
+    //     global<false, std::size_t, std::float64_t>(
+    //         v,
+    //         w,
+    //         weight_lookup
+    //     )
+    // };
+    // static
+    std::array<char, 5> v { 'h', 'e', 'l', 'l', 'o' };
+    std::array<char, 6> w { 'm', 'e', 'l', 'l', 'o', 'w' };
+    auto [elements, weight] {
+        global_stack<char, 5u, char, 6u, false, std::size_t, std::float64_t>(
+            v,
+            w,
+            weight_lookup
+        )
+    };
+
+    print(elements);
     return 0;
-    // using offbynull::aligner::graph::utils::graph_to_string;
-    // using offbynull::aligner::graphs::directed_graph::directed_graph;
-    //
-    // directed_graph<std::string, std::string, std::string, std::string> g {};
-    //
-    // g.insert_node("A", "");
-    // g.insert_node("B", "");
-    // g.insert_node("C", "");
-    // g.insert_node("D", "");
-    // g.insert_edge("AB1", "A", "B", "MY EDGE DATA FOR 1st AB");
-    // g.insert_edge("AB2", "A", "B", "MY EDGE DATA FOR 2nd AB");
-    // g.insert_edge("BC", "B", "C", "");
-    // g.insert_edge("CD", "C", "D", "");
-    // g.insert_edge("AD", "A", "D", "");
-    // std::cout << std::format("{} {}", g.get_in_degree("A"), g.get_out_degree("A")) << std::endl;
-    // std::cout << std::format("{} {}", g.get_in_degree("B"), g.get_out_degree("B")) << std::endl;
-    // std::cout << std::format("{} {}", g.get_in_degree("C"), g.get_out_degree("C")) << std::endl;
-    // std::cout << std::format("{} {}", g.get_in_degree("D"), g.get_out_degree("D")) << std::endl;
-    // g.insert_node("E", "");
-    // g.insert_edge("DE", "D", "E", "");
-    // g.delete_edge("AD");
-    // // g.delete_edge("AC");  // error expected here
-    //
-    // std::cout << graph_to_string(g) << std::endl;
-    // return 0;
 }

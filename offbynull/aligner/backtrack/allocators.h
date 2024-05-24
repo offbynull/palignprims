@@ -41,7 +41,23 @@ namespace offbynull::aligner::backtrack::allocators {
         }
 
         std::array<ELEM, size> allocate(auto& begin, auto& end) {
-            return std::array<ELEM, size>(begin, end);
+            std::array<ELEM, size> ret;
+            if constexpr (error_check) {
+                auto it { begin };
+                size_t cnt {};
+                while (it != end) {
+                    ret[cnt] = *it;
+                    ++it;
+                    ++cnt;
+                }
+                if (cnt != size) {
+                    throw std::runtime_error("Unexpected number of elements");
+                }
+                return ret;
+            } else {
+                std::copy(begin, end, ret.begin());
+            }
+            return ret;
         }
     };
     static_assert(allocator<ArrayAllocator<int, 0u>>);  // Sanity check
@@ -57,7 +73,7 @@ namespace offbynull::aligner::backtrack::allocators {
                     throw std::runtime_error("Too many elements");
                 }
             }
-            return boost::container::static_vector<ELEM, max_size>(max_size);
+            return boost::container::static_vector<ELEM, max_size>();
         }
 
         boost::container::static_vector<ELEM, max_size> allocate(auto& begin, auto& end) {
@@ -78,7 +94,7 @@ namespace offbynull::aligner::backtrack::allocators {
         using ELEM = ELEM_;
 
         boost::container::small_vector<ELEM, max_stack_size> allocate(size_t cnt) {
-            return boost::container::small_vector<ELEM, max_stack_size>(cnt);
+            return boost::container::small_vector<ELEM, max_stack_size>();
         }
 
         boost::container::small_vector<ELEM, max_stack_size> allocate(auto& begin, auto& end) {

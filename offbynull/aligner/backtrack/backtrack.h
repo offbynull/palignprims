@@ -1,7 +1,6 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACK_BACKTRACK_H
 #define OFFBYNULL_ALIGNER_BACKTRACK_BACKTRACK_H
 
-#include <vector>
 #include <functional>
 #include <ranges>
 #include <algorithm>
@@ -31,7 +30,7 @@ namespace offbynull::aligner::backtrack::backtrack {
         {
             {n < n} -> std::same_as<bool>;
         }
-    slot_container<typename G::N, typename G::E> populate_weights_and_backtrack_pointers(
+    slot_container<typename G::N, typename G::E, SLOT_ALLOCATOR> populate_weights_and_backtrack_pointers(
             G& g,
             const typename G::N& from_node,
             std::function<double(typename G::E)> get_edge_weight_func
@@ -52,7 +51,7 @@ namespace offbynull::aligner::backtrack::backtrack {
             g.get_nodes()
             | std::views::transform([&](const auto& n) noexcept -> slot<N, E> { return { n, g.get_in_degree(n) }; })
         };
-        slot_container<N, E, SLOT_ALLOCATOR> slots(slots_lazy.begin(), slots_lazy.end());
+        slot_container<N, E, SLOT_ALLOCATOR> slots {slots_lazy.begin(), slots_lazy.end()};
         // Create "ready_idxes" queue
         // --------------------------
         // The "ready_idxes" queue contains indicies within "slots" that are ready-to-process (node in that slot has had all
@@ -136,7 +135,7 @@ namespace offbynull::aligner::backtrack::backtrack {
     template<
         readable_graph G,
         allocator SLOT_ALLOCATOR,
-        allocator PATH_ALLOCATOR=VectorAllocator<typename G::E>
+        allocator PATH_ALLOCATOR
     >
     range_of_type<typename G::E> auto backtrack(
             G& g,
@@ -162,18 +161,6 @@ namespace offbynull::aligner::backtrack::backtrack {
         // (from first to last).
         std::reverse(path.begin(), path.end());
         return path;
-    }
-
-    template<
-        readable_graph G,
-        allocator SLOT_ALLOCATOR
-    >
-    std::vector<typename G::E> backtrack(
-            G& g,
-            slot_container<typename G::N, typename G::E, SLOT_ALLOCATOR>& slots,
-            const typename G::N& end_node
-    ) {
-        return backtrack<G, SLOT_ALLOCATOR, VectorAllocator<typename G::E>>(g, slots, end_node, 0u, {});
     }
 
     template<

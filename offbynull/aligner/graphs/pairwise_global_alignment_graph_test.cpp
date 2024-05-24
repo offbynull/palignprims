@@ -13,8 +13,8 @@ namespace {
             std::tuple<>,
             ED,
             T,
-            offbynull::aligner::graph::grid_allocators::VectorAllocator<std::tuple<>, T>,
-            offbynull::aligner::graph::grid_allocators::VectorAllocator<ED, T>,
+            offbynull::aligner::graph::grid_allocators::VectorGridAllocator<std::tuple<>, T>,
+            offbynull::aligner::graph::grid_allocators::VectorGridAllocator<ED, T>,
             error_check
         > {
             down_cnt,
@@ -29,8 +29,8 @@ namespace {
             std::tuple<>,
             ED,
             T,
-            offbynull::aligner::graph::grid_allocators::ArrayAllocator<std::tuple<>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
-            offbynull::aligner::graph::grid_allocators::ArrayAllocator<ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_allocators::ArrayGridAllocator<std::tuple<>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_allocators::ArrayGridAllocator<ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             STATIC_DOWN_CNT,
@@ -45,8 +45,8 @@ namespace {
             std::tuple<>,
             ED,
             T,
-            offbynull::aligner::graph::grid_allocators::StaticVectorAllocator<std::tuple<>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
-            offbynull::aligner::graph::grid_allocators::StaticVectorAllocator<ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_allocators::StaticVectorGridAllocator<std::tuple<>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_allocators::StaticVectorGridAllocator<ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,
@@ -61,8 +61,8 @@ namespace {
             std::tuple<>,
             ED,
             T,
-            offbynull::aligner::graph::grid_allocators::SmallVectorAllocator<std::tuple<>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
-            offbynull::aligner::graph::grid_allocators::SmallVectorAllocator<ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_allocators::SmallVectorGridAllocator<std::tuple<>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_allocators::SmallVectorGridAllocator<ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,

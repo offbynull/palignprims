@@ -24,6 +24,13 @@ namespace offbynull::aligner::backtrack::slot_container {
         , unwalked_parent_cnt{unwalked_parent_cnt_}
         , backtracking_edge{}
         , backtracking_weight{} {}
+
+
+        slot()
+        : node{}
+        , unwalked_parent_cnt{}
+        , backtracking_edge{}
+        , backtracking_weight{} {}
     };
 
     template<
@@ -60,6 +67,7 @@ namespace offbynull::aligner::backtrack::slot_container {
                 slots_comparator{}
             );
         }
+
         size_t find_idx(const N& node){
             auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
             return it - slots.begin();

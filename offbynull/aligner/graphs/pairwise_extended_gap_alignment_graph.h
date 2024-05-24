@@ -14,7 +14,7 @@
 
 namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::aligner::graph::grid_allocator::grid_allocator;
-    using offbynull::aligner::graph::grid_allocators::VectorAllocator;
+    using offbynull::aligner::graph::grid_allocators::VectorGridAllocator;
     using offbynull::utils::concat_view;
 
     enum class layer : uint8_t {
@@ -38,7 +38,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         typename ND_,
         typename ED_,
         std::unsigned_integral T = unsigned int,
-        grid_allocator<T> SLOT_ALLOCATOR_ = VectorAllocator<slot<ND_, ED_, T>, T, false>,
+        grid_allocator<T> SLOT_ALLOCATOR_ = VectorGridAllocator<slot<ND_, ED_, T>, T, false>,
         bool error_check = true
     >
     class pairwise_extended_gap_alignment_graph {
@@ -507,13 +507,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return this->get_inputs(node).size();
         }
 
-        template<typename ELEM, typename F=double>
-            requires std::is_floating_point_v<F>
+        template<std::floating_point F=double>
         void assign_weights(
             const auto& v,  // random access container
             const auto& w,  // random access container
             std::function<
-                double(
+                F(
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
                 )
@@ -522,7 +521,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             const F gap_weight = {},
             const F freeride_weight = {}
         ) {
-            static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
+            using V_ELEM = std::decay_t<decltype(*v.begin())>;
+            using W_ELEM = std::decay_t<decltype(*w.begin())>;
             if constexpr (error_check) {
                 if (down_node_cnt != v.size() + 1u || right_node_cnt != w.size() + 1u) {
                     throw std::runtime_error("Mismatching node count");
@@ -541,11 +541,11 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     ED& ed { get_edge_data(edge) };
                     weight_setter(ed, freeride_weight);
                 } else {
-                    std::optional<std::reference_wrapper<const ELEM>> v_elem { std::nullopt };
+                    std::optional<std::reference_wrapper<const V_ELEM>> v_elem { std::nullopt };
                     if (n1_down + 1u == n2_down) {
                         v_elem = { v[n1_down] };
                     }
-                    std::optional<std::reference_wrapper<const ELEM>> w_elem { std::nullopt };
+                    std::optional<std::reference_wrapper<const W_ELEM>> w_elem { std::nullopt };
                     if (n1_right + 1u == n2_right) {
                         w_elem = { w[n1_right] };
                     }
@@ -605,6 +605,62 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             if constexpr (error_check) {
                 throw std::runtime_error("Bad edge");
             }
+        }
+
+        constexpr static T node_count(
+            T _down_node_cnt,
+            T _right_node_cnt
+        ) {
+            T node_cnt {};
+            node_cnt += _down_node_cnt * _right_node_cnt; // Middle layer
+            node_cnt += (_down_node_cnt - 1u) * _right_node_cnt; // Down gap layer
+            node_cnt += _down_node_cnt * (_right_node_cnt - 1u); // Right gap layer
+            return node_cnt;
+        }
+
+        constexpr static T edge_count(
+            T _down_node_cnt,
+            T _right_node_cnt
+        ) {
+            T edge_cnt {};
+            // Middle layer
+            {
+                // Start off by assuming each node has 3 outgoing edges.
+                T middle_edge_cnt { (_down_node_cnt * _right_node_cnt) * 3u };
+                // The leaf node doesn't have any outgoing edges, so adjust for that.
+                middle_edge_cnt -= 3u;
+                // The right-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
+                if (_down_node_cnt > 1u) {
+                    middle_edge_cnt -= (_down_node_cnt - 1u) * 2u;
+                }
+                // The down-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
+                if (_right_node_cnt > 1u) {
+                    middle_edge_cnt -= (_right_node_cnt - 1u) * 2u;
+                }
+                edge_cnt += middle_edge_cnt;
+            }
+            // Down gap layer
+            {
+                // Start off by assuming each node has 2 outgoing edges (freeride + gap).
+                // Technically the nodes start at down index of 1 (down index 0 has no nodes), so adjust for that.
+                T down_gap_edge_cnt { ((_down_node_cnt - 1u) * _right_node_cnt) * 2u };
+                edge_cnt += down_gap_edge_cnt;
+            }
+            // Right gap layer
+            {
+                // Start off by assuming each node has 2 outgoing edges (freeride + gap).
+                // Technically the nodes start at right index of 1 (right index 0 has no nodes), so adjust for that.
+                T right_gap_edge_cnt { (_down_node_cnt * (_right_node_cnt - 1u)) * 2u };
+                edge_cnt += right_gap_edge_cnt;
+            }
+            return edge_cnt;
+        }
+
+        constexpr static T longest_path_edge_count(
+            T _down_node_cnt,
+            T _right_node_cnt
+        ) {
+            return (_right_node_cnt - 1u) * 2u + (_down_node_cnt - 1u) * 2u;
         }
     };
 }

@@ -11,14 +11,14 @@
 
 namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::aligner::graph::grid_allocator::grid_allocator;
-    using offbynull::aligner::graph::grid_allocators::VectorAllocator;
+    using offbynull::aligner::graph::grid_allocators::VectorGridAllocator;
 
     template<
         typename ND_,
         typename ED_,
         std::unsigned_integral T = unsigned int,
-        grid_allocator<T> ND_ALLOCATOR_ = VectorAllocator<ND_, T, false>,
-        grid_allocator<T> ED_ALLOCATOR_ = VectorAllocator<ED_, T, false>,
+        grid_allocator<T> ND_ALLOCATOR_ = VectorGridAllocator<ND_, T, false>,
+        grid_allocator<T> ED_ALLOCATOR_ = VectorGridAllocator<ED_, T, false>,
         bool error_check = true
     >
     class grid_graph {
@@ -361,6 +361,39 @@ namespace offbynull::aligner::graphs::grid_graph {
                 }
             }
             return this->get_inputs(node).size();
+        }
+
+        constexpr static T node_count(
+            T _down_node_cnt,
+            T _right_node_cnt
+        ) {
+            return _down_node_cnt * _right_node_cnt;
+        }
+
+        constexpr static T edge_count(
+            T _down_node_cnt,
+            T _right_node_cnt
+        ) {
+            // Start off by assuming each node has 3 outgoing edges.
+            T edge_cnt { (_down_node_cnt * _right_node_cnt) * 3u };
+            // The leaf node doesn't have any outgoing edges, so adjust for that.
+            edge_cnt -= 3u;
+            // The right-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
+            if (_down_node_cnt > 1u) {
+                edge_cnt -= (_down_node_cnt - 1u) * 2u;
+            }
+            // The down-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
+            if (_right_node_cnt > 1u) {
+                edge_cnt -= (_right_node_cnt - 1u) * 2u;
+            }
+            return edge_cnt;
+        }
+
+        constexpr static T longest_path_edge_count(
+            T _down_node_cnt,
+            T _right_node_cnt
+        ) {
+            return (_right_node_cnt - 1u) + (_down_node_cnt - 1u);
         }
     };
 }

@@ -15,7 +15,7 @@
 namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     using offbynull::aligner::graphs::grid_graph::grid_graph;
     using offbynull::aligner::graph::grid_allocator::grid_allocator;
-    using offbynull::aligner::graph::grid_allocators::VectorAllocator;
+    using offbynull::aligner::graph::grid_allocators::VectorGridAllocator;
     using offbynull::utils::concat_view;
 
     enum class edge_type : uint8_t {
@@ -37,8 +37,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         typename ND_,
         typename ED_,
         std::unsigned_integral T = unsigned int,
-        grid_allocator<T> ND_ALLOCATOR_ = VectorAllocator<ND_, T, false>,
-        grid_allocator<T> ED_ALLOCATOR_ = VectorAllocator<ED_, T, false>,
+        grid_allocator<T> ND_ALLOCATOR_ = VectorGridAllocator<ND_, T, false>,
+        grid_allocator<T> ED_ALLOCATOR_ = VectorGridAllocator<ED_, T, false>,
         bool error_check = true
     >
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
@@ -387,13 +387,12 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             return this->get_inputs(node).size();
         }
 
-        template<typename ELEM, typename F=double>
-            requires std::is_floating_point_v<F>
+        template<std::floating_point F=double>
         void assign_weights(
             const auto& v,  // random access container
             const auto& w,  // random access container
             std::function<
-                double(
+                F(
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
                 )
@@ -401,7 +400,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             std::function<void(ED&, F weight)> weight_setter,
             const F freeride_weight = {}
         ) {
-            static_assert(std::is_same_v<ELEM, std::decay_t<decltype(*v.begin())>>, "ELEM is wrong");
+            using V_ELEM = std::decay_t<decltype(*v.begin())>;
+            using W_ELEM = std::decay_t<decltype(*w.begin())>;
             if constexpr (error_check) {
                 if (down_node_cnt != v.size() + 1u || right_node_cnt != w.size() + 1u) {
                     throw std::runtime_error("Mismatching node count");
@@ -415,11 +415,11 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     const auto& [n1, n2] { edge.inner_edge };
                     const auto& [n1_down, n1_right] { n1 };
                     const auto& [n2_down, n2_right] { n2 };
-                    std::optional<std::reference_wrapper<const ELEM>> v_elem { std::nullopt };
+                    std::optional<std::reference_wrapper<const V_ELEM>> v_elem { std::nullopt };
                     if (n1_down + 1u == n2_down) {
                         v_elem = { v[n1_down] };
                     }
-                    std::optional<std::reference_wrapper<const ELEM>> w_elem { std::nullopt };
+                    std::optional<std::reference_wrapper<const W_ELEM>> w_elem { std::nullopt };
                     if (n1_right + 1u == n2_right) {
                         w_elem = { w[n1_right] };
                     }
@@ -472,6 +472,33 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             if constexpr (error_check) {
                 throw std::runtime_error("Bad edge");
             }
+        }
+
+        constexpr static T node_count(
+            T _down_node_cnt,
+            T _right_node_cnt
+        ) {
+            return grid_graph<ND, ED, T, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::node_count(
+                _down_node_cnt, _right_node_cnt
+            );
+        }
+
+        constexpr static T edge_count(
+            T _down_node_cnt,
+            T _right_node_cnt
+        ) {
+            return grid_graph<ND, ED, T, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::edge_count(
+                _down_node_cnt, _right_node_cnt
+            );
+        }
+
+        constexpr static T longest_path_edge_count(
+            T _down_node_cnt,
+            T _right_node_cnt
+        ) {
+            return grid_graph<ND, ED, T, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::longest_path_edge_count(
+                _down_node_cnt, _right_node_cnt
+            );
         }
     };
 }

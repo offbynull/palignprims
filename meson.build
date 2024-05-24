@@ -9,20 +9,20 @@ example = executable(
         'untitled',
         ['main.cpp'],
         dependencies : [boost_dep],
-        cpp_args : '-fconcepts-diagnostics-depth=9999',
+        cpp_args : ['-fconcepts-diagnostics-depth=9999', '-D_GLIBCXX_DEBUG'],
         install : true
 )
 test('test', example)
 
 
-library = shared_library(
-        'obnaligner',
-        sources: ['offbynull/aligner/library.cpp'],
-        dependencies: [boost_dep],
-        install: true,
-        version: meson.project_version(),
-        soversion: meson.project_version()
-)
+#library = shared_library(
+#        'obnaligner',
+#        sources: ['offbynull/aligner/library.cpp'],
+#        dependencies: [boost_dep],
+#        install: true,
+#        version: meson.project_version(),
+#        soversion: meson.project_version()
+#)
 
 
 gtest = subproject('gtest')
