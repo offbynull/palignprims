@@ -6,8 +6,10 @@
 #include <stdexcept>
 #include <utility>
 #include <functional>
+#include <stdfloat>
 #include "boost/container/static_vector.hpp"
 #include "boost/container/small_vector.hpp"
+#include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/graph/grid_container_creator.h"
 #include "offbynull/aligner/graph/grid_container_creators.h"
 #include "offbynull/utils.h"
@@ -15,6 +17,7 @@
 namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::aligner::graph::grid_container_creator::grid_container_creator;
     using offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator;
+    using offbynull::aligner::concepts::weight;
     using offbynull::utils::concat_view;
 
     enum class layer : uint8_t {
@@ -512,19 +515,19 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return this->get_inputs(node).size();
         }
 
-        template<std::floating_point F=double>
+        template<weight WEIGHT=std::float64_t>
         void assign_weights(
             const auto& v,  // random access container
             const auto& w,  // random access container
             std::function<
-                F(
+                WEIGHT(
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
                 )
             > weight_lookup,
-            std::function<void(ED&, F weight)> weight_setter,
-            const F gap_weight = {},
-            const F freeride_weight = {}
+            std::function<void(ED&, WEIGHT weight)> weight_setter,
+            const WEIGHT gap_weight = {},
+            const WEIGHT freeride_weight = {}
         ) {
             using V_ELEM = std::decay_t<decltype(*v.begin())>;
             using W_ELEM = std::decay_t<decltype(*w.begin())>;

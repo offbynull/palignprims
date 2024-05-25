@@ -7,15 +7,18 @@
 #include <format>
 #include <utility>
 #include <functional>
+#include <stdfloat>
 #include "offbynull/aligner/graphs/grid_graph.h"
 #include "offbynull/aligner/graph/grid_container_creator.h"
 #include "offbynull/aligner/graph/grid_container_creators.h"
+#include "offbynull/aligner/concepts.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
     using offbynull::aligner::graphs::grid_graph::grid_graph;
     using offbynull::aligner::graph::grid_container_creator::grid_container_creator;
     using offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator;
+    using offbynull::aligner::concepts::weight;
     using offbynull::utils::concat_view;
 
     enum class edge_type : uint8_t {
@@ -385,18 +388,18 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             return this->get_inputs(node).size();
         }
 
-        template<std::floating_point F=double>
+        template<weight WEIGHT=std::float64_t>
         void assign_weights(
             const auto& v,  // random access container
             const auto& w,  // random access container
             std::function<
-                F(
+                WEIGHT(
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
                 )
             > weight_lookup,
-            std::function<void(ED&, F weight)> weight_setter,
-            const F freeride_weight = {}
+            std::function<void(ED&, WEIGHT weight)> weight_setter,
+            const WEIGHT freeride_weight = {}
         ) {
             using V_ELEM = std::decay_t<decltype(*v.begin())>;
             using W_ELEM = std::decay_t<decltype(*w.begin())>;
@@ -406,7 +409,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 }
             }
             for (const auto& edge : get_edges()) {
-                F weight;
+                WEIGHT weight;
                 if (edge.type == edge_type::FREE_RIDE) {
                     weight = freeride_weight;
                 } else {

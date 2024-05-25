@@ -1,7 +1,6 @@
 #ifndef OFFBYNULL_CONCEPTS_H
 #define OFFBYNULL_CONCEPTS_H
 
-#include <cstddef>
 #include <ranges>
 
 namespace offbynull::concepts {
@@ -19,22 +18,6 @@ namespace offbynull::concepts {
 
     template<typename T, typename ... Ts>
     concept one_of = (std::same_as<T, Ts> || ...);
-
-    // template(s) to extract parameter types
-    template <std::size_t N, typename T0, typename ... Ts>
-    struct typeN { using type = typename typeN<N-1U, Ts...>::type; };
-
-    template <typename T0, typename ... Ts>
-    struct typeN<0U, T0, Ts...> { using type = T0; };
-
-    template <std::size_t, typename F>
-    struct argN;
-
-    template <std::size_t N, typename R, typename ... As>
-    struct argN<N, R(*)(As...)> { using type = typename typeN<N, As...>::type; };
-
-    template <std::size_t N, typename R, typename ... As>
-    struct argN<N, R(As...)>  { using type = typename typeN<N, As...>::type; };
 }
 
 #endif //OFFBYNULL_CONCEPTS_H

@@ -3,11 +3,13 @@
 #include <utility>
 #include <stdfloat>
 #include <cstdint>
+#include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrack/backtrack.h"
 #include "offbynull/aligner/graphs/pairwise_global_alignment_graph.h"
 #include "offbynull/aligner/graph/utils.h"
 
-using offbynull::aligner::backtrack::backtrack::find_max_path;
+using offbynull::aligner::concepts::weight;
+using offbynull::aligner::backtrack::backtrack::backtracker;
 using offbynull::aligner::backtrack::slot_container::slot;
 using offbynull::aligner::graph::graph::readable_graph;
 using offbynull::aligner::graph::grid_container_creator::grid_container_creator;
@@ -21,32 +23,10 @@ using offbynull::aligner::backtrack::container_creators::static_vector_container
 
 using ND = std::tuple<>;
 
-template <readable_graph G, container_creator SLOT_ALLOCATOR, container_creator PATH_ALLOCATOR, bool error_check>
-auto extract_alignment(
-    readable_graph auto& graph,
-    std::ranges::range auto& v,
-    std::ranges::range auto& w
-) {
-    using E = typename G::E;
-    auto [path, weight] {
-        find_max_path<G, SLOT_ALLOCATOR, PATH_ALLOCATOR, error_check>(
-            graph,
-            [&](const E& e) { return graph.get_edge_data(e); }
-        )
-    };
-    return std::make_pair(
-        std::move(path)
-            | std::views::transform([&](const auto& edge) { return graph.edge_to_elements(edge, v, w); })
-            | std::views::filter([](const auto& elem_pair) { return elem_pair.has_value(); })
-            | std::views::transform([](const auto& elem_pair) { return *elem_pair; }),
-        weight
-    );
-}
-
 template<
     bool error_check=false,
     std::unsigned_integral INDEXER=std::size_t,
-    std::floating_point ED=std::float64_t
+    weight ED=std::float64_t
 >
 auto global(
     std::ranges::range auto&& v,
@@ -75,9 +55,23 @@ auto global(
     using G = decltype(graph);
     using N = typename G::N;
     using E = typename G::E;
-    using SLOT_ALLOCATOR=vector_container_creator<slot<N, E>, error_check>;
+    using SLOT_ALLOCATOR=vector_container_creator<slot<N, E, INDEXER, ED>, error_check>;
     using PATH_ALLOCATOR=vector_container_creator<E, error_check>;
-    return extract_alignment<G, SLOT_ALLOCATOR, PATH_ALLOCATOR, error_check>(graph, v, w);
+    backtracker<G, INDEXER, ED, SLOT_ALLOCATOR, PATH_ALLOCATOR> backtracker_ {};
+    using E = typename G::E;
+    auto [path, weight] {
+        backtracker_.find_max_path(
+            graph,
+            [&](const E& e) { return graph.get_edge_data(e); }
+        )
+    };
+    return std::make_pair(
+        std::move(path)
+            | std::views::transform([&](const auto& edge) { return graph.edge_to_elements(edge, v, w); })
+            | std::views::filter([](const auto& elem_pair) { return elem_pair.has_value(); })
+            | std::views::transform([](const auto& elem_pair) { return *elem_pair; }),
+        weight
+    );
 }
 
 template<
@@ -87,7 +81,7 @@ template<
     std::size_t W_SIZE,
     bool error_check=false,
     std::unsigned_integral INDEXER=std::size_t,
-    std::floating_point ED=std::float64_t
+    weight ED=std::float64_t
 >
 auto global_stack(
     std::array<V_ELEM, V_SIZE>& v,
@@ -116,9 +110,23 @@ auto global_stack(
     using G = decltype(graph);
     using N = typename G::N;
     using E = typename G::E;
-    using SLOT_ALLOCATOR=array_container_creator<slot<N, E>, G::node_count(v_node_cnt, w_node_cnt), error_check>;
+    using SLOT_ALLOCATOR=array_container_creator<slot<N, E, INDEXER, ED>, G::node_count(v_node_cnt, w_node_cnt), error_check>;
     using PATH_ALLOCATOR=static_vector_container_creator<E, G::longest_path_edge_count(v_node_cnt, w_node_cnt), error_check>;
-    return extract_alignment<G, SLOT_ALLOCATOR, PATH_ALLOCATOR, error_check>(graph, v, w);
+    backtracker<G, INDEXER, ED, SLOT_ALLOCATOR, PATH_ALLOCATOR> backtracker_ {};
+    using E = typename G::E;
+    auto [path, weight] {
+        backtracker_.find_max_path(
+            graph,
+            [&](const E& e) { return graph.get_edge_data(e); }
+        )
+    };
+    return std::make_pair(
+        std::move(path)
+            | std::views::transform([&](const auto& edge) { return graph.edge_to_elements(edge, v, w); })
+            | std::views::filter([](const auto& elem_pair) { return elem_pair.has_value(); })
+            | std::views::transform([](const auto& elem_pair) { return *elem_pair; }),
+        weight
+    );
 }
 
 int main() {
@@ -156,7 +164,7 @@ int main() {
     // static
     std::array<char, 5> v { 'h', 'e', 'l', 'l', 'o' };
     std::array<char, 6> w { 'm', 'e', 'l', 'l', 'o', 'w' };
-    auto [elements, weight] {
+    volatile auto output {
         global_stack<decltype(v)::value_type, v.size(), decltype(w)::value_type, w.size(), false, std::uint8_t, std::float16_t>(
             v,
             w,
@@ -164,6 +172,7 @@ int main() {
         )
     };
 
-    print(elements);
+    // auto [elements, weight] { output };
+    // print(elements);
     return 0;
 }

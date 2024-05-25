@@ -7,14 +7,17 @@
 #include <utility>
 #include <functional>
 #include <type_traits>
+#include <stdfloat>
 #include "offbynull/aligner/graphs/grid_graph.h"
 #include "offbynull/aligner/graph/grid_container_creator.h"
 #include "offbynull/aligner/graph/grid_container_creators.h"
+#include "offbynull/aligner/concepts.h"
 
 namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
     using offbynull::aligner::graphs::grid_graph::grid_graph;
     using offbynull::aligner::graph::grid_container_creator::grid_container_creator;
     using offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator;
+    using offbynull::aligner::concepts::weight;
 
     template<
         typename ND_,
@@ -233,17 +236,17 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             return g.get_in_degree(node);
         }
 
-        template<std::floating_point F=double>
+        template<weight WEIGHT=std::float64_t>
         void assign_weights(
             const auto& v,  // random access container
             const auto& w,  // random access container
             std::function<
-                F(
+                WEIGHT(
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
                 )
             > weight_lookup,
-            std::function<void(ED&, F weight)> weight_setter
+            std::function<void(ED&, WEIGHT weight)> weight_setter
         ) {
             using V_ELEM = std::decay_t<decltype(*v.begin())>;
             using W_ELEM = std::decay_t<decltype(*w.begin())>;
@@ -264,7 +267,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
                 if (n1_right + 1u == n2_right) {
                     w_elem = { w[n1_right] };
                 }
-                F weight { weight_lookup(v_elem, w_elem) };
+                WEIGHT weight { weight_lookup(v_elem, w_elem) };
                 ED& ed { get_edge_data(edge) };
                 weight_setter(ed, weight);
             }

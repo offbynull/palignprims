@@ -10,6 +10,7 @@ example = executable(
         ['main.cpp'],
         dependencies : [boost_dep],
         cpp_args : ['-fconcepts-diagnostics-depth=9999'], #, '-D_GLIBCXX_DEBUG'],
+        # override_options : ['b_lto=true'],
         install : true
 )
 test('test', example)

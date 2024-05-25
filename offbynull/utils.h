@@ -91,7 +91,7 @@ namespace offbynull::utils {
             );
         }
 
-        sentinel end() { return {}; }
+        sentinel end() noexcept { return {}; }
     };
 
     // Proper placement of the deduction guide

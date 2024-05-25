@@ -9,6 +9,8 @@
 #include <offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h>
 
 namespace {
+    using offbynull::aligner::backtrack::backtrack::backtracker;
+
     template<typename ND_, typename ED_, typename T = unsigned int, bool error_check = true>
         requires std::is_integral_v<T> && std::is_unsigned_v<T>
     auto create_vector(T down_cnt, T right_cnt) {
@@ -37,7 +39,8 @@ namespace {
         // offbynull::utils::type_displayer<ED> x1{};
         // offbynull::utils::type_displayer<decltype(g)::ED> x2{};
         // offbynull::utils::type_displayer<decltype(g.get_edge_data(std::declval<E>()))> x3{};
-        auto [path, weight] = offbynull::aligner::backtrack::backtrack::find_max_path<decltype(g), ED>(
+        backtracker<decltype(g), unsigned int, ED> _backtracker{};
+        auto [path, weight] = _backtracker.find_max_path(
             g,
             [&g](const E& edge) { return g.get_edge_data(edge); }
         );
@@ -82,7 +85,8 @@ namespace {
         g.insert_edge(std::pair { std::pair{0u, 1u}, std::pair{1u, 2u} }, std::pair{0u, 1u}, std::pair{1u, 2u}, 0.0);
         g.update_edge_data({ {0u, 0u}, {0u, 1u} }, 1.1);
         g.update_edge_data({ {1u, 1u}, {1u, 2u} }, 1.4);
-        auto [path, weight] = offbynull::aligner::backtrack::backtrack::find_max_path<decltype(g), ED>(
+        backtracker<decltype(g), size_t, ED> _backtracker{};
+        auto [path, weight] = _backtracker.find_max_path(
             g,
             [&g](const E& edge) { return g.get_edge_data(edge); }
         );
