@@ -41,7 +41,8 @@ namespace offbynull::aligner::backtrack::slot_container {
         typename E,
         widenable_to_size_t INDEXER,
         weight WEIGHT,
-        container_creator ALLOCATOR=vector_container_creator<slot<N, E, INDEXER, WEIGHT>>
+        container_creator ALLOCATOR=vector_container_creator<slot<N, E, INDEXER, WEIGHT>>,
+        bool error_check=true
     >
     class slot_container {
     private:
@@ -73,7 +74,7 @@ namespace offbynull::aligner::backtrack::slot_container {
             );
         }
 
-        size_t find_idx(const N& node){
+        std::size_t find_idx(const N& node){
             auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
             return it - slots.begin();
         }
@@ -83,14 +84,28 @@ namespace offbynull::aligner::backtrack::slot_container {
             return *it;
         }
 
-        slot<N, E, INDEXER, WEIGHT>& at_idx(const size_t idx) {
+        slot<N, E, INDEXER, WEIGHT>& at_idx(const std::size_t idx) {
             return slots[idx];
         }
 
-        std::pair<size_t, slot<N, E, INDEXER, WEIGHT>&> find(const N& node) {
+        std::pair<std::size_t, slot<N, E, INDEXER, WEIGHT>&> find(const N& node) {
             auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
             auto dist_from_beginning { std::ranges::distance(slots.begin(), it) };
-            size_t idx { static_cast<size_t>(dist_from_beginning) };
+            std::size_t idx;
+            if constexpr (error_check && !widenable_to_size_t<decltype(dist_from_beginning)>) {
+                // It may be that dist_from_beginning is signed, in which case the widenable_to_size_t fails (it tests
+                // for unsignedness in addition testing to see if widenable). If it is signed, check the max value of
+                // both types. If max_value(decltype(dist_from_beginning)) < max_value(size_t), it's safe to do a
+                // static_cast to size_t because dist_from_beginning should never be a negative value.
+                if constexpr (std::numeric_limits<decltype(dist_from_beginning)>::max() > std::numeric_limits<std::size_t>::max()) {
+                    if (dist_from_beginning > std::numeric_limits<std::size_t>::max()) {
+                        throw std::runtime_error("Narrowed!");
+                    }
+                }
+                idx = { static_cast<std::size_t>(dist_from_beginning) };
+            } else {
+                idx = { dist_from_beginning };
+            }
             slot<N, E, INDEXER, WEIGHT>& slot { *it };
             return { idx, slot };
         }

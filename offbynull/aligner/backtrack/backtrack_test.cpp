@@ -6,20 +6,20 @@
 #include "gtest/gtest.h"
 #include <iostream>
 #include <format>
-#include <offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h>
+#include <cstddef>
+#include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 
 namespace {
     using offbynull::aligner::backtrack::backtrack::backtracker;
 
-    template<typename ND_, typename ED_, typename T = unsigned int, bool error_check = true>
-        requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_vector(T down_cnt, T right_cnt) {
+    template<typename ND_, typename ED_, typename INDEX = unsigned int, bool error_check = true>
+    auto create_vector(INDEX down_cnt, INDEX right_cnt) {
         return offbynull::aligner::graphs::grid_graph::grid_graph<
             ND_,
             ED_,
-            T,
-            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ND_, T>,
-            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ED_, T>,
+            INDEX,
+            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ND_, INDEX>,
+            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ED_, INDEX>,
             error_check
         > {
             down_cnt,
@@ -85,7 +85,7 @@ namespace {
         g.insert_edge(std::pair { std::pair{0u, 1u}, std::pair{1u, 2u} }, std::pair{0u, 1u}, std::pair{1u, 2u}, 0.0);
         g.update_edge_data({ {0u, 0u}, {0u, 1u} }, 1.1);
         g.update_edge_data({ {1u, 1u}, {1u, 2u} }, 1.4);
-        backtracker<decltype(g), size_t, ED> _backtracker{};
+        backtracker<decltype(g), std::size_t, ED> _backtracker{};
         auto [path, weight] = _backtracker.find_max_path(
             g,
             [&g](const E& edge) { return g.get_edge_data(edge); }

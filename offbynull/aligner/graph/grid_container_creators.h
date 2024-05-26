@@ -1,7 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPH_GRID_CONTAINER_CREATORS_H
 #define OFFBYNULL_ALIGNER_GRAPH_GRID_CONTAINER_CREATORS_H
 
-#include <concepts>
+#include <cstddef>
 #include <vector>
 #include <array>
 #include "boost/container/small_vector.hpp"
@@ -19,14 +19,14 @@ namespace offbynull::aligner::graph::grid_container_creators {
         widenable_to_size_t INDEX,
         bool error_check = true
     >
-    constexpr size_t to_element_count(INDEX down_node_cnt, INDEX right_node_cnt) {
+    constexpr std::size_t to_element_count(INDEX down_node_cnt, INDEX right_node_cnt) {
         if constexpr (error_check) {
-            boost::safe_numerics::safe<size_t> safe_down_node_cnt { down_node_cnt };
-            boost::safe_numerics::safe<size_t> safe_right_node_cnt { right_node_cnt };
+            boost::safe_numerics::safe<std::size_t> safe_down_node_cnt { down_node_cnt };
+            boost::safe_numerics::safe<std::size_t> safe_right_node_cnt { right_node_cnt };
             return safe_down_node_cnt * safe_right_node_cnt;
         } else {
-            size_t unsafe_down_node_cnt { down_node_cnt };
-            size_t unsafe_right_node_cnt { right_node_cnt };
+            std::size_t unsafe_down_node_cnt { down_node_cnt };
+            std::size_t unsafe_right_node_cnt { right_node_cnt };
             return unsafe_down_node_cnt * unsafe_right_node_cnt;
         }
     }
@@ -45,7 +45,7 @@ namespace offbynull::aligner::graph::grid_container_creators {
             );
         }
     };
-    static_assert(grid_container_creator<vector_grid_container_creator<int, size_t>, size_t>);  // Sanity check
+    static_assert(grid_container_creator<vector_grid_container_creator<int, std::size_t>, std::size_t>);  // Sanity check
 
     template<
         typename ELEM_,
@@ -56,7 +56,7 @@ namespace offbynull::aligner::graph::grid_container_creators {
     >
     class array_grid_container_creator {
     private:
-        static constexpr size_t size = to_element_count<INDEX, error_check>(STATIC_DOWN_CNT, STATIC_RIGHT_CNT);
+        static constexpr std::size_t size = to_element_count<INDEX, error_check>(STATIC_DOWN_CNT, STATIC_RIGHT_CNT);
     public:
         using ELEM = ELEM_;
         std::array<ELEM, size> create_objects(INDEX down_node_cnt, INDEX right_node_cnt) {
@@ -68,7 +68,7 @@ namespace offbynull::aligner::graph::grid_container_creators {
             return std::array<ELEM, size>{};
         }
     };
-    static_assert(grid_container_creator<array_grid_container_creator<int, size_t, 0u, 0u>, size_t>);  // Sanity check
+    static_assert(grid_container_creator<array_grid_container_creator<int, std::size_t, 0u, 0u>, std::size_t>);  // Sanity check
 
     template<
         typename ELEM_,
@@ -79,7 +79,7 @@ namespace offbynull::aligner::graph::grid_container_creators {
     >
     class static_vector_grid_container_creator {
     private:
-        static constexpr size_t max_size = to_element_count<INDEX, error_check>(STATIC_DOWN_CNT, STATIC_RIGHT_CNT);
+        static constexpr std::size_t max_size = to_element_count<INDEX, error_check>(STATIC_DOWN_CNT, STATIC_RIGHT_CNT);
     public:
         using ELEM = ELEM_;
         boost::container::static_vector<ELEM, max_size> create_objects(INDEX down_node_cnt, INDEX right_node_cnt) {
@@ -91,7 +91,7 @@ namespace offbynull::aligner::graph::grid_container_creators {
             return boost::container::static_vector<ELEM, max_size>(down_node_cnt * right_node_cnt);
         }
     };
-    static_assert(grid_container_creator<static_vector_grid_container_creator<int, size_t, 0u, 0u>, size_t>);  // Sanity check
+    static_assert(grid_container_creator<static_vector_grid_container_creator<int, std::size_t, 0u, 0u>, std::size_t>);  // Sanity check
 
     template<
         typename ELEM_,
@@ -102,14 +102,14 @@ namespace offbynull::aligner::graph::grid_container_creators {
 >
     class small_vector_grid_container_creator {
     private:
-        static constexpr size_t max_stack_size = to_element_count<INDEX, error_check>(STATIC_DOWN_CNT, STATIC_RIGHT_CNT);
+        static constexpr std::size_t max_stack_size = to_element_count<INDEX, error_check>(STATIC_DOWN_CNT, STATIC_RIGHT_CNT);
     public:
         using ELEM = ELEM_;
         boost::container::small_vector<ELEM, max_stack_size> create_objects(INDEX down_node_cnt, INDEX right_node_cnt) {
             return boost::container::small_vector<ELEM, max_stack_size>(down_node_cnt * right_node_cnt);
         }
     };
-    static_assert(grid_container_creator<small_vector_grid_container_creator<int, size_t, 0u, 0u>, size_t>);  // Sanity check
+    static_assert(grid_container_creator<small_vector_grid_container_creator<int, std::size_t, 0u, 0u>, std::size_t>);  // Sanity check
 }
 
 #endif //OFFBYNULL_ALIGNER_GRAPH_GRID_CONTAINER_CREATORS_H

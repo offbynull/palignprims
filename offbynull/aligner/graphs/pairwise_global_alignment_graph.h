@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_GLOBAL_ALIGNMENT_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_GLOBAL_ALIGNMENT_GRAPH_H
 
+#include <cstddef>
 #include <ranges>
 #include <tuple>
 #include <stdexcept>
@@ -220,7 +221,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             return g.has_inputs(node);
         }
 
-        size_t get_out_degree(const N& node) {
+        std::size_t get_out_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
@@ -229,7 +230,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             return g.get_out_degree(node);
         }
 
-        size_t get_in_degree(const N& node) {
+        std::size_t get_in_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};

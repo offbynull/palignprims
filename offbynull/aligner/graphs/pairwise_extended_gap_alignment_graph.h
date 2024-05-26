@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_EXTENDED_GAP_ALIGNMENT_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_EXTENDED_GAP_ALIGNMENT_GRAPH_H
 
+#include <cstddef>
 #include <ranges>
 #include <tuple>
 #include <stdexcept>
@@ -28,7 +29,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         RIGHT
     };
 
-    template<typename ND, typename ED, widenable_to_size_t T>
+    template<typename ND, typename ED>
     struct slot {
         ND down_nd;
         ND diagonal_nd;
@@ -43,7 +44,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         typename ND_,
         typename ED_,
         widenable_to_size_t INDEX_ = unsigned int,
-        grid_container_creator<INDEX_> SLOT_ALLOCATOR_ = vector_grid_container_creator<slot<ND_, ED_, INDEX_>, INDEX_, false>,
+        grid_container_creator<INDEX_> SLOT_ALLOCATOR_ = vector_grid_container_creator<slot<ND_, ED_>, INDEX_, false>,
         bool error_check = true
     >
     class pairwise_extended_gap_alignment_graph {
@@ -69,8 +70,10 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             };
         }
 
-        size_t to_raw_idx(size_t n_down, size_t n_right) {
-            return (n_down * right_node_cnt) + n_right;
+        std::size_t to_raw_idx(INDEX down_idx, INDEX right_idx) {
+            std::size_t down_idx_widened { down_idx };
+            std::size_t right_idx_widened { right_idx };
+            return (down_idx_widened * right_node_cnt) + right_idx_widened;
         }
 
     public:
@@ -500,7 +503,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return this->get_inputs(node).size() > 0u;
         }
 
-        size_t get_out_degree(const N& node) {
+        std::size_t get_out_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
@@ -509,7 +512,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return this->get_outputs(node).size();
         }
 
-        size_t get_in_degree(const N& node) {
+        std::size_t get_in_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};

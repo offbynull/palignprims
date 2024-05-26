@@ -1,3 +1,4 @@
+#include <cstddef>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graph/grid_container_creators.h"
@@ -9,14 +10,13 @@ namespace {
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::layer;
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::slot;
 
-    template<typename ED, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_vector(T down_cnt, T right_cnt) {
+    template<typename ED, typename INDEX = unsigned int, bool error_check = true>
+    auto create_vector(INDEX down_cnt, INDEX right_cnt) {
         return pairwise_extended_gap_alignment_graph<
             std::tuple<>,
             ED,
-            T,
-            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<slot<std::tuple<>,ED, T>, T>,
+            INDEX,
+            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<slot<std::tuple<>,ED>, INDEX>,
             error_check
         > {
             down_cnt,
@@ -24,14 +24,13 @@ namespace {
         };
     }
 
-    template<typename ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
+    template<typename ED, std::size_t STATIC_DOWN_CNT, std::size_t STATIC_RIGHT_CNT, typename INDEX = unsigned int, bool error_check = true>
     auto create_array() {
         return pairwise_extended_gap_alignment_graph<
             std::tuple<>,
             ED,
-            T,
-            offbynull::aligner::graph::grid_container_creators::array_grid_container_creator<slot<std::tuple<>, ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            INDEX,
+            offbynull::aligner::graph::grid_container_creators::array_grid_container_creator<slot<std::tuple<>, ED>, INDEX, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             STATIC_DOWN_CNT,
@@ -39,14 +38,13 @@ namespace {
         };
     }
 
-    template<typename ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_floating_point_v<ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_small_vector(T down_cnt, T right_cnt) {
+    template<typename ED, std::size_t STATIC_DOWN_CNT, std::size_t STATIC_RIGHT_CNT, typename INDEX = unsigned int, bool error_check = true>
+    auto create_small_vector(INDEX down_cnt, INDEX right_cnt) {
         return pairwise_extended_gap_alignment_graph<
             std::tuple<>,
             ED,
-            T,
-            offbynull::aligner::graph::grid_container_creators::static_vector_grid_container_creator<slot<std::tuple<>, ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            INDEX,
+            offbynull::aligner::graph::grid_container_creators::static_vector_grid_container_creator<slot<std::tuple<>, ED>, INDEX, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,
@@ -54,14 +52,13 @@ namespace {
         };
     }
 
-    template<typename ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-    requires std::is_floating_point_v<ED> && std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_static_vector(T down_cnt, T right_cnt) {
+    template<typename ED, std::size_t STATIC_DOWN_CNT, std::size_t STATIC_RIGHT_CNT, typename INDEX = unsigned int, bool error_check = true>
+    auto create_static_vector(INDEX down_cnt, INDEX right_cnt) {
         return pairwise_extended_gap_alignment_graph<
             std::tuple<>,
             ED,
-            T,
-            offbynull::aligner::graph::grid_container_creators::small_vector_grid_container_creator<slot<std::tuple<>, ED, T>, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            INDEX,
+            offbynull::aligner::graph::grid_container_creators::small_vector_grid_container_creator<slot<std::tuple<>, ED>, INDEX, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,

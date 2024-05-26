@@ -1,3 +1,4 @@
+#include <cstddef>
 #include "offbynull/aligner/graphs/grid_graph.h"
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/grid_container_creators.h"
@@ -6,15 +7,14 @@
 namespace {
     using offbynull::aligner::graphs::grid_graph::grid_graph;
 
-    template<typename ND, typename ED, typename T = unsigned int, bool error_check = true>
-        requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_vector(T down_cnt, T right_cnt) {
+    template<typename ND, typename ED, typename INDEX = unsigned int, bool error_check = true>
+    auto create_vector(INDEX down_cnt, INDEX right_cnt) {
         return grid_graph<
             ND,
             ED,
-            T,
-            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ND, T>,
-            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ED, T>,
+            INDEX,
+            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ND, INDEX>,
+            offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ED, INDEX>,
             error_check
         > {
             down_cnt,
@@ -22,15 +22,14 @@ namespace {
         };
     }
 
-    template<typename ND, typename ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_integral_v<T> && std::is_unsigned_v<T>
+    template<typename ND, typename ED, std::size_t STATIC_DOWN_CNT, std::size_t STATIC_RIGHT_CNT, typename INDEX = unsigned int, bool error_check = true>
     auto create_array() {
         return grid_graph<
             ND,
             ED,
-            T,
-            offbynull::aligner::graph::grid_container_creators::array_grid_container_creator<ND, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
-            offbynull::aligner::graph::grid_container_creators::array_grid_container_creator<ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            INDEX,
+            offbynull::aligner::graph::grid_container_creators::array_grid_container_creator<ND, INDEX, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_container_creators::array_grid_container_creator<ED, INDEX, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             STATIC_DOWN_CNT,
@@ -38,15 +37,14 @@ namespace {
         };
     }
 
-    template<typename ND, typename ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_small_vector(T down_cnt, T right_cnt) {
+    template<typename ND, typename ED, std::size_t STATIC_DOWN_CNT, std::size_t STATIC_RIGHT_CNT, typename INDEX = unsigned int, bool error_check = true>
+    auto create_small_vector(INDEX down_cnt, INDEX right_cnt) {
         return grid_graph<
             ND,
             ED,
-            T,
-            offbynull::aligner::graph::grid_container_creators::static_vector_grid_container_creator<ND, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
-            offbynull::aligner::graph::grid_container_creators::static_vector_grid_container_creator<ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            INDEX,
+            offbynull::aligner::graph::grid_container_creators::static_vector_grid_container_creator<ND, INDEX, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_container_creators::static_vector_grid_container_creator<ED, INDEX, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,
@@ -54,15 +52,14 @@ namespace {
         };
     }
 
-    template<typename ND, typename ED, size_t STATIC_DOWN_CNT, size_t STATIC_RIGHT_CNT, typename T = unsigned int, bool error_check = true>
-        requires std::is_integral_v<T> && std::is_unsigned_v<T>
-    auto create_static_vector(T down_cnt, T right_cnt) {
+    template<typename ND, typename ED, std::size_t STATIC_DOWN_CNT, std::size_t STATIC_RIGHT_CNT, typename INDEX = unsigned int, bool error_check = true>
+    auto create_static_vector(INDEX down_cnt, INDEX right_cnt) {
         return grid_graph<
             ND,
             ED,
-            T,
-            offbynull::aligner::graph::grid_container_creators::small_vector_grid_container_creator<ND, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
-            offbynull::aligner::graph::grid_container_creators::small_vector_grid_container_creator<ED, T, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            INDEX,
+            offbynull::aligner::graph::grid_container_creators::small_vector_grid_container_creator<ND, INDEX, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
+            offbynull::aligner::graph::grid_container_creators::small_vector_grid_container_creator<ED, INDEX, STATIC_DOWN_CNT, STATIC_RIGHT_CNT>,
             error_check
         > {
             down_cnt,

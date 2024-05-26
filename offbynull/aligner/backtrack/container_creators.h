@@ -16,7 +16,7 @@ namespace offbynull::aligner::backtrack::container_creators {
     public:
         using ELEM = ELEM_;
 
-        std::vector<ELEM> create_empty(std::optional<size_t> capacity) {
+        std::vector<ELEM> create_empty(std::optional<std::size_t> capacity) {
             std::vector<ELEM> ret {};
             if (capacity.has_value()) {
                 ret.reserve(capacity.value());
@@ -24,7 +24,7 @@ namespace offbynull::aligner::backtrack::container_creators {
             return ret;
         }
 
-        std::vector<ELEM> create_objects(size_t cnt) {
+        std::vector<ELEM> create_objects(std::size_t cnt) {
             return std::vector<ELEM>(cnt);
         }
 
@@ -34,12 +34,12 @@ namespace offbynull::aligner::backtrack::container_creators {
     };
     static_assert(container_creator<vector_container_creator<int>>);  // Sanity check
 
-    template<typename ELEM_, size_t size, bool error_check = true>
+    template<typename ELEM_, std::size_t size, bool error_check = true>
     class array_container_creator {
     public:
         using ELEM = ELEM_;
 
-        std::array<ELEM, size> create_empty(std::optional<size_t> capacity) {
+        std::array<ELEM, size> create_empty(std::optional<std::size_t> capacity) {
             std::array<ELEM, size> ret{};
             if constexpr (error_check) {
                 if (size != 0u) {
@@ -49,7 +49,7 @@ namespace offbynull::aligner::backtrack::container_creators {
             return ret;
         }
 
-        std::array<ELEM, size> create_objects(size_t cnt) {
+        std::array<ELEM, size> create_objects(std::size_t cnt) {
             if constexpr (error_check) {
                 if (cnt != size) {
                     throw std::runtime_error("Unexpected number of elements");
@@ -62,7 +62,7 @@ namespace offbynull::aligner::backtrack::container_creators {
             std::array<ELEM, size> ret;
             if constexpr (error_check) {
                 auto it { begin };
-                size_t cnt {};
+                std::size_t cnt {};
                 while (it != end) {
                     ret[cnt] = *it;
                     ++it;
@@ -80,16 +80,16 @@ namespace offbynull::aligner::backtrack::container_creators {
     };
     static_assert(container_creator<array_container_creator<int, 0u>>);  // Sanity check
 
-    template<typename ELEM_, size_t max_size, bool error_check = true>
+    template<typename ELEM_, std::size_t max_size, bool error_check = true>
     class static_vector_container_creator {
     public:
         using ELEM = ELEM_;
 
-        boost::container::static_vector<ELEM, max_size> create_empty(std::optional<size_t> capacity) {
+        boost::container::static_vector<ELEM, max_size> create_empty(std::optional<std::size_t> capacity) {
             return boost::container::static_vector<ELEM, max_size>{};
         }
 
-        boost::container::static_vector<ELEM, max_size> create_objects(size_t cnt) {
+        boost::container::static_vector<ELEM, max_size> create_objects(std::size_t cnt) {
             if constexpr (error_check) {
                 if (cnt > max_size) {
                     throw std::runtime_error("Too many elements");
@@ -110,16 +110,16 @@ namespace offbynull::aligner::backtrack::container_creators {
     };
     static_assert(container_creator<static_vector_container_creator<int, 0u>>);  // Sanity check
 
-    template<typename ELEM_, size_t max_stack_size, bool error_check = true>
+    template<typename ELEM_, std::size_t max_stack_size, bool error_check = true>
     class small_vector_container_creator {
     public:
         using ELEM = ELEM_;
 
-        boost::container::small_vector<ELEM, max_stack_size> create_empty(std::optional<size_t> capacity) {
+        boost::container::small_vector<ELEM, max_stack_size> create_empty(std::optional<std::size_t> capacity) {
             return boost::container::small_vector<ELEM, max_stack_size> {};
         }
 
-        boost::container::small_vector<ELEM, max_stack_size> create_objects(size_t cnt) {
+        boost::container::small_vector<ELEM, max_stack_size> create_objects(std::size_t cnt) {
             return boost::container::small_vector<ELEM, max_stack_size>(cnt);
         }
 

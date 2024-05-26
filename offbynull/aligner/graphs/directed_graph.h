@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPHS_DIRECTED_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPHS_DIRECTED_GRAPH_H
 
+#include <cstddef>
 #include <ranges>
 #include <map>
 #include <set>
@@ -385,7 +386,7 @@ namespace offbynull::aligner::graphs::directed_graph {
             return this->get_inputs(node).size() > 0u;
         }
 
-        size_t get_out_degree(const N& node) {
+        std::size_t get_out_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
@@ -394,7 +395,7 @@ namespace offbynull::aligner::graphs::directed_graph {
             return this->node_outbound[node].size();
         }
 
-        size_t get_in_degree(const N& node) {
+        std::size_t get_in_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};

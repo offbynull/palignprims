@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPH_PAIRWISE_ALIGNMENT_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPH_PAIRWISE_ALIGNMENT_GRAPH_H
 
+#include <cstddef>
 #include <concepts>
 #include <type_traits>
 #include <utility>
@@ -16,8 +17,8 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
 
     // You can use unimplemented types as requires params -- the compiler will check to see if it has the same traits
     struct unimplemented_sequence {
-        size_t size() const;
-        const std::tuple<>& operator[](const size_t idx) const;  // Falsely returning std::tuple<>, when really this would be whatever internal type this thing returns
+        std::size_t size() const;
+        const std::tuple<>& operator[](const std::size_t idx) const;  // Falsely returning std::tuple<>, when really this would be whatever internal type this thing returns
     };
 
     template <typename G>

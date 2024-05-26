@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACK_CONTAINER_CREATOR_H
 #define OFFBYNULL_ALIGNER_BACKTRACK_CONTAINER_CREATOR_H
 
+#include <cstddef>
 #include <concepts>
 #include "offbynull/concepts.h"
 
@@ -20,7 +21,7 @@ namespace offbynull::aligner::backtrack::container_creator {
 
     template <typename T>
     concept container_creator =
-        requires(T t, size_t size, std::optional<size_t> capacity, unimplemented_input_iterator<typename T::ELEM> it) {
+        requires(T t, std::size_t size, std::optional<std::size_t> capacity, unimplemented_input_iterator<typename T::ELEM> it) {
             typename T::ELEM;
             { t.create_empty(capacity) } -> random_access_range_of_type<typename T::ELEM>;
             { t.create_objects(size) } -> random_access_range_of_type<typename T::ELEM>;

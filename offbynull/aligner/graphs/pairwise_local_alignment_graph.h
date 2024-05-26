@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_LOCAL_ALIGNMENT_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_LOCAL_ALIGNMENT_GRAPH_H
 
+
 #include <ranges>
 #include <tuple>
 #include <stdexcept>
@@ -378,7 +379,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             return !this->get_inputs(node).empty();
         }
 
-        size_t get_out_degree(const N& node) {
+        std::size_t get_out_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
@@ -387,7 +388,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             return this->get_outputs(node).size();
         }
 
-        size_t get_in_degree(const N& node) {
+        std::size_t get_in_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};

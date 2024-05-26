@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACK_BACKTRACK_H
 #define OFFBYNULL_ALIGNER_BACKTRACK_BACKTRACK_H
 
+#include <cstddef>
 #include <functional>
 #include <ranges>
 #include <algorithm>
@@ -40,7 +41,7 @@ namespace offbynull::aligner::backtrack::backtrack {
     public:
         using N = typename G::N;
         using E = typename G::E;
-        using slot_container_t = slot_container<N, E, INDEXER, WEIGHT, SLOT_ALLOCATOR>;
+        using slot_container_t = slot_container<N, E, INDEXER, WEIGHT, SLOT_ALLOCATOR, error_check>;
 
         slot_container_t populate_weights_and_backtrack_pointers(
             G& g,
@@ -79,7 +80,7 @@ namespace offbynull::aligner::backtrack::backtrack {
             // selecting highest one as the edge to backtrack to.
             top:
             while (!ready_idxes.empty()) {
-                size_t idx { ready_idxes.pop() };
+                std::size_t idx { ready_idxes.pop() };
                 auto& current_slot { slots.at_idx(idx) };
                 for (const auto& edge : g.get_inputs(current_slot.node)) {
                     const auto& src_node { g.get_edge_from(edge) };

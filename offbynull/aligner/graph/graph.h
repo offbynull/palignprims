@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPH_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPH_GRAPH_H
 
+#include <cstddef>
 #include <concepts>
 #include <utility>
 #include "offbynull/concepts.h"
@@ -54,8 +55,8 @@ namespace offbynull::aligner::graph::graph {
             { g.get_input(n) } -> one_of<typename G::E, const typename G::E&>;
             { g.has_outputs(n) } -> std::same_as<bool>;
             { g.has_inputs(n) } -> std::same_as<bool>;
-            { g.get_out_degree(n) } -> std::same_as<size_t>;
-            { g.get_in_degree(n) } -> std::same_as<size_t>;
+            { g.get_out_degree(n) } -> std::same_as<std::size_t>;
+            { g.get_in_degree(n) } -> std::same_as<std::size_t>;
         };
 }
 

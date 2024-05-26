@@ -11,7 +11,7 @@ namespace offbynull::aligner::backtrack::ready_queue {
     using offbynull::aligner::backtrack::container_creators::vector_container_creator;
 
     template<
-        container_creator ALLOCATOR=vector_container_creator<size_t>,
+        container_creator ALLOCATOR=vector_container_creator<std::size_t>,
         bool error_check=true
     >
     class ready_queue {
@@ -33,11 +33,11 @@ namespace offbynull::aligner::backtrack::ready_queue {
             return queue.empty();
         }
 
-        void push(size_t idx) {
+        void push(std::size_t idx) {
             queue.push_back(idx);
         }
 
-        size_t pop() {
+        std::size_t pop() {
             auto ret { queue.back() };
             queue.pop_back();
             return ret;

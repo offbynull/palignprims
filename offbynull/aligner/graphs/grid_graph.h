@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPHS_GRID_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPHS_GRID_GRAPH_H
 
+#include <cstddef>
 #include <ranges>
 #include <tuple>
 #include <stdexcept>
@@ -51,8 +52,17 @@ namespace offbynull::aligner::graphs::grid_graph {
             };
         }
 
-        size_t to_raw_idx(size_t down_idx, size_t right_idx) {
-            return (down_idx * right_node_cnt) + right_idx;
+        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
+        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
+        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
+        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
+        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
+        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
+        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
+        std::size_t to_raw_idx(INDEX down_idx, INDEX right_idx) {
+            std::size_t down_idx_widened { down_idx };
+            std::size_t right_idx_widened { right_idx };
+            return (down_idx_widened * right_node_cnt) + right_idx_widened;
         }
 
     public:
@@ -352,7 +362,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             return this->get_inputs(node).size() > 0u;
         }
 
-        size_t get_out_degree(const N& node) {
+        std::size_t get_out_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
@@ -361,7 +371,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             return this->get_outputs(node).size();
         }
 
-        size_t get_in_degree(const N& node) {
+        std::size_t get_in_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
