@@ -55,13 +55,6 @@ namespace offbynull::aligner::graphs::grid_graph {
             };
         }
 
-        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
-        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
-        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
-        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
-        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
-        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
-        // TEST IF ITS WIDENABLE OT SIZE_T, DONT JUST TAKE IN SIZE_T;
         std::size_t to_raw_idx(INDEX down_idx, INDEX right_idx) {
             std::size_t down_idx_widened { down_idx };
             std::size_t right_idx_widened { right_idx };

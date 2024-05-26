@@ -27,9 +27,9 @@ namespace offbynull::aligner::backtrack::backtrack {
 
     template<
         readable_graph G,
-        widenable_to_size_t INDEXER,
+        widenable_to_size_t COUNT,
         weight WEIGHT,
-        container_creator SLOT_ALLOCATOR=vector_container_creator<slot<typename G::N, typename G::E, INDEXER, WEIGHT>>,
+        container_creator SLOT_ALLOCATOR=vector_container_creator<slot<typename G::N, typename G::E, COUNT, WEIGHT>>,
         container_creator PATH_ALLOCATOR=vector_container_creator<typename G::E>,
         bool error_check = true
     >
@@ -41,7 +41,7 @@ namespace offbynull::aligner::backtrack::backtrack {
     public:
         using N = typename G::N;
         using E = typename G::E;
-        using slot_container_t = slot_container<N, E, INDEXER, WEIGHT, SLOT_ALLOCATOR, error_check>;
+        using slot_container_t = slot_container<N, E, COUNT, WEIGHT, SLOT_ALLOCATOR, error_check>;
 
         slot_container_t populate_weights_and_backtrack_pointers(
             G& g,
@@ -54,7 +54,16 @@ namespace offbynull::aligner::backtrack::backtrack {
             // that the index for a node object can be quickly found.
             const auto& slots_lazy {
                 g.get_nodes()
-                | std::views::transform([&](const auto& n) noexcept -> slot<N, E, INDEXER, WEIGHT> { return { n, g.get_in_degree(n) }; })
+                | std::views::transform([&](const auto& n) -> slot<N, E, COUNT, WEIGHT> {
+                    std::size_t in_degree { g.get_in_degree(n) };
+                    COUNT in_degree_narrowed { static_cast<COUNT>(in_degree) };
+                    if constexpr (error_check) {
+                        if (in_degree_narrowed != in_degree) {
+                            throw std::runtime_error("Narrowed but led to information loss");
+                        }
+                    }
+                    return { n, in_degree_narrowed };
+                })
             };
             slot_container_t slots {slots_lazy.begin(), slots_lazy.end()};
             // Create "ready_idxes" queue
@@ -93,7 +102,7 @@ namespace offbynull::aligner::backtrack::backtrack {
                     | std::views::transform(
                         [&](const auto& edge) noexcept -> std::pair<E, WEIGHT> {
                             const auto& src_node { g.get_edge_from(edge) };
-                            const slot<N, E, INDEXER, WEIGHT>& src_node_slot { slots.find_ref(src_node) };
+                            const slot<N, E, COUNT, WEIGHT>& src_node_slot { slots.find_ref(src_node) };
                             const auto& edge_weight { get_edge_weight_func(edge) };
                             return { edge, src_node_slot.backtracking_weight + edge_weight };
                         }

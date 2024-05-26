@@ -15,14 +15,14 @@ namespace offbynull::aligner::backtrack::slot_container {
     using offbynull::concepts::input_iterator_of_type;
     using offbynull::concepts::widenable_to_size_t;
 
-    template<typename N, typename E, widenable_to_size_t INDEXER, weight WEIGHT>
+    template<typename N, typename E, widenable_to_size_t COUNT, weight WEIGHT>
     struct slot {
         N node;
-        INDEXER unwalked_parent_cnt;
+        COUNT unwalked_parent_cnt;
         E backtracking_edge;
         WEIGHT backtracking_weight;
 
-        slot(N node_, INDEXER unwalked_parent_cnt_)
+        slot(N node_, COUNT unwalked_parent_cnt_)
         : node{node_}
         , unwalked_parent_cnt{unwalked_parent_cnt_}
         , backtracking_edge{}
@@ -39,23 +39,23 @@ namespace offbynull::aligner::backtrack::slot_container {
     template<
         typename N,
         typename E,
-        widenable_to_size_t INDEXER,
+        widenable_to_size_t INDEX,
         weight WEIGHT,
-        container_creator ALLOCATOR=vector_container_creator<slot<N, E, INDEXER, WEIGHT>>,
+        container_creator ALLOCATOR=vector_container_creator<slot<N, E, INDEX, WEIGHT>>,
         bool error_check=true
     >
     class slot_container {
     private:
         struct slots_comparator {
-            bool operator()(const slot<N, E, INDEXER, WEIGHT>& lhs, const slot<N, E, INDEXER, WEIGHT>& rhs) const noexcept {
+            bool operator()(const slot<N, E, INDEX, WEIGHT>& lhs, const slot<N, E, INDEX, WEIGHT>& rhs) const noexcept {
                 return lhs.node < rhs.node;
             }
 
-            bool operator()(const slot<N, E, INDEXER, WEIGHT>& lhs, const N& rhs) const noexcept {
+            bool operator()(const slot<N, E, INDEX, WEIGHT>& lhs, const N& rhs) const noexcept {
                 return lhs.node < rhs;
             }
 
-            bool operator()(const N& lhs, const slot<N, E, INDEXER, WEIGHT>& rhs) const noexcept {
+            bool operator()(const N& lhs, const slot<N, E, INDEX, WEIGHT>& rhs) const noexcept {
                 return lhs < rhs.node;
             }
         };
@@ -63,8 +63,8 @@ namespace offbynull::aligner::backtrack::slot_container {
         decltype(std::declval<ALLOCATOR>().create_empty(std::nullopt)) slots;
     public:
         slot_container(
-            input_iterator_of_type<slot<N, E, INDEXER, WEIGHT>> auto&& begin,
-            input_iterator_of_type<slot<N, E, INDEXER, WEIGHT>> auto&& end,
+            input_iterator_of_type<slot<N, E, INDEX, WEIGHT>> auto&& begin,
+            input_iterator_of_type<slot<N, E, INDEX, WEIGHT>> auto&& end,
             ALLOCATOR container_creator = {}
         ) : slots(container_creator.create_copy(begin, end)) {
             std::ranges::sort(
@@ -79,16 +79,16 @@ namespace offbynull::aligner::backtrack::slot_container {
             return it - slots.begin();
         }
 
-        slot<N, E, INDEXER, WEIGHT>& find_ref(const N& node) {
+        slot<N, E, INDEX, WEIGHT>& find_ref(const N& node) {
             auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
             return *it;
         }
 
-        slot<N, E, INDEXER, WEIGHT>& at_idx(const std::size_t idx) {
+        slot<N, E, INDEX, WEIGHT>& at_idx(const std::size_t idx) {
             return slots[idx];
         }
 
-        std::pair<std::size_t, slot<N, E, INDEXER, WEIGHT>&> find(const N& node) {
+        std::pair<std::size_t, slot<N, E, INDEX, WEIGHT>&> find(const N& node) {
             auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
             auto dist_from_beginning { std::ranges::distance(slots.begin(), it) };
             std::size_t idx;
@@ -106,7 +106,7 @@ namespace offbynull::aligner::backtrack::slot_container {
             } else {
                 idx = { dist_from_beginning };
             }
-            slot<N, E, INDEXER, WEIGHT>& slot { *it };
+            slot<N, E, INDEX, WEIGHT>& slot { *it };
             return { idx, slot };
         }
     };

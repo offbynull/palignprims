@@ -2,7 +2,6 @@
 #define OFFBYNULL_ALIGNER_BACKTRACK_CONTAINER_CREATOR_H
 
 #include <cstddef>
-#include <concepts>
 #include "offbynull/concepts.h"
 
 namespace offbynull::aligner::backtrack::container_creator {
@@ -16,7 +15,7 @@ namespace offbynull::aligner::backtrack::container_creator {
 
         T operator*() const;
         unimplemented_input_iterator& operator++();
-        void operator++(int) { ++*this; }
+        unimplemented_input_iterator operator++(int) { ++*this; }
     };
 
     template <typename T>

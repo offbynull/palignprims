@@ -71,9 +71,11 @@ namespace offbynull::utils {
                 }
                 return *this;
             }
-            iterator& operator++(int) {
+
+            iterator operator++(int) {
+                iterator tmp = *this;
                 ++(*this);
-                return *this;
+                return tmp;
             }
 
             bool operator==(const iterator& other) const {

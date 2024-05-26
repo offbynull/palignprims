@@ -162,15 +162,17 @@ int main() {
     //     )
     // };
     // static
-    std::array<char, 5> v { 'h', 'e', 'l', 'l', 'o' };
-    std::array<char, 6> w { 'm', 'e', 'l', 'l', 'o', 'w' };
-    volatile auto output {
-        global_stack<decltype(v)::value_type, v.size(), decltype(w)::value_type, w.size(), false, std::uint8_t, std::float16_t>(
-            v,
-            w,
-            weight_lookup
-        )
-    };
+    for (int i = 0; i < 200000; i++) {
+        std::array<char, 5> v { 'h', 'e', 'l', 'l', 'o' };
+        std::array<char, 6> w { 'm', 'e', 'l', 'l', 'o', 'w' };
+        volatile auto output {
+            global_stack<decltype(v)::value_type, v.size(), decltype(w)::value_type, w.size(), false, std::uint8_t, std::float16_t>(
+                v,
+                w,
+                weight_lookup
+            )
+        };
+    }
 
     // auto [elements, weight] { output };
     // print(elements);
