@@ -16,20 +16,21 @@ namespace offbynull::aligner::graphs::grid_graph {
     template<
         typename ND_,
         typename ED_,
-        std::unsigned_integral T = unsigned int,
-        grid_container_creator<T> ND_ALLOCATOR_ = vector_grid_container_creator<ND_, T, false>,
-        grid_container_creator<T> ED_ALLOCATOR_ = vector_grid_container_creator<ED_, T, false>,
+        std::unsigned_integral INDEX_ = unsigned int,
+        grid_container_creator<INDEX_> ND_ALLOCATOR_ = vector_grid_container_creator<ND_, INDEX_, false>,
+        grid_container_creator<INDEX_> ED_ALLOCATOR_ = vector_grid_container_creator<ED_, INDEX_, false>,
         bool error_check = true
     >
     class grid_graph {
     public:
-        using N = std::pair<T, T>;
+        using INDEX = INDEX_;
+        using N = std::pair<INDEX, INDEX>;
         using ND = ND_;
         using E = std::pair<N, N>;
         using ED = ED_;
 
-        const T down_node_cnt;
-        const T right_node_cnt;
+        const INDEX down_node_cnt;
+        const INDEX right_node_cnt;
 
     private:
         decltype(std::declval<ND_ALLOCATOR_>().create_objects(0u, 0u)) nodes;
@@ -54,8 +55,8 @@ namespace offbynull::aligner::graphs::grid_graph {
 
     public:
         grid_graph(
-            T _down_node_cnt,
-            T _right_node_cnt,
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt,
             ED indel_data = {},
             ND_ALLOCATOR_ nd_container_creator = {},
             ED_ALLOCATOR_ ed_container_creator = {}
@@ -152,19 +153,19 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         auto get_root_nodes() {
-            return std::ranges::single_view { std::pair<T, T>(0u, 0u) };
+            return std::ranges::single_view { N { 0u, 0u } };
         }
 
         N get_root_node() {
-            return std::pair<T, T>(0u, 0u);
+            return N { 0u, 0u };
         }
 
         auto get_leaf_nodes() {
-            return std::ranges::single_view { std::pair<T, T>(down_node_cnt - 1u, right_node_cnt - 1u) };
+            return std::ranges::single_view { N { down_node_cnt - 1u, right_node_cnt - 1u } };
         }
 
         auto get_leaf_node() {
-            return std::pair<T, T>(down_node_cnt - 1u, right_node_cnt - 1u);
+            return N { down_node_cnt - 1u, right_node_cnt - 1u };
         }
 
         auto get_nodes() {
@@ -173,7 +174,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             return
                 std::views::cartesian_product(down_range, right_range)
                 | std::views::transform([](const auto & p) noexcept {
-                    return std::pair<T, T>(std::get<0>(p), std::get<1>(p));
+                    return N { std::get<0>(p), std::get<1>(p) };
                 });
         }
 
@@ -182,7 +183,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             auto right_range { std::views::iota(0u, right_node_cnt) };
             return std::views::cartesian_product(down_range, right_range)
                 | std::views::transform([&](const auto & p) noexcept {
-                    std::pair<T, T> node { std::get<0>(p), std::get<1>(p) };
+                    N node { std::get<0>(p), std::get<1>(p) };
                     return this->get_outputs(node);
                 })
                 | std::views::join;
@@ -367,19 +368,19 @@ namespace offbynull::aligner::graphs::grid_graph {
             return this->get_inputs(node).size();
         }
 
-        constexpr static T node_count(
-            T _down_node_cnt,
-            T _right_node_cnt
+        constexpr static INDEX node_count(
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt
         ) {
             return _down_node_cnt * _right_node_cnt;
         }
 
-        constexpr static T edge_count(
-            T _down_node_cnt,
-            T _right_node_cnt
+        constexpr static INDEX edge_count(
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt
         ) {
             // Start off by assuming each node has 3 outgoing edges.
-            T edge_cnt { (_down_node_cnt * _right_node_cnt) * 3u };
+            INDEX edge_cnt { (_down_node_cnt * _right_node_cnt) * 3u };
             // The leaf node doesn't have any outgoing edges, so adjust for that.
             edge_cnt -= 3u;
             // The right-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
@@ -393,9 +394,9 @@ namespace offbynull::aligner::graphs::grid_graph {
             return edge_cnt;
         }
 
-        constexpr static T longest_path_edge_count(
-            T _down_node_cnt,
-            T _right_node_cnt
+        constexpr static INDEX longest_path_edge_count(
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt
         ) {
             return (_right_node_cnt - 1u) + (_down_node_cnt - 1u);
         }

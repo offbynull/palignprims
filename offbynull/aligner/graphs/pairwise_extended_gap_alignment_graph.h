@@ -40,13 +40,14 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     template<
         typename ND_,
         typename ED_,
-        std::unsigned_integral T = unsigned int,
-        grid_container_creator<T> SLOT_ALLOCATOR_ = vector_grid_container_creator<slot<ND_, ED_, T>, T, false>,
+        std::unsigned_integral INDEX_ = unsigned int,
+        grid_container_creator<INDEX_> SLOT_ALLOCATOR_ = vector_grid_container_creator<slot<ND_, ED_, INDEX_>, INDEX_, false>,
         bool error_check = true
     >
     class pairwise_extended_gap_alignment_graph {
     public:
-        using N = std::tuple<layer, T, T>;
+        using INDEX = INDEX_;
+        using N = std::tuple<layer, INDEX, INDEX>;
         using ND = ND_;
         using E = std::pair<N, N>;
         using ED = ED_;
@@ -71,12 +72,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
     public:
-        const T down_node_cnt;
-        const T right_node_cnt;
+        const INDEX down_node_cnt;
+        const INDEX right_node_cnt;
 
         pairwise_extended_gap_alignment_graph(
-            T _down_node_cnt,
-            T _right_node_cnt,
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt,
             ED initial_indel_data = {},
             ED extended_indel_data = {},
             ED freeride_data = {},
@@ -204,19 +205,19 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         auto get_root_nodes() {
-            return std::ranges::single_view { std::tuple<layer, T, T>(layer::DIAGONAL, 0u, 0u) };
+            return std::ranges::single_view { N { layer::DIAGONAL, 0u, 0u } };
         }
 
         N get_root_node() {
-            return std::tuple<layer, T, T>(layer::DIAGONAL, 0u, 0u);
+            return N { layer::DIAGONAL, 0u, 0u };
         }
 
         auto get_leaf_nodes() {
-            return std::ranges::single_view { std::tuple<layer, T, T>(layer::DIAGONAL, down_node_cnt - 1u, right_node_cnt - 1u) };
+            return std::ranges::single_view { N { layer::DIAGONAL, down_node_cnt - 1u, right_node_cnt - 1u } };
         }
 
         auto get_leaf_node() {
-            return std::tuple<layer, T, T>(layer::DIAGONAL, down_node_cnt - 1u, right_node_cnt - 1u);
+            return N { layer::DIAGONAL, down_node_cnt - 1u, right_node_cnt - 1u };
         }
 
         auto get_nodes() {
@@ -227,7 +228,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 )
                 | std::views::transform([](const auto & p) noexcept {
                     const auto &[n_down, n_right] { p };
-                    return std::tuple<layer, T, T>(layer::DIAGONAL, n_down, n_right);
+                    return N { layer::DIAGONAL, n_down, n_right };
                 })
             };
             auto down_layer_nodes {
@@ -237,7 +238,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 )
                 | std::views::transform([](const auto & p) noexcept {
                     const auto &[n_down, n_right] { p };
-                    return std::tuple<layer, T, T>(layer::DOWN, n_down, n_right);
+                    return N { layer::DOWN, n_down, n_right };
                 })
             };
             auto right_layer_nodes {
@@ -247,7 +248,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 )
                 | std::views::transform([](const auto & p) noexcept {
                     const auto &[n_down, n_right] { p };
-                    return std::tuple<layer, T, T>(layer::RIGHT, n_down, n_right);
+                    return N { layer::RIGHT, n_down, n_right };
                 })
             };
             return concat_view(
@@ -267,7 +268,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 )
                 | std::views::transform([&](const auto & p) noexcept {
                     const auto &[n_down, n_right] { p };
-                    return this->get_outputs(std::tuple<layer, T, T> { layer::DIAGONAL, n_down, n_right });
+                    return this->get_outputs(N { layer::DIAGONAL, n_down, n_right });
                 })
                 | std::views::join
             };
@@ -278,7 +279,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 )
                 | std::views::transform([&](const auto & p) noexcept {
                     const auto &[n_down, n_right] { p };
-                    return this->get_outputs(std::tuple<layer, T, T> { layer::DOWN, n_down, n_right });
+                    return this->get_outputs(N { layer::DOWN, n_down, n_right });
                 })
                 | std::views::join
             };
@@ -289,7 +290,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 )
                 | std::views::transform([&](const auto & p) noexcept {
                     const auto &[n_down, n_right] { p };
-                    return this->get_outputs(std::tuple<layer, T, T> { layer::RIGHT, n_down, n_right });
+                    return this->get_outputs(N { layer::RIGHT, n_down, n_right });
                 })
                 | std::views::join
             };
@@ -567,9 +568,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             const E& edge,
             const auto& v,  // random access container
             const auto& w   // random access container
-        )
-        requires requires(decltype(v) v_, decltype(w) w_) { { v[0] } -> std::same_as<decltype(w_)>; }
-        {
+        ) {
             using ELEM = std::decay_t<decltype(v[0])>;
             using OPT_ELEM_REF = std::optional<std::reference_wrapper<const ELEM>>;
             using RET = std::optional<std::pair<OPT_ELEM_REF, OPT_ELEM_REF>>;
@@ -608,33 +607,34 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 }
             } else if ((n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL)  // freeride
                 || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL)) {  // freeride
-                return std::nullopt;
+                return RET { std::nullopt };
             }
             if constexpr (error_check) {
                 throw std::runtime_error("Bad edge");
             }
+            std::unreachable();
         }
 
-        constexpr static T node_count(
-            T _down_node_cnt,
-            T _right_node_cnt
+        constexpr static INDEX node_count(
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt
         ) {
-            T node_cnt {};
+            INDEX node_cnt {};
             node_cnt += _down_node_cnt * _right_node_cnt; // Middle layer
             node_cnt += (_down_node_cnt - 1u) * _right_node_cnt; // Down gap layer
             node_cnt += _down_node_cnt * (_right_node_cnt - 1u); // Right gap layer
             return node_cnt;
         }
 
-        constexpr static T edge_count(
-            T _down_node_cnt,
-            T _right_node_cnt
+        constexpr static INDEX edge_count(
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt
         ) {
-            T edge_cnt {};
+            INDEX edge_cnt {};
             // Middle layer
             {
                 // Start off by assuming each node has 3 outgoing edges.
-                T middle_edge_cnt { (_down_node_cnt * _right_node_cnt) * 3u };
+                INDEX middle_edge_cnt { (_down_node_cnt * _right_node_cnt) * 3u };
                 // The leaf node doesn't have any outgoing edges, so adjust for that.
                 middle_edge_cnt -= 3u;
                 // The right-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
@@ -651,22 +651,22 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             {
                 // Start off by assuming each node has 2 outgoing edges (freeride + gap).
                 // Technically the nodes start at down index of 1 (down index 0 has no nodes), so adjust for that.
-                T down_gap_edge_cnt { ((_down_node_cnt - 1u) * _right_node_cnt) * 2u };
+                INDEX down_gap_edge_cnt { ((_down_node_cnt - 1u) * _right_node_cnt) * 2u };
                 edge_cnt += down_gap_edge_cnt;
             }
             // Right gap layer
             {
                 // Start off by assuming each node has 2 outgoing edges (freeride + gap).
                 // Technically the nodes start at right index of 1 (right index 0 has no nodes), so adjust for that.
-                T right_gap_edge_cnt { (_down_node_cnt * (_right_node_cnt - 1u)) * 2u };
+                INDEX right_gap_edge_cnt { (_down_node_cnt * (_right_node_cnt - 1u)) * 2u };
                 edge_cnt += right_gap_edge_cnt;
             }
             return edge_cnt;
         }
 
-        constexpr static T longest_path_edge_count(
-            T _down_node_cnt,
-            T _right_node_cnt
+        constexpr static INDEX longest_path_edge_count(
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt
         ) {
             return (_right_node_cnt - 1u) * 2u + (_down_node_cnt - 1u) * 2u;
         }

@@ -1,4 +1,5 @@
 #include "offbynull/aligner/graph/graph.h"
+#include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graph/grid_container_creators.h"
 #include "offbynull/aligner/graphs/pairwise_local_alignment_graph.h"
 #include "gtest/gtest.h"
@@ -75,6 +76,7 @@ namespace {
     TEST(PairwiseLocalAlignmentGraphTest, ConceptCheck) {
         using G = pairwise_local_alignment_graph<std::string, std::string>;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
+        static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_parwise_alignment_graph<G>);
     }
 
     TEST(PairwiseLocalAlignmentGraphTest, ListNodes) {

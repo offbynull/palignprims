@@ -22,29 +22,29 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
     template<
         typename ND_,
         typename ED_,
-        std::unsigned_integral T = unsigned int,
-        grid_container_creator<T> ND_ALLOCATOR_ = vector_grid_container_creator<ND_, T, false>,
-        grid_container_creator<T> ED_ALLOCATOR_ = vector_grid_container_creator<ED_, T, false>,
+        std::unsigned_integral INDEX_ = unsigned int,
+        grid_container_creator<INDEX_> ND_ALLOCATOR_ = vector_grid_container_creator<ND_, INDEX_, false>,
+        grid_container_creator<INDEX_> ED_ALLOCATOR_ = vector_grid_container_creator<ED_, INDEX_, false>,
         bool error_check = true
     >
-        requires std::is_integral_v<T> && std::is_unsigned_v<T>
     class pairwise_global_alignment_graph {
     public:
-        using N = std::pair<T, T>;
+        using INDEX = INDEX_;
+        using N = std::pair<INDEX, INDEX>;
         using E = std::pair<N, N>;
         using ED = ED_;
         using ND = ND_;
 
     private:
-        grid_graph<ND, ED, T, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check> g;
+        grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check> g;
 
     public:
-        const T down_node_cnt;
-        const T right_node_cnt;
+        const INDEX down_node_cnt;
+        const INDEX right_node_cnt;
 
         pairwise_global_alignment_graph(
-            T _down_node_cnt,
-            T _right_node_cnt,
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt,
             ED indel_data = {},
             ND_ALLOCATOR_ nd_container_creator = {},
             ED_ALLOCATOR_ ed_container_creator = {}
@@ -315,29 +315,29 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             std::unreachable();
         }
 
-        constexpr static T node_count(
-            T _down_node_cnt,
-            T _right_node_cnt
+        constexpr static INDEX node_count(
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt
         ) {
-            return grid_graph<ND, ED, T, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::node_count(
+            return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::node_count(
                 _down_node_cnt, _right_node_cnt
             );
         }
 
-        constexpr static T edge_count(
-            T _down_node_cnt,
-            T _right_node_cnt
+        constexpr static INDEX edge_count(
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt
         ) {
-            return grid_graph<ND, ED, T, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::edge_count(
+            return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::edge_count(
                 _down_node_cnt, _right_node_cnt
             );
         }
 
-        constexpr static T longest_path_edge_count(
-            T _down_node_cnt,
-            T _right_node_cnt
+        constexpr static INDEX longest_path_edge_count(
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt
         ) {
-            return grid_graph<ND, ED, T, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::longest_path_edge_count(
+            return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::longest_path_edge_count(
                 _down_node_cnt, _right_node_cnt
             );
         }

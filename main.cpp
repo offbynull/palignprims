@@ -7,6 +7,7 @@
 #include "offbynull/aligner/backtrack/backtrack.h"
 #include "offbynull/aligner/graphs/pairwise_global_alignment_graph.h"
 #include "offbynull/aligner/graph/utils.h"
+#include "offbynull/aligner/graph/grid_graph.h"
 
 using offbynull::aligner::concepts::weight;
 using offbynull::aligner::backtrack::backtrack::backtracker;
@@ -101,6 +102,7 @@ auto global_stack(
     using ND_ALLOCATOR=array_grid_container_creator<ND, INDEXER, v_node_cnt, w_node_cnt, error_check>;
     using ED_ALLOCATOR=array_grid_container_creator<ED, INDEXER, v_node_cnt, w_node_cnt, error_check>;
     pairwise_global_alignment_graph<ND, ED, INDEXER, ND_ALLOCATOR, ED_ALLOCATOR, false> graph { v_node_cnt, w_node_cnt };
+    static_assert(offbynull::aligner::graph::grid_graph::readable_grid_graph<decltype(graph), char, char>);
     graph.template assign_weights<ED>(
         v,
         w,
