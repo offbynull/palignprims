@@ -24,11 +24,11 @@ using offbynull::aligner::backtrack::container_creators::static_vector_container
 using ND = std::tuple<>;
 
 template<
-    bool error_check=false,
     std::unsigned_integral INDEXER=std::size_t,
-    weight ED=std::float64_t
+    weight ED=std::float64_t,
+    bool error_check=false
 >
-auto global(
+auto global_heap(
     std::ranges::range auto&& v,
     std::ranges::range auto&& w,
     std::function<
@@ -75,17 +75,15 @@ auto global(
 }
 
 template<
-    typename V_ELEM,
     std::size_t V_SIZE,
-    typename W_ELEM,
     std::size_t W_SIZE,
-    bool error_check=false,
     std::unsigned_integral INDEXER=std::size_t,
-    weight ED=std::float64_t
+    weight ED=std::float64_t,
+    bool error_check=false
 >
 auto global_stack(
-    std::array<V_ELEM, V_SIZE>& v,
-    std::array<W_ELEM, W_SIZE>& w,
+    auto&& v,
+    auto&& w,
     std::function<
         ED(
             const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
@@ -166,7 +164,7 @@ int main() {
         std::array<char, 5> v { 'h', 'e', 'l', 'l', 'o' };
         std::array<char, 6> w { 'm', 'e', 'l', 'l', 'o', 'w' };
         volatile auto output {
-            global_stack<decltype(v)::value_type, v.size(), decltype(w)::value_type, w.size(), false, std::uint8_t, std::float16_t>(
+            global_stack<v.size(), w.size(), std::uint8_t, std::float16_t, false>(
                 v,
                 w,
                 weight_lookup

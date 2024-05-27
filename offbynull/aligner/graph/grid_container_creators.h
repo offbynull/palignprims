@@ -59,7 +59,7 @@ namespace offbynull::aligner::graph::grid_container_creators {
             return std::array<ELEM, size>{};
         }
     };
-    static_assert(grid_container_creator<array_grid_container_creator<int, std::size_t, 0u, 0u>, std::size_t>);  // Sanity check
+    static_assert(grid_container_creator<array_grid_container_creator<int, std::size_t, 0zu, 0zu>, std::size_t>);  // Sanity check
 
     template<
         typename ELEM_,
@@ -84,7 +84,7 @@ namespace offbynull::aligner::graph::grid_container_creators {
             );
         }
     };
-    static_assert(grid_container_creator<static_vector_grid_container_creator<int, std::size_t, 0u, 0u>, std::size_t>);  // Sanity check
+    static_assert(grid_container_creator<static_vector_grid_container_creator<int, std::size_t, 0zu, 0zu>, std::size_t>);  // Sanity check
 
     template<
         typename ELEM_,
@@ -102,7 +102,7 @@ namespace offbynull::aligner::graph::grid_container_creators {
             return boost::container::small_vector<ELEM, max_stack_size>(down_node_cnt * right_node_cnt);
         }
     };
-    static_assert(grid_container_creator<small_vector_grid_container_creator<int, std::size_t, 0u, 0u>, std::size_t>);  // Sanity check
+    static_assert(grid_container_creator<small_vector_grid_container_creator<int, std::size_t, 0zu, 0zu>, std::size_t>);  // Sanity check
 }
 
 #endif //OFFBYNULL_ALIGNER_GRAPH_GRID_CONTAINER_CREATORS_H

@@ -219,7 +219,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         }
 
         auto get_root_nodes() {
-            auto ret { this->get_nodes() | std::views::filter([this](const auto& n) noexcept { return this->get_in_degree(n) == 0u; }) };
+            auto ret { this->get_nodes() | std::views::filter([&](const auto& n) noexcept { return !has_inputs(n); }) };
             return ret;
         }
 
@@ -235,7 +235,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         }
 
         auto get_leaf_nodes() {
-            auto ret { this->get_nodes() | std::views::filter([this](const auto& n) noexcept { return this->get_out_degree(n) == 0u; }) };
+            auto ret { this->get_nodes() | std::views::filter([&](const auto& n) noexcept { return !has_outputs(n); }) };
             return ret;
         }
 
@@ -374,7 +374,7 @@ namespace offbynull::aligner::graphs::directed_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_outputs(node).size() > 0u;
+            return this->get_outputs(node).size() > 0zu;
         }
 
         bool has_inputs(const N& node) {
@@ -383,7 +383,7 @@ namespace offbynull::aligner::graphs::directed_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_inputs(node).size() > 0u;
+            return this->get_inputs(node).size() > 0zu;
         }
 
         std::size_t get_out_degree(const N& node) {

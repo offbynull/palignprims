@@ -408,7 +408,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             using V_ELEM = std::decay_t<decltype(*v.begin())>;
             using W_ELEM = std::decay_t<decltype(*w.begin())>;
             if constexpr (error_check) {
-                if (down_node_cnt != v.size() + 1u || right_node_cnt != w.size() + 1u) {
+                if (down_node_cnt != v.size() + 1zu || right_node_cnt != w.size() + 1zu) {
                     throw std::runtime_error("Mismatching node count");
                 }
             }

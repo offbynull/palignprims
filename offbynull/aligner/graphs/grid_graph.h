@@ -39,8 +39,8 @@ namespace offbynull::aligner::graphs::grid_graph {
         const INDEX right_node_cnt;
 
     private:
-        decltype(std::declval<ND_ALLOCATOR_>().create_objects(0u, 0u)) nodes;
-        decltype(std::declval<ED_ALLOCATOR_>().create_objects(0u, 0u)) edges;
+        decltype(std::declval<ND_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) nodes;
+        decltype(std::declval<ED_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) edges;
 
         ED_ indel_ed;
 

@@ -41,12 +41,8 @@ namespace offbynull::aligner::backtrack::container_creators {
         using ELEM = ELEM_;
 
         std::array<ELEM, size> create_empty(std::optional<std::size_t> capacity) {
+            static_assert(size != 0zu, "If calling this function, size must be non-zero");
             std::array<ELEM, size> ret{};
-            if constexpr (error_check) {
-                if (size != 0u) {
-                    throw std::runtime_error("Unexpected number of elements");
-                }
-            }
             return ret;
         }
 
@@ -79,7 +75,7 @@ namespace offbynull::aligner::backtrack::container_creators {
             return ret;
         }
     };
-    static_assert(container_creator<array_container_creator<int, 0u>>);  // Sanity check
+    static_assert(container_creator<array_container_creator<int, 0zu>>);  // Sanity check
 
     template<typename ELEM_, std::size_t max_size, bool error_check = true>
     class static_vector_container_creator {
@@ -111,7 +107,7 @@ namespace offbynull::aligner::backtrack::container_creators {
             return typename static_vector_typer<ELEM, max_size, error_check>::type(begin, end);
         }
     };
-    static_assert(container_creator<static_vector_container_creator<int, 0u>>);  // Sanity check
+    static_assert(container_creator<static_vector_container_creator<int, 0zu>>);  // Sanity check
 
     template<typename ELEM_, std::size_t max_stack_size, bool error_check = true>
     class small_vector_container_creator {
@@ -130,7 +126,7 @@ namespace offbynull::aligner::backtrack::container_creators {
             return boost::container::small_vector<ELEM, max_stack_size>(begin, end);
         }
     };
-    static_assert(container_creator<small_vector_container_creator<int, 0u>>);  // Sanity check
+    static_assert(container_creator<small_vector_container_creator<int, 0zu>>);  // Sanity check
 }
 
 #endif //OFFBYNULL_ALIGNER_BACKTRACK_CONTAINER_CREATORS_H

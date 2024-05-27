@@ -151,7 +151,7 @@ namespace offbynull::aligner::backtrack::backtrack {
             auto path { path_container_creator.create_empty(std::nullopt) };
             while (true) {
                 auto node { next_node };
-                if (g.get_in_degree(node) == 0u) {
+                if (!g.has_inputs(node)) {
                     break;
                 }
                 const auto& node_slot { slots.find_ref(node) };
@@ -192,15 +192,5 @@ namespace offbynull::aligner::backtrack::backtrack {
         }
     };
 }
-//
-// get_edge_weight_func SHOULD TAKE CUSTOM FLOAT TYPE, WITH 4x4, 8x8, 16x16 STACK IMPLEMENTATIONS;
-// get_edge_weight_func SHOULD TAKE CUSTOM FLOAT TYPE, WITH 4x4, 8x8, 16x16 STACK IMPLEMENTATIONS;
-// get_edge_weight_func SHOULD TAKE CUSTOM FLOAT TYPE, WITH 4x4, 8x8, 16x16 STACK IMPLEMENTATIONS;
-// get_edge_weight_func SHOULD TAKE CUSTOM FLOAT TYPE, WITH 4x4, 8x8, 16x16 STACK IMPLEMENTATIONS;
-// get_edge_weight_func SHOULD TAKE CUSTOM FLOAT TYPE, WITH 4x4, 8x8, 16x16 STACK IMPLEMENTATIONS;
-// get_edge_weight_func SHOULD TAKE CUSTOM FLOAT TYPE, WITH 4x4, 8x8, 16x16 STACK IMPLEMENTATIONS;
-// get_edge_weight_func SHOULD TAKE CUSTOM FLOAT TYPE, WITH 4x4, 8x8, 16x16 STACK IMPLEMENTATIONS;
-// get_edge_weight_func SHOULD TAKE CUSTOM FLOAT TYPE, WITH 4x4, 8x8, 16x16 STACK IMPLEMENTATIONS;
-// get_edge_weight_func SHOULD TAKE CUSTOM FLOAT TYPE, WITH 4x4, 8x8, 16x16 STACK IMPLEMENTATIONS;
 
 #endif //OFFBYNULL_ALIGNER_BACKTRACK_BACKTRACK_H

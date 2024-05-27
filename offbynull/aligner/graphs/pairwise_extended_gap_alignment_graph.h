@@ -56,7 +56,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         using ED = ED_;
 
     private:
-        decltype(std::declval<SLOT_ALLOCATOR_>().create_objects(0u, 0u)) slots;
+        decltype(std::declval<SLOT_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) slots;
         ED extended_indel_ed;
         ED initial_indel_ed;
         ED freeride_ed;
@@ -491,7 +491,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_outputs(node).size() > 0u;
+            return this->get_outputs(node).size() > 0zu;
         }
 
         bool has_inputs(const N& node) {
@@ -500,7 +500,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_inputs(node).size() > 0u;
+            return this->get_inputs(node).size() > 0zu;
         }
 
         std::size_t get_out_degree(const N& node) {
@@ -538,7 +538,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             using V_ELEM = std::decay_t<decltype(*v.begin())>;
             using W_ELEM = std::decay_t<decltype(*w.begin())>;
             if constexpr (error_check) {
-                if (down_node_cnt != v.size() + 1u || right_node_cnt != w.size() + 1u) {
+                if (down_node_cnt != v.size() + 1zu || right_node_cnt != w.size() + 1zu) {
                     throw std::runtime_error("Mismatching node count");
                 }
             }

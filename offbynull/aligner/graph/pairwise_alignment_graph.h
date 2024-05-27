@@ -48,8 +48,8 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
             { G::edge_to_elements(e, v, w) } -> std::same_as<
                 std::optional<
                     std::pair<
-                        std::optional<std::reference_wrapper<const std::decay_t<decltype(v[0])>>>,
-                        std::optional<std::reference_wrapper<const std::decay_t<decltype(w[0])>>>
+                        std::optional<std::reference_wrapper<const std::decay_t<decltype(v[0u])>>>,
+                        std::optional<std::reference_wrapper<const std::decay_t<decltype(w[0u])>>>
                     >
                 >
             >;
@@ -58,6 +58,8 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
             G g,
             typename G::INDEX indexer
         ) {
+            { g.down_node_cnt } -> std::same_as<const typename G::INDEX&>;
+            { g.right_node_cnt } -> std::same_as<const typename G::INDEX&>;
             { G::node_count(indexer, indexer) } -> std::same_as<typename G::INDEX>;
             { G::edge_count(indexer, indexer) } -> std::same_as<typename G::INDEX>;
             { G::longest_path_edge_count(indexer, indexer) } -> std::same_as<typename G::INDEX>;

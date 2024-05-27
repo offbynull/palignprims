@@ -133,6 +133,15 @@ namespace offbynull::utils {
             >::type
         >;
     };
+
+    template<typename T>
+    concept integral_or_floating_point = std::integral<T> || std::floating_point<T>;
+
+    template<integral_or_floating_point T>
+    struct constants {
+        constexpr static T _0 { static_cast<T>(0) };
+        constexpr static T _1 { static_cast<T>(1) };
+    };
 }
 
 #endif //OFFBYNULL_UTILS_H
