@@ -37,6 +37,7 @@ namespace offbynull::aligner::graphs::grid_graph {
 
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
+        static constexpr size_t max_in_degree { 3zu };
 
     private:
         decltype(std::declval<ND_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) nodes;

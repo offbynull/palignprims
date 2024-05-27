@@ -15,20 +15,14 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::aligner::graph::graph::readable_graph;
 
-    // You can use unimplemented types as requires params -- the compiler will check to see if it has the same traits
-    struct unimplemented_sequence {
-        std::size_t size() const;
-        const std::tuple<>& operator[](const std::size_t idx) const;  // Falsely returning std::tuple<>, when really this would be whatever internal type this thing returns
-    };
-
     template <typename G>
     concept readable_parwise_alignment_graph =
         readable_graph<G>
         && widenable_to_size_t<typename G::INDEX>
         && requires(
             G g,
-            unimplemented_sequence v,
-            unimplemented_sequence w,
+            std::vector<int> v,  // This tests against vector, but it's intended to work with any random access range
+            std::vector<int> w,  // This tests against vector, but it's intended to work with any random access range
             std::function<
                 double(
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
@@ -42,8 +36,8 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
         && requires(
             G g,
             typename G::E e,
-            unimplemented_sequence v,
-            unimplemented_sequence w
+            std::vector<int> v,  // This tests against vector, but it's intended to work with any random access range
+            std::vector<int> w   // This tests against vector, but it's intended to work with any random access range
         ) {
             { G::edge_to_elements(e, v, w) } -> std::same_as<
                 std::optional<
@@ -60,6 +54,7 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
         ) {
             { g.down_node_cnt } -> std::same_as<const typename G::INDEX&>;
             { g.right_node_cnt } -> std::same_as<const typename G::INDEX&>;
+            { G::max_in_degree } -> std::same_as<const size_t&>;
             { G::node_count(indexer, indexer) } -> std::same_as<typename G::INDEX>;
             { G::edge_count(indexer, indexer) } -> std::same_as<typename G::INDEX>;
             { G::longest_path_edge_count(indexer, indexer) } -> std::same_as<typename G::INDEX>;

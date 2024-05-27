@@ -6,7 +6,7 @@ TODO:
 * Add function for stack 8x8, 16x16, etc..
 * Add concept checks to autos
 * Add random access container wrapper that pads out with dummy (or truncates) to a certain size
-* Add random access container wrapper that mmap
+* Add random access container wrapper that mmap (it's in boost)
 * Add random access container wrapper that decompresses as you read
 * Add divide-and-conquer aligner interface methods and algorithm
 

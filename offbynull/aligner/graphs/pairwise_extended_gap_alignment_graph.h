@@ -79,6 +79,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     public:
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
+        static constexpr size_t max_in_degree { 3zu };
 
         pairwise_extended_gap_alignment_graph(
             INDEX _down_node_cnt,
@@ -523,8 +524,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
 
         template<weight WEIGHT=std::float64_t>
         void assign_weights(
-            const auto& v,  // random access container
-            const auto& w,  // random access container
+            const std::ranges::random_access_range auto& v,  // random access container
+            const std::ranges::random_access_range auto& w,  // random access container
             std::function<
                 WEIGHT(
                     const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
