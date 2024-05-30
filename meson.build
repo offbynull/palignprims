@@ -2,6 +2,11 @@ project('untitled', 'cpp',
         version : '0.0.1',
         default_options : ['warning_level=everything', 'cpp_std=c++23'])
 
+cc = meson.get_compiler('cpp')
+if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
+        add_project_arguments('-Wno-padded', language : 'cpp')
+        add_project_arguments('-Wno-noexcept', language : 'cpp')
+endif
 
 boost_dep = dependency('boost', modules : ['container'])
 

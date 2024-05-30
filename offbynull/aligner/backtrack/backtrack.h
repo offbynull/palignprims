@@ -131,7 +131,7 @@ namespace offbynull::aligner::backtrack::backtrack {
                             throw std::runtime_error("Invalid number of unprocessed parents");
                         }
                     }
-                    dst_slot.unwalked_parent_cnt -= 1u;
+                    dst_slot.unwalked_parent_cnt = static_cast<COUNT>(dst_slot.unwalked_parent_cnt - 1u);
                     if (dst_slot.unwalked_parent_cnt == 0u) {
                         ready_idxes.push(dst_slot_idx);
                     }

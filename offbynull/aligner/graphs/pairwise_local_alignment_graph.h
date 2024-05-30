@@ -227,16 +227,24 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         auto get_outputs_full(const N& node) {
-            auto standard_outputs { g.get_outputs_full(node) };
+            auto standard_outputs {
+                g.get_outputs_full(node)
+                | std::views::transform([this](const auto& raw_full_edge) noexcept {
+                    N n1 { std::get<1>(raw_full_edge) };
+                    N n2 { std::get<2>(raw_full_edge) };
+                    E e { edge_type::NORMAL, { n1, n2 } };
+                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                })
+            };
             bool is_leaf { node == get_leaf_node() };
             auto non_leaf_only_outputs {
                 std::views::single(get_leaf_node())
-                | std::views::transform([node, this](const N& n2) {
+                | std::views::transform([node, this](const N& n2) noexcept {
                     N n1 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
-                | std::views::filter([is_leaf](const auto& edge) {
+                | std::views::filter([is_leaf](const auto&) noexcept {
                     return !is_leaf;
                 })
             };
@@ -252,7 +260,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
-                | std::views::filter([is_root](const auto& edge) {
+                | std::views::filter([is_root](const auto&) {
                     return is_root;
                 })
             };
@@ -281,7 +289,15 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         auto get_inputs_full(const N& node) {
-            auto standard_inputs { g.get_inputs_full(node) };
+            auto standard_inputs {
+                g.get_inputs_full(node)
+                | std::views::transform([this](const auto& raw_full_edge) {
+                    N n1 { std::get<1>(raw_full_edge) };
+                    N n2 { std::get<2>(raw_full_edge) };
+                    E e { edge_type::NORMAL, { n1, n2 } };
+                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                })
+            };
             bool is_leaf { node == get_leaf_node() };
             auto leaf_only_inputs {
                 pair_counter_view {
@@ -294,11 +310,11 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
-                | std::views::filter([is_leaf](const auto& edge) {
+                | std::views::filter([is_leaf](const auto&) {
                     return is_leaf;
                 })
             };
-            bool is_root { node = get_root_node() };
+            bool is_root { node == get_root_node() };
             auto non_root_only_inputs {
                 std::views::single(get_root_node())
                 | std::views::transform([node, this](const N& n1) {
@@ -306,7 +322,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
-                | std::views::filter([is_root](const auto& edge) {
+                | std::views::filter([is_root](const auto&) {
                     return !is_root;
                 })
             };
@@ -340,7 +356,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return get_outputs_full(node) | std::views::transform([this](auto v) noexcept -> E { return std::get<0>(v); });
+            return get_outputs_full(node)
+                | std::views::transform([this](auto v) -> E { return std::get<0>(v); });
         }
 
         E get_output(const N& node) {
@@ -364,7 +381,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_inputs_full(node) | std::views::transform([this](auto v) noexcept -> E { return std::get<0>(v); });
+            return this->get_inputs_full(node)
+                | std::views::transform([this](auto v) -> E { return std::get<0>(v); });
         }
 
         E get_input(const N& node) {
@@ -406,7 +424,9 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_outputs(node).size();
+            auto outputs { std::ranges::common_view { this->get_outputs(node) } };
+            auto dist { std::distance(outputs.begin(), outputs.end()) };
+            return static_cast<size_t>(dist);
         }
 
         std::size_t get_out_degree_unique(const N& node) {
@@ -415,23 +435,13 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            std::size_t degree { get_out_degree(node) };
-            const auto& [n_down, n_right] { node };
-            if (n_down == 0zu && n_right == 0zu) {
-                // match edge AND freeride from 0,0 to 1,1 -- 2 edges to 1 child, subtract 1 to make the count unique
-                if (down_node_cnt > 1zu and right_node_cnt > 1zu) {
-                    degree -= 1zu;
-                }
-                // indel edge AND freeride from 0,0 to 1,0 -- 2 edges to 1 child, subtract 1 to make the count unique
-                if (down_node_cnt > 1zu) {
-                    degree -= 1zu;
-                }
-                // indel edge AND freeride from 0,0 to 0,1 -- 2 edges to 1 child, subtract 1 to make the count unique
-                if (right_node_cnt > 1zu) {
-                    degree -= 1zu;
-                }
+            auto cnt { get_out_degree(node) };
+            if (node == N{ 0u, 0u }) {
+                // In a normal grid graph, the root node has 3 outgiong edges. Local alignment graph includes those
+                // edges as well as 3 additional freeride edges going to those same set of nodes.
+                cnt -= 3zu;
             }
-            return degree;
+            return cnt;
         }
 
         std::size_t get_in_degree(const N& node) {
@@ -440,7 +450,9 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_inputs(node).size();
+            auto inputs { std::ranges::common_view { this->get_inputs(node) } };
+            auto dist { std::distance(inputs.begin(), inputs.end()) };
+            return static_cast<size_t>(dist);
         }
 
         std::size_t get_in_degree_unique(const N& node) {
@@ -449,23 +461,13 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            std::size_t degree { get_in_degree(node) };
-            const auto& [n_down, n_right] { node };
-            if (n_down == down_node_cnt - 1zu && n_right == right_node_cnt - 1zu) {
-                // match edge AND freeride from max_d-1,maxr-1 to max_d,max_r -- 2 edges to 1 child, subtract 1 to make the count unique
-                if (down_node_cnt > 1zu and right_node_cnt > 1zu) {
-                    degree -= 1zu;
-                }
-                // indel edge AND freeride from max_d-1,maxr to max_d,max_r -- 2 edges to 1 child, subtract 1 to make the count unique
-                if (down_node_cnt > 1zu) {
-                    degree -= 1zu;
-                }
-                // indel edge AND freeride from max_d,maxr-1 to max_d,max_r -- 2 edges to 1 child, subtract 1 to make the count unique
-                if (right_node_cnt > 1zu) {
-                    degree -= 1zu;
-                }
+            auto cnt { get_in_degree(node) };
+            if (node == N{ down_node_cnt - 1u, right_node_cnt - 1u }) {
+                // In a normal grid graph, the leaf node has 3 incoming edges. Local alignment graph includes those
+                // edges as well as 3 additional freeride edges coming from those same set of nodes.
+                cnt -= 3zu;
             }
-            return degree;
+            return cnt;
         }
 
         template<weight WEIGHT=std::float64_t>

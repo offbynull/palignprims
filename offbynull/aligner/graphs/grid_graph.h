@@ -180,7 +180,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             auto right_range { std::views::iota(0u, right_node_cnt) };
             return
                 std::views::cartesian_product(down_range, right_range)
-                | std::views::transform([](const auto & p) noexcept {
+                | std::views::transform([](const auto & p) {
                     return N { std::get<0>(p), std::get<1>(p) };
                 });
         }
@@ -189,7 +189,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             auto down_range { std::views::iota(0u, down_node_cnt) };
             auto right_range { std::views::iota(0u, right_node_cnt) };
             return std::views::cartesian_product(down_range, right_range)
-                | std::views::transform([&](const auto & p) noexcept {
+                | std::views::transform([&](const auto & p) {
                     N node { std::get<0>(p), std::get<1>(p) };
                     return this->get_outputs(node);
                 })
@@ -215,7 +215,6 @@ namespace offbynull::aligner::graphs::grid_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            auto [n_down, n_right] = node;
             // Cartesian product has some issues with bloat, so not using it here:
             //     std::views::cartesian_product(
             //         std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(1)),
@@ -315,7 +314,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                 }
             }
             return this->get_outputs_full(node)
-                | std::views::transform([](const auto& v) noexcept -> E { return std::get<0>(v); });
+                | std::views::transform([](const auto& v) -> E { return std::get<0>(v); });
         }
 
         E get_output(const N& node) {
@@ -340,7 +339,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                 }
             }
             return this->get_inputs_full(node)
-                | std::views::transform([](const auto& v) noexcept -> E { return std::get<0>(v); });
+                | std::views::transform([](const auto& v) -> E { return std::get<0>(v); });
         }
 
         E get_input(const N& node) {

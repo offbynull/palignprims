@@ -2,6 +2,8 @@
 #define OFFBYNULL_UTILS_H
 
 #include <cstddef>
+
+#include "utils.h"
 #include "boost/container/static_vector.hpp"
 #include "boost/container/options.hpp"
 
@@ -27,6 +29,7 @@ namespace offbynull::utils {
         };
 
         template <typename It1, typename S1, typename It2, typename S2>
+        requires std::same_as<decltype(*std::declval<It1>()), decltype(*std::declval<It2>())>
         class iterator {
             It1 it1;
             S1 end1;
@@ -36,7 +39,7 @@ namespace offbynull::utils {
 
            public:
             using difference_type = std::ptrdiff_t;
-            using value_type = std::common_type_t<decltype(*std::declval<It1>()), decltype(*std::declval<It2>())>;
+            using value_type = decltype(*std::declval<It1>());
             using pointer = value_type*;
             using reference = value_type;
             using iterator_category = std::input_iterator_tag;
@@ -134,19 +137,32 @@ namespace offbynull::utils {
     // https://www.reddit.com/r/cpp_questions/comments/1d2qecv/use_of_views_results_in_4x_the_number_of_assembly/.
     template <std::integral T>
     class pair_counter_view : public std::ranges::view_interface<pair_counter_view<T>> {
-        const T dim1_cnt;
-        const T dim2_cnt;
+        T dim1_cnt;
+        T dim2_cnt;
 
-       public:
+        public:
         pair_counter_view(T dim1_cnt_, T dim2_cnt_)
             : dim1_cnt(dim1_cnt_)
             , dim2_cnt(dim2_cnt_) {}
 
+        pair_counter_view(pair_counter_view<T>& other) = default;
+        pair_counter_view(pair_counter_view<T>&& other) = default;
+        pair_counter_view<T>& operator=(const pair_counter_view<T>& other) = default;
+        pair_counter_view<T>& operator=(pair_counter_view<T>&& other) = default;
+
+        class sentinel {
+        public:
+            // need to provide sentinel == iterator separately
+            bool operator==(const auto& i) const {
+                return i == *this;
+            }
+        };
+
         class iterator {
             T dim1;
-            const T dim1_cnt;
+            T dim1_cnt;
             T dim2;
-            const T dim2_cnt;
+            T dim2_cnt;
 
            public:
             using difference_type = std::ptrdiff_t;
@@ -162,7 +178,7 @@ namespace offbynull::utils {
             , dim2_cnt(dim2_cnt_) {}
 
             reference operator*() const {
-                return std::pair {dim1, dim2};
+                return std::pair<T, T> {dim1, dim2};
             }
 
             iterator& operator++() {
@@ -184,10 +200,15 @@ namespace offbynull::utils {
                 // std::cout << this->dim1 << 'x' << this->dim2 << " vs "
                 //     << other.dim1 << 'x' << other.dim2
                 //     << std::endl;
-                return this->dim1 == other.dim1
-                    && this->dim1_cnt == other.dim1_cnt
-                    && this->dim2 == other.dim2
-                    && this->dim2_cnt == other.dim2_cnt;
+                return dim1 == other.dim1
+                    && dim1_cnt == other.dim1_cnt
+                    && dim2 == other.dim2
+                    && dim2_cnt == other.dim2_cnt;
+            }
+
+            bool operator==(const sentinel&) const {
+                return dim1 == dim1_cnt
+                    && dim2 == dim2_cnt;
             }
         };
 
@@ -200,19 +221,38 @@ namespace offbynull::utils {
             );
         }
 
-        auto end() noexcept {
-            return iterator(
-                0,
-                dim1_cnt,
-                dim2_cnt,
-                dim2_cnt
-            );
+        auto end() const noexcept {
+            return sentinel{};
         }
     };
 
     // Proper placement of the deduction guide
     template <std::integral T>
     pair_counter_view(T&&, T&&) -> pair_counter_view<T>;
+
+    struct pair_counter_range_adaptor {
+        template<std::integral T>
+        constexpr auto operator() (T dim1_cnt, T dim2_cnt) const {
+            return pair_counter_view<T>(dim1_cnt, dim2_cnt);
+        }
+    };
+
+    template<std::integral T, typename Adaptor>
+    auto operator|(const pair_counter_view<T>& pcv, Adaptor&& adaptor) {
+        return adaptor(std::views::all(pcv));
+    }
+
+    template<std::integral T, typename Adaptor>
+    auto operator|(pair_counter_view<T>&& pcv, Adaptor&& adaptor) {
+        return adaptor(std::views::all(std::move(pcv)));
+    }
+
+    // static_assert(std::ranges::viewable_range<pair_counter_view<int>>);
+    static_assert(std::movable<pair_counter_view<int>>);
+    static_assert(std::ranges::view<pair_counter_view<int>>);
+
+
+
 
 
 

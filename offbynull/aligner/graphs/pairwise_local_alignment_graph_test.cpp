@@ -229,7 +229,7 @@ namespace {
             {
                 std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
                 for (auto _e : g.get_outputs( { 0u, 0u } )) {
-                    actual.insert(_e);
+                    actual.push_back(_e);
                 }
                 std::sort(actual.begin(), actual.end());
                 std::vector<E> expected {
