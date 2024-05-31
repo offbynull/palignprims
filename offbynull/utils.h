@@ -20,6 +20,11 @@ namespace offbynull::utils {
             : first_range(std::forward<T1>(first)),
               second_range(std::forward<T2>(second)) {}
 
+        concat_view(concat_view<R1, R2>& other) = default;
+        concat_view(concat_view<R1, R2>&& other) = default;
+        concat_view<R1, R2>& operator=(const concat_view<R1, R2>& other) = default;
+        concat_view<R1, R2>& operator=(concat_view<R1, R2>&& other) = default;
+
         class sentinel {
         public:
             // need to provide sentinel == iterator separately
@@ -37,11 +42,10 @@ namespace offbynull::utils {
             S2 end2;
             bool is_first;
 
-           public:
+            public:
             using difference_type = std::ptrdiff_t;
-            using value_type = decltype(*std::declval<It1>());
-            using pointer = value_type*;
-            using reference = value_type;
+            using value_type = typename It1::value_type;
+            // using reference = typename It1::reference;
             using iterator_category = std::input_iterator_tag;
 
             iterator(It1 a_first, S1 a_last, It2 b_first, S2 b_last)
@@ -51,7 +55,7 @@ namespace offbynull::utils {
             , end2(b_last)
             , is_first(a_first == a_last ? false : true) {}
 
-            reference operator*() const {
+            decltype(*it1) operator*() const {
                 if (is_first) {
                     return *it1;
                 } else {
@@ -100,17 +104,6 @@ namespace offbynull::utils {
     // Proper placement of the deduction guide
     template <typename T1, typename T2>
     concat_view(T1&&, T2&&) -> concat_view<std::views::all_t<T1>, std::views::all_t<T2>>;
-
-    struct concat_range_adaptor_closure {
-        std::size_t count_;
-        constexpr concat_range_adaptor_closure(std::size_t count)
-        : count_(count) {}
-
-        template <std::ranges::viewable_range R>
-        constexpr auto operator()(R && r) const {
-            return concat_view(std::forward<R>(r), count_);
-        }
-    } ;
 
     struct concat_range_adaptor {
         template<typename R1, typename R2>
@@ -207,7 +200,7 @@ namespace offbynull::utils {
             }
 
             bool operator==(const sentinel&) const {
-                return dim1 == dim1_cnt
+                return dim1 == 0u
                     && dim2 == dim2_cnt;
             }
         };

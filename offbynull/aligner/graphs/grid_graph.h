@@ -221,12 +221,12 @@ namespace offbynull::aligner::graphs::grid_graph {
             //         std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(1))
             //     )
             //     | std::views::drop(1)
-            auto offsets = {
+            std::array<N, 3zu> offsets {
                 std::pair{ static_cast<INDEX>(0),static_cast<INDEX>(1) },
                 std::pair{ static_cast<INDEX>(1),static_cast<INDEX>(0) },
                 std::pair{ static_cast<INDEX>(1),static_cast<INDEX>(1) }
             };
-            return offsets
+            return std::move(offsets)
                 | std::views::filter([node, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [n_down, n_right] { node };
@@ -267,12 +267,12 @@ namespace offbynull::aligner::graphs::grid_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            auto offsets = {
+            std::array<N, 3zu> offsets {
                 std::pair{ static_cast<INDEX>(0),static_cast<INDEX>(1) },
                 std::pair{ static_cast<INDEX>(1),static_cast<INDEX>(0) },
                 std::pair{ static_cast<INDEX>(1),static_cast<INDEX>(1) }
             };
-            return offsets
+            return std::move(offsets)
                 | std::views::filter([node, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [n_down, n_right] { node };

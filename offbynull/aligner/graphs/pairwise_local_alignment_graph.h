@@ -254,7 +254,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     down_node_cnt,
                     right_node_cnt
                 }
-                | std::views::drop(1)
+                | std::views::take(down_node_cnt * right_node_cnt - 1u)  // Remove leaf (will be added by non_leaf_only_outputs)
+                | std::views::drop(1u)  // Remove root
                 | std::views::transform([this](const N& n2) {
                     N n1 { 0, 0 };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
@@ -265,10 +266,10 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 })
             };
             return concat_view {
-                standard_outputs,
+                std::move(standard_outputs),
                 concat_view {
-                    non_leaf_only_outputs,
-                    root_only_outputs
+                    std::move(non_leaf_only_outputs),
+                    std::move(root_only_outputs)
                 }
             };
         }
@@ -304,7 +305,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     down_node_cnt,
                     right_node_cnt
                 }
-                | std::views::take(down_node_cnt * right_node_cnt - 1u)
+                | std::views::take(down_node_cnt * right_node_cnt - 1u)  // Remove leaf
+                | std::views::drop(1u)  // Remove root (will be added by non_root_only_inputs)
                 | std::views::transform([this](const N& n1) {
                     N n2 { down_node_cnt - 1u, right_node_cnt - 1u };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
@@ -327,10 +329,10 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 })
             };
             return concat_view {
-                standard_inputs,
+                std::move(standard_inputs),
                 concat_view {
-                    leaf_only_inputs,
-                    non_root_only_inputs
+                    std::move(leaf_only_inputs),
+                    std::move(non_root_only_inputs)
                 }
             };
         }
