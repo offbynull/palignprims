@@ -35,7 +35,7 @@ namespace offbynull::aligner::graphs::grid_graph {
 
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
-        static constexpr size_t max_in_degree { 3zu };
+        static constexpr std::size_t max_in_degree { 3zu };
 
     private:
         decltype(std::declval<ND_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) nodes;
@@ -383,16 +383,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             }
             auto outputs { this->get_outputs(node) };
             auto dist { std::distance(outputs.begin(), outputs.end()) };
-            return static_cast<size_t>(dist);
-        }
-
-        std::size_t get_out_degree_unique(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            return this->get_out_degree(node);
+            return static_cast<std::size_t>(dist);
         }
 
         std::size_t get_in_degree(const N& node) {
@@ -403,16 +394,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             }
             auto inputs { this->get_inputs(node) };
             auto dist { std::distance(inputs.begin(), inputs.end()) };
-            return static_cast<size_t>(dist);
-        }
-
-        std::size_t get_in_degree_unique(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            return this->get_in_degree(node);
+            return static_cast<std::size_t>(dist);
         }
 
         constexpr static INDEX node_count(

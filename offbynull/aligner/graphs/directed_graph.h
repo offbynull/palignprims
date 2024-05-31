@@ -397,22 +397,6 @@ namespace offbynull::aligner::graphs::directed_graph {
             return this->node_outbound[node].size();
         }
 
-        std::size_t get_out_degree_unique(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto data {
-                this->get_outputs_full(node)
-                | std::views::transform([](const auto& edge_full) { return std::get<2>(edge_full); })
-            };
-            std::vector<N> data_as_vec(data.begin(), data.end());
-            std::sort(data_as_vec.begin(), data_as_vec.end());
-            auto new_last { std::unique(data_as_vec.begin(), data_as_vec.end()) };
-            return static_cast<std::size_t>(std::distance(data_as_vec.begin(), new_last));
-        }
-
         std::size_t get_in_degree(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
@@ -420,22 +404,6 @@ namespace offbynull::aligner::graphs::directed_graph {
                 }
             }
             return this->node_inbound[node].size();
-        }
-
-        std::size_t get_in_degree_unique(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto data {
-                this->get_inputs_full(node)
-                | std::views::transform([](const auto& edge_full) { return std::get<2>(edge_full); })
-            };
-            std::vector<N> data_as_vec(data.begin(), data.end());
-            std::sort(data_as_vec.begin(), data_as_vec.end());
-            auto new_last { std::unique(data_as_vec.begin(), data_as_vec.end()) };
-            return static_cast<std::size_t>(std::distance(data_as_vec.begin(), new_last));
         }
     };
 

@@ -2,6 +2,7 @@
 #define OFFBYNULL_UTILS_H
 
 #include <cstddef>
+#include <functional>
 
 #include "utils.h"
 #include "boost/container/static_vector.hpp"
@@ -284,6 +285,27 @@ namespace offbynull::utils {
         constexpr static T _0 { static_cast<T>(0) };
         constexpr static T _1 { static_cast<T>(1) };
     };
+
+
+    // Can't use std::ranges::max_element because it requires a forward iterator
+    // Can't use std::max_element because it requires a forward iterator
+    template<std::input_iterator IT, std::sentinel_for<IT> S>
+    IT max_element(IT first, S last, std::function<bool(const decltype(*first), const decltype(*first))> comp)  = delete;  // Wrap in std::ranges::common_view so .begin() and .end() return same type (no sentinel)
+
+    template<std::input_iterator IT>
+    IT max_element(IT first, IT last, std::function<bool(const decltype(*first), const decltype(*first))> comp) {
+        // type_displayer<decltype(first)> x{};
+        // type_displayer<decltype(last)> y{};
+        if (first == last)
+            return last;
+        IT largest = first;
+        while(++first != last) {
+            if (comp(*largest, *first)) {
+                largest = first;
+            }
+        }
+        return largest;
+    }
 }
 
 #endif //OFFBYNULL_UTILS_H

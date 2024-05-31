@@ -98,26 +98,25 @@ namespace {
             using E = typename std::remove_reference_t<decltype(g)>::E;
 
             auto e = g.get_edges();
-            std::multiset<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
             for (auto _e : e) {
-                actual.insert(_e);
+                actual.push_back(_e);
             }
+            std::sort(actual.begin(), actual.end());
             EXPECT_EQ(
                 actual,
-                (std::multiset<E> {
+                (std::vector<E> {
                     edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 0u}, std::pair{1u, 0u} } },
-
+                    edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} } },
                     edge { edge_type::NORMAL, std::pair { std::pair{0u, 0u}, std::pair{0u, 1u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{0u, 1u}, std::pair{0u, 2u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{1u, 0u}, std::pair{1u, 1u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{1u, 1u}, std::pair{1u, 2u} } },
                     edge { edge_type::NORMAL, std::pair { std::pair{0u, 0u}, std::pair{1u, 0u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{0u, 1u}, std::pair{1u, 1u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} } },
                     edge { edge_type::NORMAL, std::pair { std::pair{0u, 0u}, std::pair{1u, 1u} } },
+                    edge { edge_type::NORMAL, std::pair { std::pair{0u, 1u}, std::pair{0u, 2u} } },
+                    edge { edge_type::NORMAL, std::pair { std::pair{0u, 1u}, std::pair{1u, 1u} } },
                     edge { edge_type::NORMAL, std::pair { std::pair{0u, 1u}, std::pair{1u, 2u} } },
-
-                    edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} } }
+                    edge { edge_type::NORMAL, std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} } },
+                    edge { edge_type::NORMAL, std::pair { std::pair{1u, 0u}, std::pair{1u, 1u} } },
+                    edge { edge_type::NORMAL, std::pair { std::pair{1u, 1u}, std::pair{1u, 2u} } }
                 })
             );
         };
@@ -218,53 +217,56 @@ namespace {
             using E = typename std::remove_reference_t<decltype(g)>::E;
 
             {
-                std::set<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
                 for (auto _e : g.get_outputs( { 0u, 0u } )) {
-                    actual.insert(_e);
+                    actual.push_back(_e);
                 }
+                std::sort(actual.begin(), actual.end());
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {
+                    (std::vector<E> {
+                        { edge_type::FREE_RIDE, {{0u, 0u}, {1u, 0u} } },
                         { edge_type::NORMAL, {{0u, 0u}, {0u, 1u} } },
                         { edge_type::NORMAL, {{0u, 0u}, {1u, 0u} } },
-                        { edge_type::NORMAL, {{0u, 0u}, {1u, 1u} } },
-                        { edge_type::FREE_RIDE, {{0u, 0u}, {1u, 2u} } }
+                        { edge_type::NORMAL, {{0u, 0u}, {1u, 1u} } }
                     })
                 );
             }
             {
-                std::set<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
                 for (auto _e : g.get_outputs( { 1u, 2u } )) {
-                    actual.insert(_e);
+                    actual.push_back(_e);
                 }
+                std::sort(actual.begin(), actual.end());
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {})
+                    (std::vector<E> {})
                 );
             }
             {
-                std::set<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
                 for (auto _e : g.get_outputs( { 0u, 2u } )) {
-                    actual.insert(_e);
+                    actual.push_back(_e);
                 }
+                std::sort(actual.begin(), actual.end());
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {
-                        { edge_type::NORMAL, { {0u, 2u}, {1u, 2u} } },
-                        { edge_type::FREE_RIDE, {{0u, 2u}, {1u, 2u} } }
+                    (std::vector<E> {
+                        { edge_type::FREE_RIDE, {{0u, 2u}, {1u, 2u} } },
+                        { edge_type::NORMAL, { {0u, 2u}, {1u, 2u} } }
                     })
                 );
             }
             {
-                std::set<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
                 for (auto _e : g.get_outputs( { 1u, 0u } )) {
-                    actual.insert(_e);
+                    actual.push_back(_e);
                 }
+                std::sort(actual.begin(), actual.end());
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {
+                    (std::vector<E> {
                         { edge_type::NORMAL, { {1u, 0u}, {1u, 1u} } },
-                        { edge_type::FREE_RIDE, { {1u, 0u}, {1u, 2u} } }
                     })
                 );
             }
@@ -280,53 +282,56 @@ namespace {
             using E = typename std::remove_reference_t<decltype(g)>::E;
 
             {
-                std::set<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
                 for (auto _e : g.get_inputs( std::pair{ 0u, 0u } )) {
-                    actual.insert(_e);
+                    actual.push_back(_e);
                 }
+                std::sort(actual.begin(), actual.end());
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {})
+                    (std::vector<E> {})
                 );
             }
             {
-                std::set<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
                 for (auto _e : g.get_inputs( std::pair{ 1u, 2u } )) {
-                    actual.insert(_e);
+                    actual.push_back(_e);
                 }
+                std::sort(actual.begin(), actual.end());
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {
-                        { edge_type::NORMAL, { {0u, 2u}, {1u, 2u} } },
-                        { edge_type::NORMAL, { {1u, 1u}, {1u, 2u} } },
+                    (std::vector<E> {
+                        { edge_type::FREE_RIDE, { {0u, 2u}, {1u, 2u} } },
                         { edge_type::NORMAL, { {0u, 1u}, {1u, 2u} } },
-                        { edge_type::FREE_RIDE, { {0u, 0u}, {1u, 2u} } }
+                        { edge_type::NORMAL, { {0u, 2u}, {1u, 2u} } },
+                        { edge_type::NORMAL, { {1u, 1u}, {1u, 2u} } }
                     })
                 );
             }
             {
-                std::set<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
                 for (auto _e : g.get_inputs( std::pair{0u, 2u} )) {
-                    actual.insert(_e);
+                    actual.push_back(_e);
                 }
+                std::sort(actual.begin(), actual.end());
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {
-                        { edge_type::NORMAL, { {0u, 1u}, {0u, 2u} } },
-                        { edge_type::FREE_RIDE, { {0u, 0u}, {0u, 2u} } }
+                    (std::vector<E> {
+                        { edge_type::NORMAL, { {0u, 1u}, {0u, 2u} } }
                     })
                 );
             }
             {
-                std::set<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
                 for (auto _e : g.get_inputs( std::pair{1u, 0u} )) {
-                    actual.insert(_e);
+                    actual.push_back(_e);
                 }
+                std::sort(actual.begin(), actual.end());
                 EXPECT_EQ(
                     actual,
-                    (std::set<E> {
-                        { edge_type::NORMAL, { {0u, 0u}, {1u, 0u} } },
-                        { edge_type::FREE_RIDE, { {0u, 0u}, {1u, 0u} } }
+                    (std::vector<E> {
+                        { edge_type::FREE_RIDE, { {0u, 0u}, {1u, 0u} } },
+                        { edge_type::NORMAL, { {0u, 0u}, {1u, 0u} } }
                     })
                 );
             }
@@ -342,7 +347,7 @@ namespace {
             EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 0u } ), 4);
             EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 2u } ), 0);
             EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 2u } ), 2);
-            EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 0u } ), 2);
+            EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 0u } ), 1);
         };
         x(create_vector<float>(2u, 3u));
         x(create_array<float, 2u, 3u>());
@@ -354,7 +359,7 @@ namespace {
         auto x = [](auto&& g) {
             EXPECT_EQ(g.get_in_degree(std::pair{ 0u, 0u } ), 0);
             EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 2u } ), 4);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 0u, 2u } ), 2);
+            EXPECT_EQ(g.get_in_degree(std::pair{ 0u, 2u } ), 1);
             EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 0u } ), 2);
         };
         x(create_vector<float>(2u, 3u));

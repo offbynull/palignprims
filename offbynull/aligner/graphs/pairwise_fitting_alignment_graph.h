@@ -63,7 +63,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
     public:
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
-        const size_t max_in_degree { static_cast<size_t>(down_node_cnt) - 1u };
+        const std::size_t max_in_degree { static_cast<size_t>(down_node_cnt) - 1u };
 
         pairwise_fitting_alignment_graph(
             INDEX _down_node_cnt,
@@ -219,43 +219,49 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
         }
 
         auto get_outputs_full(const N& node) {
-            // auto normals {
-            //     g.get_outputs(node)
-            //     | std::views::transform([](const auto& e) noexcept { return E { edge_type::NORMAL, e }; })
-            // };
-            // static_vector_typer<E, 1> freerides;
-            // if (node == N{ g.down_node_cnt - 1u, g.right_node_cnt - 1u }) {
-            //     // do nothing
-            // } else {
-            //     freerides.push_back({ edge_type::FREE_RIDE, { node, { g.down_node_cnt - 1u, g.right_node_cnt - 1u } } });
-            // }
-            // auto freerides_no_ref {
-            //     std::move(freerides)
-            //     | std::views::transform([](const auto& e) noexcept -> E { return e; })
-            // };
-            // return concat_view(
-            //     std::move(normals),
-            //     std::move(freerides_no_ref)
-            // );
-            // // COMMENTED OUT BECAUSE concat_view DOESN'T SUPPORT PIPE OPERATOR, WHICH CALLERS USE.
-            typename static_vector_typer<std::tuple<E, N, N, ED&>, 4u, error_check>::type ret {};
-            for (const auto& [e, n1, n2, ed_ptr] : g.get_outputs_full(node)) { // will iterate at-most 3 times
-                E new_e { edge_type::NORMAL, e };
-                ret.push_back(std::tuple<E, N, N, ED&> {new_e, n1, n2, ed_ptr});
-            }
-            // I had to use the for-loop above because g.get_outputs_full(node) doesn't allow pipe operator?
-            const auto & [n_down, n_right] { node };
-            if (!(n_down == g.down_node_cnt - 1u && n_right == g.right_node_cnt - 1u)) {
-                ret.push_back(
-                    {
-                        { edge_type::FREE_RIDE, { node, { g.down_node_cnt - 1u, g.right_node_cnt - 1u } } },
-                        node,
-                        {g.down_node_cnt - 1u, g.right_node_cnt - 1u},
-                        freeride_ed
-                    }
-                );
-            }
-            return ret;
+            auto standard_outputs {
+                g.get_outputs_full(node)
+                | std::views::transform([this](const auto& raw_full_edge) noexcept {
+                    N n1 { std::get<1>(raw_full_edge) };
+                    N n2 { std::get<2>(raw_full_edge) };
+                    E e { edge_type::NORMAL, { n1, n2 } };
+                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                })
+            };
+            bool has_freeride_to_leaf { std::get<0>(node) < down_node_cnt - 1u && std::get<1>(node) == right_node_cnt - 1u };
+            auto freeride_set_1 {
+                std::views::single(get_leaf_node())
+                | std::views::transform([node, this](const N& n2) noexcept {
+                    N n1 { node };
+                    E e { edge_type::FREE_RIDE, { n1, n2 } };
+                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                })
+                | std::views::filter([has_freeride_to_leaf](const auto&) noexcept {
+                    return has_freeride_to_leaf;
+                })
+            };
+            bool has_freeride_from_root { node == get_root_node() };
+            auto freeride_set_2 {
+                std::views::iota(1u, down_node_cnt)
+                | std::views::transform([this](const INDEX& n_down) {
+                    return N { n_down, 0u };
+                })
+                | std::views::transform([this](const N& n2) {
+                    N n1 { 0, 0 };
+                    E e { edge_type::FREE_RIDE, { n1, n2 } };
+                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                })
+                | std::views::filter([has_freeride_from_root](const auto&) {
+                    return has_freeride_from_root;
+                })
+            };
+            return concat_view {
+                std::move(standard_outputs),
+                concat_view {
+                    std::move(freeride_set_1),
+                    std::move(freeride_set_2)
+                }
+            };
         }
 
         std::tuple<E, N, N, ED&> get_output_full(const N& node) {
@@ -274,24 +280,49 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
         }
 
         auto get_inputs_full(const N& node) {
-            typename static_vector_typer<std::tuple<E, N, N, ED&>, 4u, error_check>::type ret {};
-            for (const auto& [e, n1, n2, ed_ptr] : g.get_inputs_full(node)) { // will iterate at-most 3 times
-                E new_e { edge_type::NORMAL, e };
-                ret.push_back(std::tuple<E, N, N, ED&> {new_e, n1, n2, ed_ptr});
-            }
-            // I had to use the for-loop above because g.get_outputs_full(node) doesn't allow pipe operator?
-            const auto & [n_down, n_right] { node };
-            if (!(n_down == 0u && n_right == 0u)) {
-                ret.push_back(
-                    {
-                        { edge_type::FREE_RIDE, { { 0u, 0u }, node } },
-                        { 0u, 0u },
-                        node,
-                        freeride_ed
-                    }
-                );
-            }
-            return ret;
+            auto standard_inputs {
+                g.get_inputs_full(node)
+                | std::views::transform([this](const auto& raw_full_edge) {
+                    N n1 { std::get<1>(raw_full_edge) };
+                    N n2 { std::get<2>(raw_full_edge) };
+                    E e { edge_type::NORMAL, { n1, n2 } };
+                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                })
+            };
+            bool has_freeride_to_leaf { node == get_leaf_node() };
+            auto freeride_set_1 {
+                std::views::iota(0u, down_node_cnt - 1u)
+                | std::views::transform([this](const INDEX& n_down) {
+                    return N { n_down, right_node_cnt - 1u };
+                })
+                | std::views::transform([this](const N& n1) {
+                    N n2 { get_leaf_node() };
+                    E e { edge_type::FREE_RIDE, { n1, n2 } };
+                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                })
+                | std::views::filter([has_freeride_to_leaf](const auto&) {
+                    return has_freeride_to_leaf;
+                })
+            };
+            bool has_freeride_from_root { std::get<0>(node) > 0u && std::get<1>(node) == 0u };
+            auto freeride_set_2 {
+                std::views::single(get_root_node())
+                | std::views::transform([node, this](const N& n1) {
+                    N n2 { node };
+                    E e { edge_type::FREE_RIDE, { n1, n2 } };
+                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                })
+                | std::views::filter([has_freeride_from_root](const auto&) {
+                    return has_freeride_from_root;
+                })
+            };
+            return concat_view {
+                std::move(standard_inputs),
+                concat_view {
+                    std::move(freeride_set_1),
+                    std::move(freeride_set_2)
+                }
+            };
         }
 
         std::tuple<E, N, N, ED&> get_input_full(const N& node) {
@@ -315,7 +346,8 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return get_outputs_full(node) | std::views::transform([this](auto v) noexcept -> E { return std::get<0>(v); });
+            return get_outputs_full(node)
+                | std::views::transform([this](auto v) -> E { return std::get<0>(v); });
         }
 
         E get_output(const N& node) {
@@ -339,7 +371,8 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_inputs_full(node) | std::views::transform([this](auto v) noexcept -> E { return std::get<0>(v); });
+            return this->get_inputs_full(node)
+                | std::views::transform([this](auto v) -> E { return std::get<0>(v); });
         }
 
         E get_input(const N& node) {
@@ -363,7 +396,8 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return !this->get_outputs(node).empty();
+            auto outputs { this->get_outputs(node) };
+            return outputs.begin() != outputs.end();
         }
 
         bool has_inputs(const N& node) {
@@ -372,7 +406,8 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return !this->get_inputs(node).empty();
+            auto inputs { this->get_inputs(node) };
+            return inputs.begin() != inputs.end();
         }
 
         std::size_t get_out_degree(const N& node) {
@@ -381,24 +416,9 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_outputs(node).size();
-        }
-
-        std::size_t get_out_degree_unique(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            std::size_t degree { get_out_degree(node) };
-            const auto& [n_down, n_right] { node };
-            if (n_down == 0zu && n_right == 0zu) {
-                // indel edge AND freeride from 0,0 to 1,0 -- 2 edges to 1 child, subtract 1 to make the count unique
-                if (down_node_cnt > 1zu) {
-                    degree -= 1zu;
-                }
-            }
-            return degree;
+            auto outputs { std::ranges::common_view { this->get_outputs(node) } };
+            auto dist { std::distance(outputs.begin(), outputs.end()) };
+            return static_cast<std::size_t>(dist);
         }
 
         std::size_t get_in_degree(const N& node) {
@@ -407,24 +427,9 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return this->get_inputs(node).size();
-        }
-
-        std::size_t get_in_degree_unique(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            std::size_t degree { get_in_degree(node) };
-            const auto& [n_down, n_right] { node };
-            if (n_down == down_node_cnt - 1zu && n_right == right_node_cnt - 1zu) {
-                // indel edge AND freeride from max_d-1,maxr to max_d,max_r -- 2 edges to 1 child, subtract 1 to make the count unique
-                if (down_node_cnt > 1zu) {
-                    degree -= 1zu;
-                }
-            }
-            return degree;
+            auto inputs { std::ranges::common_view { this->get_inputs(node) } };
+            auto dist { std::distance(inputs.begin(), inputs.end()) };
+            return static_cast<std::size_t>(dist);
         }
 
         template<weight WEIGHT=std::float64_t>

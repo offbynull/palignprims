@@ -39,32 +39,39 @@ namespace offbynull::aligner::backtrack::slot_container {
     template<
         typename N,
         typename E,
-        widenable_to_size_t INDEX,
+        widenable_to_size_t COUNT,
         weight WEIGHT,
-        container_creator ALLOCATOR=vector_container_creator<slot<N, E, INDEX, WEIGHT>>,
+        container_creator ALLOCATOR=vector_container_creator<slot<N, E, COUNT, WEIGHT>>,
         bool error_check=true
     >
     class slot_container {
     private:
         struct slots_comparator {
-            bool operator()(const slot<N, E, INDEX, WEIGHT>& lhs, const slot<N, E, INDEX, WEIGHT>& rhs) const noexcept {
+            bool operator()(const slot<N, E, COUNT, WEIGHT>& lhs, const slot<N, E, COUNT, WEIGHT>& rhs) const noexcept {
                 return lhs.node < rhs.node;
             }
 
-            bool operator()(const slot<N, E, INDEX, WEIGHT>& lhs, const N& rhs) const noexcept {
+            bool operator()(const slot<N, E, COUNT, WEIGHT>& lhs, const N& rhs) const noexcept {
                 return lhs.node < rhs;
             }
 
-            bool operator()(const N& lhs, const slot<N, E, INDEX, WEIGHT>& rhs) const noexcept {
+            bool operator()(const N& lhs, const slot<N, E, COUNT, WEIGHT>& rhs) const noexcept {
                 return lhs < rhs.node;
             }
         };
 
         decltype(std::declval<ALLOCATOR>().create_empty(std::nullopt)) slots;
     public:
+        // Concepts for params have been commented out because THEY FAIL when you pass in a std::views::common(...)'s
+        // iterator. Apparently the iterator doesn't contain ::value_type? Or the iterator that's passed in isn't
+        // default constructible (there doesn't seem to be any requirement that an iterator be default constructible,
+        // but the iterator is a concat_view which is being wrapped in a std::views::common() and there's some weird
+        // concepts checking to make sure things are default constructible / ::value_type isn't making it through?
+        //
+        // https://www.reddit.com/r/cpp_questions/comments/1d5z7sh/bizarre_requirement_of_stdinput_iterator/
         slot_container(
-            input_iterator_of_type<slot<N, E, INDEX, WEIGHT>> auto&& begin,
-            input_iterator_of_type<slot<N, E, INDEX, WEIGHT>> auto&& end,
+            /*input_iterator_of_type<slot<N, E, COUNT, WEIGHT>>*/ auto begin,
+            /*std::sentinel_for<decltype(begin)>*/ auto end,
             ALLOCATOR container_creator = {}
         ) : slots(container_creator.create_copy(begin, end)) {
             std::ranges::sort(
@@ -79,16 +86,16 @@ namespace offbynull::aligner::backtrack::slot_container {
             return it - slots.begin();
         }
 
-        slot<N, E, INDEX, WEIGHT>& find_ref(const N& node) {
+        slot<N, E, COUNT, WEIGHT>& find_ref(const N& node) {
             auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
             return *it;
         }
 
-        slot<N, E, INDEX, WEIGHT>& at_idx(const std::size_t idx) {
+        slot<N, E, COUNT, WEIGHT>& at_idx(const std::size_t idx) {
             return slots[idx];
         }
 
-        std::pair<std::size_t, slot<N, E, INDEX, WEIGHT>&> find(const N& node) {
+        std::pair<std::size_t, slot<N, E, COUNT, WEIGHT>&> find(const N& node) {
             auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
             auto dist_from_beginning { std::ranges::distance(slots.begin(), it) };
             std::size_t idx;
@@ -106,7 +113,7 @@ namespace offbynull::aligner::backtrack::slot_container {
             } else {
                 idx = { dist_from_beginning };
             }
-            slot<N, E, INDEX, WEIGHT>& slot { *it };
+            slot<N, E, COUNT, WEIGHT>& slot { *it };
             return { idx, slot };
         }
     };

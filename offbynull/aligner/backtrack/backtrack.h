@@ -13,6 +13,7 @@
 #include "offbynull/aligner/backtrack/slot_container.h"
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/concepts.h"
+#include "offbynull/utils.h"
 
 namespace offbynull::aligner::backtrack::backtrack {
     using offbynull::aligner::graph::graph::readable_graph;
@@ -24,6 +25,7 @@ namespace offbynull::aligner::backtrack::backtrack {
     using offbynull::aligner::backtrack::container_creators::vector_container_creator;
     using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
+    using offbynull::utils::max_element;
 
     template<
         readable_graph G,
@@ -52,20 +54,22 @@ namespace offbynull::aligner::backtrack::backtrack {
             // The "slots" list tracks number of unprocessed parents for each node within the graph. The list is sorted by the
             // ordering of the node being track (node type must be orderable using std::less or < or whatever stdlib deems) such
             // that the index for a node object can be quickly found.
-            const auto& slots_lazy {
-                g.get_nodes()
-                | std::views::transform([&](const auto& n) -> slot<N, E, COUNT, WEIGHT> {
-                    std::size_t in_degree { g.get_in_degree_unique(n) };
-                    COUNT in_degree_narrowed { static_cast<COUNT>(in_degree) };
-                    if constexpr (error_check) {
-                        if (in_degree_narrowed != in_degree) {
-                            throw std::runtime_error("Narrowed but led to information loss");
+            auto slots_lazy {
+                std::views::common(
+                    g.get_nodes()
+                    | std::views::transform([&](const auto& n) -> slot<N, E, COUNT, WEIGHT> {
+                        std::size_t in_degree { g.get_in_degree(n) };
+                        COUNT in_degree_narrowed { static_cast<COUNT>(in_degree) };
+                        if constexpr (error_check) {
+                            if (in_degree_narrowed != in_degree) {
+                                throw std::runtime_error("Narrowed but led to information loss");
+                            }
                         }
-                    }
-                    return { n, in_degree_narrowed };
-                })
+                        return { n, in_degree_narrowed };
+                    })
+                )
             };
-            slot_container_t slots {slots_lazy.begin(), slots_lazy.end()};
+            slot_container_t slots (slots_lazy.begin(), slots_lazy.end());
             // Create "ready_idxes" queue
             // --------------------------
             // The "ready_idxes" queue contains indicies within "slots" that are ready-to-process (node in that slot has had all
@@ -98,19 +102,24 @@ namespace offbynull::aligner::backtrack::backtrack {
                     }
                 }
                 auto incoming_accumulated {
-                    g.get_inputs(current_slot.node)
-                    | std::views::transform(
-                        [&](const auto& edge) noexcept -> std::pair<E, WEIGHT> {
-                            const auto& src_node { g.get_edge_from(edge) };
-                            const slot<N, E, COUNT, WEIGHT>& src_node_slot { slots.find_ref(src_node) };
-                            const auto& edge_weight { get_edge_weight_func(edge) };
-                            return { edge, src_node_slot.backtracking_weight + edge_weight };
-                        }
+                    std::views::common(
+                        g.get_inputs(current_slot.node)
+                        | std::views::transform(
+                            [&](const auto& edge) noexcept -> std::pair<E, WEIGHT> {
+                                const auto& src_node { g.get_edge_from(edge) };
+                                const slot<N, E, COUNT, WEIGHT>& src_node_slot { slots.find_ref(src_node) };
+                                const auto& edge_weight { get_edge_weight_func(edge) };
+                                return { edge, src_node_slot.backtracking_weight + edge_weight };
+                            }
+                        )
                     )
                 };
                 auto found {
-                    std::ranges::max_element(
-                        incoming_accumulated,
+                    // Can't use std::max_element / std::ranges::max_element because it requires a forward iterator
+                    // Ensure range is a common_view (begin() and end() are of same type)
+                    max_element(
+                        incoming_accumulated.begin(),
+                        incoming_accumulated.end(),
                         [](const std::pair<E, WEIGHT>& a, const std::pair<E, WEIGHT>& b) noexcept {
                             return a.second < b.second;
                         }

@@ -29,7 +29,7 @@ namespace offbynull::aligner::backtrack::container_creators {
             return std::vector<ELEM>(cnt);
         }
 
-        std::vector<ELEM> create_copy(auto& begin, auto& end) {
+        std::vector<ELEM> create_copy(auto begin, auto end) {
             return std::vector<ELEM>(begin, end);
         }
     };

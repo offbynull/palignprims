@@ -56,9 +56,7 @@ namespace offbynull::aligner::graph::graph {
             { g.has_outputs(n) } -> std::same_as<bool>;
             { g.has_inputs(n) } -> std::same_as<bool>;
             { g.get_out_degree(n) } -> std::same_as<std::size_t>;
-            { g.get_out_degree_unique(n) } -> std::same_as<std::size_t>;
             { g.get_in_degree(n) } -> std::same_as<std::size_t>;
-            { g.get_in_degree_unique(n) } -> std::same_as<std::size_t>;
         };
 }
 

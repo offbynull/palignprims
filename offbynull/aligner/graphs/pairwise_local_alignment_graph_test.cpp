@@ -284,7 +284,7 @@ namespace {
 
             {
                 std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_inputs( std::pair{ 1u, 2u } )) {
+                for (auto _e : g.get_inputs( std::pair{ 0u, 0u } )) {
                     actual.push_back(_e);
                 }
                 EXPECT_EQ(
@@ -335,7 +335,7 @@ namespace {
 
     TEST(PairwiseLocalAlignmentGraphTest, GetOutputDegree) {
         auto x = [](auto&& g) {
-            EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 0u } ), 4);
+            EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 0u } ), 8);
             EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 2u } ), 0);
             EXPECT_EQ(g.get_out_degree(std::pair{ 0u, 2u } ), 2);
             EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 0u } ), 2);
@@ -349,7 +349,7 @@ namespace {
     TEST(PairwiseLocalAlignmentGraphTest, GetInputDegree) {
         auto x = [](auto&& g) {
             EXPECT_EQ(g.get_in_degree(std::pair{ 0u, 0u } ), 0);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 2u } ), 4);
+            EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 2u } ), 8);
             EXPECT_EQ(g.get_in_degree(std::pair{ 0u, 2u } ), 2);
             EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 0u } ), 2);
         };

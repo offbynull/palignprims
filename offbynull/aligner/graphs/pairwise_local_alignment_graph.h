@@ -63,8 +63,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     public:
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
-        const size_t max_in_degree {
-            (static_cast<size_t>(down_node_cnt) * static_cast<size_t>(right_node_cnt)) - 1u
+        const std::size_t max_in_degree {
+            (static_cast<std::size_t>(down_node_cnt) * static_cast<std::size_t>(right_node_cnt)) - 1u
         };
 
         pairwise_local_alignment_graph(
@@ -236,20 +236,20 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
             };
-            bool is_leaf { node == get_leaf_node() };
-            auto non_leaf_only_outputs {
+            bool has_freeride_to_leaf { node != get_leaf_node() };
+            auto freeride_set_1 {
                 std::views::single(get_leaf_node())
                 | std::views::transform([node, this](const N& n2) noexcept {
                     N n1 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
-                | std::views::filter([is_leaf](const auto&) noexcept {
-                    return !is_leaf;
+                | std::views::filter([has_freeride_to_leaf](const auto&) noexcept {
+                    return has_freeride_to_leaf;
                 })
             };
-            bool is_root { node == get_root_node() };
-            auto root_only_outputs {
+            bool has_freeride_from_root { node == get_root_node() };
+            auto freeride_set_2 {
                 pair_counter_view {
                     down_node_cnt,
                     right_node_cnt
@@ -261,15 +261,15 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
-                | std::views::filter([is_root](const auto&) {
-                    return is_root;
+                | std::views::filter([has_freeride_from_root](const auto&) {
+                    return has_freeride_from_root;
                 })
             };
             return concat_view {
                 std::move(standard_outputs),
                 concat_view {
-                    std::move(non_leaf_only_outputs),
-                    std::move(root_only_outputs)
+                    std::move(freeride_set_1),
+                    std::move(freeride_set_2)
                 }
             };
         }
@@ -299,8 +299,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
             };
-            bool is_leaf { node == get_leaf_node() };
-            auto leaf_only_inputs {
+            bool has_freeride_to_leaf { node == get_leaf_node() };
+            auto freeride_set_1 {
                 pair_counter_view {
                     down_node_cnt,
                     right_node_cnt
@@ -312,27 +312,27 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
-                | std::views::filter([is_leaf](const auto&) {
-                    return is_leaf;
+                | std::views::filter([has_freeride_to_leaf](const auto&) {
+                    return has_freeride_to_leaf;
                 })
             };
-            bool is_root { node == get_root_node() };
-            auto non_root_only_inputs {
+            bool has_freeride_from_root { node != get_root_node() };
+            auto freeride_set_2 {
                 std::views::single(get_root_node())
                 | std::views::transform([node, this](const N& n1) {
                     N n2 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
                 })
-                | std::views::filter([is_root](const auto&) {
-                    return !is_root;
+                | std::views::filter([has_freeride_from_root](const auto&) {
+                    return has_freeride_from_root;
                 })
             };
             return concat_view {
                 std::move(standard_inputs),
                 concat_view {
-                    std::move(leaf_only_inputs),
-                    std::move(non_root_only_inputs)
+                    std::move(freeride_set_1),
+                    std::move(freeride_set_2)
                 }
             };
         }
@@ -408,7 +408,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return !this->get_outputs(node).empty();
+            auto outputs { this->get_outputs(node) };
+            return outputs.begin() != outputs.end();
         }
 
         bool has_inputs(const N& node) {
@@ -417,7 +418,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return !this->get_inputs(node).empty();
+            auto inputs { this->get_inputs(node) };
+            return inputs.begin() != inputs.end();
         }
 
         std::size_t get_out_degree(const N& node) {
@@ -428,22 +430,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             }
             auto outputs { std::ranges::common_view { this->get_outputs(node) } };
             auto dist { std::distance(outputs.begin(), outputs.end()) };
-            return static_cast<size_t>(dist);
-        }
-
-        std::size_t get_out_degree_unique(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto cnt { get_out_degree(node) };
-            if (node == N{ 0u, 0u }) {
-                // In a normal grid graph, the root node has 3 outgiong edges. Local alignment graph includes those
-                // edges as well as 3 additional freeride edges going to those same set of nodes.
-                cnt -= 3zu;
-            }
-            return cnt;
+            return static_cast<std::size_t>(dist);
         }
 
         std::size_t get_in_degree(const N& node) {
@@ -454,22 +441,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             }
             auto inputs { std::ranges::common_view { this->get_inputs(node) } };
             auto dist { std::distance(inputs.begin(), inputs.end()) };
-            return static_cast<size_t>(dist);
-        }
-
-        std::size_t get_in_degree_unique(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto cnt { get_in_degree(node) };
-            if (node == N{ down_node_cnt - 1u, right_node_cnt - 1u }) {
-                // In a normal grid graph, the leaf node has 3 incoming edges. Local alignment graph includes those
-                // edges as well as 3 additional freeride edges coming from those same set of nodes.
-                cnt -= 3zu;
-            }
-            return cnt;
+            return static_cast<std::size_t>(dist);
         }
 
         template<weight WEIGHT=std::float64_t>
