@@ -40,26 +40,32 @@ namespace offbynull::aligner::backtrack::slot_container {
         typename N,
         typename E,
         widenable_to_size_t COUNT,
+        weight WEIGHT
+    >
+    struct slots_comparator {
+        bool operator()(const slot<N, E, COUNT, WEIGHT>& lhs, const slot<N, E, COUNT, WEIGHT>& rhs) const noexcept {
+            return lhs.node < rhs.node;
+        }
+
+        bool operator()(const slot<N, E, COUNT, WEIGHT>& lhs, const N& rhs) const noexcept {
+            return lhs.node < rhs;
+        }
+
+        bool operator()(const N& lhs, const slot<N, E, COUNT, WEIGHT>& rhs) const noexcept {
+            return lhs < rhs.node;
+        }
+    };
+
+    template<
+        typename N,
+        typename E,
+        widenable_to_size_t COUNT,
         weight WEIGHT,
         container_creator ALLOCATOR=vector_container_creator<slot<N, E, COUNT, WEIGHT>>,
         bool error_check=true
     >
     class slot_container {
     private:
-        struct slots_comparator {
-            bool operator()(const slot<N, E, COUNT, WEIGHT>& lhs, const slot<N, E, COUNT, WEIGHT>& rhs) const noexcept {
-                return lhs.node < rhs.node;
-            }
-
-            bool operator()(const slot<N, E, COUNT, WEIGHT>& lhs, const N& rhs) const noexcept {
-                return lhs.node < rhs;
-            }
-
-            bool operator()(const N& lhs, const slot<N, E, COUNT, WEIGHT>& rhs) const noexcept {
-                return lhs < rhs.node;
-            }
-        };
-
         decltype(std::declval<ALLOCATOR>().create_empty(std::nullopt)) slots;
     public:
         // Concepts for params have been commented out because THEY FAIL when you pass in a std::views::common(...)'s
@@ -73,21 +79,22 @@ namespace offbynull::aligner::backtrack::slot_container {
             /*input_iterator_of_type<slot<N, E, COUNT, WEIGHT>>*/ auto begin,
             /*std::sentinel_for<decltype(begin)>*/ auto end,
             ALLOCATOR container_creator = {}
-        ) : slots(container_creator.create_copy(begin, end)) {
+        )
+        : slots(container_creator.create_copy(begin, end)) {
             std::ranges::sort(
                 slots.begin(),
                 slots.end(),
-                slots_comparator{}
+                slots_comparator<N, E, COUNT, WEIGHT>{}
             );
         }
 
         std::size_t find_idx(const N& node){
-            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, COUNT, WEIGHT>{}) };
             return it - slots.begin();
         }
 
         slot<N, E, COUNT, WEIGHT>& find_ref(const N& node) {
-            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, COUNT, WEIGHT>{}) };
             return *it;
         }
 
@@ -96,7 +103,7 @@ namespace offbynull::aligner::backtrack::slot_container {
         }
 
         std::pair<std::size_t, slot<N, E, COUNT, WEIGHT>&> find(const N& node) {
-            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator{}) };
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, COUNT, WEIGHT>{}) };
             auto dist_from_beginning { std::ranges::distance(slots.begin(), it) };
             std::size_t idx;
             if constexpr (error_check && !widenable_to_size_t<decltype(dist_from_beginning)>) {

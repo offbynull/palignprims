@@ -24,6 +24,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::concat_view;
     using offbynull::utils::pair_counter_view;
+    using offbynull::utils::static_vector_typer;
 
     enum class edge_type : uint8_t {
         FREE_RIDE,
@@ -557,6 +558,53 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::longest_path_edge_count(
                 _down_node_cnt, _right_node_cnt
             );
+        }
+
+        std::size_t max_slice_nodes_count() {
+            return g.max_slice_nodes_count();
+        }
+
+        auto slice_nodes(INDEX n_down) {
+            return g.slice_nodes(n_down);
+        }
+
+        N first_node_in_slice(INDEX n_down) {
+            return g.first_node_in_slice(n_down);
+        }
+
+        N last_node_in_slice(INDEX n_down) {
+            return g.last_node_in_slice(n_down);
+        }
+
+        N next_node_in_slice(const N& node, INDEX n_down) {
+            return g.next_node_in_slice(node, n_down);
+        }
+
+        N prev_node_in_slice(const N& node, INDEX n_down) {
+            return g.next_node_in_slice(node, n_down);
+        }
+
+        std::size_t max_resident_nodes_count() {
+            return 2zu;
+        }
+
+        auto resident_nodes() {
+            return std::array<N, 2u> { g.get_root_node(), g.get_leaf_node() };
+        }
+
+        auto outputs_to_residents(const N& node) {
+            using CONTAINER = static_vector_typer<E, 2zu, error_check>::type;
+            CONTAINER ret {};
+            if (node != get_leaf_node()) {
+                ret.push_back(E { edge_type::FREE_RIDE, {node, get_leaf_node() } });
+            }
+            const auto& [n_down, n_right] { node };
+            if ((n_down + 2u == down_node_cnt && n_right + 2u == right_node_cnt)
+                    || (n_down + 1u == down_node_cnt && n_right + 2u == right_node_cnt)
+                    || (n_down + 2u == down_node_cnt && n_right + 1u == right_node_cnt)) {
+                ret.push_back(E { edge_type::NORMAL, {node, get_leaf_node() } });
+            }
+            return ret;
         }
     };
 }

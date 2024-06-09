@@ -345,6 +345,42 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
                 _down_node_cnt, _right_node_cnt
             );
         }
+
+        std::size_t max_slice_nodes_count() {
+            return g.max_slice_nodes_count();
+        }
+
+        auto slice_nodes(INDEX n_down) {
+            return g.slice_nodes(n_down);
+        }
+
+        N first_node_in_slice(INDEX n_down) {
+            return g.first_node_in_slice(n_down);
+        }
+
+        N last_node_in_slice(INDEX n_down) {
+            return g.last_node_in_slice(n_down);
+        }
+
+        N next_node_in_slice(const N& node, INDEX n_down) {
+            return g.next_node_in_slice(node, n_down);
+        }
+
+        N prev_node_in_slice(const N& node, INDEX n_down) {
+            return g.next_node_in_slice(node, n_down);
+        }
+
+        std::size_t max_resident_nodes_count() {
+            return g.max_resident_nodes_count();
+        }
+
+        auto resident_nodes() {
+            return g.resident_nodes();
+        }
+
+        auto outputs_to_residents(const N& node) {
+            return g.outputs_to_residents(node);
+        }
     };
 }
 #endif //OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_GLOBAL_ALIGNMENT_GRAPH_H

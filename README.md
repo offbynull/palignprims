@@ -12,7 +12,10 @@ TODO:
 * Add divide-and-conquer aligner interface methods and algorithm
 
   ```c++
-  auto slice_nodes(INDEX column); //
+  constexpr std::size_t G::max_slice_predecessor_count; // make number of predecessors required by a slice
+  auto slice_walk(INDEX column); // returns a slice in order of dependencies
+  auto slice_contants();  // returns node weights that MUST be always be kept in-memory (in addition to slice_walk(i-1)
+  
   class pairwise_reversed_graph;  // graph reverses a pairwise graph's edges, so that leaf is root and vice versa.
   class pairwise_graph_view;      // graph that limits the down/right node counts
   ```

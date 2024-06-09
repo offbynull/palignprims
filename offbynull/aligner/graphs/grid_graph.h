@@ -429,6 +429,69 @@ namespace offbynull::aligner::graphs::grid_graph {
         ) {
             return (_right_node_cnt - 1u) + (_down_node_cnt - 1u);
         }
+
+        std::size_t max_slice_nodes_count() {
+            return right_node_cnt;
+        }
+
+        auto slice_nodes(INDEX n_down) {
+            return std::views::iota(0u, right_node_cnt)
+                | std::views::transform([n_down](const auto& n_right) { return N { n_down, n_right }; });
+        }
+
+        N first_node_in_slice(INDEX n_down) {
+            if constexpr (error_check) {
+                if (n_down + 1u == down_node_cnt) {
+                    throw std::runtime_error("Node too far down");
+                }
+            }
+            return N { n_down, 0u };
+        }
+
+        N last_node_in_slice(INDEX n_down) {
+            if constexpr (error_check) {
+                if (n_down + 1u == down_node_cnt) {
+                    throw std::runtime_error("Node too far down");
+                }
+            }
+            return N { n_down, right_node_cnt - 1u };
+        }
+
+        N next_node_in_slice(const N& node, INDEX n_down) {
+            if constexpr (error_check) {
+                if (std::get<0>(node) == n_down) {
+                    throw std::runtime_error("Node too far down");
+                }
+                if (std::get<1>(node) + 1u == right_node_cnt) {
+                    throw std::runtime_error("Node too far right");
+                }
+            }
+            return N { std::get<0>(node), std::get<1>(node) + 1u};
+        }
+
+        N prev_node_in_slice(const N& node, INDEX n_down) {
+            if constexpr (error_check) {
+                if (std::get<0>(node) == n_down) {
+                    throw std::runtime_error("Node too far down");
+                }
+                if (std::get<1>(node) == 0u) {
+                    throw std::runtime_error("Node too far left");
+                }
+            }
+            return N { std::get<0>(node), std::get<1>(node) - 1u};
+        }
+
+        std::size_t max_resident_nodes_count() {
+            return 0zu;
+        }
+
+        auto resident_nodes() {
+            return std::views::empty<N>;
+        }
+
+        auto outputs_to_residents(const N& node) {
+            return std::views::empty<E>;
+        }
     };
 }
 #endif //OFFBYNULL_ALIGNER_GRAPHS_GRID_GRAPH_H
