@@ -350,7 +350,7 @@ namespace offbynull::aligner::backtrack::sliced_walker {
 
             // Update resident node weights
             for (const E& edge : graph.inputs_to_residents(active_slot_ptr->node)) {
-                const N& resident_node { graph.get_edge_to(edge) };
+                const N& resident_node { graph.get_edge_from(edge) };
                 std::optional<std::reference_wrapper<slot<N, WEIGHT>>> resident_slot_maybe {
                     find_within_slots(resident_slots, resident_node)
                 };

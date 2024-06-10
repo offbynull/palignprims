@@ -581,7 +581,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         N prev_node_in_slice(const N& node, INDEX n_down) {
-            return g.next_node_in_slice(node, n_down);
+            return g.prev_node_in_slice(node, n_down);
         }
 
         std::size_t max_resident_nodes_count() {
@@ -614,9 +614,9 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 ret.push_back(E { edge_type::FREE_RIDE, { get_root_node(), node } });
             }
             const auto& [n_down, n_right] { node };
-            if ((n_down + 2u == down_node_cnt && n_right + 2u == right_node_cnt)
-                    || (n_down + 1u == down_node_cnt && n_right + 2u == right_node_cnt)
-                    || (n_down + 2u == down_node_cnt && n_right + 1u == right_node_cnt)) {
+            if ((n_down == 1u && n_right == 1u)
+                    || (n_down == 1u && n_right == 0u)
+                    || (n_down == 0u && n_right == 1u)) {
                 ret.push_back(E { edge_type::NORMAL, { get_root_node(), node } });
             }
             return ret;
