@@ -496,6 +496,10 @@ namespace offbynull::aligner::graphs::grid_graph {
         auto outputs_to_residents(const N& node) {
             return std::views::empty<E>;
         }
+
+        auto inputs_to_residents(const N& node) {
+            return std::views::empty<E>;
+        }
     };
 }
 #endif //OFFBYNULL_ALIGNER_GRAPHS_GRID_GRAPH_H

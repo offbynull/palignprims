@@ -596,13 +596,28 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             using CONTAINER = static_vector_typer<E, 2zu, error_check>::type;
             CONTAINER ret {};
             if (node != get_leaf_node()) {
-                ret.push_back(E { edge_type::FREE_RIDE, {node, get_leaf_node() } });
+                ret.push_back(E { edge_type::FREE_RIDE, { node, get_leaf_node() } });
             }
             const auto& [n_down, n_right] { node };
             if ((n_down + 2u == down_node_cnt && n_right + 2u == right_node_cnt)
                     || (n_down + 1u == down_node_cnt && n_right + 2u == right_node_cnt)
                     || (n_down + 2u == down_node_cnt && n_right + 1u == right_node_cnt)) {
-                ret.push_back(E { edge_type::NORMAL, {node, get_leaf_node() } });
+                ret.push_back(E { edge_type::NORMAL, { node, get_leaf_node() } });
+            }
+            return ret;
+        }
+
+        auto inputs_to_residents(const N& node) {
+            using CONTAINER = static_vector_typer<E, 2zu, error_check>::type;
+            CONTAINER ret {};
+            if (node != get_root_node()) {
+                ret.push_back(E { edge_type::FREE_RIDE, { get_root_node(), node } });
+            }
+            const auto& [n_down, n_right] { node };
+            if ((n_down + 2u == down_node_cnt && n_right + 2u == right_node_cnt)
+                    || (n_down + 1u == down_node_cnt && n_right + 2u == right_node_cnt)
+                    || (n_down + 2u == down_node_cnt && n_right + 1u == right_node_cnt)) {
+                ret.push_back(E { edge_type::NORMAL, { get_root_node(), node } });
             }
             return ret;
         }

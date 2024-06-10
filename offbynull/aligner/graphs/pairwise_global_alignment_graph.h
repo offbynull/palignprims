@@ -367,7 +367,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         }
 
         N prev_node_in_slice(const N& node, INDEX n_down) {
-            return g.next_node_in_slice(node, n_down);
+            return g.prev_node_in_slice(node, n_down);
         }
 
         std::size_t max_resident_nodes_count() {
@@ -380,6 +380,10 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
 
         auto outputs_to_residents(const N& node) {
             return g.outputs_to_residents(node);
+        }
+
+        auto inputs_to_residents(const N& node) {
+            return g.inputs_to_residents(node);
         }
     };
 }

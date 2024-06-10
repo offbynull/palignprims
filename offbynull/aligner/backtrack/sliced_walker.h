@@ -76,8 +76,8 @@ namespace offbynull::aligner::backtrack::sliced_walker {
         G& graph;
         std::function<WEIGHT(const E&)> get_edge_weight_func;
         RESIDENT_SLOT_CONTAINER resident_slots;
-        SLICE_SLOT_CONTAINER prev_slots;
-        SLICE_SLOT_CONTAINER next_slots;
+        SLICE_SLOT_CONTAINER lower_slots;
+        SLICE_SLOT_CONTAINER upper_slots;
         INDEX n_down;
         slot<N, WEIGHT>* active_slot_ptr;
         slot<N, WEIGHT>* next_slot_ptr;
@@ -93,8 +93,8 @@ namespace offbynull::aligner::backtrack::sliced_walker {
         slot<N, WEIGHT>& find_slot(const N& node) {
             using FOUND_SLOT_REF = std::optional<std::reference_wrapper<slot<N, WEIGHT>>>;
             FOUND_SLOT_REF found_resident_slot_ref { find_within_slots(resident_slots, node) };
-            FOUND_SLOT_REF found_prev_slot_ref { find_within_slots(prev_slots, node) };
-            FOUND_SLOT_REF found_next_slot_ref { find_within_slots(next_slots, node) };
+            FOUND_SLOT_REF found_prev_slot_ref { find_within_slots(lower_slots, node) };
+            FOUND_SLOT_REF found_next_slot_ref { find_within_slots(upper_slots, node) };
             auto found_slot_range {
                 std::array<FOUND_SLOT_REF, 3> {
                     found_resident_slot_ref,
@@ -128,17 +128,17 @@ namespace offbynull::aligner::backtrack::sliced_walker {
         : graph{graph_}
         , get_edge_weight_func{get_edge_weight_func_}
         , resident_slots{resident_slot_container_creator.create_empty(graph.max_resident_nodes_count())}
-        , prev_slots{slice_slot_container_creator.create_empty(graph.max_slice_nodes_count())}
-        , next_slots{slice_slot_container_creator.create_empty(graph.max_slice_nodes_count())}
+        , lower_slots{slice_slot_container_creator.create_empty(graph.max_slice_nodes_count())}
+        , upper_slots{slice_slot_container_creator.create_empty(graph.max_slice_nodes_count())}
         , n_down{0u}
         , active_slot_ptr{nullptr}
         , next_slot_ptr{nullptr} {
             const auto& _resident_slots { graph.resident_nodes() };
             std::ranges::copy(_resident_slots.cbegin(), _resident_slots.cend(), std::back_inserter(resident_slots));
             std::ranges::sort(resident_slots.begin(), resident_slots.end(), slots_comparator<N, WEIGHT>{});
-            const auto& _next_slots { graph.slice_nodes(0u) };
-            std::ranges::copy(_next_slots.cbegin(), _next_slots.cend(), std::back_inserter(next_slots));
-            std::ranges::sort(next_slots.begin(), next_slots.end(), slots_comparator<N, WEIGHT>{});
+            const auto& _upper_slots { graph.slice_nodes(0u) };
+            std::ranges::copy(_upper_slots.cbegin(), _upper_slots.cend(), std::back_inserter(upper_slots));
+            std::ranges::sort(upper_slots.begin(), upper_slots.end(), slots_comparator<N, WEIGHT>{});
             next_slot_ptr = &find_slot(graph.get_root_node());
         }
 
@@ -203,17 +203,186 @@ namespace offbynull::aligner::backtrack::sliced_walker {
             if (graph.last_node_in_slice(n_down) != active_slot_ptr->node) {
                 next_slot_ptr = &find_slot(graph.next_node_in_slice(active_slot_ptr->node, n_down));
             } else {
-                n_down++;
-                if (n_down == graph.down_node_cnt) {
+                if (n_down == graph.down_node_cnt - 1u) {
                     next_slot_ptr = nullptr;
                     return true;
                 }
-                prev_slots.clear();
-                std::ranges::copy(next_slots.begin(), next_slots.end(), std::back_inserter(prev_slots));
-                const auto & _next_slots { graph.slice_nodes(n_down) };
-                std::ranges::copy(_next_slots.begin(), _next_slots.end(), std::back_inserter(next_slots));
-                std::ranges::sort(next_slots.begin(), next_slots.end(), slots_comparator<N, WEIGHT>{});
+                n_down++;
+                lower_slots.clear();
+                std::ranges::copy(upper_slots.begin(), upper_slots.end(), std::back_inserter(lower_slots));
+                const auto & _upper_slots { graph.slice_nodes(n_down) };
+                std::ranges::copy(_upper_slots.begin(), _upper_slots.end(), std::back_inserter(upper_slots));
+                std::ranges::sort(upper_slots.begin(), upper_slots.end(), slots_comparator<N, WEIGHT>{});
                 next_slot_ptr = &find_slot(graph.first_node_in_slice(n_down));
+                active_slot_ptr = &find_slot(graph.last_node_in_slice(n_down - 1u)); // need to update this because slots entries have moved around
+            }
+
+            return false;
+        }
+    };
+
+    template<
+        readable_sliceable_parwise_alignment_graph G,
+        weight WEIGHT,
+        container_creator SLICE_SLOT_ALLOCATOR=vector_container_creator<slot<typename G::N, WEIGHT>>,
+        container_creator RESIDENT_SLOT_ALLOCATOR=vector_container_creator<slot<typename G::N, WEIGHT>>,
+        bool error_check = true
+    >
+    requires requires(typename G::N n)
+    {
+        {n < n} -> std::same_as<bool>;
+    }
+    class sliced_backward_walker {
+    private:
+        using N = typename G::N;
+        using E = typename G::E;
+        using ND = typename G::ND;
+        using ED = typename G::ED;
+        using INDEX = typename G::INDEX;
+        using SLICE_SLOT_CONTAINER=decltype(std::declval<SLICE_SLOT_ALLOCATOR>().create_empty(0zu));
+        using RESIDENT_SLOT_CONTAINER=decltype(std::declval<RESIDENT_SLOT_ALLOCATOR>().create_empty(0zu));
+        G& graph;
+        std::function<WEIGHT(const E&)> get_edge_weight_func;
+        RESIDENT_SLOT_CONTAINER resident_slots;
+        SLICE_SLOT_CONTAINER upper_slots;
+        SLICE_SLOT_CONTAINER lower_slots;
+        INDEX n_down;
+        slot<N, WEIGHT>* active_slot_ptr;
+        slot<N, WEIGHT>* prev_slot_ptr;
+
+        static std::optional<std::reference_wrapper<slot<N, WEIGHT>>> find_within_slots(auto& slots, const auto& node) {
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, WEIGHT>{}) };
+            if (it != slots.end() && (*it).node == node) {
+                return { *it };
+            }
+            return { std::nullopt };
+        }
+
+        slot<N, WEIGHT>& find_slot(const N& node) {
+            using FOUND_SLOT_REF = std::optional<std::reference_wrapper<slot<N, WEIGHT>>>;
+            FOUND_SLOT_REF found_resident_slot_ref { find_within_slots(resident_slots, node) };
+            FOUND_SLOT_REF found_prev_slot_ref { find_within_slots(upper_slots, node) };
+            FOUND_SLOT_REF found_next_slot_ref { find_within_slots(lower_slots, node) };
+            auto found_slot_range {
+                std::array<FOUND_SLOT_REF, 3> {
+                    found_resident_slot_ref,
+                    found_prev_slot_ref,
+                    found_next_slot_ref
+                }
+                | std::views::filter([](const auto& v) { return v.has_value(); })
+                | std::views::take(1u)
+                | std::views::transform([](const auto& v) { return *v; })
+            };
+            if constexpr (error_check) {
+                if (found_slot_range.begin() == found_slot_range.end()) {
+                    throw std::runtime_error("Node not found");
+                }
+            }
+            slot<N, WEIGHT>& found_slot {
+                (
+                    *(found_slot_range.begin())
+                ).get()
+            };
+            return found_slot;
+        }
+
+    public:
+        sliced_backward_walker(
+            G& graph_,
+            std::function<WEIGHT(const E&)> get_edge_weight_func_,
+            SLICE_SLOT_ALLOCATOR slice_slot_container_creator = {},
+            RESIDENT_SLOT_ALLOCATOR resident_slot_container_creator = {}
+        )
+        : graph{graph_}
+        , get_edge_weight_func{get_edge_weight_func_}
+        , resident_slots{resident_slot_container_creator.create_empty(graph.max_resident_nodes_count())}
+        , upper_slots{slice_slot_container_creator.create_empty(graph.max_slice_nodes_count())}
+        , lower_slots{slice_slot_container_creator.create_empty(graph.max_slice_nodes_count())}
+        , n_down{graph.down_node_cnt - 1u}
+        , active_slot_ptr{nullptr}
+        , prev_slot_ptr{nullptr} {
+            const auto& _resident_slots { graph.resident_nodes() };
+            std::ranges::copy(_resident_slots.cbegin(), _resident_slots.cend(), std::back_inserter(resident_slots));
+            std::ranges::sort(resident_slots.begin(), resident_slots.end(), slots_comparator<N, WEIGHT>{});
+            const auto& _lower_slots { graph.slice_nodes(graph.down_node_cnt - 1u) };
+            std::ranges::copy(_lower_slots.cbegin(), _lower_slots.cend(), std::back_inserter(lower_slots));
+            std::ranges::sort(lower_slots.begin(), lower_slots.end(), slots_comparator<N, WEIGHT>{});
+            prev_slot_ptr = &find_slot(graph.get_leaf_node());
+        }
+
+        slot<N, WEIGHT> active_slot() {
+            return *this->active_slot_ptr;
+        }
+
+        bool prev() {
+            if (prev_slot_ptr == nullptr) {
+                return true;
+            }
+            active_slot_ptr = prev_slot_ptr;
+            auto outgoing_accumulated {
+                std::views::common(
+                    graph.get_outputs(active_slot_ptr->node)
+                    | std::views::transform(
+                        [&](const auto& edge) noexcept -> std::pair<E, WEIGHT> {
+                            const N& n_to { graph.get_edge_to(edge) };
+                            const WEIGHT& edge_weight { get_edge_weight_func(edge) };
+                            slot<N, WEIGHT>& n_to_slot { find_slot(n_to) };
+                            return { edge, n_to_slot.backtracking_weight + edge_weight };
+                        }
+                    )
+                )
+            };
+            auto found {
+                // Can't use std::max_element / std::ranges::max_element because it requires a forward iterator
+                // Ensure range is a common_view (begin() and end() are of same type)
+                max_element(
+                    outgoing_accumulated.begin(),
+                    outgoing_accumulated.end(),
+                    [](const std::pair<E, WEIGHT>& a, const std::pair<E, WEIGHT>& b) noexcept {
+                        return a.second < b.second;
+                    }
+                )
+            };
+            if (found != outgoing_accumulated.end()) {  // if no outgoing nodes found, it's a leaf node
+                // active_slot.backtracking_edge = (*found).first;
+                active_slot_ptr->backtracking_weight = (*found).second;
+            }
+
+            // Update resident node weights
+            for (const E& edge : graph.inputs_to_residents(active_slot_ptr->node)) {
+                const N& resident_node { graph.get_edge_to(edge) };
+                std::optional<std::reference_wrapper<slot<N, WEIGHT>>> resident_slot_maybe {
+                    find_within_slots(resident_slots, resident_node)
+                };
+                if constexpr (error_check) {
+                    if (!resident_slot_maybe.has_value()) {
+                        throw std::runtime_error("This should never happen");
+                    }
+                }
+                slot<N, WEIGHT>& resident_slot { (*resident_slot_maybe).get() };
+                const WEIGHT& edge_weight { get_edge_weight_func(edge) };
+                const WEIGHT& new_weight { active_slot_ptr->backtracking_weight + edge_weight };
+                if (new_weight > resident_slot.backtracking_weight) {
+                    resident_slot.backtracking_weight = new_weight;
+                }
+            }
+
+            // Move to next node / next slice
+            if (graph.first_node_in_slice(n_down) != active_slot_ptr->node) {
+                prev_slot_ptr = &find_slot(graph.prev_node_in_slice(active_slot_ptr->node, n_down));
+            } else {
+                if (n_down == 0u) {
+                    prev_slot_ptr = nullptr;
+                    return true;
+                }
+                n_down--;
+                upper_slots.clear();
+                std::ranges::copy(lower_slots.begin(), lower_slots.end(), std::back_inserter(upper_slots));
+                const auto & _lower_slots { graph.slice_nodes(n_down) };
+                std::ranges::copy(_lower_slots.begin(), _lower_slots.end(), std::back_inserter(lower_slots));
+                std::ranges::sort(lower_slots.begin(), lower_slots.end(), slots_comparator<N, WEIGHT>{});
+                prev_slot_ptr = &find_slot(graph.last_node_in_slice(n_down));
+                active_slot_ptr = &find_slot(graph.first_node_in_slice(n_down + 1u)); // need to update this because slots entries have moved around
             }
 
             return false;

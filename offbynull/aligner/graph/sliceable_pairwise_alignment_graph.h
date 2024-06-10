@@ -13,11 +13,6 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::aligner::graph::pairwise_alignment_graph::readable_parwise_alignment_graph;
 
-    template <typename N, typename INDEX>
-    struct resident_node {
-
-    };
-
     template <typename G>
     concept readable_sliceable_parwise_alignment_graph =
         readable_parwise_alignment_graph<G>
@@ -35,6 +30,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
             { g.max_resident_nodes_count() } -> std::same_as<std::size_t>;
             { g.resident_nodes() } -> range_of_one_of<typename G::N, const typename G::N&>;
             { g.outputs_to_residents(node) } -> range_of_one_of<typename G::E, const typename G::E&>;  // children in slice
+            { g.inputs_to_residents(node) } -> range_of_one_of<typename G::E, const typename G::E&>;  // children in slice
         };
 }
 
