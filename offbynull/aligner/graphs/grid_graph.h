@@ -35,7 +35,6 @@ namespace offbynull::aligner::graphs::grid_graph {
 
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
-        static constexpr std::size_t max_in_degree { 3zu };
 
     private:
         decltype(std::declval<ND_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) nodes;
@@ -402,25 +401,6 @@ namespace offbynull::aligner::graphs::grid_graph {
             INDEX _right_node_cnt
         ) {
             return _down_node_cnt * _right_node_cnt;
-        }
-
-        constexpr static INDEX edge_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
-        ) {
-            // Start off by assuming each node has 3 outgoing edges.
-            INDEX edge_cnt { (_down_node_cnt * _right_node_cnt) * 3u };
-            // The leaf node doesn't have any outgoing edges, so adjust for that.
-            edge_cnt -= 3u;
-            // The right-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
-            if (_down_node_cnt > 1u) {
-                edge_cnt -= (_down_node_cnt - 1u) * 2u;
-            }
-            // The down-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
-            if (_right_node_cnt > 1u) {
-                edge_cnt -= (_right_node_cnt - 1u) * 2u;
-            }
-            return edge_cnt;
         }
 
         constexpr static INDEX longest_path_edge_count(

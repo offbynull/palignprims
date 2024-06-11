@@ -79,7 +79,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     public:
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
-        static constexpr std::size_t max_in_degree { 3zu };
 
         pairwise_extended_gap_alignment_graph(
             INDEX _down_node_cnt,
@@ -630,44 +629,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             node_cnt += (_down_node_cnt - 1u) * _right_node_cnt; // Down gap layer
             node_cnt += _down_node_cnt * (_right_node_cnt - 1u); // Right gap layer
             return node_cnt;
-        }
-
-        constexpr static INDEX edge_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
-        ) {
-            INDEX edge_cnt {};
-            // Middle layer
-            {
-                // Start off by assuming each node has 3 outgoing edges.
-                INDEX middle_edge_cnt { (_down_node_cnt * _right_node_cnt) * 3u };
-                // The leaf node doesn't have any outgoing edges, so adjust for that.
-                middle_edge_cnt -= 3u;
-                // The right-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
-                if (_down_node_cnt > 1u) {
-                    middle_edge_cnt -= (_down_node_cnt - 1u) * 2u;
-                }
-                // The down-most column (not counting the leaf node) only has down-ward edges, so adjust for that.
-                if (_right_node_cnt > 1u) {
-                    middle_edge_cnt -= (_right_node_cnt - 1u) * 2u;
-                }
-                edge_cnt += middle_edge_cnt;
-            }
-            // Down gap layer
-            {
-                // Start off by assuming each node has 2 outgoing edges (freeride + gap).
-                // Technically the nodes start at down index of 1 (down index 0 has no nodes), so adjust for that.
-                INDEX down_gap_edge_cnt { ((_down_node_cnt - 1u) * _right_node_cnt) * 2u };
-                edge_cnt += down_gap_edge_cnt;
-            }
-            // Right gap layer
-            {
-                // Start off by assuming each node has 2 outgoing edges (freeride + gap).
-                // Technically the nodes start at right index of 1 (right index 0 has no nodes), so adjust for that.
-                INDEX right_gap_edge_cnt { (_down_node_cnt * (_right_node_cnt - 1u)) * 2u };
-                edge_cnt += right_gap_edge_cnt;
-            }
-            return edge_cnt;
         }
 
         constexpr static INDEX longest_path_edge_count(

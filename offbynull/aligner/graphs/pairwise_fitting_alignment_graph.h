@@ -63,7 +63,6 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
     public:
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
-        const std::size_t max_in_degree { static_cast<size_t>(down_node_cnt) - 1u };
 
         pairwise_fitting_alignment_graph(
             INDEX _down_node_cnt,
@@ -523,15 +522,6 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             INDEX _right_node_cnt
         ) {
             return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::node_count(
-                _down_node_cnt, _right_node_cnt
-            );
-        }
-
-        constexpr static INDEX edge_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
-        ) {
-            return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::edge_count(
                 _down_node_cnt, _right_node_cnt
             );
         }

@@ -1,11 +1,9 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACK_SLICED_WALKER_H
 #define OFFBYNULL_ALIGNER_BACKTRACK_SLICED_WALKER_H
 
-#include <cstddef>
 #include <functional>
 #include <ranges>
 #include <algorithm>
-#include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrack/container_creator.h"
 #include "offbynull/aligner/backtrack/container_creators.h"
