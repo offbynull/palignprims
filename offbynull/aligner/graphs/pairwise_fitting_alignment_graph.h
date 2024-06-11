@@ -561,12 +561,12 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             return g.last_node_in_slice(n_down);
         }
 
-        N next_node_in_slice(const N& node, INDEX n_down) {
-            return g.next_node_in_slice(node, n_down);
+        N next_node_in_slice(const N& node) {
+            return g.next_node_in_slice(node);
         }
 
-        N prev_node_in_slice(const N& node, INDEX n_down) {
-            return g.prev_node_in_slice(node, n_down);
+        N prev_node_in_slice(const N& node) {
+            return g.prev_node_in_slice(node);
         }
 
         std::size_t max_resident_nodes_count() {

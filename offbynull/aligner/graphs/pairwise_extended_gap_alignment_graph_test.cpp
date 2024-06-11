@@ -1106,4 +1106,90 @@ namespace {
         x(create_small_vector<float, 3u, 4u>(3u, 4u));
         x(create_static_vector<float, 3u, 4u>(3u, 4u));
     }
+
+    TEST(PairwiseExtendedGapAlignmentGraphTest, SlicedWalk) {
+        auto to_vector {
+            [](auto &&r) {
+                auto it { r.begin() };
+                std::vector<std::decay_t<decltype(*it)>> ret {};
+                while (it != r.end()) {
+                    ret.push_back(*it);
+                    ++it;
+                }
+                return ret;
+            }
+        };
+
+        auto x = [&](auto&& g) {
+            using N = typename std::remove_reference_t<decltype(g)>::N;
+            using E = typename std::remove_reference_t<decltype(g)>::E;
+
+            EXPECT_EQ(g.max_slice_nodes_count(), 7zu);
+            EXPECT_EQ(g.first_node_in_slice(0u), (N { layer::DIAGONAL, 0u, 0u }));
+            EXPECT_EQ(g.last_node_in_slice(0u), (N { layer::DIAGONAL, 0u, 2u }));
+            EXPECT_EQ(g.first_node_in_slice(1u), (N { layer::DIAGONAL, 1u, 0u }));
+            EXPECT_EQ(g.last_node_in_slice(1u), (N { layer::DIAGONAL, 1u, 2u }));
+
+            EXPECT_EQ(g.max_resident_nodes_count(), 0zu);
+            EXPECT_EQ(g.resident_nodes().size(), 0zu);
+
+            EXPECT_EQ(g.next_node_in_slice(N { layer::DIAGONAL, 0u, 0u }), (N { layer::DOWN, 0u, 1u })); // n_down=0
+            EXPECT_EQ(g.next_node_in_slice(N { layer::DOWN, 0u, 1u }), (N { layer::RIGHT, 0u, 1u }));
+            EXPECT_EQ(g.next_node_in_slice(N { layer::RIGHT, 0u, 1u }), (N { layer::DIAGONAL, 0u, 1u }));
+            EXPECT_EQ(g.next_node_in_slice(N { layer::DIAGONAL, 0u, 1u }), (N { layer::DOWN, 0u, 2u }));
+            EXPECT_EQ(g.next_node_in_slice(N { layer::DOWN, 0u, 2u }), (N { layer::RIGHT, 0u, 2u }));
+            EXPECT_EQ(g.next_node_in_slice(N { layer::RIGHT, 0u, 2u }), (N { layer::DIAGONAL, 0u, 2u }));
+            EXPECT_EQ(g.next_node_in_slice(N { layer::DIAGONAL, 1u, 0u }), (N { layer::DOWN, 1u, 1u })); // n_down=1
+            EXPECT_EQ(g.next_node_in_slice(N { layer::DOWN, 1u, 1u }), (N { layer::RIGHT, 1u, 1u }));
+            EXPECT_EQ(g.next_node_in_slice(N { layer::RIGHT, 1u, 1u }), (N { layer::DIAGONAL, 1u, 1u }));
+            EXPECT_EQ(g.next_node_in_slice(N { layer::DIAGONAL, 1u, 1u }), (N { layer::DOWN, 1u, 2u }));
+            EXPECT_EQ(g.next_node_in_slice(N { layer::DOWN, 1u, 2u }), (N { layer::RIGHT, 1u, 2u }));
+            EXPECT_EQ(g.next_node_in_slice(N { layer::RIGHT, 1u, 2u }), (N { layer::DIAGONAL, 1u, 2u }));
+
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::DIAGONAL, 1u, 2u }), (N { layer::RIGHT, 1u, 2u })); // n_down=1
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::RIGHT, 1u, 2u }), (N { layer::DOWN, 1u, 2u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::DOWN, 1u, 2u }), (N { layer::DIAGONAL, 1u, 1u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::DIAGONAL, 1u, 1u }), (N { layer::RIGHT, 1u, 1u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::RIGHT, 1u, 1u }), (N { layer::DOWN, 1u, 1u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::DOWN, 1u, 1u }), (N { layer::DIAGONAL, 1u, 0u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::DIAGONAL, 0u, 2u }), (N { layer::RIGHT, 0u, 2u })); // n_down=1
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::RIGHT, 0u, 2u }), (N { layer::DOWN, 0u, 2u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::DOWN, 0u, 2u }), (N { layer::DIAGONAL, 0u, 1u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::DIAGONAL, 0u, 1u }), (N { layer::RIGHT, 0u, 1u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::RIGHT, 0u, 1u }), (N { layer::DOWN, 0u, 1u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { layer::DOWN, 0u, 1u }), (N { layer::DIAGONAL, 0u, 0u }));
+
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::DIAGONAL, 0u, 0u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::DOWN, 0u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::RIGHT, 0u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::DIAGONAL, 0u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::DOWN, 0u, 2u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::RIGHT, 0u, 2u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::DIAGONAL, 1u, 0u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::DOWN, 1u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::RIGHT, 1u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::DIAGONAL, 1u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::DOWN, 1u, 2u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::RIGHT, 1u, 2u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.outputs_to_residents(N { layer::DIAGONAL, 1u, 2u })), (std::vector<E> {}));
+
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::DIAGONAL, 0u, 0u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::DOWN, 0u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::RIGHT, 0u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::DIAGONAL, 0u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::DOWN, 0u, 2u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::RIGHT, 0u, 2u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::DIAGONAL, 1u, 0u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::DOWN, 1u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::RIGHT, 1u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::DIAGONAL, 1u, 1u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::DOWN, 1u, 2u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::RIGHT, 1u, 2u })), (std::vector<E> {}));
+            EXPECT_EQ(to_vector(g.inputs_from_residents(N { layer::DIAGONAL, 1u, 2u })), (std::vector<E> {}));
+        };
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
+    }
 }

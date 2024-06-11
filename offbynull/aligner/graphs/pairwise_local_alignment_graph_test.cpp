@@ -358,4 +358,125 @@ namespace {
         x(create_small_vector<float, 2u, 3u>(2u, 3u));
         x(create_static_vector<float, 2u, 3u>(2u, 3u));
     }
+
+    TEST(PairwiseLocalAlignmentGraphTest, SlicedWalk) {
+        auto to_vector {
+            [](auto &&r) {
+                auto it { r.begin() };
+                std::vector<std::decay_t<decltype(*it)>> ret {};
+                while (it != r.end()) {
+                    ret.push_back(*it);
+                    ++it;
+                }
+                return ret;
+            }
+        };
+
+        auto x = [&](auto&& g) {
+            using N = typename std::remove_reference_t<decltype(g)>::N;
+            using E = typename std::remove_reference_t<decltype(g)>::E;
+
+            EXPECT_EQ(g.max_slice_nodes_count(), 3zu);
+            EXPECT_EQ(g.first_node_in_slice(0u), (N { 0u, 0u }));
+            EXPECT_EQ(g.last_node_in_slice(0u), (N { 0u, 2u }));
+            EXPECT_EQ(g.first_node_in_slice(1u), (N { 1u, 0u }));
+            EXPECT_EQ(g.last_node_in_slice(1u), (N {  1u, 2u }));
+
+            EXPECT_EQ(g.max_resident_nodes_count(), 2zu);
+            EXPECT_EQ(g.resident_nodes().size(), 2zu);
+            EXPECT_EQ(g.resident_nodes()[0], (N { 0u, 0u }));
+            EXPECT_EQ(g.resident_nodes()[1], (N { 1u, 2u }));
+
+            EXPECT_EQ(g.next_node_in_slice(N { 0u, 0u }), (N { 0u, 1u }));
+            EXPECT_EQ(g.next_node_in_slice(N { 0u, 1u }), (N { 0u, 2u }));
+            EXPECT_EQ(g.next_node_in_slice(N { 1u, 0u }), (N { 1u, 1u }));
+            EXPECT_EQ(g.next_node_in_slice(N { 1u, 1u }), (N { 1u, 2u }));
+
+            EXPECT_EQ(g.prev_node_in_slice(N { 0u, 1u }), (N { 0u, 0u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { 0u, 2u }), (N { 0u, 1u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { 1u, 1u }), (N { 1u, 0u }));
+            EXPECT_EQ(g.prev_node_in_slice(N { 1u, 2u }), (N { 1u, 1u }));
+
+            EXPECT_EQ(
+                to_vector(g.outputs_to_residents(N { 0u, 0u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 0u, 0u }, { 1u, 2u } } }
+                })
+            );
+            EXPECT_EQ(
+                to_vector(g.outputs_to_residents(N { 0u, 1u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 0u, 1u }, { 1u, 2u } } },
+                    E { edge_type::NORMAL, { { 0u, 1u }, { 1u, 2u } } }
+                })
+            );
+            EXPECT_EQ(
+                to_vector(g.outputs_to_residents(N { 0u, 2u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 0u, 2u }, { 1u, 2u } } },
+                    E { edge_type::NORMAL, { { 0u, 2u }, { 1u, 2u } } }
+                })
+            );
+            EXPECT_EQ(
+                to_vector(g.outputs_to_residents(N { 1u, 0u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 1u, 0u }, { 1u, 2u } } }
+                })
+            );
+            EXPECT_EQ(
+                to_vector(g.outputs_to_residents(N { 1u, 1u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 1u, 1u }, { 1u, 2u } } },
+                    E { edge_type::NORMAL, { { 1u, 1u }, { 1u, 2u } } }
+                })
+            );
+            EXPECT_EQ(
+                to_vector(g.outputs_to_residents(N { 1u, 2u })),
+                (std::vector<E> {})
+            );
+
+
+            EXPECT_EQ(
+                to_vector(g.inputs_from_residents(N { 0u, 0u })),
+                (std::vector<E> {})
+            );
+            EXPECT_EQ(
+                to_vector(g.inputs_from_residents(N { 0u, 1u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 0u, 0u }, { 0u, 1u } } },
+                    E { edge_type::NORMAL, { { 0u, 0u }, { 0u, 1u } } }
+                })
+            );
+            EXPECT_EQ(
+                to_vector(g.inputs_from_residents(N { 0u, 2u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 0u, 0u }, { 0u, 2u } } },
+                })
+            );
+            EXPECT_EQ(
+                to_vector(g.inputs_from_residents(N { 1u, 0u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 0u, 0u }, { 1u, 0u } } },
+                    E { edge_type::NORMAL, { { 0u, 0u }, { 1u, 0u } } }
+                })
+            );
+            EXPECT_EQ(
+                to_vector(g.inputs_from_residents(N { 1u, 1u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 0u, 0u }, { 1u, 1u } } },
+                    E { edge_type::NORMAL, { { 0u, 0u }, { 1u, 1u } } }
+                })
+            );
+            EXPECT_EQ(
+                to_vector(g.inputs_from_residents(N { 1u, 2u })),
+                (std::vector<E> {
+                    E { edge_type::FREE_RIDE, { { 0u, 0u }, { 1u, 2u } } }
+                })
+            );
+        };
+        x(create_vector<float>(2u, 3u));
+        x(create_array<float, 2u, 3u>());
+        x(create_small_vector<float, 2u, 3u>(2u, 3u));
+        x(create_static_vector<float, 2u, 3u>(2u, 3u));
+    }
 }

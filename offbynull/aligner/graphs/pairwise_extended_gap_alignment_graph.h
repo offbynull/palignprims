@@ -722,7 +722,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return last_node;
         }
 
-        N next_node_in_slice(const N& node, INDEX n_down) {
+        N next_node_in_slice(const N& node) {
             const auto& [_layer, n_down, n_right] { node };
             N next_node;
             if (_layer == layer::DOWN) {
@@ -747,7 +747,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return next_node;
         }
 
-        N prev_node_in_slice(const N& node, INDEX n_down) {
+        N prev_node_in_slice(const N& node) {
             const auto& [_layer, n_down, n_right] { node };
             N prev_node;
             if (_layer == layer::DIAGONAL) {

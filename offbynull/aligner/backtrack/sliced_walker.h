@@ -201,7 +201,7 @@ namespace offbynull::aligner::backtrack::sliced_walker {
 
             // Move to next node / next slice
             if (graph.last_node_in_slice(n_down) != active_slot_ptr->node) {
-                next_slot_ptr = &find_slot(graph.next_node_in_slice(active_slot_ptr->node, n_down));
+                next_slot_ptr = &find_slot(graph.next_node_in_slice(active_slot_ptr->node));
             } else {
                 if (n_down == graph.down_node_cnt - 1u) {
                     next_slot_ptr = nullptr;
@@ -369,7 +369,7 @@ namespace offbynull::aligner::backtrack::sliced_walker {
 
             // Move to next node / next slice
             if (graph.first_node_in_slice(n_down) != active_slot_ptr->node) {
-                prev_slot_ptr = &find_slot(graph.prev_node_in_slice(active_slot_ptr->node, n_down));
+                prev_slot_ptr = &find_slot(graph.prev_node_in_slice(active_slot_ptr->node));
             } else {
                 if (n_down == 0u) {
                     prev_slot_ptr = nullptr;

@@ -459,7 +459,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             return last_node;
         }
 
-        N next_node_in_slice(const N& node, INDEX n_down) {
+        N next_node_in_slice(const N& node) {
             N next_node { std::get<0>(node), std::get<1>(node) + 1u};
             if constexpr (error_check) {
                 if (std::get<0>(next_node) >= down_node_cnt) {
@@ -472,7 +472,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             return next_node;
         }
 
-        N prev_node_in_slice(const N& node, INDEX n_down) {
+        N prev_node_in_slice(const N& node) {
             N prev_node { std::get<0>(node), std::get<1>(node) - 1u};
             if constexpr (error_check) {
                 if (std::get<0>(prev_node) >= down_node_cnt) {
