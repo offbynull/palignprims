@@ -21,6 +21,8 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
             typename G::N node,
             typename G::INDEX n_down
         ) {
+            // TODO: rename max_slice_nodes_count() to slice_nodes_capacity_count()
+            // TODO: rename max_resident_nodes_count() to resident_nodes_capacity_count()
             { g.max_slice_nodes_count() } -> std::same_as<std::size_t>;
             { g.slice_nodes(n_down) } -> range_of_one_of<typename G::N, const typename G::N&>;
             { g.first_node_in_slice(n_down) } -> one_of<typename G::N, const typename G::N&>;  // first node to walk to
