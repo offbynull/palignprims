@@ -359,11 +359,19 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         auto slice_nodes(INDEX n_down) {
-            return std::views::iota(0u, right_node_cnt)
+            return slice_nodes(n_down, right_node_cnt);
+        }
+
+        auto slice_nodes(INDEX n_down, INDEX right_node_cnt_) {
+            return std::views::iota(0u, right_node_cnt_)
                 | std::views::transform([n_down](const auto& n_right) { return N { n_down, n_right }; });
         }
 
         N first_node_in_slice(INDEX n_down) {
+            return first_node_in_slice(n_down, right_node_cnt);
+        }
+
+        N first_node_in_slice(INDEX n_down, INDEX right_node_cnt_) {
             N first_node { n_down, 0u };
             if constexpr (error_check) {
                 if (std::get<0>(first_node) >= down_node_cnt) {
@@ -374,7 +382,11 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         N last_node_in_slice(INDEX n_down) {
-            N last_node { n_down, right_node_cnt - 1u };
+            return last_node_in_slice(n_down, right_node_cnt);
+        }
+
+        N last_node_in_slice(INDEX n_down, INDEX right_node_cnt_) {
+            N last_node { n_down, right_node_cnt_ - 1u };
             if constexpr (error_check) {
                 if (std::get<0>(last_node) >= down_node_cnt) {
                     throw std::runtime_error("Node too far down");

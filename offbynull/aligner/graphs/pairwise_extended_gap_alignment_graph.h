@@ -594,7 +594,17 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 | std::views::join;
         }
 
+        auto slice_nodes(INDEX n_down, INDEX override_right_node_cnt) {
+            auto node_cnt { slice_nodes_capacity(0u, override_right_node_cnt) };
+            return slice_nodes(n_down)
+                | std::views::take(node_cnt);
+        }
+
         N first_node_in_slice(INDEX n_down) {
+            return first_node_in_slice(n_down, right_node_cnt);
+        }
+
+        N first_node_in_slice(INDEX n_down, INDEX override_right_node_cnt) {
             N first_node { layer::DIAGONAL, n_down, 0u };
             if constexpr (error_check) {
                 if (std::get<1>(first_node) >= down_node_cnt) {
@@ -605,7 +615,11 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         N last_node_in_slice(INDEX n_down) {
-            N last_node { layer::DIAGONAL, n_down, right_node_cnt - 1u };
+            return last_node_in_slice(n_down, right_node_cnt);
+        }
+
+        N last_node_in_slice(INDEX n_down, INDEX override_right_node_cnt) {
+            N last_node { layer::DIAGONAL, n_down, override_right_node_cnt - 1u };
             if constexpr (error_check) {
                 if (std::get<1>(last_node) >= down_node_cnt) {
                     throw std::runtime_error("Node too far down");

@@ -485,12 +485,24 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             return g.slice_nodes(n_down);
         }
 
+        auto slice_nodes(INDEX n_down, INDEX right_node_cnt_) {
+            return g.slice_nodes(n_down, right_node_cnt_);
+        }
+
         N first_node_in_slice(INDEX n_down) {
             return g.first_node_in_slice(n_down);
         }
 
+        N first_node_in_slice(INDEX n_down, INDEX right_node_cnt_) {
+            return g.first_node_in_slice(n_down, right_node_cnt_);
+        }
+
         N last_node_in_slice(INDEX n_down) {
             return g.last_node_in_slice(n_down);
+        }
+
+        N last_node_in_slice(INDEX n_down, INDEX right_node_cnt_) {
+            return g.last_node_in_slice(n_down, right_node_cnt_);
         }
 
         N next_node_in_slice(const N& node) {

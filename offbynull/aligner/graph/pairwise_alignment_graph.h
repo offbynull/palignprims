@@ -1,9 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPH_PAIRWISE_ALIGNMENT_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPH_PAIRWISE_ALIGNMENT_GRAPH_H
 
-#include <cstddef>
 #include <concepts>
-#include <type_traits>
 #include <utility>
 #include <functional>
 #include "offbynull/concepts.h"
@@ -19,20 +17,6 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
     concept readable_parwise_alignment_graph =
         readable_graph<G>
         && widenable_to_size_t<typename G::INDEX>
-        && requires(
-            G g,
-            std::vector<int> v,  // This tests against vector, but it's intended to work with any random access range
-            std::vector<int> w,  // This tests against vector, but it's intended to work with any random access range
-            std::function<
-                double(
-                    const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                    const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
-                )
-            > weight_lookup,
-            std::function<void(typename G::ED&, double weight)> weight_setter
-        ) {
-            { g.assign_weights(v, w, weight_lookup, weight_setter) } -> std::same_as<void>;
-        }
         && requires(
             G g,
             typename G::N node,

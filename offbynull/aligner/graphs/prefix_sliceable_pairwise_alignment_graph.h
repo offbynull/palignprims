@@ -1,5 +1,5 @@
-#ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_SUB_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
-#define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_SUB_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
+#ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_PREFIX_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
+#define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_PREFIX_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
 
 #include <functional>
 #include <type_traits>
@@ -8,7 +8,7 @@
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 
-namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
+namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph {
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::readable_sliceable_parwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
 
@@ -16,7 +16,7 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
         readable_sliceable_parwise_alignment_graph GRAPH,
         bool error_check
     >
-    class sub_sliceable_pairwise_alignment_graph {
+    class prefix_sliceable_pairwise_alignment_graph {
     public:
         using INDEX = typename GRAPH::INDEX;
         using N = typename GRAPH::N;
@@ -29,7 +29,7 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
 
         bool node_out_of_bound(const N& node) {
             const auto& [down_offset, right_offset] { g.node_to_grid_offsets(node) };
-            return down_offset >= down_node_cnt || (right_offset >= right_node_cnt;
+            return down_offset >= down_node_cnt || (right_offset >= right_node_cnt);
         }
 
         bool edge_out_of_bound(const E& edge) {
@@ -39,24 +39,18 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
     public:
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
-        const N leaf_node;
 
-        sub_sliceable_pairwise_alignment_graph(
+        prefix_sliceable_pairwise_alignment_graph(
             GRAPH& _g,
             INDEX _down_node_cnt,
-            INDEX _right_node_cnt,
-            N _leaf_node
+            INDEX _right_node_cnt
         )
         : g{_g}
         , down_node_cnt{_down_node_cnt}
-        , right_node_cnt{_right_node_cnt}
-        , leaf_node{_leaf_node} {
+        , right_node_cnt{_right_node_cnt} {
             if constexpr (error_check) {
                 if (down_node_cnt > g.down_node_cnt || right_node_cnt > g.right_node_cnt) {
                     throw std::runtime_error("Out of bounds");
-                }
-                if (g.node_to_grid_offsets(leaf_node) != std::pair<INDEX, INDEX> { down_node_cnt - 1u, right_node_cnt - 1u}) {
-                    throw std::runtime_error {"Leaf node bad index"};
                 }
             }
         }
@@ -133,11 +127,11 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
         }
 
         auto get_leaf_nodes() {
-            return std::views::single(leaf_node);
+            return std::views::single(get_leaf_node());
         }
 
         auto get_leaf_node() {
-            return leaf_node;
+            return g.last_node_in_slice(down_node_cnt - 1u, right_node_cnt - 1u);
         }
 
         auto get_nodes() {
@@ -238,22 +232,6 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
             return static_cast<std::size_t>(dist);
         }
 
-        template<weight WEIGHT=std::float64_t>
-        void assign_weights(
-            const std::ranges::random_access_range auto& v,  // random access container
-            const std::ranges::random_access_range auto& w,  // random access container
-            std::function<
-                WEIGHT(
-                    const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                    const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
-                )
-            > weight_lookup,
-            std::function<void(ED&, WEIGHT weight)> weight_setter
-        ) {
-            // TODO: Make a concept that doesn't contain this func and use that instead for the code that requires this class (sliced walking)
-            throw std::runtime_error("Unsupported");
-        }
-
         auto edge_to_element_offsets(
             const E& edge
         ) {
@@ -280,15 +258,28 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
 
         auto slice_nodes(INDEX n_down) {
             return g.slice_nodes(n_down)
-                | std::views::filter([&](const N& node) { return !node_out_of_bound(node); });
+                | std::views::take(right_node_cnt);
+        }
+
+        auto slice_nodes(INDEX n_down, INDEX override_right_node_cnt) {
+            return slice_nodes(n_down)
+                | std::views::take(override_right_node_cnt);
         }
 
         N first_node_in_slice(INDEX n_down) {
-            return g.first_node_in_slice(n_down);
+            return g.first_node_in_slice(n_down, right_node_cnt);
+        }
+
+        N first_node_in_slice(INDEX n_down, INDEX override_right_node_cnt) {
+            return g.first_node_in_slice(n_down, override_right_node_cnt);
         }
 
         N last_node_in_slice(INDEX n_down) {
-            return g.last_node_in_slice(n_down, right_node_cnt - 1u);  // TODO: Create this override, if multiple nodes are asosciated with, this grabs the "last" one
+            return g.last_node_in_slice(n_down, right_node_cnt);
+        }
+
+        N last_node_in_slice(INDEX n_down, INDEX override_right_node_cnt) {
+            return g.last_node_in_slice(n_down, override_right_node_cnt);
         }
 
         N next_node_in_slice(const N& node) {
@@ -339,4 +330,4 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
         }
     };
 }
-#endif //OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_SUB_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
+#endif //OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_PREFIX_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H

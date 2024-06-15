@@ -20,12 +20,16 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
             G g,
             typename G::N node,
             typename G::INDEX n_right,
-            typename G::INDEX n_down
+            typename G::INDEX n_down,
+            typename G::INDEX override_right_node_cnt
         ) {
             { G::slice_nodes_capacity(n_down, n_right) } -> std::same_as<std::size_t>;
             { g.slice_nodes(n_down) } -> range_of_one_of<typename G::N, const typename G::N&>;
+            { g.slice_nodes(n_down, override_right_node_cnt) } -> range_of_one_of<typename G::N, const typename G::N&>;
             { g.first_node_in_slice(n_down) } -> one_of<typename G::N, const typename G::N&>;  // first node to walk to
+            { g.first_node_in_slice(n_down, override_right_node_cnt) } -> one_of<typename G::N, const typename G::N&>;  // first node to walk to
             { g.last_node_in_slice(n_down) } -> one_of<typename G::N, const typename G::N&>;  // last node to walk to
+            { g.last_node_in_slice(n_down, override_right_node_cnt) } -> one_of<typename G::N, const typename G::N&>;  // last node to walk to
             { g.next_node_in_slice(node) } -> one_of<typename G::N, const typename G::N&>;  // next node to walk to
             { g.prev_node_in_slice(node) } -> one_of<typename G::N, const typename G::N&>;  // prev node to walk to
             { G::resident_nodes_capacity(n_down, n_right) } -> std::same_as<std::size_t>;

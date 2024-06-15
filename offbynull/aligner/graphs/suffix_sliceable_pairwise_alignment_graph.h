@@ -1,13 +1,18 @@
-#ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_REVERSED_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
-#define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_REVERSED_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
+#ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_SUFFIX_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
+#define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_SUFFIX_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
 
 #include <functional>
 #include <type_traits>
 #include <stdfloat>
+#include <ranges>
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
+#include "offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph.h"
+#include "offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 
-namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph {
+namespace offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph {
+    using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
+    using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::readable_sliceable_parwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
 
@@ -15,7 +20,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         readable_sliceable_parwise_alignment_graph GRAPH,
         bool error_check
     >
-    class reversed_sliceable_pairwise_alignment_graph {
+    class suffix_sliceable_pairwise_alignment_graph {
     public:
         using INDEX = typename GRAPH::INDEX;
         using N = typename GRAPH::N;
@@ -24,16 +29,30 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         using ND = typename GRAPH::ND;
 
     private:
-        GRAPH& g;
+        reversed_sliceable_pairwise_alignment_graph<
+            prefix_sliceable_pairwise_alignment_graph<
+                reversed_sliceable_pairwise_alignment_graph<
+                    GRAPH,
+                    error_check
+                >,
+                error_check
+            >,
+            error_check
+        > g;
 
     public:
         const INDEX down_node_cnt;
         const INDEX right_node_cnt;
 
-        reversed_sliceable_pairwise_alignment_graph(GRAPH& _g)
-        : g{_g}
-        , down_node_cnt{_g.down_node_cnt}
-        , right_node_cnt{_g.right_node_cnt} {}
+        suffix_sliceable_pairwise_alignment_graph(
+            GRAPH& _g,
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt,
+            N root_node
+        )
+        : g{ { { { _g }, root_node } } }
+        , down_node_cnt{_down_node_cnt}
+        , right_node_cnt{_right_node_cnt} {}
 
         void update_node_data(const N& node, ND&& data) {
             g.update_node_data(node, std::forward<ND>(data));
@@ -52,11 +71,11 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         N get_edge_from(const E& edge) {
-            return g.get_edge_to(edge);
+            return g.get_edge_from(edge);
         }
 
         N get_edge_to(const E& edge) {
-            return g.get_edge_from(edge);
+            return g.get_edge_to(edge);
         }
 
         std::tuple<N, N, ED&> get_edge(const E& edge) {
@@ -64,19 +83,19 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         auto get_root_nodes() {
-            return g.get_leaf_nodes();
-        }
-
-        N get_root_node() {
-            return g.get_leaf_node();
-        }
-
-        auto get_leaf_nodes() {
             return g.get_root_nodes();
         }
 
-        auto get_leaf_node() {
+        N get_root_node() {
             return g.get_root_node();
+        }
+
+        auto get_leaf_nodes() {
+            return g.get_leaf_nodes();
+        }
+
+        auto get_leaf_node() {
+            return g.get_leaf_node();
         }
 
         auto get_nodes() {
@@ -96,57 +115,39 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         auto get_outputs_full(const N& node) {
-            return g.get_inputs_full(node);
-        }
-
-        auto get_inputs_full(const N& node) {
             return g.get_outputs_full(node);
         }
 
-        auto get_outputs(const N& node) {
-            return g.get_inputs(node);
+        auto get_inputs_full(const N& node) {
+            return g.get_inputs_full(node);
         }
 
-        auto get_inputs(const N& node) {
+        auto get_outputs(const N& node) {
             return g.get_outputs(node);
         }
 
-        bool has_outputs(const N& node) {
-            return g.has_inputs(node);
+        auto get_inputs(const N& node) {
+            return g.get_inputs(node);
         }
 
-        bool has_inputs(const N& node) {
+        bool has_outputs(const N& node) {
             return g.has_outputs(node);
         }
 
-        std::size_t get_out_degree(const N& node) {
-            return g.get_in_degree(node);
+        bool has_inputs(const N& node) {
+            return g.has_inputs(node);
         }
 
-        std::size_t get_in_degree(const N& node) {
+        std::size_t get_out_degree(const N& node) {
             return g.get_out_degree(node);
         }
 
-        std::optional<std::pair<std::optional<INDEX>, std::optional<INDEX>>> edge_to_element_offsets(
-            const E& edge
-        ) {
-            auto offset { g.edge_to_element_offsets(edge) };
-            if (!offset.has_element()) {
-                return std::nullopt;
-            }
-            auto [v_idx, w_idx] { offset };
-            if (v_idx.has_element()) {
-                *v_idx = g.down_node_cnt - *v_idx - 1u;
-            }
-            if (w_idx.has_element()) {
-                *w_idx = g.right_node_cnt - *w_idx - 1u;
-            }
-            return offset;
+        std::size_t get_in_degree(const N& node) {
+            return g.get_in_degree(node);
         }
 
-        std::pair<INDEX, INDEX> node_to_grid_offsets(const N& node) {
-            const auto& [n_down, n_right] { g.node_to_grid_offsets(node) };
-            return { down_node_cnt - n_down - 1u, right_node_cnt - n_right - 1u };
+        auto edge_to_element_offsets(const E& edge) {
+            return g.edge_to_element_offsets(edge);
         }
 
         constexpr static INDEX node_count(
@@ -168,38 +169,35 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         auto slice_nodes(INDEX n_down) {
-            return g.slice_nodes(n_down)
-                | std::views::reverse;
+            return g.slice_nodes(n_down);
         }
 
         auto slice_nodes(INDEX n_down, INDEX override_right_node_cnt) {
-            return g.slice_nodes(n_down)
-                | std::views::reverse
-                | std::views::take(override_right_node_cnt);
+            return g.slice_nodes(n_down, override_right_node_cnt);
         }
 
         N first_node_in_slice(INDEX n_down) {
-            return g.last_node_in_slice(n_down);
-        }
-
-        N first_node_in_slice(INDEX n_down, INDEX override_right_node_cnt) {
-            return g.last_node_in_slice(n_down, override_right_node_cnt);
-        }
-
-        N last_node_in_slice(INDEX n_down) {
             return g.first_node_in_slice(n_down);
         }
 
-        N last_node_in_slice(INDEX n_down, INDEX override_right_node_cnt) {
+        N first_node_in_slice(INDEX n_down, INDEX override_right_node_cnt) {
             return g.first_node_in_slice(n_down, override_right_node_cnt);
         }
 
+        N last_node_in_slice(INDEX n_down) {
+            return g.last_node_in_slice(n_down);
+        }
+
+        N last_node_in_slice(INDEX n_down, INDEX override_right_node_cnt) {
+            return g.last_node_in_slice(n_down, override_right_node_cnt);
+        }
+
         N next_node_in_slice(const N& node) {
-            return g.prev_node_in_slice(node);
+            return g.next_node_in_slice(node);
         }
 
         N prev_node_in_slice(const N& node) {
-            return g.next_node_in_slice(node);
+            return g.prev_node_in_slice(node);
         }
 
         static std::size_t resident_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
@@ -211,12 +209,12 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         auto outputs_to_residents(const N& node) {
-            return g.inputs_from_residents(node);
+            return g.outputs_to_residents(node);
         }
 
         auto inputs_from_residents(const N& node) {
-            return g.outputs_to_residents(node);
+            return g.inputs_from_residents(node);
         }
     };
 }
-#endif //OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_REVERSED_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
+#endif //OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_SUFFIX_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
