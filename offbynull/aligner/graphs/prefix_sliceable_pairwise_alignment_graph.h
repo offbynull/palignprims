@@ -8,14 +8,6 @@
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 
-MAKE THIS INTO TWO VARIANTS: prefix_slicable_pairwise_alignment_graph AND suffix_slicable_pairwise_alignment_graph -- THEN WRITE slice_backtrack;
-MAKE THIS INTO TWO VARIANTS: prefix_slicable_pairwise_alignment_graph AND suffix_slicable_pairwise_alignment_graph -- THEN WRITE slice_backtrack;
-MAKE THIS INTO TWO VARIANTS: prefix_slicable_pairwise_alignment_graph AND suffix_slicable_pairwise_alignment_graph -- THEN WRITE slice_backtrack;
-MAKE THIS INTO TWO VARIANTS: prefix_slicable_pairwise_alignment_graph AND suffix_slicable_pairwise_alignment_graph -- THEN WRITE slice_backtrack;
-MAKE THIS INTO TWO VARIANTS: prefix_slicable_pairwise_alignment_graph AND suffix_slicable_pairwise_alignment_graph -- THEN WRITE slice_backtrack;
-MAKE THIS INTO TWO VARIANTS: prefix_slicable_pairwise_alignment_graph AND suffix_slicable_pairwise_alignment_graph -- THEN WRITE slice_backtrack;
-MAKE THIS INTO TWO VARIANTS: prefix_slicable_pairwise_alignment_graph AND suffix_slicable_pairwise_alignment_graph -- THEN WRITE slice_backtrack;
-MAKE THIS INTO TWO VARIANTS: prefix_slicable_pairwise_alignment_graph AND suffix_slicable_pairwise_alignment_graph -- THEN WRITE slice_backtrack;
 namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::readable_sliceable_parwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
@@ -37,8 +29,7 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
 
         bool node_out_of_bound(const N& node) {
             const auto& [down_offset, right_offset] { g.node_to_grid_offsets(node) };
-            return (down_offset >= down_node_start_idx && down_offset <= down_node_stop_idx)
-                || (right_offset >= right_node_start_idx && right_offset <= right_node_stop_idx);
+            return down_offset >= down_node_cnt || (right_offset >= right_node_cnt;
         }
 
         bool edge_out_of_bound(const E& edge) {
@@ -46,23 +37,29 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
         }
 
     public:
-        const INDEX down_node_start_idx;
-        const INDEX down_node_stop_idx;  // inclusive
-        const INDEX right_node_start_idx;
-        const INDEX right_node_stop_idx;  // inclusive
+        const INDEX down_node_cnt;
+        const INDEX right_node_cnt;
+        const N leaf_node;
 
         sub_sliceable_pairwise_alignment_graph(
             GRAPH& _g,
-            INDEX _down_node_start_idx,
-            INDEX _down_node_stop_idx,
-            INDEX _right_node_start_idx,
-            INDEX _right_node_stop_idx
+            INDEX _down_node_cnt,
+            INDEX _right_node_cnt,
+            N _leaf_node
         )
         : g{_g}
-        , down_node_start_idx{_down_node_start_idx}
-        , down_node_stop_idx{_down_node_stop_idx}
-        , right_node_start_idx{_right_node_start_idx}
-        , right_node_stop_idx{_right_node_stop_idx} {}
+        , down_node_cnt{_down_node_cnt}
+        , right_node_cnt{_right_node_cnt}
+        , leaf_node{_leaf_node} {
+            if constexpr (error_check) {
+                if (down_node_cnt > g.down_node_cnt || right_node_cnt > g.right_node_cnt) {
+                    throw std::runtime_error("Out of bounds");
+                }
+                if (g.node_to_grid_offsets(leaf_node) != std::pair<INDEX, INDEX> { down_node_cnt - 1u, right_node_cnt - 1u}) {
+                    throw std::runtime_error {"Leaf node bad index"};
+                }
+            }
+        }
 
         void update_node_data(const N& node, ND&& data) {
             if constexpr (error_check) {
@@ -136,15 +133,16 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
         }
 
         auto get_leaf_nodes() {
-            return g.get_leaf_nodes();
+            return std::views::single(leaf_node);
         }
 
         auto get_leaf_node() {
-            return g.get_leaf_node();
+            return leaf_node;
         }
 
         auto get_nodes() {
-            return g.get_nodes();
+            return g.get_nodes()
+                | std::views::filter([&](const N& node) { return !node_out_of_bound(node); });
         }
 
         auto get_edges() {
@@ -176,7 +174,13 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return g.get_output_full(node);
+            auto it = get_outputs_full(node).begin();
+            const auto& ret = *it;
+            ++it;
+            if (it != get_outputs_full(node).end()) {
+                throw std::runtime_error {"More than one edge exists"};
+            }
+            return ret;
         }
 
         auto get_inputs_full(const N& node) {
@@ -195,7 +199,13 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return g.get_input_full(node);
+            auto it = get_inputs_full(node).begin();
+            const auto& ret = *it;
+            ++it;
+            if (it != get_inputs_full(node).end()) {
+                throw std::runtime_error {"More than one edge exists"};
+            }
+            return ret;
         }
 
         auto get_outputs(const N& node) {
@@ -214,7 +224,13 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return g.get_output(node);
+            auto it = get_outputs(node).begin();
+            const auto& ret = *it;
+            ++it;
+            if (it != get_outputs(node).end()) {
+                throw std::runtime_error {"More than one edge exists"};
+            }
+            return ret;
         }
 
         auto get_inputs(const N& node) {
@@ -233,7 +249,13 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            return g.get_input(node);
+            auto it = get_inputs(node).begin();
+            const auto& ret = *it;
+            ++it;
+            if (it != get_inputs(node).end()) {
+                throw std::runtime_error {"More than one edge exists"};
+            }
+            return ret;
         }
 
         bool has_outputs(const N& node) {
@@ -260,7 +282,7 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            auto outputs { this->get_outputs(node) };
+            auto outputs { get_outputs(node) };
             auto dist { std::distance(outputs.begin(), outputs.end()) };
             return static_cast<std::size_t>(dist);
         }
@@ -271,7 +293,7 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            auto inputs { this->get_inputs(node) };
+            auto inputs { get_inputs(node) };
             auto dist { std::distance(inputs.begin(), inputs.end()) };
             return static_cast<std::size_t>(dist);
         }
@@ -317,7 +339,8 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
         }
 
         auto slice_nodes(INDEX n_down) {
-            return g.slice_nodes(n_down);
+            return g.slice_nodes(n_down)
+                | std::views::filter([&](const N& node) { return !node_out_of_bound(node); });
         }
 
         N first_node_in_slice(INDEX n_down) {
@@ -325,15 +348,35 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
         }
 
         N last_node_in_slice(INDEX n_down) {
-            return g.last_node_in_slice(n_down);
+            return g.last_node_in_slice(n_down, right_node_cnt - 1u);  // TODO: Create this override, if multiple nodes are asosciated with, this grabs the "last" one
         }
 
         N next_node_in_slice(const N& node) {
-            return g.next_node_in_slice(node);
+            N next_node { g.next_node_in_slice(node) };
+            if constexpr (error_check) {
+                const auto& [n_down, n_right] { node_to_grid_offsets(node) };
+                if (n_down >= down_node_cnt) {
+                    throw std::runtime_error("Node too far down");
+                }
+                if (n_right >= right_node_cnt) {
+                    throw std::runtime_error("Node too far right");
+                }
+            }
+            return next_node;
         }
 
         N prev_node_in_slice(const N& node) {
-            return g.prev_node_in_slice(node);
+            N prev_node { g.prev_node_in_slice(node) };
+            if constexpr (error_check) {
+                const auto& [n_down, n_right] { node_to_grid_offsets(node) };
+                if (n_down >= down_node_cnt) {
+                    throw std::runtime_error("Node too far down");
+                }
+                if (n_right >= right_node_cnt) {
+                    throw std::runtime_error("Node too far right");
+                }
+            }
+            return prev_node;
         }
 
         static std::size_t resident_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
@@ -341,15 +384,18 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
         }
 
         auto resident_nodes() {
-            return g.resident_nodes();
+            return g.resident_nodes()
+                | std::views::filter([&](const N& node) { return !node_out_of_bound(node); });
         }
 
         auto outputs_to_residents(const N& node) {
-            return g.outputs_to_residents(node);
+            return g.outputs_to_residents(node)
+                | std::views::filter([&](const E& edge) { return !edge_out_of_bound(edge); });
         }
 
         auto inputs_from_residents(const N& node) {
-            return g.inputs_from_residents(node);
+            return g.inputs_from_residents(node)
+                | std::views::filter([&](const E& edge) { return !edge_out_of_bound(edge); });
         }
     };
 }

@@ -369,7 +369,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             return g.prev_node_in_slice(node);
         }
 
-        static std::size_t resident_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) { {
+        static std::size_t resident_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
             return g.resident_nodes_capacity(_down_node_cnt, _right_node_cnt);
         }
 

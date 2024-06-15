@@ -325,7 +325,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             auto it = this->get_outputs(node).begin();
             const auto& ret = *it;
             ++it;
-            if (it != this->get_outputs_full(node).end()) {
+            if (it != this->get_outputs(node).end()) {
                 throw std::runtime_error {"More than one edge exists"};
             }
             return ret;
@@ -350,7 +350,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             auto it = this->get_inputs(node).begin();
             const auto& ret = *it;
             ++it;
-            if (it != this->get_outputs_full(node).end()) {
+            if (it != this->get_inputs(node).end()) {
                 throw std::runtime_error {"More than one edge exists"};
             }
             return ret;

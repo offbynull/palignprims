@@ -58,6 +58,9 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
         , down_mid_offset{ g.down_node_cnt / 2.0 } {}
 
         auto walk() {
+            while (true) {
+                forward_walker.next();
+            }
             sliced_forward_walker<G, WEIGHT, SLICE_SLOT_ALLOCATOR, RESIDENT_SLOT_ALLOCATOR, error_check> forward { g };
             sliced_backward_walker<G, WEIGHT, SLICE_SLOT_ALLOCATOR, RESIDENT_SLOT_ALLOCATOR, error_check> backward;
             graph.down_node_cnt / 2;
