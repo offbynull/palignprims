@@ -365,21 +365,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 });
         }
 
-        std::tuple<E, N, N, ED&> get_output_full(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto it = this->get_outputs_full(node).begin();
-            const auto& ret = *it;
-            ++it;
-            if (it != this->get_outputs_full(node).end()) {
-                throw std::runtime_error {"More than one edge exists"};
-            }
-            return ret;
-        }
-
         auto get_inputs_full(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
@@ -422,21 +407,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 });
         }
 
-        std::tuple<const E&, const N&, const N&, ED&> get_input_full(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto it = this->get_inputs_full(node).begin();
-            const auto& ret = *it;
-            ++it;
-            if (it != this->get_inputs_full(node).end()) {
-                throw std::runtime_error {"More than one edge exists"};
-            }
-            return ret;
-        }
-
         auto get_outputs(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
@@ -446,21 +416,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return this->get_outputs_full(node) | std::views::transform([this](const auto& v) noexcept -> E { return std::get<0>(v); });
         }
 
-        E get_output(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto it = this->get_outputs(node).begin();
-            const auto& ret = *it;
-            ++it;
-            if (it != this->get_outputs_full(node).end()) {
-                throw std::runtime_error {"More than one edge exists"};
-            }
-            return ret;
-        }
-
         auto get_inputs(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
@@ -468,21 +423,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 }
             }
             return this->get_inputs_full(node) | std::views::transform([this](const auto& v) noexcept -> E { return std::get<0>(v); });
-        }
-
-        E get_input(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto it = this->get_inputs(node).begin();
-            const auto& ret = *it;
-            ++it;
-            if (it != this->get_outputs_full(node).end()) {
-                throw std::runtime_error {"More than one edge exists"};
-            }
-            return ret;
         }
 
         bool has_outputs(const N& node) {

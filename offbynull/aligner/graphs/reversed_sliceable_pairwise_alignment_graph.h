@@ -98,32 +98,16 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
             return g.get_inputs_full(node);
         }
 
-        std::tuple<E, N, N, ED&> get_output_full(const N& node) {
-            return g.get_input_full(node);
-        }
-
         auto get_inputs_full(const N& node) {
             return g.get_outputs_full(node);
-        }
-
-        std::tuple<E, N, N, ED&> get_input_full(const N& node) {
-            return g.get_output_full(node);
         }
 
         auto get_outputs(const N& node) {
             return g.get_inputs(node);
         }
 
-        E get_output(const N& node) {
-            return g.get_input(node);
-        }
-
         auto get_inputs(const N& node) {
             return g.get_outputs(node);
-        }
-
-        E get_input(const N& node) {
-            return g.get_output(node);
         }
 
         bool has_outputs(const N& node) {

@@ -51,8 +51,6 @@ namespace offbynull::aligner::graph::graph {
             >;
             { g.get_outputs(n) } -> range_of_one_of<typename G::E, const typename G::E&>;
             { g.get_inputs(n) } -> range_of_one_of<typename G::E, const typename G::E&>;
-            { g.get_output(n) } -> one_of<typename G::E, const typename G::E&>;
-            { g.get_input(n) } -> one_of<typename G::E, const typename G::E&>;
             { g.has_outputs(n) } -> std::same_as<bool>;
             { g.has_inputs(n) } -> std::same_as<bool>;
             { g.get_out_degree(n) } -> std::same_as<std::size_t>;

@@ -316,11 +316,6 @@ namespace {
         g.insert_edge("AD", "A", "D", "");
         g.insert_edge("DE", "D", "E", "");
         {
-            const auto& c_input = g.get_input_full("C");
-            EXPECT_EQ(std::get<0>(c_input), "BC");
-            EXPECT_EQ(std::get<1>(c_input), "B");
-            EXPECT_EQ(std::get<2>(c_input), "C");
-            EXPECT_EQ(std::get<3>(c_input), "");
             auto edges = g.get_inputs_full("B");
             auto it = edges.begin();
             EXPECT_EQ(std::get<0>(*it), "AB1");
@@ -336,11 +331,6 @@ namespace {
             EXPECT_EQ(it, edges.end());
         }
         {
-            const auto& c_output = g.get_output_full("B");
-            EXPECT_EQ(std::get<0>(c_output), "BC");
-            EXPECT_EQ(std::get<1>(c_output), "B");
-            EXPECT_EQ(std::get<2>(c_output), "C");
-            EXPECT_EQ(std::get<3>(c_output), "");
             auto edges = g.get_outputs_full("A");
             auto it = edges.begin();
             EXPECT_EQ(std::get<0>(*it), "AB1");

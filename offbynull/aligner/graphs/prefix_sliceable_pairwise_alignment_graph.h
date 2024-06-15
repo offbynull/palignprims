@@ -168,21 +168,6 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
                 | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<3>(vals)); });
         }
 
-        std::tuple<E, N, N, ED&> get_output_full(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto it = get_outputs_full(node).begin();
-            const auto& ret = *it;
-            ++it;
-            if (it != get_outputs_full(node).end()) {
-                throw std::runtime_error {"More than one edge exists"};
-            }
-            return ret;
-        }
-
         auto get_inputs_full(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
@@ -191,21 +176,6 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
             }
             return g.get_inputs_full(node)
                 | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<3>(vals)); });
-        }
-
-        std::tuple<E, N, N, ED&> get_input_full(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto it = get_inputs_full(node).begin();
-            const auto& ret = *it;
-            ++it;
-            if (it != get_inputs_full(node).end()) {
-                throw std::runtime_error {"More than one edge exists"};
-            }
-            return ret;
         }
 
         auto get_outputs(const N& node) {
@@ -218,21 +188,6 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
                 | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(vals); });
         }
 
-        E get_output(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto it = get_outputs(node).begin();
-            const auto& ret = *it;
-            ++it;
-            if (it != get_outputs(node).end()) {
-                throw std::runtime_error {"More than one edge exists"};
-            }
-            return ret;
-        }
-
         auto get_inputs(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
@@ -241,21 +196,6 @@ namespace offbynull::aligner::graphs::sub_sliceable_pairwise_alignment_graph {
             }
             return g.get_inputs(node)
                 | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(vals); });
-        }
-
-        E get_input(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto it = get_inputs(node).begin();
-            const auto& ret = *it;
-            ++it;
-            if (it != get_inputs(node).end()) {
-                throw std::runtime_error {"More than one edge exists"};
-            }
-            return ret;
         }
 
         bool has_outputs(const N& node) {
