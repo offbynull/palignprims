@@ -44,6 +44,7 @@ tests_src = [
         'offbynull/aligner/graphs/pairwise_local_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/pairwise_global_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph_test.cpp',
+        'offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph_test.cpp',
         'offbynull/aligner/backtrack/backtrack_test.cpp',
         'offbynull/aligner/aligner_test.cpp',
 ]
