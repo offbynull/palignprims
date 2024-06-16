@@ -13,7 +13,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
 
     template<
         readable_sliceable_parwise_alignment_graph GRAPH,
-        bool error_check
+        bool error_check=true
     >
     class reversed_sliceable_pairwise_alignment_graph {
     public:

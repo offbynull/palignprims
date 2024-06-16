@@ -175,19 +175,22 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         auto get_nodes() {
-            auto down_range { std::views::iota(0u, down_node_cnt) };
-            auto right_range { std::views::iota(0u, right_node_cnt) };
             return
-                std::views::cartesian_product(down_range, right_range)
+                std::views::cartesian_product(
+                    std::views::iota(0u, down_node_cnt),
+                    std::views::iota(0u, right_node_cnt)
+                )
                 | std::views::transform([](const auto & p) {
                     return N { std::get<0>(p), std::get<1>(p) };
                 });
         }
 
         auto get_edges() {
-            auto down_range { std::views::iota(0u, down_node_cnt) };
-            auto right_range { std::views::iota(0u, right_node_cnt) };
-            return std::views::cartesian_product(down_range, right_range)
+            return
+                std::views::cartesian_product(
+                    std::views::iota(0u, down_node_cnt),
+                    std::views::iota(0u, right_node_cnt)
+                )
                 | std::views::transform([&](const auto & p) {
                     N node { std::get<0>(p), std::get<1>(p) };
                     return this->get_outputs(node);

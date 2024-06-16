@@ -18,7 +18,7 @@ namespace offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph 
 
     template<
         readable_sliceable_parwise_alignment_graph GRAPH,
-        bool error_check
+        bool error_check=true
     >
     class suffix_sliceable_pairwise_alignment_graph {
     public:

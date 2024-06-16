@@ -14,7 +14,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
 
     template<
         readable_sliceable_parwise_alignment_graph GRAPH,
-        bool error_check
+        bool error_check=true
     >
     class prefix_sliceable_pairwise_alignment_graph {
     public:
@@ -145,11 +145,11 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         bool has_node(const N& node) {
-            return node_out_of_bound(node) && g.has_node(node);
+            return g.has_node(node) && !node_out_of_bound(node);
         }
 
         bool has_edge(const E& edge) {
-            return edge_out_of_bound(edge) && g.has_edge(edge);
+            return g.has_edge(edge) && !edge_out_of_bound(edge);
         }
 
         auto get_outputs_full(const N& node) {
@@ -159,7 +159,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             return g.get_outputs_full(node)
-                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<3>(vals)); });
+                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<0>(vals)); });
         }
 
         auto get_inputs_full(const N& node) {
@@ -169,7 +169,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             return g.get_inputs_full(node)
-                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<3>(vals)); });
+                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<0>(vals)); });
         }
 
         auto get_outputs(const N& node) {
@@ -216,7 +216,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            auto outputs { get_outputs(node) };
+            auto outputs { std::views::common(get_outputs(node)) };
             auto dist { std::distance(outputs.begin(), outputs.end()) };
             return static_cast<std::size_t>(dist);
         }
@@ -227,7 +227,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            auto inputs { get_inputs(node) };
+            auto inputs { std::views::common(get_inputs(node)) };
             auto dist { std::distance(inputs.begin(), inputs.end()) };
             return static_cast<std::size_t>(dist);
         }
@@ -236,6 +236,10 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             const E& edge
         ) {
             return g.edge_to_element_offsets(edge);
+        }
+
+        std::pair<INDEX, INDEX> node_to_grid_offsets(const N& node) {
+            return g.node_to_grid_offsets(node);
         }
 
         constexpr static INDEX node_count(
