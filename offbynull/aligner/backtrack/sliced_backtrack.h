@@ -55,7 +55,7 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
         )
         : forward_walker{ g, get_weight_weight_func_, slice_slot_container_creator, resident_slot_container_creator }
         , backward_walker{ g, get_weight_weight_func_, slice_slot_container_creator, resident_slot_container_creator }
-        , down_mid_offset{ g.down_node_cnt / 2.0 } {}
+        , down_mid_offset{ g.grid_down_cnt / 2.0 } {}
 
         auto walk() {
             while (true) {
@@ -63,7 +63,7 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
             }
             sliced_forward_walker<G, WEIGHT, SLICE_SLOT_ALLOCATOR, RESIDENT_SLOT_ALLOCATOR, error_check> forward { g };
             sliced_backward_walker<G, WEIGHT, SLICE_SLOT_ALLOCATOR, RESIDENT_SLOT_ALLOCATOR, error_check> backward;
-            graph.down_node_cnt / 2;
+            graph.grid_down_cnt / 2;
         }
     };
 }

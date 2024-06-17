@@ -33,8 +33,8 @@ namespace offbynull::aligner::graphs::grid_graph {
         using E = std::pair<N, N>;
         using ED = ED_;
 
-        const INDEX down_node_cnt;
-        const INDEX right_node_cnt;
+        const INDEX grid_down_cnt;
+        const INDEX grid_right_cnt;
 
     private:
         decltype(std::declval<ND_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) nodes;
@@ -56,21 +56,21 @@ namespace offbynull::aligner::graphs::grid_graph {
         std::size_t to_raw_idx(INDEX down_idx, INDEX right_idx) {
             std::size_t down_idx_widened { down_idx };
             std::size_t right_idx_widened { right_idx };
-            return (down_idx_widened * right_node_cnt) + right_idx_widened;
+            return (down_idx_widened * grid_right_cnt) + right_idx_widened;
         }
 
     public:
         grid_graph(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt,
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt,
             ED indel_data = {},
             ND_ALLOCATOR_ nd_container_creator = {},
             ED_ALLOCATOR_ ed_container_creator = {}
         )
-        : down_node_cnt{_down_node_cnt}
-        , right_node_cnt{_right_node_cnt}
-        , nodes{nd_container_creator.create_objects(_down_node_cnt, _right_node_cnt)}
-        , edges{ed_container_creator.create_objects(_down_node_cnt, _right_node_cnt)}
+        : grid_down_cnt{_grid_down_cnt}
+        , grid_right_cnt{_grid_right_cnt}
+        , nodes{nd_container_creator.create_objects(_grid_down_cnt, _grid_right_cnt)}
+        , edges{ed_container_creator.create_objects(_grid_down_cnt, _grid_right_cnt)}
         , indel_ed{indel_data} {}
 
         void update_node_data(const N& node, ND&& data) {
@@ -167,18 +167,18 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         auto get_leaf_nodes() {
-            return std::ranges::single_view { N { down_node_cnt - 1u, right_node_cnt - 1u } };
+            return std::ranges::single_view { N { grid_down_cnt - 1u, grid_right_cnt - 1u } };
         }
 
         auto get_leaf_node() {
-            return N { down_node_cnt - 1u, right_node_cnt - 1u };
+            return N { grid_down_cnt - 1u, grid_right_cnt - 1u };
         }
 
         auto get_nodes() {
             return
                 std::views::cartesian_product(
-                    std::views::iota(0u, down_node_cnt),
-                    std::views::iota(0u, right_node_cnt)
+                    std::views::iota(0u, grid_down_cnt),
+                    std::views::iota(0u, grid_right_cnt)
                 )
                 | std::views::transform([](const auto & p) {
                     return N { std::get<0>(p), std::get<1>(p) };
@@ -188,8 +188,8 @@ namespace offbynull::aligner::graphs::grid_graph {
         auto get_edges() {
             return
                 std::views::cartesian_product(
-                    std::views::iota(0u, down_node_cnt),
-                    std::views::iota(0u, right_node_cnt)
+                    std::views::iota(0u, grid_down_cnt),
+                    std::views::iota(0u, grid_right_cnt)
                 )
                 | std::views::transform([&](const auto & p) {
                     N node { std::get<0>(p), std::get<1>(p) };
@@ -200,15 +200,15 @@ namespace offbynull::aligner::graphs::grid_graph {
 
         bool has_node(const N& node) {
             auto [n1_down, n1_right] = node;
-            return n1_down < down_node_cnt && n1_down >= 0u && n1_right < right_node_cnt && n1_right >= 0u;
+            return n1_down < grid_down_cnt && n1_down >= 0u && n1_right < grid_right_cnt && n1_right >= 0u;
         }
 
         bool has_edge(const E& edge) {
             auto [n1_down, n1_right] = edge.first;
             auto [n2_down, n2_right] = edge.second;
-            return (n1_down == n2_down && n1_right + 1u == n2_right && n2_right < right_node_cnt)
-                || (n1_down + 1u == n2_down && n1_right == n2_right && n2_down < down_node_cnt)
-                || (n1_down + 1u == n2_down && n1_right + 1u == n2_right && n2_down < down_node_cnt && n2_right < right_node_cnt);
+            return (n1_down == n2_down && n1_right + 1u == n2_right && n2_right < grid_right_cnt)
+                || (n1_down + 1u == n2_down && n1_right == n2_right && n2_down < grid_down_cnt)
+                || (n1_down + 1u == n2_down && n1_right + 1u == n2_right && n2_down < grid_down_cnt && n2_right < grid_right_cnt);
         }
 
         auto get_outputs_full(const N& node) {
@@ -232,10 +232,10 @@ namespace offbynull::aligner::graphs::grid_graph {
                 | std::views::filter([node, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [n_down, n_right] { node };
-                    if (down_offset == 1u && n_down == down_node_cnt - 1u) {
+                    if (down_offset == 1u && n_down == grid_down_cnt - 1u) {
                         return false;
                     }
-                    if (right_offset == 1u && n_right == right_node_cnt - 1u) {
+                    if (right_offset == 1u && n_right == grid_right_cnt - 1u) {
                         return false;
                     }
                     return true;
@@ -340,91 +340,91 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         constexpr static INDEX node_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         ) {
-            return _down_node_cnt * _right_node_cnt;
+            return _grid_down_cnt * _grid_right_cnt;
         }
 
         constexpr static INDEX longest_path_edge_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         ) {
-            return (_right_node_cnt - 1u) + (_down_node_cnt - 1u);
+            return (_grid_right_cnt - 1u) + (_grid_down_cnt - 1u);
         }
 
         std::pair<INDEX, INDEX> node_to_grid_offsets(const N& node) {
             return node;
         }
 
-        constexpr static std::size_t slice_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
-            return _right_node_cnt;
+        constexpr static std::size_t slice_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {
+            return _grid_right_cnt;
         }
 
         auto slice_nodes(INDEX n_down) {
-            return slice_nodes(n_down, right_node_cnt);
+            return slice_nodes(n_down, grid_right_cnt);
         }
 
-        auto slice_nodes(INDEX n_down, INDEX right_node_cnt_) {
-            return std::views::iota(0u, right_node_cnt_)
+        auto slice_nodes(INDEX n_down, INDEX grid_right_cnt_) {
+            return std::views::iota(0u, grid_right_cnt_)
                 | std::views::transform([n_down](const auto& n_right) { return N { n_down, n_right }; });
         }
 
-        N first_node_in_slice(INDEX n_down) {
-            return first_node_in_slice(n_down, 0u);
+        N slice_first_node(INDEX n_down) {
+            return slice_first_node(n_down, 0u);
         }
 
-        N first_node_in_slice(INDEX n_down, INDEX n_right) {
+        N slice_first_node(INDEX n_down, INDEX n_right) {
             N first_node { n_down, n_right };
             if constexpr (error_check) {
-                if (std::get<0>(first_node) >= down_node_cnt) {
+                if (std::get<0>(first_node) >= grid_down_cnt) {
                     throw std::runtime_error("Node too far down");
                 }
             }
             return first_node;
         }
 
-        N last_node_in_slice(INDEX n_down) {
-            return last_node_in_slice(n_down, right_node_cnt - 1u);
+        N slice_last_node(INDEX n_down) {
+            return slice_last_node(n_down, grid_right_cnt - 1u);
         }
 
-        N last_node_in_slice(INDEX n_down, INDEX n_right) {
+        N slice_last_node(INDEX n_down, INDEX n_right) {
             N last_node { n_down, n_right };
             if constexpr (error_check) {
-                if (std::get<0>(last_node) >= down_node_cnt) {
+                if (std::get<0>(last_node) >= grid_down_cnt) {
                     throw std::runtime_error("Node too far down");
                 }
             }
             return last_node;
         }
 
-        N next_node_in_slice(const N& node) {
+        N slice_next_node(const N& node) {
             N next_node { std::get<0>(node), std::get<1>(node) + 1u};
             if constexpr (error_check) {
-                if (std::get<0>(next_node) >= down_node_cnt) {
+                if (std::get<0>(next_node) >= grid_down_cnt) {
                     throw std::runtime_error("Node too far down");
                 }
-                if (std::get<1>(next_node) >= right_node_cnt) {
+                if (std::get<1>(next_node) >= grid_right_cnt) {
                     throw std::runtime_error("Node too far right");
                 }
             }
             return next_node;
         }
 
-        N prev_node_in_slice(const N& node) {
+        N slice_prev_node(const N& node) {
             N prev_node { std::get<0>(node), std::get<1>(node) - 1u};
             if constexpr (error_check) {
-                if (std::get<0>(prev_node) >= down_node_cnt) {
+                if (std::get<0>(prev_node) >= grid_down_cnt) {
                     throw std::runtime_error("Node too far down");
                 }
-                if (std::get<1>(prev_node) >= right_node_cnt) {
+                if (std::get<1>(prev_node) >= grid_right_cnt) {
                     throw std::runtime_error("Node too far right");
                 }
             }
             return prev_node;
         }
 
-        constexpr static std::size_t resident_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
+        constexpr static std::size_t resident_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {
             return 0zu;
         }
 

@@ -324,13 +324,13 @@ namespace {
             using N = typename G::N;
             using E = typename G::E;
 
-            EXPECT_EQ(G::slice_nodes_capacity(g.down_node_cnt, g.right_node_cnt), 3zu);
-            EXPECT_EQ(g.first_node_in_slice(0u), (N { 5u, 5u }));
-            EXPECT_EQ(g.last_node_in_slice(0u), (N { 5u, 7u }));
-            EXPECT_EQ(g.first_node_in_slice(1u), (N { 6u, 5u }));
-            EXPECT_EQ(g.last_node_in_slice(1u), (N {  6u, 7u }));
+            EXPECT_EQ(G::slice_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 3zu);
+            EXPECT_EQ(g.slice_first_node(0u), (N { 5u, 5u }));
+            EXPECT_EQ(g.slice_last_node(0u), (N { 5u, 7u }));
+            EXPECT_EQ(g.slice_first_node(1u), (N { 6u, 5u }));
+            EXPECT_EQ(g.slice_last_node(1u), (N {  6u, 7u }));
 
-            EXPECT_EQ(G::resident_nodes_capacity(g.down_node_cnt, g.right_node_cnt), 2zu); // directly proxied from backing graph
+            EXPECT_EQ(G::resident_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 2zu); // directly proxied from backing graph
             auto resident_nodes { g.resident_nodes() };
             EXPECT_EQ(std::distance(resident_nodes.begin(), resident_nodes.end()), 1zu);
             auto resident_nodes_it { resident_nodes.begin() };
@@ -338,15 +338,15 @@ namespace {
             ++resident_nodes_it;
             EXPECT_EQ(resident_nodes_it, resident_nodes.end());
 
-            EXPECT_EQ(g.next_node_in_slice(N { 5u, 5u }), (N { 5u, 6u }));
-            EXPECT_EQ(g.next_node_in_slice(N { 5u, 6u }), (N { 5u, 7u }));
-            EXPECT_EQ(g.next_node_in_slice(N { 6u, 5u }), (N { 6u, 6u }));
-            EXPECT_EQ(g.next_node_in_slice(N { 6u, 6u }), (N { 6u, 7u }));
+            EXPECT_EQ(g.slice_next_node(N { 5u, 5u }), (N { 5u, 6u }));
+            EXPECT_EQ(g.slice_next_node(N { 5u, 6u }), (N { 5u, 7u }));
+            EXPECT_EQ(g.slice_next_node(N { 6u, 5u }), (N { 6u, 6u }));
+            EXPECT_EQ(g.slice_next_node(N { 6u, 6u }), (N { 6u, 7u }));
 
-            EXPECT_EQ(g.prev_node_in_slice(N { 5u, 6u }), (N { 5u, 5u }));
-            EXPECT_EQ(g.prev_node_in_slice(N { 5u, 7u }), (N { 5u, 6u }));
-            EXPECT_EQ(g.prev_node_in_slice(N { 6u, 6u }), (N { 6u, 5u }));
-            EXPECT_EQ(g.prev_node_in_slice(N { 6u, 7u }), (N { 6u, 6u }));
+            EXPECT_EQ(g.slice_prev_node(N { 5u, 6u }), (N { 5u, 5u }));
+            EXPECT_EQ(g.slice_prev_node(N { 5u, 7u }), (N { 5u, 6u }));
+            EXPECT_EQ(g.slice_prev_node(N { 6u, 6u }), (N { 6u, 5u }));
+            EXPECT_EQ(g.slice_prev_node(N { 6u, 7u }), (N { 6u, 6u }));
 
             EXPECT_EQ(
                 to_vector(g.outputs_to_residents(N { 5u, 5u })),

@@ -52,19 +52,19 @@ namespace offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph 
         > g;
 
     public:
-        const INDEX down_node_cnt;
-        const INDEX right_node_cnt;
+        const INDEX grid_down_cnt;
+        const INDEX grid_right_cnt;
 
         suffix_sliceable_pairwise_alignment_graph(
             GRAPH& _g,
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         )
         : inner_inner_g{ _g }
-        , inner_g { inner_inner_g, _down_node_cnt, _right_node_cnt }
+        , inner_g { inner_inner_g, _grid_down_cnt, _grid_right_cnt }
         , g { inner_g }
-        , down_node_cnt{_down_node_cnt}
-        , right_node_cnt{_right_node_cnt} {}
+        , grid_down_cnt{_grid_down_cnt}
+        , grid_right_cnt{_grid_right_cnt} {}
 
         void update_node_data(const N& node, ND&& data) {
             g.update_node_data(node, std::forward<ND>(data));
@@ -167,57 +167,57 @@ namespace offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph 
         }
 
         constexpr static INDEX node_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         ) {
-            return GRAPH::node_count(_down_node_cnt, _right_node_cnt);
+            return GRAPH::node_count(_grid_down_cnt, _grid_right_cnt);
         }
 
         constexpr static INDEX longest_path_edge_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         ) {
-            return GRAPH::longest_path_edge_count(_down_node_cnt, _right_node_cnt);
+            return GRAPH::longest_path_edge_count(_grid_down_cnt, _grid_right_cnt);
         }
 
-        constexpr static std::size_t slice_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
-            return GRAPH::slice_nodes_capacity(_down_node_cnt, _right_node_cnt);
+        constexpr static std::size_t slice_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {
+            return GRAPH::slice_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
         auto slice_nodes(INDEX n_down) {
             return g.slice_nodes(n_down);
         }
 
-        auto slice_nodes(INDEX n_down, INDEX override_right_node_cnt) {
-            return g.slice_nodes(n_down, override_right_node_cnt);
+        auto slice_nodes(INDEX n_down, INDEX override_grid_right_cnt) {
+            return g.slice_nodes(n_down, override_grid_right_cnt);
         }
 
-        N first_node_in_slice(INDEX n_down) {
-            return g.first_node_in_slice(n_down);
+        N slice_first_node(INDEX n_down) {
+            return g.slice_first_node(n_down);
         }
 
-        N first_node_in_slice(INDEX n_down, INDEX n_right) {
-            return g.first_node_in_slice(n_down, n_right);
+        N slice_first_node(INDEX n_down, INDEX n_right) {
+            return g.slice_first_node(n_down, n_right);
         }
 
-        N last_node_in_slice(INDEX n_down) {
-            return g.last_node_in_slice(n_down);
+        N slice_last_node(INDEX n_down) {
+            return g.slice_last_node(n_down);
         }
 
-        N last_node_in_slice(INDEX n_down, INDEX n_right) {
-            return g.last_node_in_slice(n_down, n_right);
+        N slice_last_node(INDEX n_down, INDEX n_right) {
+            return g.slice_last_node(n_down, n_right);
         }
 
-        N next_node_in_slice(const N& node) {
-            return g.next_node_in_slice(node);
+        N slice_next_node(const N& node) {
+            return g.slice_next_node(node);
         }
 
-        N prev_node_in_slice(const N& node) {
-            return g.prev_node_in_slice(node);
+        N slice_prev_node(const N& node) {
+            return g.slice_prev_node(node);
         }
 
-        constexpr static std::size_t resident_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
-            return GRAPH::resident_nodes_capacity(_down_node_cnt, _right_node_cnt);
+        constexpr static std::size_t resident_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {
+            return GRAPH::resident_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
         auto resident_nodes() {

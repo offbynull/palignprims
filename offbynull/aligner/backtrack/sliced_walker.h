@@ -198,10 +198,10 @@ namespace offbynull::aligner::backtrack::sliced_walker {
             }
 
             // Move to next node / next slice
-            if (graph.last_node_in_slice(n_down) != active_slot_ptr->node) {
-                next_slot_ptr = &find_slot(graph.next_node_in_slice(active_slot_ptr->node));
+            if (graph.slice_last_node(n_down) != active_slot_ptr->node) {
+                next_slot_ptr = &find_slot(graph.slice_next_node(active_slot_ptr->node));
             } else {
-                if (n_down == graph.down_node_cnt - 1u) {
+                if (n_down == graph.grid_down_cnt - 1u) {
                     next_slot_ptr = nullptr;
                     return true;
                 }
@@ -211,8 +211,8 @@ namespace offbynull::aligner::backtrack::sliced_walker {
                 const auto & _upper_slots { graph.slice_nodes(n_down) };
                 std::ranges::copy(_upper_slots.begin(), _upper_slots.end(), std::back_inserter(upper_slots));
                 std::ranges::sort(upper_slots.begin(), upper_slots.end(), slots_comparator<N, WEIGHT>{});
-                next_slot_ptr = &find_slot(graph.first_node_in_slice(n_down));
-                active_slot_ptr = &find_slot(graph.last_node_in_slice(n_down - 1u)); // need to update this because slots entries have moved around
+                next_slot_ptr = &find_slot(graph.slice_first_node(n_down));
+                active_slot_ptr = &find_slot(graph.slice_last_node(n_down - 1u)); // need to update this because slots entries have moved around
             }
 
             return false;
@@ -296,13 +296,13 @@ namespace offbynull::aligner::backtrack::sliced_walker {
         , resident_slots{resident_slot_container_creator.create_empty()}
         , upper_slots{slice_slot_container_creator.create_empty()}
         , lower_slots{slice_slot_container_creator.create_empty()}
-        , n_down{graph.down_node_cnt - 1u}
+        , n_down{graph.grid_down_cnt - 1u}
         , active_slot_ptr{nullptr}
         , prev_slot_ptr{nullptr} {
             const auto& _resident_slots { graph.resident_nodes() };
             std::ranges::copy(_resident_slots.cbegin(), _resident_slots.cend(), std::back_inserter(resident_slots));
             std::ranges::sort(resident_slots.begin(), resident_slots.end(), slots_comparator<N, WEIGHT>{});
-            const auto& _lower_slots { graph.slice_nodes(graph.down_node_cnt - 1u) };
+            const auto& _lower_slots { graph.slice_nodes(graph.grid_down_cnt - 1u) };
             std::ranges::copy(_lower_slots.cbegin(), _lower_slots.cend(), std::back_inserter(lower_slots));
             std::ranges::sort(lower_slots.begin(), lower_slots.end(), slots_comparator<N, WEIGHT>{});
             prev_slot_ptr = &find_slot(graph.get_leaf_node());
@@ -366,8 +366,8 @@ namespace offbynull::aligner::backtrack::sliced_walker {
             }
 
             // Move to next node / next slice
-            if (graph.first_node_in_slice(n_down) != active_slot_ptr->node) {
-                prev_slot_ptr = &find_slot(graph.prev_node_in_slice(active_slot_ptr->node));
+            if (graph.slice_first_node(n_down) != active_slot_ptr->node) {
+                prev_slot_ptr = &find_slot(graph.slice_prev_node(active_slot_ptr->node));
             } else {
                 if (n_down == 0u) {
                     prev_slot_ptr = nullptr;
@@ -379,8 +379,8 @@ namespace offbynull::aligner::backtrack::sliced_walker {
                 const auto & _lower_slots { graph.slice_nodes(n_down) };
                 std::ranges::copy(_lower_slots.begin(), _lower_slots.end(), std::back_inserter(lower_slots));
                 std::ranges::sort(lower_slots.begin(), lower_slots.end(), slots_comparator<N, WEIGHT>{});
-                prev_slot_ptr = &find_slot(graph.last_node_in_slice(n_down));
-                active_slot_ptr = &find_slot(graph.first_node_in_slice(n_down + 1u)); // need to update this because slots entries have moved around
+                prev_slot_ptr = &find_slot(graph.slice_last_node(n_down));
+                active_slot_ptr = &find_slot(graph.slice_first_node(n_down + 1u)); // need to update this because slots entries have moved around
             }
 
             return false;

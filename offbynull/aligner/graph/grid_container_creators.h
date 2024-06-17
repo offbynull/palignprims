@@ -16,10 +16,10 @@ namespace offbynull::aligner::graph::grid_container_creators {
     using offbynull::utils::static_vector_typer;
 
     template<widenable_to_size_t INDEX>
-    constexpr std::size_t to_element_count(INDEX down_node_cnt, INDEX right_node_cnt) {
-        std::size_t widened_down_node_cnt { down_node_cnt };
-        std::size_t widened_right_node_cnt { right_node_cnt };
-        return widened_down_node_cnt * widened_right_node_cnt;
+    constexpr std::size_t to_element_count(INDEX grid_down_cnt, INDEX grid_right_cnt) {
+        std::size_t widened_grid_down_cnt { grid_down_cnt };
+        std::size_t widened_grid_right_cnt { grid_right_cnt };
+        return widened_grid_down_cnt * widened_grid_right_cnt;
     }
 
     template<
@@ -30,9 +30,9 @@ namespace offbynull::aligner::graph::grid_container_creators {
     class vector_grid_container_creator {
     public:
         using ELEM = ELEM_;
-        std::vector<ELEM> create_objects(INDEX down_node_cnt, INDEX right_node_cnt) {
+        std::vector<ELEM> create_objects(INDEX grid_down_cnt, INDEX grid_right_cnt) {
             return std::vector<ELEM>(
-                to_element_count<INDEX>(down_node_cnt, right_node_cnt)
+                to_element_count<INDEX>(grid_down_cnt, grid_right_cnt)
             );
         }
     };
@@ -50,9 +50,9 @@ namespace offbynull::aligner::graph::grid_container_creators {
         static constexpr std::size_t size = to_element_count<INDEX>(STATIC_DOWN_CNT, STATIC_RIGHT_CNT);
     public:
         using ELEM = ELEM_;
-        std::array<ELEM, size> create_objects(INDEX down_node_cnt, INDEX right_node_cnt) {
+        std::array<ELEM, size> create_objects(INDEX grid_down_cnt, INDEX grid_right_cnt) {
             if constexpr (error_check) {
-                if (down_node_cnt != STATIC_DOWN_CNT || right_node_cnt != STATIC_RIGHT_CNT) {
+                if (grid_down_cnt != STATIC_DOWN_CNT || grid_right_cnt != STATIC_RIGHT_CNT) {
                     throw std::runtime_error("Unexpected number of elements");
                 }
             }
@@ -73,9 +73,9 @@ namespace offbynull::aligner::graph::grid_container_creators {
         static constexpr std::size_t max_size = to_element_count<INDEX>(STATIC_DOWN_CNT, STATIC_RIGHT_CNT);
     public:
         using ELEM = ELEM_;
-        static_vector_typer<ELEM, max_size, error_check>::type create_objects(INDEX down_node_cnt, INDEX right_node_cnt) {
+        static_vector_typer<ELEM, max_size, error_check>::type create_objects(INDEX grid_down_cnt, INDEX grid_right_cnt) {
             if constexpr (error_check) {
-                if (down_node_cnt > STATIC_DOWN_CNT || right_node_cnt > STATIC_RIGHT_CNT) {
+                if (grid_down_cnt > STATIC_DOWN_CNT || grid_right_cnt > STATIC_RIGHT_CNT) {
                     throw std::runtime_error("Too many elements");
                 }
             }
@@ -98,8 +98,8 @@ namespace offbynull::aligner::graph::grid_container_creators {
         static constexpr std::size_t max_stack_size = to_element_count<INDEX>(STATIC_DOWN_CNT, STATIC_RIGHT_CNT);
     public:
         using ELEM = ELEM_;
-        boost::container::small_vector<ELEM, max_stack_size> create_objects(INDEX down_node_cnt, INDEX right_node_cnt) {
-            return boost::container::small_vector<ELEM, max_stack_size>(down_node_cnt * right_node_cnt);
+        boost::container::small_vector<ELEM, max_stack_size> create_objects(INDEX grid_down_cnt, INDEX grid_right_cnt) {
+            return boost::container::small_vector<ELEM, max_stack_size>(grid_down_cnt * grid_right_cnt);
         }
     };
     static_assert(grid_container_creator<small_vector_grid_container_creator<int, std::size_t, 0zu, 0zu>, std::size_t>);  // Sanity check

@@ -42,19 +42,19 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check> g;
 
     public:
-        const INDEX down_node_cnt;
-        const INDEX right_node_cnt;
+        const INDEX grid_down_cnt;
+        const INDEX grid_right_cnt;
 
         pairwise_global_alignment_graph(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt,
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt,
             ED indel_data = {},
             ND_ALLOCATOR_ nd_container_creator = {},
             ED_ALLOCATOR_ ed_container_creator = {}
         )
-        : g{_down_node_cnt, _right_node_cnt, indel_data, nd_container_creator, ed_container_creator}
-        , down_node_cnt{_down_node_cnt}
-        , right_node_cnt{_right_node_cnt} {}
+        : g{_grid_down_cnt, _grid_right_cnt, indel_data, nd_container_creator, ed_container_creator}
+        , grid_down_cnt{_grid_down_cnt}
+        , grid_right_cnt{_grid_right_cnt} {}
 
         std::pair<INDEX, INDEX> node_to_grid_offsets(const N& node) {
             if constexpr (error_check) {
@@ -247,7 +247,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             using V_ELEM = std::decay_t<decltype(*v.begin())>;
             using W_ELEM = std::decay_t<decltype(*w.begin())>;
             if constexpr (error_check) {
-                if (down_node_cnt != v.size() + 1zu || right_node_cnt != w.size() + 1zu) {
+                if (grid_down_cnt != v.size() + 1zu || grid_right_cnt != w.size() + 1zu) {
                     throw std::runtime_error("Mismatching node count");
                 }
             }
@@ -292,63 +292,63 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         }
 
         constexpr static INDEX node_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         ) {
             return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::node_count(
-                _down_node_cnt, _right_node_cnt
+                _grid_down_cnt, _grid_right_cnt
             );
         }
 
         constexpr static INDEX longest_path_edge_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         ) {
             return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::longest_path_edge_count(
-                _down_node_cnt, _right_node_cnt
+                _grid_down_cnt, _grid_right_cnt
             );
         }
 
-        constexpr static std::size_t slice_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
+        constexpr static std::size_t slice_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {
             using G = std::decay_t<decltype(g)>;
-            return G::slice_nodes_capacity(_down_node_cnt, _right_node_cnt);
+            return G::slice_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
         auto slice_nodes(INDEX n_down) {
             return g.slice_nodes(n_down);
         }
 
-        auto slice_nodes(INDEX n_down, INDEX right_node_cnt_) {
-            return g.slice_nodes(n_down, right_node_cnt_);
+        auto slice_nodes(INDEX n_down, INDEX grid_right_cnt_) {
+            return g.slice_nodes(n_down, grid_right_cnt_);
         }
 
-        N first_node_in_slice(INDEX n_down) {
-            return g.first_node_in_slice(n_down);
+        N slice_first_node(INDEX n_down) {
+            return g.slice_first_node(n_down);
         }
 
-        N first_node_in_slice(INDEX n_down, INDEX right_node_cnt_) {
-            return g.first_node_in_slice(n_down, right_node_cnt_);
+        N slice_first_node(INDEX n_down, INDEX grid_right_cnt_) {
+            return g.slice_first_node(n_down, grid_right_cnt_);
         }
 
-        N last_node_in_slice(INDEX n_down) {
-            return g.last_node_in_slice(n_down);
+        N slice_last_node(INDEX n_down) {
+            return g.slice_last_node(n_down);
         }
 
-        N last_node_in_slice(INDEX n_down, INDEX right_node_cnt_) {
-            return g.last_node_in_slice(n_down, right_node_cnt_);
+        N slice_last_node(INDEX n_down, INDEX grid_right_cnt_) {
+            return g.slice_last_node(n_down, grid_right_cnt_);
         }
 
-        N next_node_in_slice(const N& node) {
-            return g.next_node_in_slice(node);
+        N slice_next_node(const N& node) {
+            return g.slice_next_node(node);
         }
 
-        N prev_node_in_slice(const N& node) {
-            return g.prev_node_in_slice(node);
+        N slice_prev_node(const N& node) {
+            return g.slice_prev_node(node);
         }
 
-        constexpr static std::size_t resident_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
+        constexpr static std::size_t resident_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {
             using G = std::decay_t<decltype(g)>;
-            return G::resident_nodes_capacity(_down_node_cnt, _right_node_cnt);
+            return G::resident_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
         auto resident_nodes() {

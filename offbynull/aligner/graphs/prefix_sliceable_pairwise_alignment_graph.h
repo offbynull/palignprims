@@ -29,7 +29,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
 
         bool node_out_of_bound(const N& node) {
             const auto& [down_offset, right_offset] { g.node_to_grid_offsets(node) };
-            return down_offset >= down_node_cnt || (right_offset >= right_node_cnt);
+            return down_offset >= grid_down_cnt || (right_offset >= grid_right_cnt);
         }
 
         bool edge_out_of_bound(const E& edge) {
@@ -37,19 +37,19 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
     public:
-        const INDEX down_node_cnt;
-        const INDEX right_node_cnt;
+        const INDEX grid_down_cnt;
+        const INDEX grid_right_cnt;
 
         prefix_sliceable_pairwise_alignment_graph(
             GRAPH& _g,
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         )
         : g{_g}
-        , down_node_cnt{_down_node_cnt}
-        , right_node_cnt{_right_node_cnt} {
+        , grid_down_cnt{_grid_down_cnt}
+        , grid_right_cnt{_grid_right_cnt} {
             if constexpr (error_check) {
-                if (down_node_cnt > g.down_node_cnt || right_node_cnt > g.right_node_cnt) {
+                if (grid_down_cnt > g.grid_down_cnt || grid_right_cnt > g.grid_right_cnt) {
                     throw std::runtime_error("Out of bounds");
                 }
             }
@@ -131,7 +131,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         auto get_leaf_node() {
-            return g.last_node_in_slice(down_node_cnt - 1u, right_node_cnt - 1u);
+            return g.slice_last_node(grid_down_cnt - 1u, grid_right_cnt - 1u);
         }
 
         auto get_nodes() {
@@ -243,79 +243,79 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         constexpr static INDEX node_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         ) {
-            return GRAPH::node_count(_down_node_cnt, _right_node_cnt);
+            return GRAPH::node_count(_grid_down_cnt, _grid_right_cnt);
         }
 
         constexpr static INDEX longest_path_edge_count(
-            INDEX _down_node_cnt,
-            INDEX _right_node_cnt
+            INDEX _grid_down_cnt,
+            INDEX _grid_right_cnt
         ) {
-            return GRAPH::longest_path_edge_count(_down_node_cnt, _right_node_cnt);
+            return GRAPH::longest_path_edge_count(_grid_down_cnt, _grid_right_cnt);
         }
 
-        constexpr static std::size_t slice_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
-            return GRAPH::slice_nodes_capacity(_down_node_cnt, _right_node_cnt);
+        constexpr static std::size_t slice_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {
+            return GRAPH::slice_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
         auto slice_nodes(INDEX n_down) {
             return g.slice_nodes(n_down)
-                | std::views::take(right_node_cnt);
+                | std::views::take(grid_right_cnt);
         }
 
-        auto slice_nodes(INDEX n_down, INDEX override_right_node_cnt) {
+        auto slice_nodes(INDEX n_down, INDEX override_grid_right_cnt) {
             return slice_nodes(n_down)
-                | std::views::take(override_right_node_cnt);
+                | std::views::take(override_grid_right_cnt);
         }
 
-        N first_node_in_slice(INDEX n_down) {
-            return g.first_node_in_slice(n_down);
+        N slice_first_node(INDEX n_down) {
+            return g.slice_first_node(n_down);
         }
 
-        N first_node_in_slice(INDEX n_down, INDEX n_right) {
-            return g.first_node_in_slice(n_down, n_right);
+        N slice_first_node(INDEX n_down, INDEX n_right) {
+            return g.slice_first_node(n_down, n_right);
         }
 
-        N last_node_in_slice(INDEX n_down) {
-            return g.last_node_in_slice(n_down, right_node_cnt - 1u);
+        N slice_last_node(INDEX n_down) {
+            return g.slice_last_node(n_down, grid_right_cnt - 1u);
         }
 
-        N last_node_in_slice(INDEX n_down, INDEX n_right) {
-            return g.last_node_in_slice(n_down, n_right);
+        N slice_last_node(INDEX n_down, INDEX n_right) {
+            return g.slice_last_node(n_down, n_right);
         }
 
-        N next_node_in_slice(const N& node) {
-            N next_node { g.next_node_in_slice(node) };
+        N slice_next_node(const N& node) {
+            N next_node { g.slice_next_node(node) };
             if constexpr (error_check) {
                 const auto& [n_down, n_right] { node_to_grid_offsets(node) };
-                if (n_down >= down_node_cnt) {
+                if (n_down >= grid_down_cnt) {
                     throw std::runtime_error("Node too far down");
                 }
-                if (n_right >= right_node_cnt) {
+                if (n_right >= grid_right_cnt) {
                     throw std::runtime_error("Node too far right");
                 }
             }
             return next_node;
         }
 
-        N prev_node_in_slice(const N& node) {
-            N prev_node { g.prev_node_in_slice(node) };
+        N slice_prev_node(const N& node) {
+            N prev_node { g.slice_prev_node(node) };
             if constexpr (error_check) {
                 const auto& [n_down, n_right] { node_to_grid_offsets(node) };
-                if (n_down >= down_node_cnt) {
+                if (n_down >= grid_down_cnt) {
                     throw std::runtime_error("Node too far down");
                 }
-                if (n_right >= right_node_cnt) {
+                if (n_right >= grid_right_cnt) {
                     throw std::runtime_error("Node too far right");
                 }
             }
             return prev_node;
         }
 
-        constexpr static std::size_t resident_nodes_capacity(INDEX _down_node_cnt, INDEX _right_node_cnt) {
-            return GRAPH::resident_nodes_capacity(_down_node_cnt, _right_node_cnt);
+        constexpr static std::size_t resident_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {
+            return GRAPH::resident_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
         auto resident_nodes() {

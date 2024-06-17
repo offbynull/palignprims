@@ -36,8 +36,8 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
             G g,
             typename G::INDEX indexer
         ) {
-            { g.down_node_cnt } -> std::same_as<const typename G::INDEX&>;
-            { g.right_node_cnt } -> std::same_as<const typename G::INDEX&>;
+            { g.grid_down_cnt } -> std::same_as<const typename G::INDEX&>;
+            { g.grid_right_cnt } -> std::same_as<const typename G::INDEX&>;
             { G::node_count(indexer, indexer) } -> std::same_as<typename G::INDEX>;
             { G::longest_path_edge_count(indexer, indexer) } -> std::same_as<typename G::INDEX>;
         };
