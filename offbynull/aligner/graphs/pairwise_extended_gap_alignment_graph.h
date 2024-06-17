@@ -101,13 +101,13 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            auto [n_down, n_right] = node;
+            auto [grid_down, grid_right] { node };
             if (node.type == layer::DIAGONAL) {
-                this->slots[to_raw_idx(n_down, n_right)].diagonal_nd = std::forward<ND>(data);
+                this->slots[to_raw_idx(grid_down, grid_right)].diagonal_nd = std::forward<ND>(data);
             } else if (node.type == layer::DOWN) {
-                this->slots[to_raw_idx(n_down, n_right)].down_nd = std::forward<ND>(data);
+                this->slots[to_raw_idx(grid_down, grid_right)].down_nd = std::forward<ND>(data);
             } else if (node.type == layer::RIGHT) {
-                this->slots[to_raw_idx(n_down, n_right)].right_nd = std::forward<ND>(data);
+                this->slots[to_raw_idx(grid_down, grid_right)].right_nd = std::forward<ND>(data);
             }
         }
 
@@ -117,13 +117,13 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            auto [n_down, n_right] = node;
+            auto [grid_down, grid_right] = node;
             if (node.type == layer::DIAGONAL) {
-                return this->slots[to_raw_idx(n_down, n_right)].diagonal_nd;
+                return this->slots[to_raw_idx(grid_down, grid_right)].diagonal_nd;
             } else if (node.type == layer::DOWN) {
-                return this->slots[to_raw_idx(n_down, n_right)].down_nd;
+                return this->slots[to_raw_idx(grid_down, grid_right)].down_nd;
             } else if (node.type == layer::RIGHT) {
-                return this->slots[to_raw_idx(n_down, n_right)].right_nd;
+                return this->slots[to_raw_idx(grid_down, grid_right)].right_nd;
             }
             std::unreachable();
         }
@@ -134,10 +134,10 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
             }
-            const auto& [n1_layer, n1_down, n1_right] = edge.first;
-            auto [n2_layer, n2_down, n2_right] = edge.second;
+            const auto& [n1_layer, n1_grid_down, n1_grid_right] = edge.first;
+            auto [n2_layer, n2_grid_down, n2_grid_right] = edge.second;
             if (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL) {  // match
-                this->slots[to_raw_idx(n1_down, n1_right)].to_next_diagonal_ed = std::forward<ED>(data);
+                this->slots[to_raw_idx(n1_grid_down, n1_grid_right)].to_next_diagonal_ed = std::forward<ED>(data);
             } else if (n1_layer == layer::DOWN && n2_layer == layer::DOWN) {  // gap
                 extended_indel_ed = std::forward<ED>(data);
             } else if (n1_layer == layer::RIGHT && n2_layer == layer::RIGHT) {  // gap
@@ -159,10 +159,10 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
             }
-            const auto& [n1_layer, n1_down, n1_right] = edge.first;
-            auto [n2_layer, n2_down, n2_right] = edge.second;
+            const auto& [n1_layer, n1_grid_down, n1_grid_right] = edge.first;
+            auto [n2_layer, n2_grid_down, n2_grid_right] = edge.second;
             if (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL) {  // match
-                return this->slots[to_raw_idx(n1_down, n1_right)].to_next_diagonal_ed;
+                return this->slots[to_raw_idx(n1_grid_down, n1_grid_right)].to_next_diagonal_ed;
             } else if (n1_layer == layer::DOWN && n2_layer == layer::DOWN) {  // gap
                 return extended_indel_ed;
             } else if (n1_layer == layer::RIGHT && n2_layer == layer::RIGHT) {  // gap
@@ -232,8 +232,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     std::views::iota(0u, grid_right_cnt)
                 )
                 | std::views::transform([](const auto & p) noexcept {
-                    const auto &[n_down, n_right] { p };
-                    return N { layer::DIAGONAL, n_down, n_right };
+                    const auto &[grid_down, grid_right] { p };
+                    return N { layer::DIAGONAL, grid_down, grid_right };
                 })
             };
             auto down_layer_nodes {
@@ -242,8 +242,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     std::views::iota(0u, grid_right_cnt)
                 )
                 | std::views::transform([](const auto & p) noexcept {
-                    const auto &[n_down, n_right] { p };
-                    return N { layer::DOWN, n_down, n_right };
+                    const auto &[grid_down, grid_right] { p };
+                    return N { layer::DOWN, grid_down, grid_right };
                 })
             };
             auto right_layer_nodes {
@@ -252,8 +252,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     std::views::iota(1u, grid_right_cnt)
                 )
                 | std::views::transform([](const auto & p) noexcept {
-                    const auto &[n_down, n_right] { p };
-                    return N { layer::RIGHT, n_down, n_right };
+                    const auto &[grid_down, grid_right] { p };
+                    return N { layer::RIGHT, grid_down, grid_right };
                 })
             };
             return concat_view(
@@ -272,8 +272,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     std::views::iota(0u, grid_right_cnt)
                 )
                 | std::views::transform([&](const auto & p) noexcept {
-                    const auto &[n_down, n_right] { p };
-                    return this->get_outputs(N { layer::DIAGONAL, n_down, n_right });
+                    const auto &[grid_down, grid_right] { p };
+                    return this->get_outputs(N { layer::DIAGONAL, grid_down, grid_right });
                 })
                 | std::views::join
             };
@@ -283,8 +283,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     std::views::iota(0u, grid_right_cnt)
                 )
                 | std::views::transform([&](const auto & p) noexcept {
-                    const auto &[n_down, n_right] { p };
-                    return this->get_outputs(N { layer::DOWN, n_down, n_right });
+                    const auto &[grid_down, grid_right] { p };
+                    return this->get_outputs(N { layer::DOWN, grid_down, grid_right });
                 })
                 | std::views::join
             };
@@ -294,8 +294,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     std::views::iota(1u, grid_right_cnt)
                 )
                 | std::views::transform([&](const auto & p) noexcept {
-                    const auto &[n_down, n_right] { p };
-                    return this->get_outputs(N { layer::RIGHT, n_down, n_right });
+                    const auto &[grid_down, grid_right] { p };
+                    return this->get_outputs(N { layer::RIGHT, grid_down, grid_right });
                 })
                 | std::views::join
             };
@@ -309,22 +309,22 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         bool has_node(const N& node) {
-            const auto& [n_layer, n_down, n_right] { node };
-            return (n_layer == layer::DIAGONAL && n_down < grid_down_cnt && n_down >= 0u && n_right < grid_right_cnt && n_right >= 0u)
-                || (n_layer == layer::DOWN && n_down < grid_down_cnt && n_down >= 1u && n_right < grid_right_cnt && n_right >= 0u)
-                || (n_layer == layer::RIGHT && n_down < grid_down_cnt && n_down >= 0u && n_right < grid_right_cnt && n_right >= 1u);
+            const auto& [n_layer, grid_down, grid_right] { node };
+            return (n_layer == layer::DIAGONAL && grid_down < grid_down_cnt && grid_down >= 0u && grid_right < grid_right_cnt && grid_right >= 0u)
+                || (n_layer == layer::DOWN && grid_down < grid_down_cnt && grid_down >= 1u && grid_right < grid_right_cnt && grid_right >= 0u)
+                || (n_layer == layer::RIGHT && grid_down < grid_down_cnt && grid_down >= 0u && grid_right < grid_right_cnt && grid_right >= 1u);
         }
 
         bool has_edge(const E& edge) {
-            const auto& [n1_layer, n1_down, n1_right] { edge.first };
-            const auto& [n2_layer, n2_down, n2_right] { edge.second };
-            return (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL && n1_down + 1u == n2_down && n1_right + 1u == n2_right && n2_down < grid_down_cnt && n2_right < grid_right_cnt)  // match
-                || (n1_layer == layer::DIAGONAL && n2_layer == layer::DOWN && n1_down + 1u == n2_down && n1_right == n2_right && n2_down < grid_down_cnt && n2_right < grid_right_cnt)  // initial gap (down)
-                || (n1_layer == layer::DIAGONAL && n2_layer == layer::RIGHT && n1_down == n2_down && n1_right + 1u == n2_right && n2_down < grid_down_cnt && n2_right < grid_right_cnt) // initial gap (right)
-                || (n1_layer == layer::DOWN && n2_layer == layer::DOWN && n1_down > 0u && n1_down + 1u == n2_down && n1_right == n2_right && n2_down < grid_down_cnt && n2_right < grid_right_cnt)  // extended gap (down)
-                || (n1_layer == layer::RIGHT && n2_layer == layer::RIGHT && n1_right > 0u && n1_down == n2_down && n1_right + 1u == n2_right && n2_down < grid_down_cnt && n2_right < grid_right_cnt) // extended gap (right)
-                || (n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL && n1_down > 0u && n1_down == n2_down && n1_right == n2_right && n2_down < grid_down_cnt && n2_right < grid_right_cnt)  // freeride (down)
-                || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL && n1_right > 0u && n1_down == n2_down && n1_right == n2_right && n2_down < grid_down_cnt && n2_right < grid_right_cnt); // freeride (right)
+            const auto& [n1_layer, n1_grid_down, n1_grid_right] { edge.first };
+            const auto& [n2_layer, n2_grid_down, n2_grid_right] { edge.second };
+            return (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL && n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right && n2_grid_down < grid_down_cnt && n2_grid_right < grid_right_cnt)  // match
+                || (n1_layer == layer::DIAGONAL && n2_layer == layer::DOWN && n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right && n2_grid_down < grid_down_cnt && n2_grid_right < grid_right_cnt)  // initial gap (down)
+                || (n1_layer == layer::DIAGONAL && n2_layer == layer::RIGHT && n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right && n2_grid_down < grid_down_cnt && n2_grid_right < grid_right_cnt) // initial gap (right)
+                || (n1_layer == layer::DOWN && n2_layer == layer::DOWN && n1_grid_down > 0u && n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right && n2_grid_down < grid_down_cnt && n2_grid_right < grid_right_cnt)  // extended gap (down)
+                || (n1_layer == layer::RIGHT && n2_layer == layer::RIGHT && n1_grid_right > 0u && n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right && n2_grid_down < grid_down_cnt && n2_grid_right < grid_right_cnt) // extended gap (right)
+                || (n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL && n1_grid_down > 0u && n1_grid_down == n2_grid_down && n1_grid_right == n2_grid_right && n2_grid_down < grid_down_cnt && n2_grid_right < grid_right_cnt)  // freeride (down)
+                || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL && n1_grid_right > 0u && n1_grid_down == n2_grid_down && n1_grid_right == n2_grid_right && n2_grid_down < grid_down_cnt && n2_grid_right < grid_right_cnt); // freeride (right)
         }
 
         auto get_outputs_full(const N& node) {
@@ -334,28 +334,28 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 }
             }
             typename static_vector_typer<std::tuple<E, N, N, ED*>, 3u, error_check>::type ret {};
-            const auto& [n1_layer, n1_down, n1_right] { node };
+            const auto& [n1_layer, n1_grid_down, n1_grid_right] { node };
             if (n1_layer == layer::DIAGONAL) {
-                if (n1_down == grid_down_cnt - 1u && n1_right == grid_right_cnt - 1u) {
+                if (n1_grid_down == grid_down_cnt - 1u && n1_grid_right == grid_right_cnt - 1u) {
                     // do nothing
-                } else if (n1_down < grid_down_cnt - 1u && n1_right < grid_right_cnt - 1u) {
-                    ret.push_back(construct_full_edge(node, { layer::DIAGONAL, n1_down + 1u, n1_right + 1u }));
-                    ret.push_back(construct_full_edge(node, { layer::DOWN, n1_down + 1u, n1_right }));
-                    ret.push_back(construct_full_edge(node, { layer::RIGHT, n1_down, n1_right + 1u }));
-                } else if (n1_right == grid_right_cnt - 1u) {
-                    ret.push_back(construct_full_edge(node, { layer::DOWN, n1_down + 1u, n1_right }));
-                } else if (n1_down == grid_down_cnt - 1u) {
-                    ret.push_back(construct_full_edge(node, { layer::RIGHT, n1_down, n1_right + 1u }));
+                } else if (n1_grid_down < grid_down_cnt - 1u && n1_grid_right < grid_right_cnt - 1u) {
+                    ret.push_back(construct_full_edge(node, { layer::DIAGONAL, n1_grid_down + 1u, n1_grid_right + 1u }));
+                    ret.push_back(construct_full_edge(node, { layer::DOWN, n1_grid_down + 1u, n1_grid_right }));
+                    ret.push_back(construct_full_edge(node, { layer::RIGHT, n1_grid_down, n1_grid_right + 1u }));
+                } else if (n1_grid_right == grid_right_cnt - 1u) {
+                    ret.push_back(construct_full_edge(node, { layer::DOWN, n1_grid_down + 1u, n1_grid_right }));
+                } else if (n1_grid_down == grid_down_cnt - 1u) {
+                    ret.push_back(construct_full_edge(node, { layer::RIGHT, n1_grid_down, n1_grid_right + 1u }));
                 }
             } else if (n1_layer == layer::DOWN) {
-                ret.push_back(construct_full_edge(node, { layer::DIAGONAL, n1_down, n1_right }));
-                if (n1_down < grid_down_cnt - 1u) {
-                    ret.push_back(construct_full_edge(node, { layer::DOWN, n1_down + 1u, n1_right }));
+                ret.push_back(construct_full_edge(node, { layer::DIAGONAL, n1_grid_down, n1_grid_right }));
+                if (n1_grid_down < grid_down_cnt - 1u) {
+                    ret.push_back(construct_full_edge(node, { layer::DOWN, n1_grid_down + 1u, n1_grid_right }));
                 }
             } else if (n1_layer == layer::RIGHT) {
-                ret.push_back(construct_full_edge(node, { layer::DIAGONAL, n1_down, n1_right }));
-                if (n1_right < grid_right_cnt - 1u) {
-                    ret.push_back(construct_full_edge(node, { layer::RIGHT, n1_down, n1_right + 1u }));
+                ret.push_back(construct_full_edge(node, { layer::DIAGONAL, n1_grid_down, n1_grid_right }));
+                if (n1_grid_right < grid_right_cnt - 1u) {
+                    ret.push_back(construct_full_edge(node, { layer::RIGHT, n1_grid_down, n1_grid_right + 1u }));
                 }
             }
             return std::move(ret)
@@ -372,32 +372,32 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 }
             }
             typename static_vector_typer<std::tuple<E, N, N, ED*>, 3u, error_check>::type ret {};
-            const auto& [n2_layer, n2_down, n2_right] { node };
+            const auto& [n2_layer, n2_grid_down, n2_grid_right] { node };
             if (n2_layer == layer::DIAGONAL) {
-                if (n2_down == 0u && n2_right == 0u) {
+                if (n2_grid_down == 0u && n2_grid_right == 0u) {
                     // do nothing
-                } else if (n2_down > 0u && n2_right > 0u) {
-                    ret.push_back(construct_full_edge({ layer::DIAGONAL, n2_down - 1u, n2_right - 1u }, node));
-                    ret.push_back(construct_full_edge({ layer::DOWN, n2_down, n2_right }, node));
-                    ret.push_back(construct_full_edge({ layer::RIGHT, n2_down, n2_right }, node));
-                } else if (n2_right > 0u) {
-                    ret.push_back(construct_full_edge({ layer::RIGHT, n2_down, n2_right }, node));
-                } else if (n2_down > 0u) {
-                    ret.push_back(construct_full_edge({ layer::DOWN, n2_down, n2_right }, node));
+                } else if (n2_grid_down > 0u && n2_grid_right > 0u) {
+                    ret.push_back(construct_full_edge({ layer::DIAGONAL, n2_grid_down - 1u, n2_grid_right - 1u }, node));
+                    ret.push_back(construct_full_edge({ layer::DOWN, n2_grid_down, n2_grid_right }, node));
+                    ret.push_back(construct_full_edge({ layer::RIGHT, n2_grid_down, n2_grid_right }, node));
+                } else if (n2_grid_right > 0u) {
+                    ret.push_back(construct_full_edge({ layer::RIGHT, n2_grid_down, n2_grid_right }, node));
+                } else if (n2_grid_down > 0u) {
+                    ret.push_back(construct_full_edge({ layer::DOWN, n2_grid_down, n2_grid_right }, node));
                 }
             } else if (n2_layer == layer::DOWN) {
-                if (n2_down > 0u) {
-                    ret.push_back(construct_full_edge({ layer::DIAGONAL, n2_down - 1u, n2_right }, node));
+                if (n2_grid_down > 0u) {
+                    ret.push_back(construct_full_edge({ layer::DIAGONAL, n2_grid_down - 1u, n2_grid_right }, node));
                 }
-                if (n2_down > 1u) {
-                    ret.push_back(construct_full_edge({ layer::DOWN, n2_down - 1u, n2_right }, node));
+                if (n2_grid_down > 1u) {
+                    ret.push_back(construct_full_edge({ layer::DOWN, n2_grid_down - 1u, n2_grid_right }, node));
                 }
             } else if (n2_layer == layer::RIGHT) {
-                if (n2_right > 0u) {
-                    ret.push_back(construct_full_edge({ layer::DIAGONAL, n2_down, n2_right - 1u }, node));
+                if (n2_grid_right > 0u) {
+                    ret.push_back(construct_full_edge({ layer::DIAGONAL, n2_grid_down, n2_grid_right - 1u }, node));
                 }
-                if (n2_right > 1u) {
-                    ret.push_back(construct_full_edge({ layer::RIGHT, n2_down, n2_right - 1u }, node));
+                if (n2_grid_right > 1u) {
+                    ret.push_back(construct_full_edge({ layer::RIGHT, n2_grid_down, n2_grid_right - 1u }, node));
                 }
             }
             return std::move(ret)
@@ -484,8 +484,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             }
             for (const auto& edge : get_edges()) {
                 const auto& [n1, n2] { edge };
-                const auto& [n1_layer, n1_down, n1_right] { n1 };
-                const auto& [n2_layer, n2_down, n2_right] { n2 };
+                const auto& [n1_layer, n1_grid_down, n1_grid_right] { n1 };
+                const auto& [n2_layer, n2_grid_down, n2_grid_right] { n2 };
                 if ((n1_layer == layer::DOWN && n2_layer == layer::DOWN)
                         || n1_layer == layer::RIGHT && n2_layer == layer::RIGHT) {  // gap
                     ED& ed { get_edge_data(edge) };
@@ -496,12 +496,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     weight_setter(ed, freeride_weight);
                 } else {
                     std::optional<std::reference_wrapper<const V_ELEM>> v_elem { std::nullopt };
-                    if (n1_down + 1u == n2_down) {
-                        v_elem = { v[n1_down] };
+                    if (n1_grid_down + 1u == n2_grid_down) {
+                        v_elem = { v[n1_grid_down] };
                     }
                     std::optional<std::reference_wrapper<const W_ELEM>> w_elem { std::nullopt };
-                    if (n1_right + 1u == n2_right) {
-                        w_elem = { w[n1_right] };
+                    if (n1_grid_right + 1u == n2_grid_right) {
+                        w_elem = { w[n1_grid_right] };
                     }
                     ED& ed { get_edge_data(edge) };
                     weight_setter(ed, weight_lookup(v_elem, w_elem));
@@ -516,21 +516,21 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             using RET = std::optional<std::pair<OPT_INDEX, OPT_INDEX>>;
 
             const auto& [n1, n2] { edge };
-            const auto& [n1_layer, n1_down, n1_right] { n1 };
-            const auto& [n2_layer, n2_down, n2_right] { n2 };
+            const auto& [n1_layer, n1_grid_down, n1_grid_right] { n1 };
+            const auto& [n2_layer, n2_grid_down, n2_grid_right] { n2 };
             if (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL) {  // match
-                if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
-                    return RET { { { n1_down }, { n1_right } } };
+                if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+                    return RET { { { n1_grid_down }, { n1_grid_right } } };
                 }
             } else if ((n1_layer == layer::DOWN && n2_layer == layer::DOWN)  // extended indel
                 || (n1_layer == layer::DIAGONAL && n2_layer == layer::DOWN)) {  // indel
-                if (n1_down + 1u == n2_down && n1_right == n2_right) {
-                    return RET { { { n1_down }, std::nullopt } };
+                if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {
+                    return RET { { { n1_grid_down }, std::nullopt } };
                 }
             } else if ((n1_layer == layer::RIGHT && n2_layer == layer::RIGHT)  // extended indel
                 || (n1_layer == layer::DIAGONAL && n2_layer == layer::RIGHT)) {  // indel
-                if (n1_down == n2_down && n1_right + 1u == n2_right) {
-                    return RET { { std::nullopt, { n1_right } } };
+                if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+                    return RET { { std::nullopt, { n1_grid_right } } };
                 }
             } else if ((n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL)  // freeride
                 || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL)) {  // freeride
@@ -573,20 +573,20 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return 1zu + 3zu * (_grid_right_cnt - 1zu);
         }
 
-        auto slice_nodes(INDEX n_down) {
+        auto slice_nodes(INDEX grid_down) {
             return std::views::iota(1u, grid_right_cnt)
                 | std::views::transform(
-                    [n_down](const auto& n_right) {
+                    [grid_down](const auto& grid_right) {
                         using CONTAINER = typename static_vector_typer<N, 3zu, error_check>::type;
                         CONTAINER ret {};
-                        if (n_down == 0u) {
-                            ret.push_back(N { layer::DIAGONAL, n_down, n_right });
+                        if (grid_down == 0u) {
+                            ret.push_back(N { layer::DIAGONAL, grid_down, grid_right });
                         } else {
-                            if (n_right != 0u) {
-                                ret.push_back(N { layer::DOWN, n_down, n_right });
-                                ret.push_back(N { layer::RIGHT, n_down, n_right });
+                            if (grid_right != 0u) {
+                                ret.push_back(N { layer::DOWN, grid_down, grid_right });
+                                ret.push_back(N { layer::RIGHT, grid_down, grid_right });
                             }
-                            ret.push_back(N { layer::DIAGONAL, n_down, n_right });
+                            ret.push_back(N { layer::DIAGONAL, grid_down, grid_right });
                         }
                         return ret;
                     }
@@ -594,25 +594,25 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 | std::views::join;
         }
 
-        auto slice_nodes(INDEX n_down, INDEX override_grid_right_cnt) {
+        auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) {
             auto node_cnt { slice_nodes_capacity(0u, override_grid_right_cnt) };
-            return slice_nodes(n_down)
+            return slice_nodes(grid_down)
                 | std::views::take(node_cnt);
         }
 
-        N slice_first_node(INDEX n_down) {
-            return slice_first_node(n_down, 0u);
+        N slice_first_node(INDEX grid_down) {
+            return slice_first_node(grid_down, 0u);
         }
 
-        N slice_first_node(INDEX n_down, INDEX n_right) {
+        N slice_first_node(INDEX grid_down, INDEX grid_right) {
             N first_node;
-            if (n_down == 0u) {
-                first_node = { layer::DIAGONAL, n_down, n_right };
+            if (grid_down == 0u) {
+                first_node = { layer::DIAGONAL, grid_down, grid_right };
             } else {
-                if (n_right == 0u) {
-                    first_node = { layer::DIAGONAL, n_down, n_right };
+                if (grid_right == 0u) {
+                    first_node = { layer::DIAGONAL, grid_down, grid_right };
                 } else {
-                    first_node = { layer::DOWN, n_down, n_right };
+                    first_node = { layer::DOWN, grid_down, grid_right };
                 }
             }
             if constexpr (error_check) {
@@ -623,12 +623,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return first_node;
         }
 
-        N slice_last_node(INDEX n_down) {
-            return slice_last_node(n_down, grid_right_cnt - 1u);
+        N slice_last_node(INDEX grid_down) {
+            return slice_last_node(grid_down, grid_right_cnt - 1u);
         }
 
-        N slice_last_node(INDEX n_down, INDEX n_right) {
-            N last_node { layer::DOWN, n_down, n_right };
+        N slice_last_node(INDEX grid_down, INDEX grid_right) {
+            N last_node { layer::DOWN, grid_down, grid_right };
             if constexpr (error_check) {
                 if (std::get<1>(last_node) >= grid_down_cnt) {
                     throw std::runtime_error("Node too far down");
@@ -638,14 +638,14 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         N slice_next_node(const N& node) {
-            const auto& [_layer, n_down, n_right] { node };
+            const auto& [_layer, grid_down, grid_right] { node };
             N next_node;
             if (_layer == layer::DOWN) {
-                next_node = N { layer::RIGHT, n_down, n_right };
+                next_node = N { layer::RIGHT, grid_down, grid_right };
             } else if (_layer == layer::RIGHT) {
-                next_node = N { layer::DIAGONAL, n_down, n_right };
+                next_node = N { layer::DIAGONAL, grid_down, grid_right };
             } else if (_layer == layer::DIAGONAL) {
-                next_node = N { layer::DOWN, n_down, n_right + 1u };
+                next_node = N { layer::DOWN, grid_down, grid_right + 1u };
             } else {
                 if (error_check) {
                     throw std::runtime_error("This should never happen");
@@ -663,14 +663,14 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         N slice_prev_node(const N& node) {
-            const auto& [_layer, n_down, n_right] { node };
+            const auto& [_layer, grid_down, grid_right] { node };
             N prev_node;
             if (_layer == layer::DIAGONAL) {
-                prev_node = N { layer::RIGHT, n_down, n_right };
+                prev_node = N { layer::RIGHT, grid_down, grid_right };
             } else if (_layer == layer::RIGHT) {
-                prev_node = N { layer::DOWN, n_down, n_right };
+                prev_node = N { layer::DOWN, grid_down, grid_right };
             } else if (_layer == layer::DOWN) {
-                prev_node = N { layer::DIAGONAL, n_down, n_right - 1u };
+                prev_node = N { layer::DIAGONAL, grid_down, grid_right - 1u };
             } else {
                 if (error_check) {
                     throw std::runtime_error("This should never happen");

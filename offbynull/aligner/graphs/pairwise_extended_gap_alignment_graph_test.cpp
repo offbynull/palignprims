@@ -1134,26 +1134,26 @@ namespace {
             EXPECT_EQ(G::resident_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 0zu);
             EXPECT_EQ(g.resident_nodes().size(), 0zu);
 
-            EXPECT_EQ(g.slice_next_node(N { layer::DIAGONAL, 0u, 0u }), (N { layer::DOWN, 0u, 1u })); // n_down=0
+            EXPECT_EQ(g.slice_next_node(N { layer::DIAGONAL, 0u, 0u }), (N { layer::DOWN, 0u, 1u })); // grid_down=0
             EXPECT_EQ(g.slice_next_node(N { layer::DOWN, 0u, 1u }), (N { layer::RIGHT, 0u, 1u }));
             EXPECT_EQ(g.slice_next_node(N { layer::RIGHT, 0u, 1u }), (N { layer::DIAGONAL, 0u, 1u }));
             EXPECT_EQ(g.slice_next_node(N { layer::DIAGONAL, 0u, 1u }), (N { layer::DOWN, 0u, 2u }));
             EXPECT_EQ(g.slice_next_node(N { layer::DOWN, 0u, 2u }), (N { layer::RIGHT, 0u, 2u }));
             EXPECT_EQ(g.slice_next_node(N { layer::RIGHT, 0u, 2u }), (N { layer::DIAGONAL, 0u, 2u }));
-            EXPECT_EQ(g.slice_next_node(N { layer::DIAGONAL, 1u, 0u }), (N { layer::DOWN, 1u, 1u })); // n_down=1
+            EXPECT_EQ(g.slice_next_node(N { layer::DIAGONAL, 1u, 0u }), (N { layer::DOWN, 1u, 1u })); // grid_down=1
             EXPECT_EQ(g.slice_next_node(N { layer::DOWN, 1u, 1u }), (N { layer::RIGHT, 1u, 1u }));
             EXPECT_EQ(g.slice_next_node(N { layer::RIGHT, 1u, 1u }), (N { layer::DIAGONAL, 1u, 1u }));
             EXPECT_EQ(g.slice_next_node(N { layer::DIAGONAL, 1u, 1u }), (N { layer::DOWN, 1u, 2u }));
             EXPECT_EQ(g.slice_next_node(N { layer::DOWN, 1u, 2u }), (N { layer::RIGHT, 1u, 2u }));
             EXPECT_EQ(g.slice_next_node(N { layer::RIGHT, 1u, 2u }), (N { layer::DIAGONAL, 1u, 2u }));
 
-            EXPECT_EQ(g.slice_prev_node(N { layer::DIAGONAL, 1u, 2u }), (N { layer::RIGHT, 1u, 2u })); // n_down=1
+            EXPECT_EQ(g.slice_prev_node(N { layer::DIAGONAL, 1u, 2u }), (N { layer::RIGHT, 1u, 2u })); // grid_down=1
             EXPECT_EQ(g.slice_prev_node(N { layer::RIGHT, 1u, 2u }), (N { layer::DOWN, 1u, 2u }));
             EXPECT_EQ(g.slice_prev_node(N { layer::DOWN, 1u, 2u }), (N { layer::DIAGONAL, 1u, 1u }));
             EXPECT_EQ(g.slice_prev_node(N { layer::DIAGONAL, 1u, 1u }), (N { layer::RIGHT, 1u, 1u }));
             EXPECT_EQ(g.slice_prev_node(N { layer::RIGHT, 1u, 1u }), (N { layer::DOWN, 1u, 1u }));
             EXPECT_EQ(g.slice_prev_node(N { layer::DOWN, 1u, 1u }), (N { layer::DIAGONAL, 1u, 0u }));
-            EXPECT_EQ(g.slice_prev_node(N { layer::DIAGONAL, 0u, 2u }), (N { layer::RIGHT, 0u, 2u })); // n_down=1
+            EXPECT_EQ(g.slice_prev_node(N { layer::DIAGONAL, 0u, 2u }), (N { layer::RIGHT, 0u, 2u })); // grid_down=1
             EXPECT_EQ(g.slice_prev_node(N { layer::RIGHT, 0u, 2u }), (N { layer::DOWN, 0u, 2u }));
             EXPECT_EQ(g.slice_prev_node(N { layer::DOWN, 0u, 2u }), (N { layer::DIAGONAL, 0u, 1u }));
             EXPECT_EQ(g.slice_prev_node(N { layer::DIAGONAL, 0u, 1u }), (N { layer::RIGHT, 0u, 1u }));

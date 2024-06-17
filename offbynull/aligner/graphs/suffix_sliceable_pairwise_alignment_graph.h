@@ -184,28 +184,28 @@ namespace offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph 
             return GRAPH::slice_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
-        auto slice_nodes(INDEX n_down) {
-            return g.slice_nodes(n_down);
+        auto slice_nodes(INDEX grid_down) {
+            return g.slice_nodes(grid_down);
         }
 
-        auto slice_nodes(INDEX n_down, INDEX override_grid_right_cnt) {
-            return g.slice_nodes(n_down, override_grid_right_cnt);
+        auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) {
+            return g.slice_nodes(grid_down, override_grid_right_cnt);
         }
 
-        N slice_first_node(INDEX n_down) {
-            return g.slice_first_node(n_down);
+        N slice_first_node(INDEX grid_down) {
+            return g.slice_first_node(grid_down);
         }
 
-        N slice_first_node(INDEX n_down, INDEX n_right) {
-            return g.slice_first_node(n_down, n_right);
+        N slice_first_node(INDEX grid_down, INDEX grid_right) {
+            return g.slice_first_node(grid_down, grid_right);
         }
 
-        N slice_last_node(INDEX n_down) {
-            return g.slice_last_node(n_down);
+        N slice_last_node(INDEX grid_down) {
+            return g.slice_last_node(grid_down);
         }
 
-        N slice_last_node(INDEX n_down, INDEX n_right) {
-            return g.slice_last_node(n_down, n_right);
+        N slice_last_node(INDEX grid_down, INDEX grid_right) {
+            return g.slice_last_node(grid_down, grid_right);
         }
 
         N slice_next_node(const N& node) {

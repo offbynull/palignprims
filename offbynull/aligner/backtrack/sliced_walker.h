@@ -76,7 +76,7 @@ namespace offbynull::aligner::backtrack::sliced_walker {
         RESIDENT_SLOT_CONTAINER resident_slots;
         SLICE_SLOT_CONTAINER lower_slots;
         SLICE_SLOT_CONTAINER upper_slots;
-        INDEX n_down;
+        INDEX grid_down;
         slot<N, WEIGHT>* active_slot_ptr;
         slot<N, WEIGHT>* next_slot_ptr;
 
@@ -128,7 +128,7 @@ namespace offbynull::aligner::backtrack::sliced_walker {
         , resident_slots{resident_slot_container_creator.create_empty()}
         , lower_slots{slice_slot_container_creator.create_empty()}
         , upper_slots{slice_slot_container_creator.create_empty()}
-        , n_down{0u}
+        , grid_down{0u}
         , active_slot_ptr{nullptr}
         , next_slot_ptr{nullptr} {
             const auto& _resident_slots { graph.resident_nodes() };
@@ -198,21 +198,21 @@ namespace offbynull::aligner::backtrack::sliced_walker {
             }
 
             // Move to next node / next slice
-            if (graph.slice_last_node(n_down) != active_slot_ptr->node) {
+            if (graph.slice_last_node(grid_down) != active_slot_ptr->node) {
                 next_slot_ptr = &find_slot(graph.slice_next_node(active_slot_ptr->node));
             } else {
-                if (n_down == graph.grid_down_cnt - 1u) {
+                if (grid_down == graph.grid_down_cnt - 1u) {
                     next_slot_ptr = nullptr;
                     return true;
                 }
-                n_down++;
+                grid_down++;
                 lower_slots.clear();
                 std::ranges::copy(upper_slots.begin(), upper_slots.end(), std::back_inserter(lower_slots));
-                const auto & _upper_slots { graph.slice_nodes(n_down) };
+                const auto & _upper_slots { graph.slice_nodes(grid_down) };
                 std::ranges::copy(_upper_slots.begin(), _upper_slots.end(), std::back_inserter(upper_slots));
                 std::ranges::sort(upper_slots.begin(), upper_slots.end(), slots_comparator<N, WEIGHT>{});
-                next_slot_ptr = &find_slot(graph.slice_first_node(n_down));
-                active_slot_ptr = &find_slot(graph.slice_last_node(n_down - 1u)); // need to update this because slots entries have moved around
+                next_slot_ptr = &find_slot(graph.slice_first_node(grid_down));
+                active_slot_ptr = &find_slot(graph.slice_last_node(grid_down - 1u)); // need to update this because slots entries have moved around
             }
 
             return false;
@@ -244,7 +244,7 @@ namespace offbynull::aligner::backtrack::sliced_walker {
         RESIDENT_SLOT_CONTAINER resident_slots;
         SLICE_SLOT_CONTAINER upper_slots;
         SLICE_SLOT_CONTAINER lower_slots;
-        INDEX n_down;
+        INDEX grid_down;
         slot<N, WEIGHT>* active_slot_ptr;
         slot<N, WEIGHT>* prev_slot_ptr;
 
@@ -296,7 +296,7 @@ namespace offbynull::aligner::backtrack::sliced_walker {
         , resident_slots{resident_slot_container_creator.create_empty()}
         , upper_slots{slice_slot_container_creator.create_empty()}
         , lower_slots{slice_slot_container_creator.create_empty()}
-        , n_down{graph.grid_down_cnt - 1u}
+        , grid_down{graph.grid_down_cnt - 1u}
         , active_slot_ptr{nullptr}
         , prev_slot_ptr{nullptr} {
             const auto& _resident_slots { graph.resident_nodes() };
@@ -366,21 +366,21 @@ namespace offbynull::aligner::backtrack::sliced_walker {
             }
 
             // Move to next node / next slice
-            if (graph.slice_first_node(n_down) != active_slot_ptr->node) {
+            if (graph.slice_first_node(grid_down) != active_slot_ptr->node) {
                 prev_slot_ptr = &find_slot(graph.slice_prev_node(active_slot_ptr->node));
             } else {
-                if (n_down == 0u) {
+                if (grid_down == 0u) {
                     prev_slot_ptr = nullptr;
                     return true;
                 }
-                n_down--;
+                grid_down--;
                 upper_slots.clear();
                 std::ranges::copy(lower_slots.begin(), lower_slots.end(), std::back_inserter(upper_slots));
-                const auto & _lower_slots { graph.slice_nodes(n_down) };
+                const auto & _lower_slots { graph.slice_nodes(grid_down) };
                 std::ranges::copy(_lower_slots.begin(), _lower_slots.end(), std::back_inserter(lower_slots));
                 std::ranges::sort(lower_slots.begin(), lower_slots.end(), slots_comparator<N, WEIGHT>{});
-                prev_slot_ptr = &find_slot(graph.slice_last_node(n_down));
-                active_slot_ptr = &find_slot(graph.slice_first_node(n_down + 1u)); // need to update this because slots entries have moved around
+                prev_slot_ptr = &find_slot(graph.slice_last_node(grid_down));
+                active_slot_ptr = &find_slot(graph.slice_first_node(grid_down + 1u)); // need to update this because slots entries have moved around
             }
 
             return false;

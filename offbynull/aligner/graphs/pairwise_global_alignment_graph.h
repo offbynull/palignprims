@@ -253,15 +253,15 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             }
             for (const auto& edge : get_edges()) {
                 const auto& [n1, n2] { edge };
-                const auto& [n1_down, n1_right] { n1 };
-                const auto& [n2_down, n2_right] { n2 };
+                const auto& [n1_grid_down, n1_grid_right] { n1 };
+                const auto& [n2_grid_down, n2_grid_right] { n2 };
                 std::optional<std::reference_wrapper<const V_ELEM>> v_elem { std::nullopt };
-                if (n1_down + 1u == n2_down) {
-                    v_elem = { v[n1_down] };
+                if (n1_grid_down + 1u == n2_grid_down) {
+                    v_elem = { v[n1_grid_down] };
                 }
                 std::optional<std::reference_wrapper<const W_ELEM>> w_elem { std::nullopt };
-                if (n1_right + 1u == n2_right) {
-                    w_elem = { w[n1_right] };
+                if (n1_grid_right + 1u == n2_grid_right) {
+                    w_elem = { w[n1_grid_right] };
                 }
                 WEIGHT weight { weight_lookup(v_elem, w_elem) };
                 ED& ed { get_edge_data(edge) };
@@ -276,14 +276,14 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             using RET = std::optional<std::pair<OPT_INDEX, OPT_INDEX>>;
 
             const auto& [n1, n2] {edge};
-            const auto& [n1_down, n1_right] {n1};
-            const auto& [n2_down, n2_right] {n2};
-            if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
-                return RET { { { n1_down }, { n1_right } } };
-            } else if (n1_down + 1u == n2_down && n1_right == n2_right) {
-                return RET { { { n1_down }, std::nullopt } };
-            } else if (n1_down == n2_down && n1_right + 1u == n2_right) {
-                return RET { { std::nullopt, { n1_right } } };
+            const auto& [n1_grid_down, n1_grid_right] {n1};
+            const auto& [n2_grid_down, n2_grid_right] {n2};
+            if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+                return RET { { { n1_grid_down }, { n1_grid_right } } };
+            } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {
+                return RET { { { n1_grid_down }, std::nullopt } };
+            } else if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+                return RET { { std::nullopt, { n1_grid_right } } };
             }
             if constexpr (error_check) {
                 throw std::runtime_error("Bad edge");
@@ -314,28 +314,28 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             return G::slice_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
-        auto slice_nodes(INDEX n_down) {
-            return g.slice_nodes(n_down);
+        auto slice_nodes(INDEX grid_down) {
+            return g.slice_nodes(grid_down);
         }
 
-        auto slice_nodes(INDEX n_down, INDEX grid_right_cnt_) {
-            return g.slice_nodes(n_down, grid_right_cnt_);
+        auto slice_nodes(INDEX grid_down, INDEX grid_right_cnt_) {
+            return g.slice_nodes(grid_down, grid_right_cnt_);
         }
 
-        N slice_first_node(INDEX n_down) {
-            return g.slice_first_node(n_down);
+        N slice_first_node(INDEX grid_down) {
+            return g.slice_first_node(grid_down);
         }
 
-        N slice_first_node(INDEX n_down, INDEX grid_right_cnt_) {
-            return g.slice_first_node(n_down, grid_right_cnt_);
+        N slice_first_node(INDEX grid_down, INDEX grid_right_cnt_) {
+            return g.slice_first_node(grid_down, grid_right_cnt_);
         }
 
-        N slice_last_node(INDEX n_down) {
-            return g.slice_last_node(n_down);
+        N slice_last_node(INDEX grid_down) {
+            return g.slice_last_node(grid_down);
         }
 
-        N slice_last_node(INDEX n_down, INDEX grid_right_cnt_) {
-            return g.slice_last_node(n_down, grid_right_cnt_);
+        N slice_last_node(INDEX grid_down, INDEX grid_right_cnt_) {
+            return g.slice_last_node(grid_down, grid_right_cnt_);
         }
 
         N slice_next_node(const N& node) {

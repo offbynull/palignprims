@@ -145,8 +145,8 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         std::pair<INDEX, INDEX> node_to_grid_offsets(const N& node) {
-            const auto& [n_down, n_right] { g.node_to_grid_offsets(node) };
-            return { grid_down_cnt - n_down - 1u, grid_right_cnt - n_right - 1u };
+            const auto& [grid_down, grid_right] { g.node_to_grid_offsets(node) };
+            return { grid_down_cnt - grid_down - 1u, grid_right_cnt - grid_right - 1u };
         }
 
         constexpr static INDEX node_count(
@@ -167,36 +167,36 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
             return GRAPH::slice_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
-        auto slice_nodes(INDEX n_down) {
-            return g.slice_nodes(n_down)
+        auto slice_nodes(INDEX grid_down) {
+            return g.slice_nodes(grid_down)
                 | std::views::reverse;
         }
 
-        auto slice_nodes(INDEX n_down, INDEX override_grid_right_cnt) {
-            return g.slice_nodes(n_down)
+        auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) {
+            return g.slice_nodes(grid_down)
                 | std::views::reverse
                 | std::views::take(override_grid_right_cnt);
         }
 
-        N slice_first_node(INDEX n_down) {
-            return g.slice_last_node(grid_down_cnt - n_down - 1u);
+        N slice_first_node(INDEX grid_down) {
+            return g.slice_last_node(grid_down_cnt - grid_down - 1u);
         }
 
-        N slice_first_node(INDEX n_down, INDEX n_right) {
+        N slice_first_node(INDEX grid_down, INDEX grid_right) {
             return g.slice_last_node(
-                grid_down_cnt - n_down - 1u,
-                grid_right_cnt - n_right - 1u
+                grid_down_cnt - grid_down - 1u,
+                grid_right_cnt - grid_right - 1u
             );
         }
 
-        N slice_last_node(INDEX n_down) {
-            return g.slice_first_node(grid_down_cnt - n_down - 1u);
+        N slice_last_node(INDEX grid_down) {
+            return g.slice_first_node(grid_down_cnt - grid_down - 1u);
         }
 
-        N slice_last_node(INDEX n_down, INDEX n_right) {
+        N slice_last_node(INDEX grid_down, INDEX grid_right) {
             return g.slice_first_node(
-                grid_down_cnt - n_down - 1u,
-                grid_right_cnt - n_right - 1u
+                grid_down_cnt - grid_down - 1u,
+                grid_right_cnt - grid_right - 1u
             );
         }
 

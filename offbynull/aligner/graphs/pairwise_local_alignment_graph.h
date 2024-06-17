@@ -200,20 +200,20 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 return g.has_edge(edge.inner_edge);
             } else {
                 const auto & [n1, n2] { edge.inner_edge };
-                const auto & [n1_down, n1_right] { n1 };
-                const auto & [n2_down, n2_right] { n2 };
-                if (n1_down == 0u && n1_right == 0u) {
-                    if (n2_down == 0u && n2_right == 0u) {
+                const auto & [n1_grid_down, n1_grid_right] { n1 };
+                const auto & [n2_grid_down, n2_grid_right] { n2 };
+                if (n1_grid_down == 0u && n1_grid_right == 0u) {
+                    if (n2_grid_down == 0u && n2_grid_right == 0u) {
                         return false;
-                    } else if (n2_down <= g.grid_down_cnt - 1u && n2_right <= g.grid_right_cnt - 1u) {
+                    } else if (n2_grid_down <= g.grid_down_cnt - 1u && n2_grid_right <= g.grid_right_cnt - 1u) {
                         return true;
                     } else {
                         return false;
                     }
-                } else if (n2_down == g.grid_down_cnt - 1u && n2_right == g.grid_right_cnt - 1u) {
-                    if (n1_down == g.grid_down_cnt - 1u && n1_right == g.grid_right_cnt - 1u) {
+                } else if (n2_grid_down == g.grid_down_cnt - 1u && n2_grid_right == g.grid_right_cnt - 1u) {
+                    if (n1_grid_down == g.grid_down_cnt - 1u && n1_grid_right == g.grid_right_cnt - 1u) {
                         return false;
-                    } else if (n1_down <= g.grid_down_cnt - 1u && n1_right <= g.grid_right_cnt - 1u) {
+                    } else if (n1_grid_down <= g.grid_down_cnt - 1u && n1_grid_right <= g.grid_right_cnt - 1u) {
                         return true;
                     } else {
                         return false;
@@ -408,15 +408,15 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     weight = freeride_weight;
                 } else {
                     const auto& [n1, n2] { edge.inner_edge };
-                    const auto& [n1_down, n1_right] { n1 };
-                    const auto& [n2_down, n2_right] { n2 };
+                    const auto& [n1_grid_down, n1_grid_right] { n1 };
+                    const auto& [n2_grid_down, n2_grid_right] { n2 };
                     std::optional<std::reference_wrapper<const V_ELEM>> v_elem { std::nullopt };
-                    if (n1_down + 1u == n2_down) {
-                        v_elem = { v[n1_down] };
+                    if (n1_grid_down + 1u == n2_grid_down) {
+                        v_elem = { v[n1_grid_down] };
                     }
                     std::optional<std::reference_wrapper<const W_ELEM>> w_elem { std::nullopt };
-                    if (n1_right + 1u == n2_right) {
-                        w_elem = { w[n1_right] };
+                    if (n1_grid_right + 1u == n2_grid_right) {
+                        w_elem = { w[n1_grid_right] };
                     }
                     weight = weight_lookup(v_elem, w_elem);
                 }
@@ -435,14 +435,14 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 return RET { std::nullopt };  // Returning nullopt directly means a conversion to RET happens behind the scene, and that makes the concept check fail.
             }
             const auto& [n1, n2] {edge.inner_edge};
-            const auto& [n1_down, n1_right] {n1};
-            const auto& [n2_down, n2_right] {n2};
-            if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
-                return RET { { { n1_down }, { n1_right } } };
-            } else if (n1_down + 1u == n2_down && n1_right == n2_right) {
-                return RET { { { n1_down }, std::nullopt } };
-            } else if (n1_down == n2_down && n1_right + 1u == n2_right) {
-                return RET { { std::nullopt, { n1_right } } };
+            const auto& [n1_grid_down, n1_grid_right] {n1};
+            const auto& [n2_grid_down, n2_grid_right] {n2};
+            if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+                return RET { { { n1_grid_down }, { n1_grid_right } } };
+            } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {
+                return RET { { { n1_grid_down }, std::nullopt } };
+            } else if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+                return RET { { std::nullopt, { n1_grid_right } } };
             }
             if constexpr (error_check) {
                 throw std::runtime_error("Bad edge");
@@ -481,28 +481,28 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             return decltype(g)::slice_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
-        auto slice_nodes(INDEX n_down) {
-            return g.slice_nodes(n_down);
+        auto slice_nodes(INDEX grid_down) {
+            return g.slice_nodes(grid_down);
         }
 
-        auto slice_nodes(INDEX n_down, INDEX grid_right_cnt_) {
-            return g.slice_nodes(n_down, grid_right_cnt_);
+        auto slice_nodes(INDEX grid_down, INDEX grid_right_cnt_) {
+            return g.slice_nodes(grid_down, grid_right_cnt_);
         }
 
-        N slice_first_node(INDEX n_down) {
-            return g.slice_first_node(n_down);
+        N slice_first_node(INDEX grid_down) {
+            return g.slice_first_node(grid_down);
         }
 
-        N slice_first_node(INDEX n_down, INDEX grid_right_cnt_) {
-            return g.slice_first_node(n_down, grid_right_cnt_);
+        N slice_first_node(INDEX grid_down, INDEX grid_right_cnt_) {
+            return g.slice_first_node(grid_down, grid_right_cnt_);
         }
 
-        N slice_last_node(INDEX n_down) {
-            return g.slice_last_node(n_down);
+        N slice_last_node(INDEX grid_down) {
+            return g.slice_last_node(grid_down);
         }
 
-        N slice_last_node(INDEX n_down, INDEX grid_right_cnt_) {
-            return g.slice_last_node(n_down, grid_right_cnt_);
+        N slice_last_node(INDEX grid_down, INDEX grid_right_cnt_) {
+            return g.slice_last_node(grid_down, grid_right_cnt_);
         }
 
         N slice_next_node(const N& node) {
@@ -528,11 +528,11 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             if (node != leaf_node) {
                 ret.push_back(E { edge_type::FREE_RIDE, { node, leaf_node } });
             }
-            const auto& [leaf_n_down, leaf_n_right] { leaf_node };
-            const auto& [n_down, n_right] { node };
-            if ((n_down + 1u == leaf_n_down && n_right + 1u == leaf_n_right)
-                    || (n_down == leaf_n_down && n_right + 1u == leaf_n_right)
-                    || (n_down + 1u == leaf_n_down && n_right == leaf_n_right)) {
+            const auto& [leaf_grid_down, leaf_grid_right] { leaf_node };
+            const auto& [grid_down, grid_right] { node };
+            if ((grid_down + 1u == leaf_grid_down && grid_right + 1u == leaf_grid_right)
+                    || (grid_down == leaf_grid_down && grid_right + 1u == leaf_grid_right)
+                    || (grid_down + 1u == leaf_grid_down && grid_right == leaf_grid_right)) {
                 ret.push_back(E { edge_type::NORMAL, { node, leaf_node } });
             }
             return ret;
@@ -545,11 +545,11 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             if (node != root_node) {
                 ret.push_back(E { edge_type::FREE_RIDE, { root_node, node } });
             }
-            const auto& [root_n_down, root_n_right] { root_node };
-            const auto& [n_down, n_right] { node };
-            if ((n_down - 1u == root_n_down && n_right - 1u == root_n_right)
-                    || (n_down - 1u == root_n_down && n_right == root_n_right)
-                    || (n_down == root_n_down && n_right - 1u == root_n_right)) {
+            const auto& [root_grid_down, root_grid_right] { root_node };
+            const auto& [grid_down, grid_right] { node };
+            if ((grid_down - 1u == root_grid_down && grid_right - 1u == root_grid_right)
+                    || (grid_down - 1u == root_grid_down && grid_right == root_grid_right)
+                    || (grid_down == root_grid_down && grid_right - 1u == root_grid_right)) {
                 ret.push_back(E { edge_type::NORMAL, { root_node, node } });
             }
             return ret;

@@ -57,9 +57,9 @@ namespace {
         // match update weight of -1
         for (const E& edge : g.get_edges()) {
             const auto& [n1, n2] { edge };
-            const auto& [n1_down, n1_right] { n1 };
-            const auto& [n2_down, n2_right] { n2 };
-            if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
+            const auto& [n1_grid_down, n1_grid_right] { n1 };
+            const auto& [n2_grid_down, n2_grid_right] { n2 };
+            if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
                 g.update_edge_data(edge, -1.0);
             }
         }
@@ -141,9 +141,9 @@ namespace {
         // match update weight of -1
         for (const E& edge : g.get_edges()) {
             const auto& [n1, n2] { edge };
-            const auto& [n1_down, n1_right] { n1 };
-            const auto& [n2_down, n2_right] { n2 };
-            if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
+            const auto& [n1_grid_down, n1_grid_right] { n1 };
+            const auto& [n2_grid_down, n2_grid_right] { n2 };
+            if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
                 g.update_edge_data(edge, -1.0);
             }
         }
@@ -231,9 +231,9 @@ namespace {
                 continue;
             }
             const auto& [n1, n2] { edge.inner_edge };
-            const auto& [n1_down, n1_right] { n1 };
-            const auto& [n2_down, n2_right] { n2 };
-            if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
+            const auto& [n1_grid_down, n1_grid_right] { n1 };
+            const auto& [n2_grid_down, n2_grid_right] { n2 };
+            if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
                 g.update_edge_data(edge, -1.0);
             }
         }
@@ -329,9 +329,9 @@ namespace {
                 continue;
             }
             const auto& [n1, n2] { edge.inner_edge };
-            const auto& [n1_down, n1_right] { n1 };
-            const auto& [n2_down, n2_right] { n2 };
-            if (n1_down + 1u == n2_down && n1_right + 1u == n2_right) {
+            const auto& [n1_grid_down, n1_grid_right] { n1 };
+            const auto& [n2_grid_down, n2_grid_right] { n2 };
+            if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
                 g.update_edge_data(edge, -1.0);
             }
         }

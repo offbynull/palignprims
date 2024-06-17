@@ -89,14 +89,7 @@ namespace {
                     edge { edge_type::NORMAL, std::pair { std::pair{0u, 1u}, std::pair{1u, 1u} } },
                     edge { edge_type::NORMAL, std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} } },
                     edge { edge_type::NORMAL, std::pair { std::pair{0u, 0u}, std::pair{1u, 1u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{0u, 1u}, std::pair{1u, 2u} } },
-
-                    // culled from backing graph
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 0u}, std::pair{1u, 2u} } },
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 1u}, std::pair{1u, 2u} } },
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 2u}, std::pair{1u, 2u} } },
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{1u, 0u}, std::pair{1u, 2u} } },
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{1u, 1u}, std::pair{1u, 2u} } }
+                    edge { edge_type::NORMAL, std::pair { std::pair{0u, 1u}, std::pair{1u, 2u} } }
                 })
             );
         };
@@ -216,7 +209,6 @@ namespace {
                 EXPECT_EQ(
                     actual,
                     (std::vector<E> {
-                        // { edge_type::FREE_RIDE, {{0u, 1u}, {1u, 2u} } },  culled from backing graph
                         { edge_type::NORMAL, { {0u, 1u}, {0u, 2u} } },
                         { edge_type::NORMAL, { {0u, 1u}, {1u, 1u} } },
                         { edge_type::NORMAL, { {0u, 1u}, {1u, 2u} } }
@@ -251,10 +243,6 @@ namespace {
                     actual,
                     (std::vector<E> {
                         { edge_type::FREE_RIDE, {{0u, 0u}, {1u, 2u} } },
-                        // { edge_type::FREE_RIDE, {{0u, 1u}, {1u, 2u} } },  // culled from backing graph
-                        // { edge_type::FREE_RIDE, {{0u, 2u}, {1u, 2u} } },  // culled from backing graph
-                        // { edge_type::FREE_RIDE, {{1u, 0u}, {1u, 2u} } },  // culled from backing graph
-                        // { edge_type::FREE_RIDE, {{1u, 1u}, {1u, 2u} } },  // culled from backing graph
                         { edge_type::NORMAL, {{0u, 1u}, {1u, 2u} } },
                         { edge_type::NORMAL, {{0u, 2u}, {1u, 2u} } },
                         { edge_type::NORMAL, {{1u, 1u}, {1u, 2u} } }
@@ -343,36 +331,23 @@ namespace {
 
             EXPECT_EQ(
                 to_vector(g.outputs_to_residents(N { 0u, 0u })),
-                (std::vector<E> {
-                    // E { edge_type::FREE_RIDE, { { 0u, 0u }, { 1u, 2u } } }  // culled from backing graph
-                })
+                (std::vector<E> {})
             );
             EXPECT_EQ(
                 to_vector(g.outputs_to_residents(N { 0u, 1u })),
-                (std::vector<E> {
-                    // E { edge_type::FREE_RIDE, { { 0u, 1u }, { 1u, 2u } } },  // culled from backing graph
-                    // E { edge_type::NORMAL, { { 0u, 1u }, { 1u, 2u } } }  // culled from backing graph
-                })
+                (std::vector<E> {})
             );
             EXPECT_EQ(
                 to_vector(g.outputs_to_residents(N { 0u, 2u })),
-                (std::vector<E> {
-                    // E { edge_type::FREE_RIDE, { { 0u, 2u }, { 1u, 2u } } },  // culled from backing graph
-                    // E { edge_type::NORMAL, { { 0u, 2u }, { 1u, 2u } } }  // culled from backing graph
-                })
+                (std::vector<E> {})
             );
             EXPECT_EQ(
                 to_vector(g.outputs_to_residents(N { 1u, 0u })),
-                (std::vector<E> {
-                    // E { edge_type::FREE_RIDE, { { 1u, 0u }, { 1u, 2u } } }  // culled from backing graph
-                })
+                (std::vector<E> {})
             );
             EXPECT_EQ(
                 to_vector(g.outputs_to_residents(N { 1u, 1u })),
-                (std::vector<E> {
-                    // E { edge_type::FREE_RIDE, { { 1u, 1u }, { 1u, 2u } } },  // culled from backing graph
-                    // E { edge_type::NORMAL, { { 1u, 1u }, { 1u, 2u } } }  // culled from backing graph
-                })
+                (std::vector<E> {})
             );
             EXPECT_EQ(
                 to_vector(g.outputs_to_residents(N { 1u, 2u })),

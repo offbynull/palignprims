@@ -260,40 +260,40 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             return GRAPH::slice_nodes_capacity(_grid_down_cnt, _grid_right_cnt);
         }
 
-        auto slice_nodes(INDEX n_down) {
-            return g.slice_nodes(n_down)
+        auto slice_nodes(INDEX grid_down) {
+            return g.slice_nodes(grid_down)
                 | std::views::take(grid_right_cnt);
         }
 
-        auto slice_nodes(INDEX n_down, INDEX override_grid_right_cnt) {
-            return slice_nodes(n_down)
+        auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) {
+            return slice_nodes(grid_down)
                 | std::views::take(override_grid_right_cnt);
         }
 
-        N slice_first_node(INDEX n_down) {
-            return g.slice_first_node(n_down);
+        N slice_first_node(INDEX grid_down) {
+            return g.slice_first_node(grid_down);
         }
 
-        N slice_first_node(INDEX n_down, INDEX n_right) {
-            return g.slice_first_node(n_down, n_right);
+        N slice_first_node(INDEX grid_down, INDEX grid_right) {
+            return g.slice_first_node(grid_down, grid_right);
         }
 
-        N slice_last_node(INDEX n_down) {
-            return g.slice_last_node(n_down, grid_right_cnt - 1u);
+        N slice_last_node(INDEX grid_down) {
+            return g.slice_last_node(grid_down, grid_right_cnt - 1u);
         }
 
-        N slice_last_node(INDEX n_down, INDEX n_right) {
-            return g.slice_last_node(n_down, n_right);
+        N slice_last_node(INDEX grid_down, INDEX grid_right) {
+            return g.slice_last_node(grid_down, grid_right);
         }
 
         N slice_next_node(const N& node) {
             N next_node { g.slice_next_node(node) };
             if constexpr (error_check) {
-                const auto& [n_down, n_right] { node_to_grid_offsets(node) };
-                if (n_down >= grid_down_cnt) {
+                const auto& [grid_down, grid_right] { node_to_grid_offsets(node) };
+                if (grid_down >= grid_down_cnt) {
                     throw std::runtime_error("Node too far down");
                 }
-                if (n_right >= grid_right_cnt) {
+                if (grid_right >= grid_right_cnt) {
                     throw std::runtime_error("Node too far right");
                 }
             }
@@ -303,11 +303,11 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         N slice_prev_node(const N& node) {
             N prev_node { g.slice_prev_node(node) };
             if constexpr (error_check) {
-                const auto& [n_down, n_right] { node_to_grid_offsets(node) };
-                if (n_down >= grid_down_cnt) {
+                const auto& [grid_down, grid_right] { node_to_grid_offsets(node) };
+                if (grid_down >= grid_down_cnt) {
                     throw std::runtime_error("Node too far down");
                 }
-                if (n_right >= grid_right_cnt) {
+                if (grid_right >= grid_right_cnt) {
                     throw std::runtime_error("Node too far right");
                 }
             }
