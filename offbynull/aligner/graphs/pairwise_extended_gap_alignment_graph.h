@@ -570,6 +570,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         constexpr static std::size_t slice_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {
+            // THIS IS NOT SUPPOSED TO BE THE CAPACITY AT EACH SLICE, this is supposed to be the max capacity across all slices, meaning the implementation below is correct.
             return 1zu + 3zu * (_grid_right_cnt - 1zu);
         }
 

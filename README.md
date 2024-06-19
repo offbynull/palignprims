@@ -4,6 +4,9 @@ TODO:
 * ~~Use std::unreachable() any place with known unreachable?~~
 * ~~Remove underscores from template parameters because they're causing warnings.~~
 * ~~Add function for stack 8x8, 16x16, etc..~~
+* Change references of input_iterator to forward_iterator
+  * When you change this, you may be able to swap out some of your custom implementations of stuff (in utils.h) to standard stl funcs
+* 
 * Update get_in_degree() / get_out_degree() functions to calculate directly
 * Add concept checks to autos
 * Add random access container wrapper that pads out with dummy (or truncates) to a certain size

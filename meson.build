@@ -47,7 +47,9 @@ tests_src = [
         'offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph_test.cpp',
         'offbynull/aligner/backtrack/backtrack_test.cpp',
-        'offbynull/aligner/aligner_test.cpp',
+        'offbynull/aligner/backtrack/sliced_walker_test.cpp',
+        'offbynull/aligner/backtrack/sliced_backtrack_test.cpp',
+        'offbynull/aligner/aligner_test.cpp'
 ]
 test_exec = executable(
         'gtest-all',
