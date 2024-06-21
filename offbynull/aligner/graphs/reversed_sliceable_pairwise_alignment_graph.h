@@ -168,12 +168,12 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         auto slice_nodes(INDEX grid_down) {
-            return g.slice_nodes(grid_down)
+            return g.slice_nodes(grid_down_cnt - grid_down - 1u)
                 | std::views::reverse;
         }
 
         auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) {
-            return g.slice_nodes(grid_down)
+            return g.slice_nodes(grid_down_cnt - grid_down - 1u)
                 | std::views::reverse
                 | std::views::take(override_grid_right_cnt);
         }

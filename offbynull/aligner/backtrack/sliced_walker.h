@@ -88,6 +88,10 @@ namespace offbynull::aligner::backtrack::sliced_walker {
             return { std::nullopt };
         }
 
+        bool is_resident(const N& node) {
+            return find_within_slots(resident_slots, node).has_value();
+        }
+
         slot<N, WEIGHT>& find_slot(const N& node) {
             using FOUND_SLOT_REF = std::optional<std::reference_wrapper<slot<N, WEIGHT>>>;
             FOUND_SLOT_REF found_resident_slot_ref { find_within_slots(resident_slots, node) };
@@ -153,33 +157,37 @@ namespace offbynull::aligner::backtrack::sliced_walker {
                 return true;
             }
             active_slot_ptr = next_slot_ptr;
-            auto incoming_accumulated {
-                std::views::common(
-                    graph.get_inputs(active_slot_ptr->node)
-                    | std::views::transform(
-                        [&](const auto& edge) noexcept -> std::pair<E, WEIGHT> {
-                            const N& n_from { graph.get_edge_from(edge) };
-                            const WEIGHT& edge_weight { get_edge_weight_func(edge) };
-                            slot<N, WEIGHT>& n_from_slot { find_slot(n_from) };
-                            return { edge, n_from_slot.backtracking_weight + edge_weight };
+            // Compute only if node is not a resident. A resident node's backtracking weight + backtracking edge should
+            // be computed as its inputs are walked over one-by-one by this function (see block below this one).
+            if (!is_resident(active_slot_ptr->node)) {
+                auto incoming_accumulated {
+                    std::views::common(
+                        graph.get_inputs(active_slot_ptr->node)
+                        | std::views::transform(
+                            [&](const auto& edge) noexcept -> std::pair<E, WEIGHT> {
+                                const N& n_from { graph.get_edge_from(edge) };
+                                const WEIGHT& edge_weight { get_edge_weight_func(edge) };
+                                slot<N, WEIGHT>& n_from_slot { find_slot(n_from) };
+                                return { edge, n_from_slot.backtracking_weight + edge_weight };
+                            }
+                        )
+                    )
+                };
+                auto found {
+                    // Can't use std::max_element / std::ranges::max_element because it requires a forward iterator
+                    // Ensure range is a common_view (begin() and end() are of same type)
+                    max_element(
+                        incoming_accumulated.begin(),
+                        incoming_accumulated.end(),
+                        [](const std::pair<E, WEIGHT>& a, const std::pair<E, WEIGHT>& b) noexcept {
+                            return a.second < b.second;
                         }
                     )
-                )
-            };
-            auto found {
-                // Can't use std::max_element / std::ranges::max_element because it requires a forward iterator
-                // Ensure range is a common_view (begin() and end() are of same type)
-                max_element(
-                    incoming_accumulated.begin(),
-                    incoming_accumulated.end(),
-                    [](const std::pair<E, WEIGHT>& a, const std::pair<E, WEIGHT>& b) noexcept {
-                        return a.second < b.second;
-                    }
-                )
-            };
-            if (found != incoming_accumulated.end()) {  // if no incoming nodes found, it's a root node
-                // active_slot.backtracking_edge = (*found).first;
-                active_slot_ptr->backtracking_weight = (*found).second;
+                };
+                if (found != incoming_accumulated.end()) {  // if no incoming nodes found, it's a root node
+                    // active_slot.backtracking_edge = (*found).first;
+                    active_slot_ptr->backtracking_weight = (*found).second;
+                }
             }
 
             // Update resident node weights
@@ -213,6 +221,7 @@ namespace offbynull::aligner::backtrack::sliced_walker {
                 lower_slots.clear();
                 std::ranges::copy(upper_slots.begin(), upper_slots.end(), std::back_inserter(lower_slots));
                 auto&& _upper_slots { graph.slice_nodes(grid_down) };
+                upper_slots.clear();
                 std::ranges::copy(_upper_slots.begin(), _upper_slots.end(), std::back_inserter(upper_slots));
                 std::ranges::sort(upper_slots.begin(), upper_slots.end(), slots_comparator<N, WEIGHT>{});
                 next_slot_ptr = &find_slot(graph.slice_first_node(grid_down));

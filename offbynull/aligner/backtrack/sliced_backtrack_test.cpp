@@ -44,7 +44,7 @@ namespace {
     TEST(SlicedBacktrackTest, ForwardWalkWithoutResidents) {
         using ND = std::tuple<>;
         using ED = std::float64_t;
-        auto g { create_global<ND, ED>(4u, 4u) };
+        auto g { create_global<ND, ED>(6u, 6u) };
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
@@ -56,6 +56,45 @@ namespace {
         // match update weight of -1
         for (const E& edge : g.get_edges()) {
             const auto& [n1, n2] { edge };
+            const auto& [n1_grid_down, n1_grid_right] { n1 };
+            const auto& [n2_grid_down, n2_grid_right] { n2 };
+            if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+                g.update_edge_data(edge, -1.0);
+            }
+        }
+
+        // walk
+        sliced_backtracker<decltype(g), std::float64_t> backtracker{
+            g,
+            [&g](const E& edge) { return g.get_edge_data(edge); }
+        };
+        backtracker.walk();
+    }
+
+    TEST(SlicedBacktrackTest, ForwardWalkWithResidents) {
+        using ND = std::tuple<>;
+        using ED = std::float64_t;
+        auto g { create_local<ND, ED>(4u, 4u) };
+        using N = typename decltype(g)::N;
+        using E = typename decltype(g)::E;
+
+        // indel update weight of -1
+        g.update_edge_data(
+            E {
+                offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type::NORMAL,
+                {
+                    N { 0u, 0u },
+                    N { 0u, 1u }
+                }
+            },
+            -1.0
+        );
+        // match update weight of -1
+        for (const E& edge : g.get_edges()) {
+            if (edge.type != offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type::NORMAL) {
+                continue;
+            }
+            const auto& [n1, n2] { edge.inner_edge };
             const auto& [n1_grid_down, n1_grid_right] { n1 };
             const auto& [n2_grid_down, n2_grid_right] { n2 };
             if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {

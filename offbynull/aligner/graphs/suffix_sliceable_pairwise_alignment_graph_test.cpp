@@ -414,4 +414,51 @@ namespace {
         };
         x(create_vector<float>(2u, 3u).suffix_g);
     }
+
+    TEST(SuffixPairwiseAlignmentGraphTest, PrintBasic) {
+        auto to_vector {
+            [](auto &&r) {
+                auto it { r.begin() };
+                std::vector<std::decay_t<decltype(*it)>> ret {};
+                while (it != r.end()) {
+                    ret.push_back(*it);
+                    ++it;
+                }
+                return ret;
+            }
+        };
+
+        auto x = [&](auto&& g) {
+            using G = std::decay_t<decltype(g)>;
+            using N = typename G::N;
+            using E = typename G::E;
+
+            std::cout << "res" << std::endl;
+            for (auto&& n : g.resident_nodes()) {
+                std::cout << std::get<0>(n) << ',' << std::get<1>(n) << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "norm0" << std::endl;
+            for (auto&& n : g.slice_nodes(0u)) {
+                std::cout << std::get<0>(n) << ',' << std::get<1>(n) << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "norm1" << std::endl;
+            for (auto&& n : g.slice_nodes(1u)) {
+                std::cout << std::get<0>(n) << ',' << std::get<1>(n) << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "root" << std::endl;
+            std::cout << std::get<0>(g.get_root_node()) << ',' << std::get<1>(g.get_root_node()) << " ";
+            std::cout << std::endl;
+
+            std::cout << "leaf" << std::endl;
+            std::cout << std::get<0>(g.get_leaf_node()) << ',' << std::get<1>(g.get_leaf_node()) << " ";
+            std::cout << std::endl;
+        };
+        x(create_vector<float>(4u, 4u).suffix_g);
+    }
 }

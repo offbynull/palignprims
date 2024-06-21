@@ -1,7 +1,6 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACK_SLICED_BACKTRACK_H
 #define OFFBYNULL_ALIGNER_BACKTRACK_SLICED_BACKTRACK_H
 
-#include <cstddef>
 #include <functional>
 #include <ranges>
 #include <algorithm>
@@ -12,6 +11,7 @@
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h"
+#include "offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 
@@ -24,6 +24,7 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
     using offbynull::aligner::backtrack::container_creators::vector_container_creator;
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
+    using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
     using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::max_element;
@@ -47,12 +48,15 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
+        G& original_graph;
+        std::function<WEIGHT(const E&)> edge_weight_getter;
+        SLICE_SLOT_ALLOCATOR slice_slot_container_creator;
+        RESIDENT_SLOT_ALLOCATOR resident_slot_container_creator;
         INDEX mid_down_offset;
-        INDEX mid_right_offset;
         prefix_sliceable_pairwise_alignment_graph<
             G,
             error_check
-        > forward_graph;
+        > prefix_graph;
         sliced_walker<
             prefix_sliceable_pairwise_alignment_graph<
                 G,
@@ -66,11 +70,19 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
         suffix_sliceable_pairwise_alignment_graph<
             G,
             error_check
-        > backward_graph;
-        sliced_walker<
+        > suffix_graph;
+        reversed_sliceable_pairwise_alignment_graph<
             suffix_sliceable_pairwise_alignment_graph<
                 G,
                 error_check
+            >
+        > reversed_suffix_graph;
+        sliced_walker<
+            reversed_sliceable_pairwise_alignment_graph<
+                suffix_sliceable_pairwise_alignment_graph<
+                    G,
+                    error_check
+                >
             >,
             WEIGHT,
             SLICE_SLOT_ALLOCATOR,
@@ -85,26 +97,32 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
             SLICE_SLOT_ALLOCATOR slice_slot_container_creator = {},
             RESIDENT_SLOT_ALLOCATOR resident_slot_container_creator = {}
         )
-        : mid_down_offset { g.grid_down_cnt / 2 }
-        , mid_right_offset { g.grid_right_cnt / 2 }
-        , forward_graph {
+        : original_graph { g }
+        , edge_weight_getter { get_edge_weight_func }
+        , slice_slot_container_creator { slice_slot_container_creator }
+        , resident_slot_container_creator { resident_slot_container_creator }
+        , mid_down_offset { g.grid_down_cnt / 2 }
+        , prefix_graph {
             g,
-            mid_down_offset,
-            mid_right_offset
+            mid_down_offset + 1,
+            g.grid_right_cnt
         }
         , forward_walker {
-            forward_graph,
+            prefix_graph,
             get_edge_weight_func,
             slice_slot_container_creator,
             resident_slot_container_creator
         }
-        , backward_graph {
+        , suffix_graph {
             g,
             g.grid_down_cnt - mid_down_offset,
-            g.grid_right_cnt - mid_right_offset
+            g.grid_right_cnt
+        }
+        , reversed_suffix_graph {
+            suffix_graph
         }
         , backward_walker {
-                backward_graph,
+                reversed_suffix_graph,
                 get_edge_weight_func,
                 slice_slot_container_creator,
                 resident_slot_container_creator
@@ -117,6 +135,7 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
             while (!backward_walker.next()) {
                 // do nothing
             }
+
             auto combined {
                 std::views::zip(
                     forward_walker.active_slots(),
@@ -125,6 +144,11 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
                 | std::views::transform(
                     [](const auto &slot_pair) {
                         const auto& [f_slot, b_slot] { slot_pair };
+                        if constexpr (error_check) {
+                            if (f_slot.node != b_slot.node) {
+                                throw std::runtime_error { "Node mismatch" };
+                            }
+                        }
                         return std::pair<WEIGHT, N> {
                             f_slot.backtracking_weight + b_slot.backtracking_weight,
                             f_slot.node
@@ -132,13 +156,73 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
                     }
                 )
             };
-            auto max_it { std::ranges::max(combined.begin(), combined.end()) };
+            auto max_it {
+                std::ranges::max_element(
+                    combined.begin(),
+                    combined.end(),
+                    [](const auto& a, const auto& b) { return std::get<0>(a) < std::get<0>(b); }
+                )
+            };
             if constexpr (error_check) {
                 if (max_it == combined.end()) {
                     throw std::runtime_error("No maximum?");
                 }
             }
             const auto& [max_weight, max_node] { *max_it };
+
+            // Recurse
+            // THIS IS CAUSING INFINITE TEMPLATE RECURSION
+            const auto& [mid_down_offset, mid_right_offset] { original_graph.node_to_grid_offsets(max_node) };
+            if (mid_down_offset == 1u && mid_right_offset == 1u) {
+                return max_node;
+            }
+            INDEX upper_half_graph_down_cnt { mid_down_offset + 1u };
+            INDEX upper_half_graph_right_cnt { mid_right_offset + 1u };
+            prefix_sliceable_pairwise_alignment_graph<
+                G,
+                error_check
+            > upper_half_graph {
+                original_graph,
+                upper_half_graph_down_cnt,
+                upper_half_graph_right_cnt
+            };
+            sliced_backtracker<
+                decltype(upper_half_graph),
+                WEIGHT,
+                SLICE_SLOT_ALLOCATOR,
+                RESIDENT_SLOT_ALLOCATOR,
+                error_check
+            > upper_half_backtracker {
+                upper_half_graph,
+                edge_weight_getter,
+                slice_slot_container_creator,
+                resident_slot_container_creator
+            };
+            upper_half_backtracker.walk();
+            INDEX lower_half_graph_down_cnt { original_graph.grid_down_cnt - mid_down_offset - 1u };
+            INDEX lower_half_graph_right_cnt { original_graph.grid_right_cnt - mid_right_offset - 1u };
+            suffix_sliceable_pairwise_alignment_graph<
+                G,
+                error_check
+            > lower_half_graph {
+                original_graph,
+                lower_half_graph_down_cnt,
+                lower_half_graph_right_cnt
+            };
+            sliced_backtracker<
+                decltype(lower_half_graph),
+                WEIGHT,
+                SLICE_SLOT_ALLOCATOR,
+                RESIDENT_SLOT_ALLOCATOR,
+                error_check
+            > lower_half_backtracker {
+                lower_half_graph,
+                edge_weight_getter,
+                slice_slot_container_creator,
+                resident_slot_container_creator
+            };
+            lower_half_backtracker.walk();
+
             return max_node;
         }
     };
