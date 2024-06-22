@@ -4,6 +4,8 @@
 #include <functional>
 #include <ranges>
 #include <algorithm>
+#include <iostream>
+
 #include "offbynull/aligner/backtrack/sliced_walker.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrack/container_creator.h"
@@ -124,7 +126,7 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
             grid_down_cnt,
             grid_right_cnt
         }
-        , mid_down_offset { sub_graph.grid_down_cnt / 2 }
+        , mid_down_offset { (sub_graph.grid_down_cnt - 1u) / 2u }
         , prefix_graph {
             sub_graph,
             mid_down_offset + 1,
@@ -150,6 +152,31 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
                 slice_slot_container_creator,
                 resident_slot_container_creator
         } {}
+
+        INDEX target_weight() {
+            sliced_walker<
+                decltype(sub_graph),
+                WEIGHT,
+                SLICE_SLOT_ALLOCATOR,
+                RESIDENT_SLOT_ALLOCATOR,
+                error_check
+            > forward_walker {
+                sub_graph,
+                edge_weight_getter,
+                slice_slot_container_creator,
+                resident_slot_container_creator
+            };
+            while (!forward_walker.next()) {
+                // do nothing
+            }
+            const auto& slot { forward_walker.active_slot() };
+            return slot.backtracking_weight;
+            // TODO: When you're doing the forward_walked / backward_walker in the function below, CHECK TO MAKE SURE
+            // THE WEIGHT HITS THIS NUMBER (not just max). IF NO NUMBER MATCHES THIS NUMBER, IT MEANS THAT SLICE IS
+            // SKIPPED OVER (e.g. free ride skips it)
+            //
+            // DO THIS FOR EVERY INVOCATION OF walk()
+        }
 
         auto walk() {
             while (!forward_walker.next()) {
@@ -194,8 +221,18 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
             const auto& [max_weight, max_node] { *max_it };
 
             // Recurse
-            const auto& [mid_down_offset, mid_right_offset] { sub_graph.node_to_grid_offsets(max_node) };
-            if (mid_down_offset == 1u && mid_right_offset == 1u) {
+            const auto& [cut_down_offset, cut_right_offset] { sub_graph.node_to_grid_offsets(max_node) };
+            std::cout
+                    << "down bounds: ["
+                    << sub_graph.grid_down_offset << "," << sub_graph.grid_down_offset + sub_graph.grid_down_cnt - 1u << "]"
+                    << std::endl
+                    << "right bounds: ["
+                    << sub_graph.grid_right_offset << "," << sub_graph.grid_right_offset + sub_graph.grid_right_cnt - 1u << "]"
+                    << std::endl;
+            std::cout
+                    << "found " << sub_graph.grid_down_offset + cut_down_offset << "x" << sub_graph.grid_right_offset + cut_right_offset
+                    << std::endl;
+            if (cut_down_offset == 0u && cut_right_offset == 0u) {
                 return max_node;
             }
             {
@@ -209,12 +246,13 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
                     whole_graph,
                     sub_graph.grid_down_offset,
                     sub_graph.grid_right_offset,
-                    sub_graph.grid_down_offset + mid_down_offset + 1u,
-                    sub_graph.grid_right_offset + mid_right_offset + 1u,
+                    cut_down_offset + 1u,
+                    cut_right_offset + 1u,
                     edge_weight_getter,
                     slice_slot_container_creator,
                     resident_slot_container_creator
                 };
+                std::cout << "topleft" << std::endl;
                 upper_half_backtracker.walk();
             }
             {
@@ -226,14 +264,15 @@ namespace offbynull::aligner::backtrack::sliced_backtrack {
                     error_check
                 > lower_half_backtracker {
                     whole_graph,
-                    sub_graph.grid_down_offset + mid_down_offset,
-                    sub_graph.grid_right_offset + mid_right_offset,
-                    sub_graph.grid_down_cnt - mid_down_offset,
-                    sub_graph.grid_right_cnt - mid_right_offset,
+                    sub_graph.grid_down_offset + cut_down_offset,
+                    sub_graph.grid_right_offset + cut_right_offset,
+                    sub_graph.grid_down_cnt - cut_down_offset,
+                    sub_graph.grid_right_cnt - cut_right_offset,
                     edge_weight_getter,
                     slice_slot_container_creator,
                     resident_slot_container_creator
                 };
+                std::cout << "bottomright" << std::endl;
                 lower_half_backtracker.walk();
             }
 

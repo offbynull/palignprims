@@ -74,7 +74,7 @@ namespace {
     TEST(SlicedBacktrackTest, ForwardWalkWithResidents) {
         using ND = std::tuple<>;
         using ED = std::float64_t;
-        auto g { create_local<ND, ED>(4u, 4u) };
+        auto g { create_local<ND, ED>(6u, 6u) };
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
