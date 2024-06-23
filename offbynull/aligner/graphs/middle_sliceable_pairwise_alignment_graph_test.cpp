@@ -2,7 +2,6 @@
 #include <algorithm>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
-#include "offbynull/aligner/graph/grid_container_creators.h"
 #include "offbynull/aligner/graphs/pairwise_local_alignment_graph.h"
 #include "offbynull/aligner/graphs/middle_sliceable_pairwise_alignment_graph.h"
 #include "gtest/gtest.h"
@@ -13,232 +12,248 @@ namespace {
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type;
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
 
-    template <typename BACKING_G>
-    struct created_graph {
-        BACKING_G backing_g;
-        middle_sliceable_pairwise_alignment_graph<BACKING_G> middle_g;
+    auto match_lookup {
+        [](
+            const auto& edge,
+            const char& down_elem,
+            const char& right_elem
+        ) -> std::float64_t {
+            if (down_elem == right_elem) {
+                return 1.0f64;
+            } else {
+                return -1.0f64;
+            }
+        }
+    };
+    auto indel_lookup {
+        [](
+            const auto& edge
+        ) -> std::float64_t {
+            return 0.0f64;
+        }
+    };
+    auto freeride_lookup {
+        [](
+            const auto& edge
+        ) -> std::float64_t {
+            return 0.0f64;
+        }
+    };
 
-        created_graph(
-            BACKING_G _backing_g,
+    struct graph_bundle {
+        std::string down_seq;
+        std::string right_seq;
+        pairwise_local_alignment_graph<std::string, std::string> backing_g;
+        middle_sliceable_pairwise_alignment_graph<decltype(backing_g)> middle_g;
+
+        graph_bundle(
+            std::string _down_seq,
+            std::string _right_seq,
             unsigned int down_offset,
             unsigned int right_offset,
             unsigned int down_cnt,
             unsigned int right_cnt
         )
-        : backing_g {_backing_g}
-        , middle_g {backing_g, down_offset, right_offset, down_cnt, right_cnt} {}
+        : down_seq{_down_seq}
+        , right_seq{_right_seq}
+        , backing_g{
+            down_seq,
+            right_seq,
+            match_lookup,
+            indel_lookup,
+            freeride_lookup
+        }
+        , middle_g{backing_g, down_offset, right_offset, down_cnt, right_cnt} {}
     };
 
-    template<typename ED, typename INDEX = unsigned int, bool error_check = true>
-    auto create_vector(INDEX down_cnt, INDEX right_cnt) {
-        using G = pairwise_local_alignment_graph<
-                std::tuple<>,
-                ED,
-                INDEX,
-                offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<std::tuple<>, INDEX>,
-                offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ED, INDEX>,
-                error_check
-            >;
-        return created_graph<G> {
-            G {
-                down_cnt,
-                right_cnt
-            },
-            1u,
-            1u,
-            down_cnt - 2u,
-            right_cnt - 2u
-        };
-    }
-
     TEST(MiddlePairwiseAlignmentGraphTest, ConceptCheck) {
-        using G = decltype(create_vector<float>(4u, 4u).middle_g);
+        using G = decltype(graph_bundle{"abc", "acc", 1zu, 1zu, 2zu, 2zu}.middle_g);
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_parwise_alignment_graph<G>);
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, ListNodes) {
-        auto x = [](auto&& g) {
-            auto n = g.get_nodes();
-            EXPECT_EQ(
-                std::set(n.begin(), n.end()),
-                (std::set {
-                    std::pair{1u, 1u}, std::pair{1u, 2u},
-                    std::pair{2u, 1u}, std::pair{2u, 2u},
-                })
-            );
-        };
-        x(create_vector<float>(4u, 4u).middle_g);
+        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        auto g { g_bundle.middle_g };
+
+        auto n = g.get_nodes();
+        EXPECT_EQ(
+            std::set(n.begin(), n.end()),
+            (std::set {
+                std::pair{1zu, 1zu}, std::pair{1zu, 2zu},
+                std::pair{2zu, 1zu}, std::pair{2zu, 2zu},
+            })
+        );
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, ListEdges) {
-        auto x = [](auto&& g) {
-            using E = typename std::remove_reference_t<decltype(g)>::E;
+        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        auto g { g_bundle.middle_g };
 
-            auto e = g.get_edges();
-            std::multiset<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-            for (auto _e : e) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::multiset<E> {
-                    edge { edge_type::NORMAL, std::pair { std::pair{1u, 1u}, std::pair{1u, 2u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{1u, 1u}, std::pair{2u, 2u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{1u, 1u}, std::pair{2u, 1u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{1u, 2u}, std::pair{2u, 2u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{2u, 1u}, std::pair{2u, 2u} } },
-                })
-            );
-        };
-        x(create_vector<float>(4u, 4u).middle_g);
+        using E = typename std::remove_reference_t<decltype(g)>::E;
+
+        auto e = g.get_edges();
+        std::multiset<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+        for (auto _e : e) {
+            actual.insert(_e);
+        }
+        EXPECT_EQ(
+            actual,
+            (std::multiset<E> {
+                edge { edge_type::NORMAL, std::pair { std::pair{1zu, 1zu}, std::pair{1zu, 2zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{1zu, 1zu}, std::pair{2zu, 2zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{1zu, 1zu}, std::pair{2zu, 1zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{1zu, 2zu}, std::pair{2zu, 2zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{2zu, 1zu}, std::pair{2zu, 2zu} } },
+            })
+        );
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, NodesExist) {
-        auto x = [](auto&& g) {
-            EXPECT_FALSE(g.has_node({0u, 0u}));
-            EXPECT_FALSE(g.has_node({0u, 1u}));
-            EXPECT_FALSE(g.has_node({0u, 2u}));
-            EXPECT_FALSE(g.has_node({0u, 3u}));
-            EXPECT_FALSE(g.has_node({1u, 0u}));
-            EXPECT_TRUE(g.has_node({1u, 1u}));
-            EXPECT_TRUE(g.has_node({1u, 2u}));
-            EXPECT_FALSE(g.has_node({1u, 3u}));
-            EXPECT_FALSE(g.has_node({2u, 0u}));
-            EXPECT_TRUE(g.has_node({2u, 1u}));
-            EXPECT_TRUE(g.has_node({2u, 2u}));
-            EXPECT_FALSE(g.has_node({2u, 3u}));
-            EXPECT_FALSE(g.has_node({3u, 0u}));
-            EXPECT_FALSE(g.has_node({3u, 1u}));
-            EXPECT_FALSE(g.has_node({3u, 2u}));
-            EXPECT_FALSE(g.has_node({3u, 3u}));
-        };
-        x(create_vector<float>(4u, 4u).middle_g);
+        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        auto g { g_bundle.middle_g };
+
+        EXPECT_FALSE(g.has_node({0zu, 0zu}));
+        EXPECT_FALSE(g.has_node({0zu, 1zu}));
+        EXPECT_FALSE(g.has_node({0zu, 2zu}));
+        EXPECT_FALSE(g.has_node({0zu, 3zu}));
+        EXPECT_FALSE(g.has_node({1zu, 0zu}));
+        EXPECT_TRUE(g.has_node({1zu, 1zu}));
+        EXPECT_TRUE(g.has_node({1zu, 2zu}));
+        EXPECT_FALSE(g.has_node({1zu, 3zu}));
+        EXPECT_FALSE(g.has_node({2zu, 0zu}));
+        EXPECT_TRUE(g.has_node({2zu, 1zu}));
+        EXPECT_TRUE(g.has_node({2zu, 2zu}));
+        EXPECT_FALSE(g.has_node({2zu, 3zu}));
+        EXPECT_FALSE(g.has_node({3zu, 0zu}));
+        EXPECT_FALSE(g.has_node({3zu, 1zu}));
+        EXPECT_FALSE(g.has_node({3zu, 2zu}));
+        EXPECT_FALSE(g.has_node({3zu, 3zu}));
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, EdgesExist) {
-        auto x = [](auto&& g) {
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0u, 0u}, {0u, 1u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0u, 1u}, {0u, 2u}}}));
-            EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {1u, 1u}, {1u, 2u} } }));
-            EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {1u, 1u}, {2u, 2u} } }));
-            EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {1u, 1u}, {2u, 1u} } }));
-            EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {1u, 2u}, {2u, 2u} } }));
-            EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {2u, 1u}, {2u, 2u} } }));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6u, 7u}, {6u, 8u}}}));
-        };
-        x(create_vector<float>(4u, 4u).middle_g);
+        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        auto g { g_bundle.middle_g };
+
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0zu, 0zu}, {0zu, 1zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0zu, 1zu}, {0zu, 2zu}}}));
+        EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {1zu, 1zu}, {1zu, 2zu} } }));
+        EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {1zu, 1zu}, {2zu, 2zu} } }));
+        EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {1zu, 1zu}, {2zu, 1zu} } }));
+        EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {1zu, 2zu}, {2zu, 2zu} } }));
+        EXPECT_TRUE(g.has_edge({ edge_type::NORMAL, { {2zu, 1zu}, {2zu, 2zu} } }));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6zu, 7zu}, {6zu, 8zu}}}));
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, GetOutputs) {
-        auto x = [](auto&& g) {
-            using E = typename std::remove_reference_t<decltype(g)>::E;
+        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        auto g { g_bundle.middle_g };
 
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_outputs( { 1u, 1u } )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                std::vector<E> expected {
-                    { edge_type::NORMAL, {{1u, 1u}, {1u, 2u} } },
-                    { edge_type::NORMAL, {{1u, 1u}, {2u, 1u} } },
-                    { edge_type::NORMAL, {{1u, 1u}, {2u, 2u} } }
-                };
-                EXPECT_EQ(actual, expected);
+        using E = typename std::remove_reference_t<decltype(g)>::E;
+
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_outputs( { 1zu, 1zu } )) {
+                actual.push_back(_e);
             }
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_outputs( { 2u, 2u } )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {})
-                );
+            std::sort(actual.begin(), actual.end());
+            std::vector<E> expected {
+                { edge_type::NORMAL, {{1zu, 1zu}, {1zu, 2zu} } },
+                { edge_type::NORMAL, {{1zu, 1zu}, {2zu, 1zu} } },
+                { edge_type::NORMAL, {{1zu, 1zu}, {2zu, 2zu} } }
+            };
+            EXPECT_EQ(actual, expected);
+        }
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_outputs( { 2zu, 2zu } )) {
+                actual.push_back(_e);
             }
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_outputs( { 1u, 2u } )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {
-                        { edge_type::NORMAL, { {1u, 2u}, {2u, 2u} } }
-                    })
-                );
+            std::sort(actual.begin(), actual.end());
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {})
+            );
+        }
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_outputs( { 1zu, 2zu } )) {
+                actual.push_back(_e);
             }
-        };
-        x(create_vector<float>(4u, 4u).middle_g);
+            std::sort(actual.begin(), actual.end());
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {
+                    { edge_type::NORMAL, { {1zu, 2zu}, {2zu, 2zu} } }
+                })
+            );
+        }
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, GetInputs) {
-        auto x = [](auto&& g) {
-            using E = typename std::remove_reference_t<decltype(g)>::E;
+        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        auto g { g_bundle.middle_g };
 
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_inputs( std::pair{ 1u, 1u } )) {
-                    actual.push_back(_e);
-                }
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {})
-                );
+        using E = typename std::remove_reference_t<decltype(g)>::E;
+
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_inputs( std::pair{ 1zu, 1zu } )) {
+                actual.push_back(_e);
             }
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_inputs( { 2u, 2u } )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {
-                        { edge_type::NORMAL, {{1u, 1u}, {2u, 2u} } },
-                        { edge_type::NORMAL, {{1u, 2u}, {2u, 2u} } },
-                        { edge_type::NORMAL, {{2u, 1u}, {2u, 2u} } }
-                    })
-                );
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {})
+            );
+        }
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_inputs( { 2zu, 2zu } )) {
+                actual.push_back(_e);
             }
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_inputs( std::pair{1u, 2u} )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {
-                        { edge_type::NORMAL, { {1u, 1u}, {1u, 2u} } }
-                    })
-                );
+            std::sort(actual.begin(), actual.end());
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {
+                    { edge_type::NORMAL, {{1zu, 1zu}, {2zu, 2zu} } },
+                    { edge_type::NORMAL, {{1zu, 2zu}, {2zu, 2zu} } },
+                    { edge_type::NORMAL, {{2zu, 1zu}, {2zu, 2zu} } }
+                })
+            );
+        }
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_inputs( std::pair{1zu, 2zu} )) {
+                actual.push_back(_e);
             }
-        };
-        x(create_vector<float>(4u, 4u).middle_g);
+            std::sort(actual.begin(), actual.end());
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {
+                    { edge_type::NORMAL, { {1zu, 1zu}, {1zu, 2zu} } }
+                })
+            );
+        }
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, GetOutputDegree) {
-        auto x = [](auto&& g) {
-            EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 1u } ), 3);
-            EXPECT_EQ(g.get_out_degree(std::pair{ 1u, 2u } ), 1);
-            EXPECT_EQ(g.get_out_degree(std::pair{ 2u, 1u } ), 1);
-            EXPECT_EQ(g.get_out_degree(std::pair{ 2u, 2u } ), 0);
-        };
-        x(create_vector<float>(4u, 4u).middle_g);
+        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        auto g { g_bundle.middle_g };
+
+        EXPECT_EQ(g.get_out_degree(std::pair{ 1zu, 1zu } ), 3);
+        EXPECT_EQ(g.get_out_degree(std::pair{ 1zu, 2zu } ), 1);
+        EXPECT_EQ(g.get_out_degree(std::pair{ 2zu, 1zu } ), 1);
+        EXPECT_EQ(g.get_out_degree(std::pair{ 2zu, 2zu } ), 0);
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, GetInputDegree) {
-        auto x = [](auto&& g) {
-            EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 1u } ), 0);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 1u, 2u } ), 1);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 2u, 1u } ), 1);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 2u, 2u } ), 3);
-        };
-        x(create_vector<float>(4u, 4u).middle_g);
+        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        auto g { g_bundle.middle_g };
+
+        EXPECT_EQ(g.get_in_degree(std::pair{ 1zu, 1zu } ), 0);
+        EXPECT_EQ(g.get_in_degree(std::pair{ 1zu, 2zu } ), 1);
+        EXPECT_EQ(g.get_in_degree(std::pair{ 2zu, 1zu } ), 1);
+        EXPECT_EQ(g.get_in_degree(std::pair{ 2zu, 2zu } ), 3);
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, SlicedWalk) {
@@ -254,63 +269,63 @@ namespace {
             }
         };
 
-        auto x = [&](auto&& g) {
-            using G = std::decay_t<decltype(g)>;
-            using N = typename G::N;
-            using E = typename G::E;
+        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        auto g { g_bundle.middle_g };
 
-            EXPECT_EQ(G::slice_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 2zu);
-            EXPECT_EQ(g.slice_first_node(0u), (N { 1u, 1u }));
-            EXPECT_EQ(g.slice_last_node(0u), (N { 1u, 2u }));
-            EXPECT_EQ(g.slice_first_node(1u), (N { 2u, 1u }));
-            EXPECT_EQ(g.slice_last_node(1u), (N { 2u, 2u }));
+        using G = std::decay_t<decltype(g)>;
+        using N = typename G::N;
+        using E = typename G::E;
 
-            EXPECT_EQ(G::resident_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 2zu); // directly proxied from backing graph
-            auto resident_nodes { g.resident_nodes() };
-            EXPECT_EQ(std::distance(resident_nodes.begin(), resident_nodes.end()), 0zu);
-            auto resident_nodes_it { resident_nodes.begin() };
-            EXPECT_EQ(resident_nodes_it, resident_nodes.end());
+        EXPECT_EQ(G::slice_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 2zu);
+        EXPECT_EQ(g.slice_first_node(0zu), (N { 1zu, 1zu }));
+        EXPECT_EQ(g.slice_last_node(0zu), (N { 1zu, 2zu }));
+        EXPECT_EQ(g.slice_first_node(1zu), (N { 2zu, 1zu }));
+        EXPECT_EQ(g.slice_last_node(1zu), (N { 2zu, 2zu }));
 
-            EXPECT_EQ(g.slice_next_node(N { 1u, 1u }), (N { 1u, 2u }));
-            EXPECT_EQ(g.slice_next_node(N { 2u, 1u }), (N { 2u, 2u }));
+        EXPECT_EQ(G::resident_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 2zu); // directly proxied from backing graph
+        auto resident_nodes { g.resident_nodes() };
+        EXPECT_EQ(std::distance(resident_nodes.begin(), resident_nodes.end()), 0zu);
+        auto resident_nodes_it { resident_nodes.begin() };
+        EXPECT_EQ(resident_nodes_it, resident_nodes.end());
 
-            EXPECT_EQ(g.slice_prev_node(N { 2u, 2u }), (N { 2u, 1u }));
-            EXPECT_EQ(g.slice_prev_node(N { 1u, 2u }), (N { 1u, 1u }));
+        EXPECT_EQ(g.slice_next_node(N { 1zu, 1zu }), (N { 1zu, 2zu }));
+        EXPECT_EQ(g.slice_next_node(N { 2zu, 1zu }), (N { 2zu, 2zu }));
 
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 1u, 1u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 1u, 2u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 2u, 1u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 2u, 2u })),
-                (std::vector<E> {})
-            );
+        EXPECT_EQ(g.slice_prev_node(N { 2zu, 2zu }), (N { 2zu, 1zu }));
+        EXPECT_EQ(g.slice_prev_node(N { 1zu, 2zu }), (N { 1zu, 1zu }));
 
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 2u, 2u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 2u, 1u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 1u, 2u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 1u, 1u })),
-                (std::vector<E> {})
-            );
-        };
-        x(create_vector<float>(4u, 4u).middle_g);
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 1zu, 1zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 1zu, 2zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 2zu, 1zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 2zu, 2zu })),
+            (std::vector<E> {})
+        );
+
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 2zu, 2zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 2zu, 1zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 1zu, 2zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 1zu, 1zu })),
+            (std::vector<E> {})
+        );
     }
 }

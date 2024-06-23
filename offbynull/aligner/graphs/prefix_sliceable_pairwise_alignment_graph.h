@@ -1,9 +1,6 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_PREFIX_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_PREFIX_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H
 
-#include <functional>
-#include <type_traits>
-#include <stdfloat>
 #include <ranges>
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
@@ -55,16 +52,17 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             }
         }
 
-        void update_node_data(const N& node, ND&& data) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            g.update_node_data(node, std::forward<ND>(data));
-        }
+        // The first implementation of this was proxing the exact type. For example...
+        //
+        // using get_edge_to_ret_type = decltype(g.get_edge_to(std::declval<E>()));
+        // get_edge_to_ret_type get_edge_to(const E &edge) {
+        //     return g.get_edge_to(...);
+        // }
+        //
+        // Decided not to do this. No pairwise graph type uses ND&/ED&/N&/E&, so just go ahead and return concrete
+        // object.
 
-        ND& get_node_data(const N& node) {
+        ND get_node_data(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
@@ -73,16 +71,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             return g.get_node_data(node);
         }
 
-        void update_edge_data(const E& edge, ED&& data) {
-            if constexpr (error_check) {
-                if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
-                }
-            }
-            g.update_edge_data(edge, std::forward<ED>(data));
-        }
-
-        ED& get_edge_data(const E& edge) {
+        ED get_edge_data(const E& edge) {
             if constexpr (error_check) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
@@ -109,7 +98,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             return g.get_edge_to(edge);
         }
 
-        std::tuple<N, N, ED&> get_edge(const E& edge) {
+        std::tuple<N, N, ED> get_edge(const E& edge) {
             if constexpr (error_check) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
@@ -130,7 +119,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             return std::views::single(get_leaf_node());
         }
 
-        auto get_leaf_node() {
+        N get_leaf_node() {
             return g.slice_last_node(grid_down_cnt - 1u, grid_right_cnt - 1u);
         }
 
@@ -232,7 +221,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             return static_cast<std::size_t>(dist);
         }
 
-        auto edge_to_element_offsets(
+        std::optional<std::pair<std::optional<INDEX>, std::optional<INDEX>>> edge_to_element_offsets(
             const E& edge
         ) {
             return g.edge_to_element_offsets(edge);

@@ -35,19 +35,21 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         , grid_down_cnt{_g.grid_down_cnt}
         , grid_right_cnt{_g.grid_right_cnt} {}
 
-        void update_node_data(const N& node, ND&& data) {
-            g.update_node_data(node, std::forward<ND>(data));
-        }
+        // The first implementation of this was proxing the exact type. For example...
+        //
+        // using get_edge_to_ret_type = decltype(g.get_edge_to(std::declval<E>()));
+        // get_edge_to_ret_type get_edge_to(const E &edge) {
+        //     return g.get_edge_to(...);
+        // }
+        //
+        // Decided not to do this. No pairwise graph type uses ND&/ED&/N&/E&, so just go ahead and return concrete
+        // object.
 
-        ND& get_node_data(const N& node) {
+        ND get_node_data(const N& node) {
             return g.get_node_data(node);
         }
 
-        void update_edge_data(const E& edge, ED&& data) {
-            g.update_edge_data(edge, std::forward<ED>(data));
-        }
-
-        ED& get_edge_data(const E& edge) {
+        ED get_edge_data(const E& edge) {
             return g.get_edge_data(edge);
         }
 
@@ -59,7 +61,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
             return g.get_edge_from(edge);
         }
 
-        std::tuple<N, N, ED&> get_edge(const E& edge) {
+        std::tuple<N, N, ED> get_edge(const E& edge) {
             return g.get_edge(edge);
         }
 
@@ -75,7 +77,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
             return g.get_root_nodes();
         }
 
-        auto get_leaf_node() {
+        N get_leaf_node() {
             return g.get_root_node();
         }
 

@@ -5,21 +5,17 @@
 #include <ranges>
 #include <tuple>
 #include <stdexcept>
-#include <format>
 #include <utility>
 #include <functional>
 #include <stdfloat>
 #include "offbynull/aligner/graphs/grid_graph.h"
-#include "offbynull/aligner/graph/grid_container_creator.h"
-#include "offbynull/aligner/graph/grid_container_creators.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
     using offbynull::aligner::graphs::grid_graph::grid_graph;
-    using offbynull::aligner::graph::grid_container_creator::grid_container_creator;
-    using offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator;
+    using offbynull::aligner::graphs::grid_graph::empty_type;
     using offbynull::aligner::concepts::weight;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::concat_view;
@@ -41,11 +37,10 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
     };
 
     template<
-        typename ND_,
-        typename ED_,
-        widenable_to_size_t INDEX_ = unsigned int,
-        grid_container_creator<INDEX_> ND_ALLOCATOR_ = vector_grid_container_creator<ND_, INDEX_, false>,
-        grid_container_creator<INDEX_> ED_ALLOCATOR_ = vector_grid_container_creator<ED_, INDEX_, false>,
+        std::ranges::random_access_range DOWN_SEQ,
+        std::ranges::random_access_range RIGHT_SEQ,
+        widenable_to_size_t INDEX_ = std::size_t,
+        weight WEIGHT = std::float64_t,
         bool error_check = true
     >
     class pairwise_fitting_alignment_graph {
@@ -53,57 +48,77 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
         using INDEX = INDEX_;
         using N = std::pair<INDEX, INDEX>;
         using E = edge<INDEX>;
-        using ED = ED_;
-        using ND = ND_;
+        using ND = empty_type;
+        using ED = WEIGHT;  // Differs from backing grid_graph because these values are derived at time of access
 
     private:
-        grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check> g;
-        ED freeride_ed;
+        grid_graph<
+            DOWN_SEQ,
+            RIGHT_SEQ,
+            INDEX,
+            WEIGHT,
+            error_check
+        > g;
+        std::function<
+            WEIGHT(
+                const E& edge
+            )
+        > freeride_lookup;
 
     public:
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
 
         pairwise_fitting_alignment_graph(
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt,
-            ED indel_data = {},
-            ED freeride_data = {},
-            ND_ALLOCATOR_ nd_container_creator = {},
-            ED_ALLOCATOR_ ed_container_creator = {}
+            const DOWN_SEQ& _down_seq,
+            const RIGHT_SEQ& _right_seq,
+            std::function<
+                WEIGHT(
+                    const E&,
+                    const std::decay_t<decltype(_down_seq[0u])>&,
+                    const std::decay_t<decltype(_right_seq[0u])>&
+                )
+            > _match_lookup,
+            std::function<
+                WEIGHT(
+                    const E&
+                )
+            > _indel_lookup,
+            std::function<
+                WEIGHT(
+                    const E&
+                )
+            > _freeride_lookup
         )
-        : g{_grid_down_cnt, _grid_right_cnt, indel_data, nd_container_creator, ed_container_creator}
-        , freeride_ed{freeride_data}
-        , grid_down_cnt{_grid_down_cnt}
-        , grid_right_cnt{_grid_right_cnt} {}
-
-        void update_node_data(const N& node, ND&& data) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
+        : g{
+            _down_seq,
+            _right_seq,
+            [_match_lookup](
+                const typename decltype(g)::E& edge,
+                const std::decay_t<decltype(_down_seq[0u])>& down_elem,
+                const std::decay_t<decltype(_right_seq[0u])>& right_elem
+            ) {
+                return _match_lookup(
+                    {edge_type::NORMAL, edge}, down_elem, right_elem
+                 );
+            },
+            [_indel_lookup] (
+                const typename decltype(g)::E& edge
+            ) {
+                return _indel_lookup(
+                    {edge_type::NORMAL, edge}
+                 );
             }
-            g.update_node_data(node, std::forward<ND>(data));
         }
+        , freeride_lookup{_freeride_lookup}
+        , grid_down_cnt{g.grid_down_cnt}
+        , grid_right_cnt{g.grid_right_cnt} {}
 
-        ND& get_node_data(const N& node) {
+        ND get_node_data(const N& node) {
             return g.get_node_data(node);
         }
 
-        void update_edge_data(const E& edge, ED&& data) {
-            if constexpr (error_check) {
-                if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
-                }
-            }
-            if (edge.type == edge_type::FREE_RIDE) {
-                freeride_ed = std::forward<ED>(data);
-            } else {
-                g.update_edge_data(edge.inner_edge, std::forward<ED>(data));
-            }
-        }
-
-        ED& get_edge_data(const E& edge) {
+        ED get_edge_data(const E& edge) {
             return std::get<2>(get_edge(edge));
         }
 
@@ -115,7 +130,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             return std::get<1>(get_edge(edge));
         }
 
-        std::tuple<N, N, ED&> get_edge(const E& edge) {
+        std::tuple<N, N, ED> get_edge(const E& edge) {
             if constexpr (error_check) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
@@ -123,7 +138,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             }
             if (edge.type == edge_type::FREE_RIDE) {
                 const auto& [n1, n2] { edge.inner_edge };
-                return std::tuple<N, N, ED&> {n1, n2, freeride_ed};
+                return std::tuple<N, N, ED> {n1, n2, freeride_lookup(edge)};
             } else {
                 return g.get_edge(edge.inner_edge);
             }
@@ -141,7 +156,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             return g.get_leaf_nodes();
         }
 
-        auto get_leaf_node() {
+        N get_leaf_node() {
             return g.get_leaf_node();
         }
 
@@ -224,7 +239,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     N n1 { std::get<1>(raw_full_edge) };
                     N n2 { std::get<2>(raw_full_edge) };
                     E e { edge_type::NORMAL, { n1, n2 } };
-                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
                 })
             };
             bool has_freeride_to_leaf { std::get<0>(node) < grid_down_cnt - 1u && std::get<1>(node) == grid_right_cnt - 1u };
@@ -233,7 +248,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 | std::views::transform([node, this](const N& n2) noexcept {
                     N n1 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
                 })
                 | std::views::filter([has_freeride_to_leaf](const auto&) noexcept {
                     return has_freeride_to_leaf;
@@ -248,7 +263,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 | std::views::transform([this](const N& n2) {
                     N n1 { 0, 0 };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
                 })
                 | std::views::filter([has_freeride_from_root](const auto&) {
                     return has_freeride_from_root;
@@ -270,7 +285,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     N n1 { std::get<1>(raw_full_edge) };
                     N n2 { std::get<2>(raw_full_edge) };
                     E e { edge_type::NORMAL, { n1, n2 } };
-                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
                 })
             };
             bool has_freeride_to_leaf { node == get_leaf_node() };
@@ -282,7 +297,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 | std::views::transform([this](const N& n1) {
                     N n2 { get_leaf_node() };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
                 })
                 | std::views::filter([has_freeride_to_leaf](const auto&) {
                     return has_freeride_to_leaf;
@@ -294,7 +309,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 | std::views::transform([node, this](const N& n1) {
                     N n2 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED&> {e, n1, n2, freeride_ed};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
                 })
                 | std::views::filter([has_freeride_from_root](const auto&) {
                     return has_freeride_from_root;
@@ -371,49 +386,6 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             return static_cast<std::size_t>(dist);
         }
 
-        template<weight WEIGHT=std::float64_t>
-        void assign_weights(
-            const std::ranges::random_access_range auto& v,  // random access container
-            const std::ranges::random_access_range auto& w,  // random access container
-            std::function<
-                WEIGHT(
-                    const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                    const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
-                )
-            > weight_lookup,
-            std::function<void(ED&, WEIGHT weight)> weight_setter,
-            const WEIGHT freeride_weight = {}
-        ) {
-            using V_ELEM = std::decay_t<decltype(*v.begin())>;
-            using W_ELEM = std::decay_t<decltype(*w.begin())>;
-            if constexpr (error_check) {
-                if (grid_down_cnt != v.size() + 1zu || grid_right_cnt != w.size() + 1zu) {
-                    throw std::runtime_error("Mismatching node count");
-                }
-            }
-            for (const auto& edge : get_edges()) {
-                WEIGHT weight;
-                if (edge.type == edge_type::FREE_RIDE) {
-                    weight = freeride_weight;
-                } else {
-                    const auto& [n1, n2] { edge.inner_edge };
-                    const auto& [n1_grid_down, n1_grid_right] { n1 };
-                    const auto& [n2_grid_down, n2_grid_right] { n2 };
-                    std::optional<std::reference_wrapper<const V_ELEM>> v_elem { std::nullopt };
-                    if (n1_grid_down + 1u == n2_grid_down) {
-                        v_elem = { v[n1_grid_down] };
-                    }
-                    std::optional<std::reference_wrapper<const W_ELEM>> w_elem { std::nullopt };
-                    if (n1_grid_right + 1u == n2_grid_right) {
-                        w_elem = { w[n1_grid_right] };
-                    }
-                    weight = weight_lookup(v_elem, w_elem);
-                }
-                ED& ed { get_edge_data(edge) };
-                weight_setter(ed, weight);
-            }
-        }
-
         auto edge_to_element_offsets(
             const E& edge
         ) {
@@ -452,18 +424,14 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             INDEX _grid_down_cnt,
             INDEX _grid_right_cnt
         ) {
-            return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::node_count(
-                _grid_down_cnt, _grid_right_cnt
-            );
+            return decltype(g)::node_count(_grid_down_cnt, _grid_right_cnt);
         }
 
         constexpr static INDEX longest_path_edge_count(
             INDEX _grid_down_cnt,
             INDEX _grid_right_cnt
         ) {
-            return grid_graph<ND, ED, INDEX, ND_ALLOCATOR_, ED_ALLOCATOR_, error_check>::longest_path_edge_count(
-                _grid_down_cnt, _grid_right_cnt
-            );
+            return decltype(g)::longest_path_edge_count(_grid_down_cnt, _grid_right_cnt);
         }
 
         constexpr static std::size_t slice_nodes_capacity(INDEX _grid_down_cnt, INDEX _grid_right_cnt) {

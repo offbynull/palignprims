@@ -6,44 +6,52 @@
 #include <tuple>
 #include <stdexcept>
 #include <utility>
+#include <stdfloat>
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
-#include "offbynull/aligner/graph/grid_container_creator.h"
-#include "offbynull/aligner/graph/grid_container_creators.h"
+#include "offbynull/aligner/concepts.h"
 
 namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::concepts::widenable_to_size_t;
-    using offbynull::aligner::graph::grid_container_creator::grid_container_creator;
-    using offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator;
+    using offbynull::aligner::concepts::weight;
+    using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::static_vector_typer;
 
+    using empty_type = std::tuple<>;
+
     template<
-        typename ND_,
-        typename ED_,
-        widenable_to_size_t INDEX_ = unsigned int,
-        grid_container_creator<INDEX_> ND_ALLOCATOR_ = vector_grid_container_creator<ND_, INDEX_, false>,
-        grid_container_creator<INDEX_> ED_ALLOCATOR_ = vector_grid_container_creator<ED_, INDEX_, false>,
+        std::ranges::random_access_range DOWN_SEQ,
+        std::ranges::random_access_range RIGHT_SEQ,
+        widenable_to_size_t INDEX_ = std::size_t,
+        weight WEIGHT = std::float64_t,
         bool error_check = true
     >
     class grid_graph {
     public:
         using INDEX = INDEX_;
         using N = std::pair<INDEX, INDEX>;
-        using ND = ND_;
+        using ND = empty_type;
         using E = std::pair<N, N>;
-        using ED = ED_;
-
-        const INDEX grid_down_cnt;
-        const INDEX grid_right_cnt;
+        using ED = WEIGHT;  // Differs from backing grid_graph because these values are derived at time of access
 
     private:
-        decltype(std::declval<ND_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) nodes;
-        decltype(std::declval<ED_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) edges;
-
-        ED_ indel_ed;
+        const DOWN_SEQ& down_seq;
+        const RIGHT_SEQ& right_seq;
+        std::function<
+            WEIGHT(
+                const E&,
+                const std::decay_t<decltype(down_seq[0u])>&,
+                const std::decay_t<decltype(right_seq[0u])>&
+            )
+        > match_lookup;
+        std::function<
+            WEIGHT(
+                const E&
+            )
+        > indel_lookup;
 
         auto construct_full_edge(N n1, N n2) {
-            return std::tuple<E, N, N, ED&> {
+            return std::tuple<E, N, N, ED> {
                 E { n1, n2 },
                 n1,
                 n2,
@@ -60,57 +68,42 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
     public:
+        const INDEX grid_down_cnt;
+        const INDEX grid_right_cnt;
+
         grid_graph(
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt,
-            ED indel_data = {},
-            ND_ALLOCATOR_ nd_container_creator = {},
-            ED_ALLOCATOR_ ed_container_creator = {}
+            const DOWN_SEQ& _down_seq,
+            const RIGHT_SEQ& _right_seq,
+            std::function<
+                WEIGHT(
+                    const E&,
+                    const std::decay_t<decltype(_down_seq[0u])>&,
+                    const std::decay_t<decltype(_right_seq[0u])>&
+                )
+            > _match_lookup,
+            std::function<
+                WEIGHT(
+                    const E&
+                )
+            > _indel_lookup
         )
-        : grid_down_cnt{_grid_down_cnt}
-        , grid_right_cnt{_grid_right_cnt}
-        , nodes{nd_container_creator.create_objects(_grid_down_cnt, _grid_right_cnt)}
-        , edges{ed_container_creator.create_objects(_grid_down_cnt, _grid_right_cnt)}
-        , indel_ed{indel_data} {}
+        : down_seq{_down_seq}
+        , right_seq{_right_seq}
+        , match_lookup{_match_lookup}
+        , indel_lookup{_indel_lookup}
+        , grid_down_cnt{_down_seq.size() + 1zu}
+        , grid_right_cnt{_right_seq.size() + 1zu} {}
 
-        void update_node_data(const N& node, ND&& data) {
+        ND get_node_data(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            auto [grid_down, grid_right] { node };
-            this->nodes[to_raw_idx(grid_down, grid_right)] = std::forward<ND>(data);
+            return {};
         }
 
-        ND& get_node_data(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            auto [grid_down, grid_right] { node };
-            return this->nodes[to_raw_idx(grid_down, grid_right)];
-        }
-
-        void update_edge_data(const E& edge, ED&& data) {
-            if constexpr (error_check) {
-                if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
-                }
-            }
-            const auto& [n1_grid_down, n1_grid_right] { edge.first };
-            const auto& [n2_grid_down, n2_grid_right] { edge.second };
-            if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
-                indel_ed = std::forward<ED>(data);
-            } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {
-                indel_ed = std::forward<ED>(data);
-            } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
-                this->edges[to_raw_idx(n1_grid_down, n1_grid_right)] = std::forward<ED>(data);
-            }
-        }
-
-        ED& get_edge_data(const E& edge) {
+        ED get_edge_data(const E& edge) {
             if constexpr (error_check) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error("Edge doesn't exist");
@@ -119,11 +112,15 @@ namespace offbynull::aligner::graphs::grid_graph {
             const auto& [n1_grid_down, n1_grid_right] { edge.first };
             const auto& [n2_grid_down, n2_grid_right] { edge.second };
             if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
-                return indel_ed;
+                return indel_lookup(edge);
             } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {
-                return indel_ed;
+                return indel_lookup(edge);
             } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
-                return this->edges[to_raw_idx(n1_grid_down, n1_grid_right)];
+                return match_lookup(
+                    edge,
+                    down_seq[n1_grid_down],
+                    right_seq[n1_grid_right]
+                );
             }
             if constexpr (error_check) {
                 throw std::runtime_error("Bad edge");
@@ -149,13 +146,13 @@ namespace offbynull::aligner::graphs::grid_graph {
             return edge.second;
         }
 
-        std::tuple<N, N, ED&> get_edge(const E& edge) {
+        std::tuple<N, N, ED> get_edge(const E& edge) {
             if constexpr (error_check) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
             }
-            return std::tuple<N, N, ED&> {this->get_edge_from(edge), this->get_edge_to(edge), this->get_edge_data(edge)};
+            return std::tuple<N, N, ED> {this->get_edge_from(edge), this->get_edge_to(edge), this->get_edge_data(edge)};
         }
 
         auto get_root_nodes() {
@@ -170,7 +167,7 @@ namespace offbynull::aligner::graphs::grid_graph {
             return std::ranges::single_view { N { grid_down_cnt - 1u, grid_right_cnt - 1u } };
         }
 
-        auto get_leaf_node() {
+        N get_leaf_node() {
             return N { grid_down_cnt - 1u, grid_right_cnt - 1u };
         }
 

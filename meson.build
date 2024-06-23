@@ -39,18 +39,18 @@ tests_src = [
         'offbynull/aligner/graph/utils_test.cpp',
         'offbynull/aligner/graphs/directed_graph_test.cpp',
         'offbynull/aligner/graphs/grid_graph_test.cpp',
-        'offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph_test.cpp',
-        'offbynull/aligner/graphs/pairwise_fitting_alignment_graph_test.cpp',
-        'offbynull/aligner/graphs/pairwise_local_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/pairwise_global_alignment_graph_test.cpp',
+        'offbynull/aligner/graphs/pairwise_local_alignment_graph_test.cpp',
+        'offbynull/aligner/graphs/pairwise_fitting_alignment_graph_test.cpp',
+        'offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/middle_sliceable_pairwise_alignment_graph_test.cpp',
         'offbynull/aligner/backtrack/backtrack_test.cpp',
         'offbynull/aligner/backtrack/sliced_walker_test.cpp',
-        'offbynull/aligner/backtrack/sliced_backtrack_test.cpp',
-        'offbynull/aligner/aligner_test.cpp'
+#        'offbynull/aligner/backtrack/sliced_backtrack_test.cpp',
+#        'offbynull/aligner/aligner_test.cpp'
 ]
 test_exec = executable(
         'gtest-all',

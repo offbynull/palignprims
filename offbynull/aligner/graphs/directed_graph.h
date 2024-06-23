@@ -88,7 +88,7 @@ namespace offbynull::aligner::graphs::directed_graph {
             this->node_data[node] = std::forward<ND>(data);
         }
 
-        ND& get_node_data(const N& node) {
+        const ND& get_node_data(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
@@ -183,7 +183,7 @@ namespace offbynull::aligner::graphs::directed_graph {
             std::get<2>(this->edges[edge]) = std::forward<ED>(data);
         }
 
-        ED& get_edge_data(const E& edge) {
+        const ED& get_edge_data(const E& edge) {
             if constexpr (error_check) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
@@ -210,14 +210,14 @@ namespace offbynull::aligner::graphs::directed_graph {
             return std::get<1>(this->edges[edge]);
         }
 
-        std::tuple<const N&, const N&, ED&> get_edge(const E& edge) {
+        std::tuple<const N&, const N&, const ED&> get_edge(const E& edge) {
             if constexpr (error_check) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
             }
             auto& ref = edges[edge];
-            return std::tuple<const N&, const N&, ED&> {std::get<0>(ref), std::get<1>(ref), std::get<2>(ref)};
+            return std::tuple<const N&, const N&, const ED&> {std::get<0>(ref), std::get<1>(ref), std::get<2>(ref)};
         }
 
         auto get_root_nodes() {
@@ -276,7 +276,7 @@ namespace offbynull::aligner::graphs::directed_graph {
             }
             return this->node_outbound[node] | std::views::transform([this](auto& e) noexcept {
                 const auto& [from_node, to_node, edge_data] = this->get_edge(e);
-                return std::tuple<const E&, const N&, const N&, ED&> {e, from_node, to_node, edge_data};
+                return std::tuple<const E&, const N&, const N&, const ED&> {e, from_node, to_node, edge_data};
             });
         }
 
@@ -288,7 +288,7 @@ namespace offbynull::aligner::graphs::directed_graph {
             }
             return this->node_inbound[node] | std::views::transform([this](auto& e) noexcept {
                 const auto& [from_node, to_node, edge_data] = this->get_edge(e);
-                return std::tuple<const E&, const N&, const N&, ED&> {e, from_node, to_node, edge_data};
+                return std::tuple<const E&, const N&, const N&, const ED&> {e, from_node, to_node, edge_data};
             });
         }
 

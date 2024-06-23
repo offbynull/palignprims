@@ -87,19 +87,11 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
             };
         }
 
-        void update_node_data(const N& node, ND&& data) {
-            g.update_node_data(node, std::forward<ND>(data));
-        }
-
-        ND& get_node_data(const N& node) {
+        ND get_node_data(const N& node) {
             return g.get_node_data(node);
         }
 
-        void update_edge_data(const E& edge, ED&& data) {
-            g.update_edge_data(edge, std::forward<ED>(data));
-        }
-
-        ED& get_edge_data(const E& edge) {
+        ED get_edge_data(const E& edge) {
             return g.get_edge_data(edge);
         }
 
@@ -111,7 +103,7 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
             return g.get_edge_to(edge);
         }
 
-        std::tuple<N, N, ED&> get_edge(const E& edge) {
+        std::tuple<N, N, ED> get_edge(const E& edge) {
             return g.get_edge(edge);
         }
 
@@ -127,7 +119,7 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
             return g.get_leaf_nodes();
         }
 
-        auto get_leaf_node() {
+        N get_leaf_node() {
             return g.get_leaf_node();
         }
 
@@ -179,7 +171,7 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
             return g.get_in_degree(node);
         }
 
-        auto edge_to_element_offsets(const E& edge) {
+        std::optional<std::pair<std::optional<INDEX>, std::optional<INDEX>>> edge_to_element_offsets(const E& edge) {
             return g.edge_to_element_offsets(edge);
         }
 

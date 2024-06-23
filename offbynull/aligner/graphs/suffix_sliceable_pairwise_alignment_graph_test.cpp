@@ -1,8 +1,8 @@
 #include <cstddef>
 #include <algorithm>
+#include <stdfloat>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
-#include "offbynull/aligner/graph/grid_container_creators.h"
 #include "offbynull/aligner/graphs/pairwise_local_alignment_graph.h"
 #include "offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h"
 #include "gtest/gtest.h"
@@ -13,297 +13,319 @@ namespace {
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type;
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
 
-    template <typename BACKING_G>
-    struct created_graph {
-        BACKING_G backing_g;
-        suffix_sliceable_pairwise_alignment_graph<BACKING_G> suffix_g;
-
-        created_graph(BACKING_G _backing_g, unsigned int prefix_down_cnt, unsigned int prefix_right_cnt)
-        : backing_g {_backing_g}
-        , suffix_g {backing_g, prefix_down_cnt, prefix_right_cnt} {}
+    auto match_lookup {
+        [](
+            const auto& edge,
+            const char& down_elem,
+            const char& right_elem
+        ) -> std::float64_t {
+            if (down_elem == right_elem) {
+                return 1.0f64;
+            } else {
+                return -1.0f64;
+            }
+        }
+    };
+    auto indel_lookup {
+        [](
+            const auto& edge
+        ) -> std::float64_t {
+            return 0.0f64;
+        }
+    };
+    auto freeride_lookup {
+        [](
+            const auto& edge
+        ) -> std::float64_t {
+            return 0.0f64;
+        }
     };
 
-    template<typename ED, typename INDEX = unsigned int, bool error_check = true>
-    auto create_vector(INDEX down_cnt, INDEX right_cnt) {
-        using G = pairwise_local_alignment_graph<
-                std::tuple<>,
-                ED,
-                INDEX,
-                offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<std::tuple<>, INDEX>,
-                offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator<ED, INDEX>,
-                error_check
-            >;
-        return created_graph<G> {
-            G {
-                down_cnt + 5u,
-                right_cnt + 5u
-            },
-            down_cnt,
-            right_cnt
-        };
-    }
+    struct graph_bundle {
+        std::string down_seq;
+        std::string right_seq;
+        pairwise_local_alignment_graph<std::string, std::string> backing_g;
+        suffix_sliceable_pairwise_alignment_graph<decltype(backing_g)> suffix_g;
+
+        graph_bundle(
+            std::string _down_seq,
+            std::string _right_seq,
+            unsigned int prefix_down_cnt,
+            unsigned int prefix_right_cnt
+        )
+        : down_seq{_down_seq}
+        , right_seq{_right_seq}
+        , backing_g{
+            down_seq,
+            right_seq,
+            match_lookup,
+            indel_lookup,
+            freeride_lookup
+        }
+        , suffix_g{backing_g, prefix_down_cnt, prefix_right_cnt} {}
+    };
 
     TEST(SuffixPairwiseAlignmentGraphTest, ConceptCheck) {
-        using G = decltype(create_vector<float>(2u, 3u).suffix_g);
+        using G = decltype(graph_bundle{"234567", "2345678", 2zu, 3zu}.suffix_g);
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_parwise_alignment_graph<G>);
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, ListNodes) {
-        auto x = [](auto&& g) {
-            auto n = g.get_nodes();
-            EXPECT_EQ(
-                std::set(n.begin(), n.end()),
-                (std::set {
-                    std::pair{5u, 5u}, std::pair{5u, 6u}, std::pair{5u, 7u},
-                    std::pair{6u, 5u}, std::pair{6u, 6u}, std::pair{6u, 7u}
-                })
-            );
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        auto n = g.get_nodes();
+        EXPECT_EQ(
+            std::set(n.begin(), n.end()),
+            (std::set {
+                std::pair{5zu, 5zu}, std::pair{5zu, 6zu}, std::pair{5zu, 7zu},
+                std::pair{6zu, 5zu}, std::pair{6zu, 6zu}, std::pair{6zu, 7zu}
+            })
+        );
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, ListEdges) {
-        auto x = [](auto&& g) {
-            using E = typename std::remove_reference_t<decltype(g)>::E;
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
 
-            auto e = g.get_edges();
-            std::multiset<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-            for (auto _e : e) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::multiset<E> {
-                    // culled from backing graph
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 0u}, std::pair{0u, 1u} } },
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 0u}, std::pair{0u, 2u} } },
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 0u}, std::pair{1u, 0u} } },
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 0u}, std::pair{1u, 1u} } },
-                    // edge { edge_type::FREE_RIDE, std::pair { std::pair{0u, 0u}, std::pair{1u, 2u} } },
+        using E = typename std::remove_reference_t<decltype(g)>::E;
 
-                    edge { edge_type::NORMAL, std::pair { std::pair{5u, 5u}, std::pair{5u, 6u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{5u, 6u}, std::pair{5u, 7u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{6u, 5u}, std::pair{6u, 6u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{6u, 6u}, std::pair{6u, 7u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{5u, 5u}, std::pair{6u, 5u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{5u, 6u}, std::pair{6u, 6u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{5u, 7u}, std::pair{6u, 7u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{5u, 5u}, std::pair{6u, 6u} } },
-                    edge { edge_type::NORMAL, std::pair { std::pair{5u, 6u}, std::pair{6u, 7u} } },
+        auto e = g.get_edges();
+        std::multiset<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+        for (auto _e : e) {
+            actual.insert(_e);
+        }
+        EXPECT_EQ(
+            actual,
+            (std::multiset<E> {
+                // culled from backing graph
+                // edge { edge_type::FREE_RIDE, std::pair { std::pair{0zu, 0zu}, std::pair{0zu, 1zu} } },
+                // edge { edge_type::FREE_RIDE, std::pair { std::pair{0zu, 0zu}, std::pair{0zu, 2zu} } },
+                // edge { edge_type::FREE_RIDE, std::pair { std::pair{0zu, 0zu}, std::pair{1zu, 0zu} } },
+                // edge { edge_type::FREE_RIDE, std::pair { std::pair{0zu, 0zu}, std::pair{1zu, 1zu} } },
+                // edge { edge_type::FREE_RIDE, std::pair { std::pair{0zu, 0zu}, std::pair{1zu, 2zu} } },
 
-                    edge { edge_type::FREE_RIDE, std::pair { std::pair{5u, 5u}, std::pair{6u, 7u} } },
-                    edge { edge_type::FREE_RIDE, std::pair { std::pair{5u, 6u}, std::pair{6u, 7u} } },
-                    edge { edge_type::FREE_RIDE, std::pair { std::pair{5u, 7u}, std::pair{6u, 7u} } },
-                    edge { edge_type::FREE_RIDE, std::pair { std::pair{6u, 5u}, std::pair{6u, 7u} } },
-                    edge { edge_type::FREE_RIDE, std::pair { std::pair{6u, 6u}, std::pair{6u, 7u} } }
-                })
-            );
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+                edge { edge_type::NORMAL, std::pair { std::pair{5zu, 5zu}, std::pair{5zu, 6zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{5zu, 6zu}, std::pair{5zu, 7zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{6zu, 5zu}, std::pair{6zu, 6zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{6zu, 6zu}, std::pair{6zu, 7zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{5zu, 5zu}, std::pair{6zu, 5zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{5zu, 6zu}, std::pair{6zu, 6zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{5zu, 7zu}, std::pair{6zu, 7zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{5zu, 5zu}, std::pair{6zu, 6zu} } },
+                edge { edge_type::NORMAL, std::pair { std::pair{5zu, 6zu}, std::pair{6zu, 7zu} } },
+
+                edge { edge_type::FREE_RIDE, std::pair { std::pair{5zu, 5zu}, std::pair{6zu, 7zu} } },
+                edge { edge_type::FREE_RIDE, std::pair { std::pair{5zu, 6zu}, std::pair{6zu, 7zu} } },
+                edge { edge_type::FREE_RIDE, std::pair { std::pair{5zu, 7zu}, std::pair{6zu, 7zu} } },
+                edge { edge_type::FREE_RIDE, std::pair { std::pair{6zu, 5zu}, std::pair{6zu, 7zu} } },
+                edge { edge_type::FREE_RIDE, std::pair { std::pair{6zu, 6zu}, std::pair{6zu, 7zu} } }
+            })
+        );
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, NodesExist) {
-        auto x = [](auto&& g) {
-            EXPECT_FALSE(g.has_node({0u, 0u}));
-            EXPECT_FALSE(g.has_node({0u, 1u}));
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        EXPECT_FALSE(g.has_node({0zu, 0zu}));
+        EXPECT_FALSE(g.has_node({0zu, 1zu}));
 
-            EXPECT_TRUE(g.has_node({5u, 5u}));
-            EXPECT_TRUE(g.has_node({5u, 6u}));
-            EXPECT_TRUE(g.has_node({5u, 7u}));
-            EXPECT_FALSE(g.has_node({5u, 8u}));
-            EXPECT_TRUE(g.has_node({6u, 5u}));
-            EXPECT_TRUE(g.has_node({6u, 6u}));
-            EXPECT_TRUE(g.has_node({6u, 7u}));
-            EXPECT_FALSE(g.has_node({6u, 8u}));
-            EXPECT_FALSE(g.has_node({7u, 8u}));
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+        EXPECT_TRUE(g.has_node({5zu, 5zu}));
+        EXPECT_TRUE(g.has_node({5zu, 6zu}));
+        EXPECT_TRUE(g.has_node({5zu, 7zu}));
+        EXPECT_FALSE(g.has_node({5zu, 8zu}));
+        EXPECT_TRUE(g.has_node({6zu, 5zu}));
+        EXPECT_TRUE(g.has_node({6zu, 6zu}));
+        EXPECT_TRUE(g.has_node({6zu, 7zu}));
+        EXPECT_FALSE(g.has_node({6zu, 8zu}));
+        EXPECT_FALSE(g.has_node({7zu, 8zu}));
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, RightEdgesExist) {
-        auto x = [](auto&& g) {
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0u, 0u}, {0u, 1u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0u, 1u}, {0u, 2u}}}));
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0zu, 0zu}, {0zu, 1zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0zu, 1zu}, {0zu, 2zu}}}));
 
-            EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5u, 5u}, {5u, 6u}}}));
-            EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5u, 6u}, {5u, 7u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{5u, 7u}, {5u, 8u}}}));
-            EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{6u, 5u}, {6u, 6u}}}));
-            EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{6u, 6u}, {6u, 7u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6u, 7u}, {6u, 8u}}}));
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+        EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5zu, 5zu}, {5zu, 6zu}}}));
+        EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5zu, 6zu}, {5zu, 7zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{5zu, 7zu}, {5zu, 8zu}}}));
+        EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{6zu, 5zu}, {6zu, 6zu}}}));
+        EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{6zu, 6zu}, {6zu, 7zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6zu, 7zu}, {6zu, 8zu}}}));
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, DownEdgesExist) {
-        auto x = [](auto&& g) {
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0u, 0u}, {1u, 0u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0u, 1u}, {1u, 1u}}}));
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0zu, 0zu}, {1zu, 0zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0zu, 1zu}, {1zu, 1zu}}}));
 
-            EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5u, 5u}, {6u, 5u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6u, 5u}, {7u, 5u}}}));
-            EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5u, 6u}, {6u, 6u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6u, 6u}, {7u, 6u}}}));
-            EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5u, 7u}, {6u, 7u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6u, 7u}, {7u, 7u}}}));
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+        EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5zu, 5zu}, {6zu, 5zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6zu, 5zu}, {7zu, 5zu}}}));
+        EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5zu, 6zu}, {6zu, 6zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6zu, 6zu}, {7zu, 6zu}}}));
+        EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5zu, 7zu}, {6zu, 7zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6zu, 7zu}, {7zu, 7zu}}}));
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, DiagEdgesExist) {
-        auto x = [](auto&& g) {
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0u, 0u}, {1u, 1u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{1u, 0u}, {2u, 1u}}}));
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0zu, 0zu}, {1zu, 1zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{1zu, 0zu}, {2zu, 1zu}}}));
 
-            EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5u, 5u}, {6u, 6u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6u, 5u}, {7u, 6u}}}));
-            EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5u, 6u}, {6u, 7u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6u, 6u}, {7u, 7u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{5u, 7u}, {6u, 8u}}}));
-            EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6u, 7u}, {7u, 38}}}));
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+        EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5zu, 5zu}, {6zu, 6zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6zu, 5zu}, {7zu, 6zu}}}));
+        EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{5zu, 6zu}, {6zu, 7zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6zu, 6zu}, {7zu, 7zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{5zu, 7zu}, {6zu, 8zu}}}));
+        EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{6zu, 7zu}, {7zu, 38}}}));
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, FreeRideEdgesExist) {
-        auto x = [](auto&& g) {
-            EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5u, 5u}, std::pair{5u, 5u} } }));
-            EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5u, 5u}, std::pair{5u, 6u} } }));
-            EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5u, 5u}, std::pair{5u, 7u} } }));
-            EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5u, 5u}, std::pair{6u, 5u} } }));
-            EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5u, 5u}, std::pair{6u, 6u} } }));
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5zu, 5zu}, std::pair{5zu, 5zu} } }));
+        EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5zu, 5zu}, std::pair{5zu, 6zu} } }));
+        EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5zu, 5zu}, std::pair{5zu, 7zu} } }));
+        EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5zu, 5zu}, std::pair{6zu, 5zu} } }));
+        EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5zu, 5zu}, std::pair{6zu, 6zu} } }));
 
-            EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{0u, 0u}, std::pair{6u, 7u} } }));
+        EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{0zu, 0zu}, std::pair{6zu, 7zu} } }));
 
-            EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5u, 5u}, std::pair{6u, 7u} } }));
-            EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5u, 6u}, std::pair{6u, 7u} } }));
-            EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5u, 7u}, std::pair{6u, 7u} } }));
-            EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{6u, 5u}, std::pair{6u, 7u} } }));
-            EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{6u, 6u}, std::pair{6u, 7u} } }));
-            EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{6u, 7u}, std::pair{6u, 7u} } }));
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+        EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5zu, 5zu}, std::pair{6zu, 7zu} } }));
+        EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5zu, 6zu}, std::pair{6zu, 7zu} } }));
+        EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{5zu, 7zu}, std::pair{6zu, 7zu} } }));
+        EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{6zu, 5zu}, std::pair{6zu, 7zu} } }));
+        EXPECT_TRUE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{6zu, 6zu}, std::pair{6zu, 7zu} } }));
+        EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{6zu, 7zu}, std::pair{6zu, 7zu} } }));
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, GetOutputs) {
-        auto x = [](auto&& g) {
-            using E = typename std::remove_reference_t<decltype(g)>::E;
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        using E = typename std::remove_reference_t<decltype(g)>::E;
 
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_outputs( { 5u, 5u } )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                std::vector<E> expected {
-                    { edge_type::FREE_RIDE, {{5u, 5u}, {6u, 7u} } },
-                    { edge_type::NORMAL, {{5u, 5u}, {5u, 6u} } },
-                    { edge_type::NORMAL, {{5u, 5u}, {6u, 5u} } },
-                    { edge_type::NORMAL, {{5u, 5u}, {6u, 6u} } }
-                };
-                EXPECT_EQ(actual, expected);
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_outputs( { 5zu, 5zu } )) {
+                actual.push_back(_e);
             }
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_outputs( { 6u, 7u } )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {})
-                );
+            std::sort(actual.begin(), actual.end());
+            std::vector<E> expected {
+                { edge_type::FREE_RIDE, {{5zu, 5zu}, {6zu, 7zu} } },
+                { edge_type::NORMAL, {{5zu, 5zu}, {5zu, 6zu} } },
+                { edge_type::NORMAL, {{5zu, 5zu}, {6zu, 5zu} } },
+                { edge_type::NORMAL, {{5zu, 5zu}, {6zu, 6zu} } }
+            };
+            EXPECT_EQ(actual, expected);
+        }
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_outputs( { 6zu, 7zu } )) {
+                actual.push_back(_e);
             }
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_outputs( { 5u, 6u } )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {
-                        { edge_type::FREE_RIDE, {{5u, 6u}, {6u, 7u} } },
-                        { edge_type::NORMAL, { {5u, 6u}, {5u, 7u} } },
-                        { edge_type::NORMAL, { {5u, 6u}, {6u, 6u} } },
-                        { edge_type::NORMAL, { {5u, 6u}, {6u, 7u} } }
-                    })
-                );
+            std::sort(actual.begin(), actual.end());
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {})
+            );
+        }
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_outputs( { 5zu, 6zu } )) {
+                actual.push_back(_e);
             }
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+            std::sort(actual.begin(), actual.end());
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {
+                    { edge_type::FREE_RIDE, {{5zu, 6zu}, {6zu, 7zu} } },
+                    { edge_type::NORMAL, { {5zu, 6zu}, {5zu, 7zu} } },
+                    { edge_type::NORMAL, { {5zu, 6zu}, {6zu, 6zu} } },
+                    { edge_type::NORMAL, { {5zu, 6zu}, {6zu, 7zu} } }
+                })
+            );
+        }
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, GetInputs) {
-        auto x = [](auto&& g) {
-            using E = typename std::remove_reference_t<decltype(g)>::E;
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        using E = typename std::remove_reference_t<decltype(g)>::E;
 
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_inputs( std::pair{ 5u, 5u } )) {
-                    actual.push_back(_e);
-                }
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {})
-                );
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_inputs( std::pair{ 5zu, 5zu } )) {
+                actual.push_back(_e);
             }
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_inputs( { 6u, 7u } )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {
-                        { edge_type::FREE_RIDE, {{5u, 5u}, {6u, 7u} } },
-                        { edge_type::FREE_RIDE, {{5u, 6u}, {6u, 7u} } },
-                        { edge_type::FREE_RIDE, {{5u, 7u}, {6u, 7u} } },
-                        { edge_type::FREE_RIDE, {{6u, 5u}, {6u, 7u} } },
-                        { edge_type::FREE_RIDE, {{6u, 6u}, {6u, 7u} } },
-                        { edge_type::NORMAL, {{5u, 6u}, {6u, 7u} } },
-                        { edge_type::NORMAL, {{5u, 7u}, {6u, 7u} } },
-                        { edge_type::NORMAL, {{6u, 6u}, {6u, 7u} } }
-                    })
-                );
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {})
+            );
+        }
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_inputs( { 6zu, 7zu } )) {
+                actual.push_back(_e);
             }
-            {
-                std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
-                for (auto _e : g.get_inputs( std::pair{5u, 7u} )) {
-                    actual.push_back(_e);
-                }
-                std::sort(actual.begin(), actual.end());
-                EXPECT_EQ(
-                    actual,
-                    (std::vector<E> {
-                        { edge_type::NORMAL, { {5u, 6u}, {5u, 7u} } }
-                    })
-                );
+            std::sort(actual.begin(), actual.end());
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {
+                    { edge_type::FREE_RIDE, {{5zu, 5zu}, {6zu, 7zu} } },
+                    { edge_type::FREE_RIDE, {{5zu, 6zu}, {6zu, 7zu} } },
+                    { edge_type::FREE_RIDE, {{5zu, 7zu}, {6zu, 7zu} } },
+                    { edge_type::FREE_RIDE, {{6zu, 5zu}, {6zu, 7zu} } },
+                    { edge_type::FREE_RIDE, {{6zu, 6zu}, {6zu, 7zu} } },
+                    { edge_type::NORMAL, {{5zu, 6zu}, {6zu, 7zu} } },
+                    { edge_type::NORMAL, {{5zu, 7zu}, {6zu, 7zu} } },
+                    { edge_type::NORMAL, {{6zu, 6zu}, {6zu, 7zu} } }
+                })
+            );
+        }
+        {
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            for (auto _e : g.get_inputs( std::pair{5zu, 7zu} )) {
+                actual.push_back(_e);
             }
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+            std::sort(actual.begin(), actual.end());
+            EXPECT_EQ(
+                actual,
+                (std::vector<E> {
+                    { edge_type::NORMAL, { {5zu, 6zu}, {5zu, 7zu} } }
+                })
+            );
+        }
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, GetOutputDegree) {
-        auto x = [](auto&& g) {
-            EXPECT_EQ(g.get_out_degree(std::pair{ 5u, 5u } ), 4);
-            EXPECT_EQ(g.get_out_degree(std::pair{ 6u, 7u } ), 0);
-            EXPECT_EQ(g.get_out_degree(std::pair{ 5u, 7u } ), 2);
-            EXPECT_EQ(g.get_out_degree(std::pair{ 6u, 5u } ), 2);
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        EXPECT_EQ(g.get_out_degree(std::pair{ 5zu, 5zu } ), 4);
+        EXPECT_EQ(g.get_out_degree(std::pair{ 6zu, 7zu } ), 0);
+        EXPECT_EQ(g.get_out_degree(std::pair{ 5zu, 7zu } ), 2);
+        EXPECT_EQ(g.get_out_degree(std::pair{ 6zu, 5zu } ), 2);
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, GetInputDegree) {
-        auto x = [](auto&& g) {
-            EXPECT_EQ(g.get_in_degree(std::pair{ 5u, 5u } ), 0);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 6u, 7u } ), 8);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 5u, 7u } ), 1);
-            EXPECT_EQ(g.get_in_degree(std::pair{ 6u, 5u } ), 1);
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        EXPECT_EQ(g.get_in_degree(std::pair{ 5zu, 5zu } ), 0);
+        EXPECT_EQ(g.get_in_degree(std::pair{ 6zu, 7zu } ), 8);
+        EXPECT_EQ(g.get_in_degree(std::pair{ 5zu, 7zu } ), 1);
+        EXPECT_EQ(g.get_in_degree(std::pair{ 6zu, 5zu } ), 1);
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, SlicedWalk) {
@@ -319,100 +341,100 @@ namespace {
             }
         };
 
-        auto x = [&](auto&& g) {
-            using G = std::decay_t<decltype(g)>;
-            using N = typename G::N;
-            using E = typename G::E;
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        using G = std::decay_t<decltype(g)>;
+        using N = typename G::N;
+        using E = typename G::E;
 
-            EXPECT_EQ(G::slice_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 3zu);
-            EXPECT_EQ(g.slice_first_node(0u), (N { 5u, 5u }));
-            EXPECT_EQ(g.slice_last_node(0u), (N { 5u, 7u }));
-            EXPECT_EQ(g.slice_first_node(1u), (N { 6u, 5u }));
-            EXPECT_EQ(g.slice_last_node(1u), (N {  6u, 7u }));
+        EXPECT_EQ(G::slice_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 3zu);
+        EXPECT_EQ(g.slice_first_node(0zu), (N { 5zu, 5zu }));
+        EXPECT_EQ(g.slice_last_node(0zu), (N { 5zu, 7zu }));
+        EXPECT_EQ(g.slice_first_node(1zu), (N { 6zu, 5zu }));
+        EXPECT_EQ(g.slice_last_node(1zu), (N {  6zu, 7zu }));
 
-            EXPECT_EQ(G::resident_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 2zu); // directly proxied from backing graph
-            auto resident_nodes { g.resident_nodes() };
-            EXPECT_EQ(std::distance(resident_nodes.begin(), resident_nodes.end()), 1zu);
-            auto resident_nodes_it { resident_nodes.begin() };
-            EXPECT_EQ(*resident_nodes_it, (N { 6u, 7u }));
-            ++resident_nodes_it;
-            EXPECT_EQ(resident_nodes_it, resident_nodes.end());
+        EXPECT_EQ(G::resident_nodes_capacity(g.grid_down_cnt, g.grid_right_cnt), 2zu); // directly proxied from backing graph
+        auto resident_nodes { g.resident_nodes() };
+        EXPECT_EQ(std::distance(resident_nodes.begin(), resident_nodes.end()), 1zu);
+        auto resident_nodes_it { resident_nodes.begin() };
+        EXPECT_EQ(*resident_nodes_it, (N { 6zu, 7zu }));
+        ++resident_nodes_it;
+        EXPECT_EQ(resident_nodes_it, resident_nodes.end());
 
-            EXPECT_EQ(g.slice_next_node(N { 5u, 5u }), (N { 5u, 6u }));
-            EXPECT_EQ(g.slice_next_node(N { 5u, 6u }), (N { 5u, 7u }));
-            EXPECT_EQ(g.slice_next_node(N { 6u, 5u }), (N { 6u, 6u }));
-            EXPECT_EQ(g.slice_next_node(N { 6u, 6u }), (N { 6u, 7u }));
+        EXPECT_EQ(g.slice_next_node(N { 5zu, 5zu }), (N { 5zu, 6zu }));
+        EXPECT_EQ(g.slice_next_node(N { 5zu, 6zu }), (N { 5zu, 7zu }));
+        EXPECT_EQ(g.slice_next_node(N { 6zu, 5zu }), (N { 6zu, 6zu }));
+        EXPECT_EQ(g.slice_next_node(N { 6zu, 6zu }), (N { 6zu, 7zu }));
 
-            EXPECT_EQ(g.slice_prev_node(N { 5u, 6u }), (N { 5u, 5u }));
-            EXPECT_EQ(g.slice_prev_node(N { 5u, 7u }), (N { 5u, 6u }));
-            EXPECT_EQ(g.slice_prev_node(N { 6u, 6u }), (N { 6u, 5u }));
-            EXPECT_EQ(g.slice_prev_node(N { 6u, 7u }), (N { 6u, 6u }));
+        EXPECT_EQ(g.slice_prev_node(N { 5zu, 6zu }), (N { 5zu, 5zu }));
+        EXPECT_EQ(g.slice_prev_node(N { 5zu, 7zu }), (N { 5zu, 6zu }));
+        EXPECT_EQ(g.slice_prev_node(N { 6zu, 6zu }), (N { 6zu, 5zu }));
+        EXPECT_EQ(g.slice_prev_node(N { 6zu, 7zu }), (N { 6zu, 6zu }));
 
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 5u, 5u })),
-                (std::vector<E> {
-                    E { edge_type::FREE_RIDE, { { 5u, 5u }, { 6u, 7u } } }
-                })
-            );
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 5u, 6u })),
-                (std::vector<E> {
-                     E { edge_type::FREE_RIDE, { { 5u, 6u }, { 6u, 7u } } },
-                     E { edge_type::NORMAL, { { 5u, 6u }, { 6u, 7u } } }
-                })
-            );
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 5u, 7u })),
-                (std::vector<E> {
-                     E { edge_type::FREE_RIDE, { { 5u, 7u }, { 6u, 7u } } },
-                     E { edge_type::NORMAL, { { 5u, 7u }, { 6u, 7u } } }
-                })
-            );
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 6u, 5u })),
-                (std::vector<E> {
-                     E { edge_type::FREE_RIDE, { { 6u, 5u }, { 6u, 7u } } }
-                })
-            );
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 6u, 6u })),
-                (std::vector<E> {
-                     E { edge_type::FREE_RIDE, { { 6u, 6u }, { 6u, 7u } } },
-                     E { edge_type::NORMAL, { { 6u, 6u }, { 6u, 7u } } }
-                })
-            );
-            EXPECT_EQ(
-                to_vector(g.outputs_to_residents(N { 6u, 7u })),
-                (std::vector<E> {})
-            );
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 5zu, 5zu })),
+            (std::vector<E> {
+                E { edge_type::FREE_RIDE, { { 5zu, 5zu }, { 6zu, 7zu } } }
+            })
+        );
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 5zu, 6zu })),
+            (std::vector<E> {
+                 E { edge_type::FREE_RIDE, { { 5zu, 6zu }, { 6zu, 7zu } } },
+                 E { edge_type::NORMAL, { { 5zu, 6zu }, { 6zu, 7zu } } }
+            })
+        );
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 5zu, 7zu })),
+            (std::vector<E> {
+                 E { edge_type::FREE_RIDE, { { 5zu, 7zu }, { 6zu, 7zu } } },
+                 E { edge_type::NORMAL, { { 5zu, 7zu }, { 6zu, 7zu } } }
+            })
+        );
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 6zu, 5zu })),
+            (std::vector<E> {
+                 E { edge_type::FREE_RIDE, { { 6zu, 5zu }, { 6zu, 7zu } } }
+            })
+        );
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 6zu, 6zu })),
+            (std::vector<E> {
+                 E { edge_type::FREE_RIDE, { { 6zu, 6zu }, { 6zu, 7zu } } },
+                 E { edge_type::NORMAL, { { 6zu, 6zu }, { 6zu, 7zu } } }
+            })
+        );
+        EXPECT_EQ(
+            to_vector(g.outputs_to_residents(N { 6zu, 7zu })),
+            (std::vector<E> {})
+        );
 
 
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 5u, 5u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 5u, 6u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 5u, 7u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 6u, 5u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 6u, 6u })),
-                (std::vector<E> {})
-            );
-            EXPECT_EQ(
-                to_vector(g.inputs_from_residents(N { 6u, 7u })),
-                (std::vector<E> {})
-            );
-        };
-        x(create_vector<float>(2u, 3u).suffix_g);
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 5zu, 5zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 5zu, 6zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 5zu, 7zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 6zu, 5zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 6zu, 6zu })),
+            (std::vector<E> {})
+        );
+        EXPECT_EQ(
+            to_vector(g.inputs_from_residents(N { 6zu, 7zu })),
+            (std::vector<E> {})
+        );
     }
 
     TEST(SuffixPairwiseAlignmentGraphTest, PrintBasic) {
@@ -428,37 +450,37 @@ namespace {
             }
         };
 
-        auto x = [&](auto&& g) {
-            using G = std::decay_t<decltype(g)>;
-            using N = typename G::N;
-            using E = typename G::E;
+        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        auto g { g_bundle.suffix_g };
+        
+        using G = std::decay_t<decltype(g)>;
+        using N = typename G::N;
+        using E = typename G::E;
 
-            std::cout << "res" << std::endl;
-            for (auto&& n : g.resident_nodes()) {
-                std::cout << std::get<0>(n) << ',' << std::get<1>(n) << " ";
-            }
-            std::cout << std::endl;
+        std::cout << "res" << std::endl;
+        for (auto&& n : g.resident_nodes()) {
+            std::cout << std::get<0>(n) << ',' << std::get<1>(n) << " ";
+        }
+        std::cout << std::endl;
 
-            std::cout << "norm0" << std::endl;
-            for (auto&& n : g.slice_nodes(0u)) {
-                std::cout << std::get<0>(n) << ',' << std::get<1>(n) << " ";
-            }
-            std::cout << std::endl;
+        std::cout << "norm0" << std::endl;
+        for (auto&& n : g.slice_nodes(0zu)) {
+            std::cout << std::get<0>(n) << ',' << std::get<1>(n) << " ";
+        }
+        std::cout << std::endl;
 
-            std::cout << "norm1" << std::endl;
-            for (auto&& n : g.slice_nodes(1u)) {
-                std::cout << std::get<0>(n) << ',' << std::get<1>(n) << " ";
-            }
-            std::cout << std::endl;
+        std::cout << "norm1" << std::endl;
+        for (auto&& n : g.slice_nodes(1zu)) {
+            std::cout << std::get<0>(n) << ',' << std::get<1>(n) << " ";
+        }
+        std::cout << std::endl;
 
-            std::cout << "root" << std::endl;
-            std::cout << std::get<0>(g.get_root_node()) << ',' << std::get<1>(g.get_root_node()) << " ";
-            std::cout << std::endl;
+        std::cout << "root" << std::endl;
+        std::cout << std::get<0>(g.get_root_node()) << ',' << std::get<1>(g.get_root_node()) << " ";
+        std::cout << std::endl;
 
-            std::cout << "leaf" << std::endl;
-            std::cout << std::get<0>(g.get_leaf_node()) << ',' << std::get<1>(g.get_leaf_node()) << " ";
-            std::cout << std::endl;
-        };
-        x(create_vector<float>(4u, 4u).suffix_g);
+        std::cout << "leaf" << std::endl;
+        std::cout << std::get<0>(g.get_leaf_node()) << ',' << std::get<1>(g.get_leaf_node()) << " ";
+        std::cout << std::endl;
     }
 }

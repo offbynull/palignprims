@@ -8,20 +8,17 @@
 #include <utility>
 #include <functional>
 #include <stdfloat>
-#include "boost/container/small_vector.hpp"
 #include "offbynull/aligner/concepts.h"
-#include "offbynull/aligner/graph/grid_container_creator.h"
-#include "offbynull/aligner/graph/grid_container_creators.h"
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
-    using offbynull::aligner::graph::grid_container_creator::grid_container_creator;
-    using offbynull::aligner::graph::grid_container_creators::vector_grid_container_creator;
     using offbynull::aligner::concepts::weight;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::concat_view;
     using offbynull::utils::static_vector_typer;
+
+    using empty_type = std::tuple<>;
 
     enum class layer : uint8_t {
         DIAGONAL,
@@ -29,44 +26,53 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         RIGHT
     };
 
-    template<typename ND, typename ED>
-    struct slot {
-        ND down_nd;
-        ND diagonal_nd;
-        ND right_nd;
-        ED to_next_diagonal_ed;  // match edges between nodes in the diagonal layer
-        // gap edges between nodes in down/right layers all use the same ED obj, so not placed here
-        // indel edges from diagonal layer to down/right layers all use the same ED obj, so not placed here
-        // freeride edges from down/right layers to diagonal layer all use the same ED obj, so not placed here
-    };
-
     template<
-        typename ND_,
-        typename ED_,
-        widenable_to_size_t INDEX_ = unsigned int,
-        grid_container_creator<INDEX_> SLOT_ALLOCATOR_ = vector_grid_container_creator<slot<ND_, ED_>, INDEX_, false>,
+        std::ranges::random_access_range DOWN_SEQ,
+        std::ranges::random_access_range RIGHT_SEQ,
+        widenable_to_size_t INDEX_ = std::size_t,
+        weight WEIGHT = std::float64_t,
         bool error_check = true
     >
     class pairwise_extended_gap_alignment_graph {
     public:
         using INDEX = INDEX_;
         using N = std::tuple<layer, INDEX, INDEX>;
-        using ND = ND_;
+        using ND = empty_type;
         using E = std::pair<N, N>;
-        using ED = ED_;
+        using ED = WEIGHT;
 
     private:
-        decltype(std::declval<SLOT_ALLOCATOR_>().create_objects(std::declval<INDEX>(), std::declval<INDEX>())) slots;
-        ED extended_indel_ed;
-        ED initial_indel_ed;
-        ED freeride_ed;
+        const DOWN_SEQ& down_seq;
+        const RIGHT_SEQ& right_seq;
+        std::function<
+            WEIGHT(
+                const E&,
+                const std::decay_t<decltype(down_seq[0u])>&,
+                const std::decay_t<decltype(right_seq[0u])>&
+            )
+        > match_lookup;
+        std::function<
+            WEIGHT(
+                const E&
+            )
+        > initial_indel_lookup;
+        std::function<
+            WEIGHT(
+                const E&
+            )
+        > extended_indel_lookup;
+        std::function<
+            WEIGHT(
+                const E&
+            )
+        > freeride_lookup;
 
         auto construct_full_edge(N n1, N n2) {
-            return std::tuple<E, N, N, ED*> {
+            return std::tuple<E, N, N, ED> {
                 E { n1, n2 },
                 n1,
                 n2,
-                &this->get_edge_data(E { n1, n2 })
+                get_edge_data(E { n1, n2 })
             };
         }
 
@@ -81,54 +87,50 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         const INDEX grid_right_cnt;
 
         pairwise_extended_gap_alignment_graph(
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt,
-            ED initial_indel_data = {},
-            ED extended_indel_data = {},
-            ED freeride_data = {},
-            SLOT_ALLOCATOR_ slot_container_creator = {}
+            const DOWN_SEQ& _down_seq,
+            const RIGHT_SEQ& _right_seq,
+            std::function<
+                WEIGHT(
+                    const E&,
+                    const std::decay_t<decltype(_down_seq[0u])>&,
+                    const std::decay_t<decltype(_right_seq[0u])>&
+                )
+            > _match_lookup,
+            std::function<
+                WEIGHT(
+                    const E&
+                )
+            > _initial_indel_lookup,
+            std::function<
+                WEIGHT(
+                    const E&
+                )
+            > _extended_indel_lookup,
+            std::function<
+                WEIGHT(
+                    const E&
+                )
+            > _freeride_lookup
         )
-        : slots{slot_container_creator.create_objects(_grid_down_cnt, _grid_right_cnt)}
-        , extended_indel_ed{extended_indel_data}
-        , initial_indel_ed{initial_indel_data}
-        , freeride_ed{freeride_data}
-        , grid_down_cnt{_grid_down_cnt}
-        , grid_right_cnt{_grid_right_cnt} {}
+        : down_seq{_down_seq}
+        , right_seq{_right_seq}
+        , match_lookup{_match_lookup}
+        , initial_indel_lookup{_initial_indel_lookup}
+        , extended_indel_lookup{_extended_indel_lookup}
+        , freeride_lookup{_freeride_lookup}
+        , grid_down_cnt{_down_seq.size() + 1zu}
+        , grid_right_cnt{_right_seq.size() + 1zu} {}
 
-        void update_node_data(const N& node, ND&& data) {
+        ND get_node_data(const N& node) {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            const auto& [grid_down, grid_right] { node };
-            if (node.type == layer::DIAGONAL) {
-                this->slots[to_raw_idx(grid_down, grid_right)].diagonal_nd = std::forward<ND>(data);
-            } else if (node.type == layer::DOWN) {
-                this->slots[to_raw_idx(grid_down, grid_right)].down_nd = std::forward<ND>(data);
-            } else if (node.type == layer::RIGHT) {
-                this->slots[to_raw_idx(grid_down, grid_right)].right_nd = std::forward<ND>(data);
-            }
+            return {};
         }
 
-        ND& get_node_data(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
-            const auto& [grid_down, grid_right] { node };
-            if (node.type == layer::DIAGONAL) {
-                return this->slots[to_raw_idx(grid_down, grid_right)].diagonal_nd;
-            } else if (node.type == layer::DOWN) {
-                return this->slots[to_raw_idx(grid_down, grid_right)].down_nd;
-            } else if (node.type == layer::RIGHT) {
-                return this->slots[to_raw_idx(grid_down, grid_right)].right_nd;
-            }
-            std::unreachable();
-        }
-
-        void update_edge_data(const E& edge, ED&& data) {
+        ED get_edge_data(const E& edge) {
             if constexpr (error_check) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
@@ -137,44 +139,23 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             const auto& [n1_layer, n1_grid_down, n1_grid_right] { edge.first };
             const auto& [n2_layer, n2_grid_down, n2_grid_right] { edge.second };
             if (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL) {  // match
-                this->slots[to_raw_idx(n1_grid_down, n1_grid_right)].to_next_diagonal_ed = std::forward<ED>(data);
+                return match_lookup(
+                    edge,
+                    down_seq[n1_grid_down],
+                    right_seq[n1_grid_right]
+                );
             } else if (n1_layer == layer::DOWN && n2_layer == layer::DOWN) {  // gap
-                extended_indel_ed = std::forward<ED>(data);
+                return extended_indel_lookup(edge);
             } else if (n1_layer == layer::RIGHT && n2_layer == layer::RIGHT) {  // gap
-                extended_indel_ed = std::forward<ED>(data);
+                return extended_indel_lookup(edge);
             } else if (n1_layer == layer::DIAGONAL && n2_layer == layer::DOWN) {  // indel
-                initial_indel_ed = std::forward<ED>(data);
+                return initial_indel_lookup(edge);
             } else if (n1_layer == layer::DIAGONAL && n2_layer == layer::RIGHT) {  // indel
-                initial_indel_ed = std::forward<ED>(data);
+                return initial_indel_lookup(edge);
             } else if (n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL) {  // freeride
-                freeride_ed = std::forward<ED>(data);
+                return freeride_lookup(edge);
             } else if (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL) {  // freeride
-                freeride_ed = std::forward<ED>(data);
-            }
-        }
-
-        ED& get_edge_data(const E& edge) {
-            if constexpr (error_check) {
-                if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
-                }
-            }
-            const auto& [n1_layer, n1_grid_down, n1_grid_right] { edge.first };
-            const auto& [n2_layer, n2_grid_down, n2_grid_right] { edge.second };
-            if (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL) {  // match
-                return this->slots[to_raw_idx(n1_grid_down, n1_grid_right)].to_next_diagonal_ed;
-            } else if (n1_layer == layer::DOWN && n2_layer == layer::DOWN) {  // gap
-                return extended_indel_ed;
-            } else if (n1_layer == layer::RIGHT && n2_layer == layer::RIGHT) {  // gap
-                return extended_indel_ed;
-            } else if (n1_layer == layer::DIAGONAL && n2_layer == layer::DOWN) {  // indel
-                return initial_indel_ed;
-            } else if (n1_layer == layer::DIAGONAL && n2_layer == layer::RIGHT) {  // indel
-                return initial_indel_ed;
-            } else if (n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL) {  // freeride
-                return freeride_ed;
-            } else if (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL) {  // freeride
-                return freeride_ed;
+                return freeride_lookup(edge);
             }
             if constexpr (error_check) {
                 throw std::runtime_error("Bad edge");
@@ -200,13 +181,13 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return edge.second;
         }
 
-        std::tuple<N, N, ED&> get_edge(const E& edge) {
+        std::tuple<N, N, ED> get_edge(const E& edge) {
             if constexpr (error_check) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
             }
-            return std::tuple<N, N, ED&> {this->get_edge_from(edge), this->get_edge_from(edge), this->get_edge_data(edge)};
+            return std::tuple<N, N, ED> {get_edge_from(edge), get_edge_from(edge), get_edge_data(edge)};
         }
 
         auto get_root_nodes() {
@@ -221,7 +202,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return std::ranges::single_view { N { layer::DIAGONAL, grid_down_cnt - 1u, grid_right_cnt - 1u } };
         }
 
-        auto get_leaf_node() {
+        N get_leaf_node() {
             return N { layer::DIAGONAL, grid_down_cnt - 1u, grid_right_cnt - 1u };
         }
 
@@ -333,7 +314,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            typename static_vector_typer<std::tuple<E, N, N, ED*>, 3u, error_check>::type ret {};
+            typename static_vector_typer<std::tuple<E, N, N, ED>, 3u, error_check>::type ret {};
             const auto& [n1_layer, n1_grid_down, n1_grid_right] { node };
             if (n1_layer == layer::DIAGONAL) {
                 if (n1_grid_down == grid_down_cnt - 1u && n1_grid_right == grid_right_cnt - 1u) {
@@ -358,11 +339,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     ret.push_back(construct_full_edge(node, { layer::RIGHT, n1_grid_down, n1_grid_right + 1u }));
                 }
             }
-            return std::move(ret)
-                | std::views::transform([](const auto& edge_full) noexcept {
-                    const auto& [e, n1, n2, ed_ptr] { edge_full };
-                    return std::tuple<E, N, N, ED&>(e, n1, n2, *ed_ptr);
-                });
+            return ret;
         }
 
         auto get_inputs_full(const N& node) {
@@ -371,7 +348,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            typename static_vector_typer<std::tuple<E, N, N, ED*>, 3u, error_check>::type ret {};
+            typename static_vector_typer<std::tuple<E, N, N, ED>, 3u, error_check>::type ret {};
             const auto& [n2_layer, n2_grid_down, n2_grid_right] { node };
             if (n2_layer == layer::DIAGONAL) {
                 if (n2_grid_down == 0u && n2_grid_right == 0u) {
@@ -400,11 +377,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     ret.push_back(construct_full_edge({ layer::RIGHT, n2_grid_down, n2_grid_right - 1u }, node));
                 }
             }
-            return std::move(ret)
-                | std::views::transform([](const auto& edge_full) noexcept {
-                    const auto& [e, n1, n2, ed_ptr] { edge_full };
-                    return std::tuple<E, N, N, ED&>(e, n1, n2, *ed_ptr);
-                });
+            return ret;
         }
 
         auto get_outputs(const N& node) {
@@ -459,54 +432,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 }
             }
             return this->get_inputs(node).size();
-        }
-
-        template<weight WEIGHT=std::float64_t>
-        void assign_weights(
-            const std::ranges::random_access_range auto& v,  // random access container
-            const std::ranges::random_access_range auto& w,  // random access container
-            std::function<
-                WEIGHT(
-                    const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                    const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
-                )
-            > weight_lookup,
-            std::function<void(ED&, WEIGHT weight)> weight_setter,
-            const WEIGHT gap_weight = {},
-            const WEIGHT freeride_weight = {}
-        ) {
-            using V_ELEM = std::decay_t<decltype(*v.begin())>;
-            using W_ELEM = std::decay_t<decltype(*w.begin())>;
-            if constexpr (error_check) {
-                if (grid_down_cnt != v.size() + 1zu || grid_right_cnt != w.size() + 1zu) {
-                    throw std::runtime_error("Mismatching node count");
-                }
-            }
-            for (const auto& edge : get_edges()) {
-                const auto& [n1, n2] { edge };
-                const auto& [n1_layer, n1_grid_down, n1_grid_right] { n1 };
-                const auto& [n2_layer, n2_grid_down, n2_grid_right] { n2 };
-                if ((n1_layer == layer::DOWN && n2_layer == layer::DOWN)
-                        || n1_layer == layer::RIGHT && n2_layer == layer::RIGHT) {  // gap
-                    ED& ed { get_edge_data(edge) };
-                    weight_setter(ed, gap_weight);
-                } else if ((n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL)
-                        || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL)) {  // freeride
-                    ED& ed { get_edge_data(edge) };
-                    weight_setter(ed, freeride_weight);
-                } else {
-                    std::optional<std::reference_wrapper<const V_ELEM>> v_elem { std::nullopt };
-                    if (n1_grid_down + 1u == n2_grid_down) {
-                        v_elem = { v[n1_grid_down] };
-                    }
-                    std::optional<std::reference_wrapper<const W_ELEM>> w_elem { std::nullopt };
-                    if (n1_grid_right + 1u == n2_grid_right) {
-                        w_elem = { w[n1_grid_right] };
-                    }
-                    ED& ed { get_edge_data(edge) };
-                    weight_setter(ed, weight_lookup(v_elem, w_elem));
-                }
-            }
         }
 
         auto edge_to_element_offsets(
