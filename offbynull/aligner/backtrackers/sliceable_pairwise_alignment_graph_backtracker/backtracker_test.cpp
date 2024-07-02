@@ -12,8 +12,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::pairwise_local_alignment_graph;
 
-
-    TEST(SlicedBacktrackTest, ForwardWalkWithoutResidents) {
+    TEST(SliceablePairwiseAlignmentGraphBacktrackTest, ForwardWalkWithoutResidents) {
         auto match_lookup {
             [](
                 const auto& edge,
@@ -46,59 +45,28 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        backtracker<decltype(g), std::float64_t> backtracker{
+        backtracker<decltype(g), std::float64_t> _backtracker{
             g,
             [&g](const E& edge) { return g.get_edge_data(edge); }
         };
-        backtracker.walk();
-    }
-
-    TEST(SlicedBacktrackTest, ForwardWalkWithResidents) {
-        auto match_lookup {
-            [](
-                const auto& edge,
-                const char& down_elem,
-                const char& right_elem
-            ) -> std::float64_t {
-                if (down_elem == right_elem) {
-                    return 1.0f64;
-                } else {
-                    return -1.0f64;
-                }
-            }
+        const auto& [path, weight] {
+            _backtracker.find_max_path(
+                g,
+                [&g](const E& edge) { return g.get_edge_data(edge); }
+            )
         };
-        auto indel_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return -1.0f64;
-            }
-        };
-        auto freeride_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return 0.0f64;
-            }
-        };
-
-        std::string seq1 { "aaa" };
-        std::string seq2 { "zaz" };
-        pairwise_local_alignment_graph<decltype(seq1), decltype(seq2)> g {
-            seq1,
-            seq2,
-            match_lookup,
-            indel_lookup,
-            freeride_lookup
-        };
-
-        using E = typename decltype(g)::E;
-
-        // walk
-        backtracker<decltype(g), std::float64_t> backtracker{
-            g,
-            [&g](const E& edge) { return g.get_edge_data(edge); }
-        };
-        backtracker.walk();
+        for (const E& e : path) {
+            const auto& [n1, n2] { e };
+            std::cout << n1.first << '/' << n1.second << "->" << n2.first << '/' << n2.second << ' ';
+        }
+        std::cout << std::endl;
+        std::cout << weight << std::endl;
+        EXPECT_EQ(
+            path,
+            (std::vector<E> {
+                { std::pair{0zu, 0zu}, std::pair{1zu, 1zu} },
+                { std::pair{1zu, 1zu}, std::pair{1zu, 2zu} }
+            })
+        );
     }
 }

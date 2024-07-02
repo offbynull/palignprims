@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <vector>
 #include "boost/container/small_vector.hpp"
+#include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::helpers::container_creators {

@@ -30,6 +30,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
         slot(N node_)
         : slot{node_, {}, {}} {}
+
+        bool operator==(const slot &) const = default;
     };
 
     template<typename N, typename E, weight WEIGHT>

@@ -171,7 +171,6 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
 
         auto find_max_path(
                 G& graph,
-                const N& end_node,
                 std::function<WEIGHT(const E&)> get_edge_weight_func
         ) {
             auto slots {
@@ -180,20 +179,10 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
                     get_edge_weight_func
                 )
             };
+            const auto& end_node { graph.get_leaf_node() };
             const auto& path { backtrack(graph, slots, end_node) };
             const auto& weight { slots.find_ref(end_node).backtracking_weight };
             return std::make_pair(path, weight);
-        }
-
-        auto find_max_path(
-                G& graph,
-                std::function<WEIGHT(const E&)> get_edge_weight_func
-        ) {
-            return find_max_path(
-                graph,
-                graph.get_leaf_node(),
-                get_edge_weight_func
-            );
         }
     };
 }

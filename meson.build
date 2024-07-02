@@ -52,6 +52,7 @@ tests_src = [
         'offbynull/aligner/graphs/middle_sliceable_pairwise_alignment_graph_test.cpp',
         'offbynull/aligner/backtrackers/graph_backtracker/backtracker_test.cpp',
         'offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/backtracker_test.cpp',
+        'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container_test.cpp',
         'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/sliced_walker_test.cpp',
         'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/backtracker_test.cpp',
 #        'offbynull/aligner/aligner_test.cpp'
