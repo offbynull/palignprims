@@ -44,6 +44,7 @@ tests_src = [
         'offbynull/aligner/graphs/grid_graph_test.cpp',
         'offbynull/aligner/graphs/pairwise_global_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/pairwise_local_alignment_graph_test.cpp',
+        'offbynull/aligner/graphs/pairwise_overlap_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/pairwise_fitting_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph_test.cpp',
         'offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph_test.cpp',
