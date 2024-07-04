@@ -8,6 +8,7 @@
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/concepts.h"
+#include "offbynull/aligner/backtrackers/graph_backtracker/container_creator_packs.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/ready_queue.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/slot_container.h"
 #include "offbynull/aligner/graph/graph.h"
@@ -17,10 +18,12 @@
 namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
     using offbynull::aligner::graph::graph::readable_graph;
     using offbynull::aligner::concepts::weight;
-    using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container;
-    using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot;
+    using offbynull::aligner::backtrackers::graph_backtracker::container_creator_packs::container_creator_pack;
+    using offbynull::aligner::backtrackers::graph_backtracker::container_creator_packs::heap_container_creator_pack;
     using offbynull::aligner::backtrackers::graph_backtracker::concepts::backtrackable_node;
     using offbynull::aligner::backtrackers::graph_backtracker::concepts::backtrackable_edge;
+    using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container;
+    using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot;
     using offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue;
     using offbynull::helpers::container_creators::container_creator;
     using offbynull::helpers::container_creators::container_creator_of_type;
@@ -30,66 +33,10 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
     using offbynull::concepts::widenable_to_size_t;
 
     template<
-        typename T,
-        typename G,
-        typename COUNT,
-        typename WEIGHT
-    >
-    concept containers =
-        readable_graph<G>
-        && widenable_to_size_t<COUNT>
-        && weight<WEIGHT>
-        && container_creator_of_type<typename T::SLOT_CONTAINER_CREATOR, slot<typename G::N, typename G::E, COUNT, WEIGHT>>
-        && container_creator_of_type<typename T::PATH_CONTAINER_CREATOR, typename G::E>;
-
-    template<
         readable_graph G,
         widenable_to_size_t COUNT,
         weight WEIGHT,
-        bool error_check = true
-    >
-    struct heap_containers {
-        using N = typename G::N;
-        using E = typename G::E;
-        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, COUNT, WEIGHT>, error_check>;
-        using PATH_CONTAINER_CREATOR=vector_container_creator<E, error_check>;
-    };
-
-    template<
-        readable_graph G,
-        widenable_to_size_t COUNT,
-        weight WEIGHT,
-        std::size_t grid_down_cnt,
-        std::size_t grid_right_cnt,
-        bool error_check = true
-    >
-    struct stack_containers {
-        using N = typename G::N;
-        using E = typename G::E;
-        using SLOT_CONTAINER_CREATOR=static_vector_container_creator<
-            slot<N, E, COUNT, WEIGHT>,
-            G::limits(
-                grid_down_cnt,
-                grid_right_cnt
-            ).max_slice_nodes_cnt,
-            error_check
-        >;
-        using PATH_CONTAINER_CREATOR=static_vector_container_creator<
-            E,
-            G::limits(
-                grid_down_cnt,
-                grid_right_cnt
-            ).max_path_edge_cnt,
-            error_check
-        >;
-    };
-
-    template<
-        readable_graph G,
-        widenable_to_size_t COUNT,
-        weight WEIGHT,
-        container_creator SLOT_CONTAINER_CREATOR=vector_container_creator<slot<typename G::N, typename G::E, COUNT, WEIGHT>>,
-        container_creator PATH_CONTAINER_CREATOR=vector_container_creator<typename G::E>,
+        container_creator_pack<G, COUNT, WEIGHT> CONTAINER_CREATOR_PACK=heap_container_creator_pack<G, COUNT, WEIGHT, true>,
         bool error_check = true
     >
     requires backtrackable_node<typename G::N> &&
@@ -98,6 +45,10 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
     public:
         using N = typename G::N;
         using E = typename G::E;
+
+        using SLOT_CONTAINER_CREATOR=typename CONTAINER_CREATOR_PACK::SLOT_CONTAINER_CREATOR;
+        using PATH_CONTAINER_CREATOR=typename CONTAINER_CREATOR_PACK::PATH_CONTAINER_CREATOR;
+
         using slot_container_t = slot_container<N, E, COUNT, WEIGHT, SLOT_CONTAINER_CREATOR, error_check>;
 
         slot_container_t populate_weights_and_backtrack_pointers(

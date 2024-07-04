@@ -2,28 +2,22 @@ TODO:
 * ~~There's a huge influx of "container_creator" type parameters -- find a better way to package this up?~~
 * ~~Typename GRAPH to G~~
 * ~~Add explicit concepts for node and edge~~
-* Pull out container packs into their own header file
+* ~~Pull out container packs into their own header file~~
 * Fix sliceable backtracker to not have to sort, but use grid position + depth for positioning
+  * This use to be how it was with pairwise_alignment_graph_backtracker/slot_container.h and IS HOW ITS CURRENTLY BEING
+    done in sliceable_pairwise_alignment_graph_backtracker/slot_container.h -- You need to update this so that you both
+    have sorting AND depth positioning, and switch between them using a compile-time flag.
 * sequence implementations for the following (see seqeunce concept)
+  * wrapper that pads out with dummy (or truncates) to a certain size 
   * mmap'd file data
   * decompressing compressed bytes -- when a location is accessed, decompress that chunk and hold it in cache
   * sliding window over existing view
 
 * Update get_in_degree() / get_out_degree() functions to calculate directly
 * Add concept checks to autos
-* Add random access container wrapper that pads out with dummy (or truncates) to a certain size
 * Add random access container wrapper that mmap (it's in boost)
 * Add random access container wrapper that decompresses as you read
-* Add divide-and-conquer aligner interface methods and algorithm
-
-  ```c++
-  constexpr std::size_t G::max_slice_predecessor_count; // make number of predecessors required by a slice
-  auto slice_walk(INDEX column); // returns a slice in order of dependencies
-  auto slice_contants();  // returns node weights that MUST be always be kept in-memory (in addition to slice_walk(i-1)
-  
-  class pairwise_reversed_graph;  // graph reverses a pairwise graph's edges, so that leaf is root and vice versa.
-  class pairwise_graph_view;      // graph that limits the down/right node counts
-  ```
+* ~~Add divide-and-conquer aligner interface methods and algorithm~~
 
 * Integer promotion rules hit when you use types smaller than int:
   * e.g. subtracting two chars results in an int, meaning if you have char x = c1 - c2, you'll get "warning: conversion from ‘int’ to ‘unsigned char’ may change value [-Warith-conversion]"
