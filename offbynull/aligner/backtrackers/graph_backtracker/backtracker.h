@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
+#include "offbynull/aligner/backtrackers/graph_backtracker/concepts.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/ready_queue.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/slot_container.h"
 #include "offbynull/aligner/graph/graph.h"
@@ -18,6 +19,8 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container;
     using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot;
+    using offbynull::aligner::backtrackers::graph_backtracker::concepts::backtrackable_node;
+    using offbynull::aligner::backtrackers::graph_backtracker::concepts::backtrackable_edge;
     using offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue;
     using offbynull::helpers::container_creators::container_creator;
     using offbynull::helpers::container_creators::container_creator_of_type;
@@ -89,10 +92,8 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         container_creator PATH_CONTAINER_CREATOR=vector_container_creator<typename G::E>,
         bool error_check = true
     >
-    requires requires(typename G::N n)
-    {
-        {n < n} -> std::same_as<bool>;
-    }
+    requires backtrackable_node<typename G::N> &&
+        backtrackable_edge<typename G::E>
     class backtracker {
     public:
         using N = typename G::N;

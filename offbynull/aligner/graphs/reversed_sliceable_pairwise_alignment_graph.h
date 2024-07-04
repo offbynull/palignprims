@@ -9,25 +9,25 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
     using offbynull::aligner::concepts::weight;
 
     template<
-        readable_sliceable_pairwise_alignment_graph GRAPH,
+        readable_sliceable_pairwise_alignment_graph G,
         bool error_check=true
     >
     class reversed_sliceable_pairwise_alignment_graph {
     public:
-        using INDEX = typename GRAPH::INDEX;
-        using N = typename GRAPH::N;
-        using E = typename GRAPH::E;
-        using ED = typename GRAPH::ED;
-        using ND = typename GRAPH::ND;
+        using INDEX = typename G::INDEX;
+        using N = typename G::N;
+        using E = typename G::E;
+        using ED = typename G::ED;
+        using ND = typename G::ND;
 
     private:
-        GRAPH& g;
+        G& g;
 
     public:
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
 
-        reversed_sliceable_pairwise_alignment_graph(GRAPH& _g)
+        reversed_sliceable_pairwise_alignment_graph(G& _g)
         : g{_g}
         , grid_down_cnt{_g.grid_down_cnt}
         , grid_right_cnt{_g.grid_right_cnt} {}
@@ -152,7 +152,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
             INDEX _grid_down_cnt,
             INDEX _grid_right_cnt
         ) {
-            return GRAPH::limits(_grid_down_cnt, _grid_right_cnt);;
+            return G::limits(_grid_down_cnt, _grid_right_cnt);;
         }
 
         auto slice_nodes(INDEX grid_down) {

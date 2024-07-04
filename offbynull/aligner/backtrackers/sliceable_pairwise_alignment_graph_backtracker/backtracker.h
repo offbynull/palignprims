@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "path_container.h"
+#include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/concepts.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/sliced_walker.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/helpers/container_creators.h"
@@ -20,6 +21,8 @@
 namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker {
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::readable_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::concepts::backtrackable_node;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::concepts::backtrackable_edge;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::sliced_walker::sliced_walker;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::sliced_walker::slot;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::path_container;
@@ -106,15 +109,20 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         >;
     };
 
+    template<typename N>
+    concept backtrakable_node = std::regular<N>;
+
+    template<typename E>
+    concept backtrakable_edge = std::regular<E>;
+
     template<
         readable_sliceable_pairwise_alignment_graph G,
         weight WEIGHT,
         containers<G, WEIGHT> CONTAINER_CREATORS = heap_containers<G, WEIGHT, true>,
         bool error_check = true
     >
-    requires requires(typename G::N n) {
-        {n < n} -> std::same_as<bool>;
-    }
+    requires backtrakable_node<typename G::N> &&
+        backtrakable_edge<typename G::E>
     class backtracker {
     private:
         using N = typename G::N;

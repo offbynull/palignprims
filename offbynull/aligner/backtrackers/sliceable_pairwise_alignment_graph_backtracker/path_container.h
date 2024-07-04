@@ -29,14 +29,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         bool operator==(const element &) const = default;
     };
 
-    template<readable_sliceable_pairwise_alignment_graph GRAPH>
+    template<readable_sliceable_pairwise_alignment_graph G>
     class backward_walker_iterator {
     private:
-        using N = typename GRAPH::N;
-        using E = typename GRAPH::E;
+        using N = typename G::N;
+        using E = typename G::E;
 
         element<E>* current;
-        GRAPH* g;
+        G* g;
 
     public:
         using difference_type = std::ptrdiff_t;
@@ -49,7 +49,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         : g {}
         , current {} {}
 
-        backward_walker_iterator(GRAPH& g_, element<E>* tail)
+        backward_walker_iterator(G& g_, element<E>* tail)
         : g { &g_ }
         , current { tail } {}
 
@@ -83,18 +83,18 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         }
     };
 
-    template<readable_sliceable_pairwise_alignment_graph GRAPH>
+    template<readable_sliceable_pairwise_alignment_graph G>
     struct backward_walker_range {
     private:
-        using E = typename GRAPH::E;
+        using E = typename G::E;
 
-        GRAPH& g;
+        G& g;
         element<E>* head;
         element<E>* tail;
 
     public:
         backward_walker_range(
-            GRAPH& g_,
+            G& g_,
             element<E>* head_,
             element<E>* tail_
         )
@@ -102,23 +102,23 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , head{ head_ }
         , tail{ tail_ } {}
 
-        backward_walker_iterator<GRAPH> begin() {
-            return backward_walker_iterator<GRAPH>{ g, tail };
+        backward_walker_iterator<G> begin() {
+            return backward_walker_iterator<G>{ g, tail };
         }
 
-        backward_walker_iterator<GRAPH> end() {
-            return backward_walker_iterator<GRAPH>{ g, nullptr };
+        backward_walker_iterator<G> end() {
+            return backward_walker_iterator<G>{ g, nullptr };
         }
     };
 
     template<
-        readable_sliceable_pairwise_alignment_graph GRAPH,
-        container_creator ELEMENT_CONTAINER_CREATOR=vector_container_creator<element<typename GRAPH::E>>,
+        readable_sliceable_pairwise_alignment_graph G,
+        container_creator ELEMENT_CONTAINER_CREATOR=vector_container_creator<element<typename G::E>>,
         bool error_check=true
     >
     class path_container {
     private:
-        using E = typename GRAPH::E;
+        using E = typename G::E;
         using ELEMENT_CONTAINER=decltype(std::declval<ELEMENT_CONTAINER_CREATOR>().create_empty(0zu));
 
     public:
@@ -205,8 +205,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             return suffix_entry;
         }
 
-        std::ranges::forward_range auto walk_path_backward(GRAPH& g) {
-            return backward_walker_range<GRAPH> { g, head, tail };
+        std::ranges::forward_range auto walk_path_backward(G& g) {
+            return backward_walker_range<G> { g, head, tail };
         }
     };
 }

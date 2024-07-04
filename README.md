@@ -1,5 +1,9 @@
 TODO:
-* There's a huge influx of "container_creator" type parameters -- find a better way to package this up?
+* ~~There's a huge influx of "container_creator" type parameters -- find a better way to package this up?~~
+* ~~Typename GRAPH to G~~
+* ~~Add explicit concepts for node and edge~~
+* Pull out container packs into their own header file
+* Fix sliceable backtracker to not have to sort, but use grid position + depth for positioning
 * sequence implementations for the following (see seqeunce concept)
   * mmap'd file data
   * decompressing compressed bytes -- when a location is accessed, decompress that chunk and hold it in cache

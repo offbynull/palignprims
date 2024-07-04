@@ -10,19 +10,19 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
     using offbynull::aligner::concepts::weight;
 
     template<
-        readable_sliceable_pairwise_alignment_graph GRAPH,
+        readable_sliceable_pairwise_alignment_graph G,
         bool error_check=true
     >
     class prefix_sliceable_pairwise_alignment_graph {
     public:
-        using INDEX = typename GRAPH::INDEX;
-        using N = typename GRAPH::N;
-        using E = typename GRAPH::E;
-        using ED = typename GRAPH::ED;
-        using ND = typename GRAPH::ND;
+        using INDEX = typename G::INDEX;
+        using N = typename G::N;
+        using E = typename G::E;
+        using ED = typename G::ED;
+        using ND = typename G::ND;
 
     private:
-        GRAPH& g;
+        G& g;
 
         bool node_out_of_bound(const N& node) {
             const auto& [down_offset, right_offset, _] { g.node_to_grid_offsets(node) };
@@ -38,7 +38,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         const INDEX grid_right_cnt;
 
         prefix_sliceable_pairwise_alignment_graph(
-            GRAPH& _g,
+            G& _g,
             INDEX _grid_down_cnt,
             INDEX _grid_right_cnt
         )
@@ -235,7 +235,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             INDEX _grid_down_cnt,
             INDEX _grid_right_cnt
         ) {
-            return GRAPH::limits(_grid_down_cnt, _grid_right_cnt);;
+            return G::limits(_grid_down_cnt, _grid_right_cnt);;
         }
 
         auto slice_nodes(INDEX grid_down) {

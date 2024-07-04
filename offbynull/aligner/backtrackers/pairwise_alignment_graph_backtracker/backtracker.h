@@ -9,6 +9,7 @@
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/ready_queue.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container.h"
+#include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/concepts.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/helpers/container_creators.h"
 #include "offbynull/concepts.h"
@@ -16,6 +17,8 @@
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker {
     using offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
+    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::concepts::backtrackable_node;
+    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::concepts::backtrackable_edge;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue;
@@ -88,9 +91,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         containers<G, COUNT, WEIGHT> CONTAINER_CREATORS=heap_containers<G, COUNT, WEIGHT, true>,
         bool error_check = true
     >
-    requires requires(typename G::N n) {
-        {n < n} -> std::same_as<bool>;
-    }
+    requires backtrackable_node<typename G::N> &&
+        backtrackable_edge<typename G::E>
     class backtracker {
     public:
         using N = typename G::N;
