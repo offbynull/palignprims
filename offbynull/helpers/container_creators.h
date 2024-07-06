@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <cstddef>
 #include <vector>
+#include <ranges>
 #include "boost/container/small_vector.hpp"
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
@@ -12,23 +13,19 @@ namespace offbynull::helpers::container_creators {
     using offbynull::concepts::random_access_range_of_type;
     using offbynull::utils::static_vector_typer;
 
-    // You can use unimplemented types as requires params -- the compiler will check to see if it has the same traits
-    template<typename T>
-    struct unimplemented_input_iterator {
-        using difference_type = std::ptrdiff_t;
-        using value_type = T;
-
-        T operator*() const;
-        unimplemented_input_iterator& operator++();
-        unimplemented_input_iterator operator++(int) { ++*this; }
-    };
-
     template <typename T>
     concept container_creator =
-        requires(T t, std::size_t size, std::optional<std::size_t> capacity, unimplemented_input_iterator<typename T::ELEM> it) {
+        requires(
+            T t,
+            std::size_t size,
+            std::optional<std::size_t> capacity,
+            std::vector<typename T::ELEM> r,
+            decltype(std::declval<std::vector<typename T::ELEM>>().begin()) it
+        ) {
             typename T::ELEM;
             { t.create_empty(capacity) } -> random_access_range_of_type<typename T::ELEM>;
             { t.create_objects(size) } -> random_access_range_of_type<typename T::ELEM>;
+            { t.create_copy(r) } -> random_access_range_of_type<typename T::ELEM>;
             { t.create_copy(it, it) } -> random_access_range_of_type<typename T::ELEM>;
         };
 
@@ -51,6 +48,10 @@ namespace offbynull::helpers::container_creators {
 
         std::vector<ELEM> create_objects(std::size_t cnt) const {
             return std::vector<ELEM>(cnt);
+        }
+
+        std::vector<ELEM> create_copy(const std::ranges::range auto& range) const {
+            return create_copy(range.begin(), range.end());
         }
 
         std::vector<ELEM> create_copy(auto begin, auto end) const {
@@ -77,6 +78,10 @@ namespace offbynull::helpers::container_creators {
                 }
             }
             return std::array<ELEM, size>{};
+        }
+
+        std::array<ELEM, size> create_copy(const std::ranges::range auto& range) const {
+            return create_copy(range.begin(), range.end());
         }
 
         std::array<ELEM, size> create_copy(auto& begin, auto& end) const {
@@ -119,6 +124,10 @@ namespace offbynull::helpers::container_creators {
             return typename static_vector_typer<ELEM, max_size, error_check>::type(cnt);
         }
 
+        static_vector_typer<ELEM, max_size, error_check>::type create_copy(const std::ranges::range auto& range) const {
+            return create_copy(range.begin(), range.end());
+        }
+
         static_vector_typer<ELEM, max_size, error_check>::type create_copy(auto& begin, auto& end) const {
             if constexpr (error_check) {
                 auto cnt { end - begin };
@@ -144,6 +153,10 @@ namespace offbynull::helpers::container_creators {
 
         boost::container::small_vector<ELEM, max_stack_size> create_objects(std::size_t cnt) const {
             return boost::container::small_vector<ELEM, max_stack_size>(cnt);
+        }
+
+        boost::container::small_vector<ELEM, max_stack_size> create_copy(const std::ranges::range auto& range) const {
+            return create_copy(range.begin(), range.end());
         }
 
         boost::container::small_vector<ELEM, max_stack_size> create_copy(auto& begin, auto& end) const {

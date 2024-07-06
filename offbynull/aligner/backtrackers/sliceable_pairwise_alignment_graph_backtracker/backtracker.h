@@ -141,31 +141,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             suffix_graph
         } {}
 
-        // INDEX target_weight() {
-        //     sliced_walker<
-        //         decltype(sub_graph),
-        //         WEIGHT,
-        //         SLICE_SLOT_CONTAINER_CREATOR,
-        //         RESIDENT_SLOT_CONTAINER_CREATOR,
-        //         error_check
-        //     > forward_walker {
-        //         sub_graph,
-        //         edge_weight_getter,
-        //         slice_slot_container_creator,
-        //         resident_slot_container_creator
-        //     };
-        //     while (!forward_walker.next()) {
-        //         // do nothing
-        //     }
-        //     const auto& slot { forward_walker.active_slot() };
-        //     return slot.backtracking_weight;
-        //     // TODO: When you're doing the forward_walked / backward_walker in the function below, CHECK TO MAKE SURE
-        //     // THE WEIGHT HITS THIS NUMBER (not just max). IF NO NUMBER MATCHES THIS NUMBER, IT MEANS THAT SLICE IS
-        //     // SKIPPED OVER (e.g. free ride skips it)
-        //     //
-        //     // DO THIS FOR EVERY INVOCATION OF walk()
-        // }
-
         auto find_max_path(
                 G& graph,
                 std::function<WEIGHT(const E&)> get_edge_weight_func

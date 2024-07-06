@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include <format>
 #include <stdfloat>
+#include <stdexcept>
 
 namespace {
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::sliced_walker::sliced_walker;
@@ -53,60 +54,44 @@ namespace {
             [&g](const E& edge) { return g.get_edge_data(edge); }
         };
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 0zu, 0zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 0zu, 1zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -1.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 0zu, 2zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -2.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 0zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -3.0);
+        EXPECT_EQ(walker.find(N { 0zu, 0zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 0zu, 1zu }).backtracking_weight, -1.0);
+        EXPECT_EQ(walker.find(N { 0zu, 2zu }).backtracking_weight, -2.0);
+        EXPECT_EQ(walker.find(N { 0zu, 3zu }).backtracking_weight, -3.0);
 
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 1zu, 0zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -1.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 1zu, 1zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 1.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 1zu, 2zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 1zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -1.0);
+        EXPECT_EQ(walker.find(N { 1zu, 0zu }).backtracking_weight, -1.0);
+        EXPECT_EQ(walker.find(N { 1zu, 1zu }).backtracking_weight, 1.0);
+        EXPECT_EQ(walker.find(N { 1zu, 2zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 1zu, 3zu }).backtracking_weight, -1.0);
 
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 2zu, 0zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -2.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 2zu, 1zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 2zu, 2zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 2zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -1.0);
+        EXPECT_EQ(walker.find(N { 2zu, 0zu }).backtracking_weight, -2.0);
+        EXPECT_EQ(walker.find(N { 2zu, 1zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 2zu, 2zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 2zu, 3zu }).backtracking_weight, -1.0);
 
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 0zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -3.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 1zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -1.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 2zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, -1.0);
         EXPECT_TRUE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 1.0);
+        EXPECT_EQ(walker.find(N { 3zu, 0zu }).backtracking_weight, -3.0);
+        EXPECT_EQ(walker.find(N { 3zu, 1zu }).backtracking_weight, -1.0);
+        EXPECT_EQ(walker.find(N { 3zu, 2zu }).backtracking_weight, -1.0);
+        EXPECT_EQ(walker.find(N { 3zu, 3zu }).backtracking_weight, 1.0);
 
         EXPECT_TRUE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 1.0);
+        EXPECT_EQ(walker.find(N { 3zu, 3zu }).backtracking_weight, 1.0);
+        EXPECT_THROW(walker.find(N { 1zu, 3zu }), std::runtime_error);
     }
 
     TEST(SlicedWalkerTest, ForwardWalkWithResidents) {
@@ -159,59 +144,43 @@ namespace {
             [&g](const E& edge) { return g.get_edge_data(edge); }
         };
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 0zu, 0zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 0zu, 1zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 0zu, 2zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 0zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 0zu, 0zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 0zu, 1zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 0zu, 2zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 0zu, 3zu }).backtracking_weight, 0.0);
 
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 1zu, 0zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 1zu, 1zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 1zu, 2zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 1.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 1zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 1zu, 0zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 1zu, 1zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 1zu, 2zu }).backtracking_weight, 1.0);
+        EXPECT_EQ(walker.find(N { 1zu, 3zu }).backtracking_weight, 0.0);
 
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 2zu, 0zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 2zu, 1zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 2zu, 2zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 1.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 2zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 2zu, 0zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 2zu, 1zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 2zu, 2zu }).backtracking_weight, 1.0);
+        EXPECT_EQ(walker.find(N { 2zu, 3zu }).backtracking_weight, 0.0);
 
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 0zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 1zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 0.0);
         EXPECT_FALSE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 2zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 1.0);
         EXPECT_TRUE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 1.0);
+        EXPECT_EQ(walker.find(N { 3zu, 0zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 3zu, 1zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 3zu, 2zu }).backtracking_weight, 1.0);
+        EXPECT_EQ(walker.find(N { 3zu, 3zu }).backtracking_weight, 1.0);
 
         EXPECT_TRUE(walker.next());
-        EXPECT_EQ(walker.active_slot().node, (N { 3zu, 3zu }));
-        EXPECT_EQ(walker.active_slot().backtracking_weight, 1.0);
+        EXPECT_EQ(walker.find(N { 3zu, 3zu }).backtracking_weight, 1.0);
+        EXPECT_THROW(walker.find(N { 1zu, 3zu }), std::runtime_error);
     }
 }

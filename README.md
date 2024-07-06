@@ -7,6 +7,7 @@ TODO:
   * This use to be how it was with pairwise_alignment_graph_backtracker/slot_container.h and IS HOW ITS CURRENTLY BEING
     done in sliceable_pairwise_alignment_graph_backtracker/slot_container.h -- You need to update this so that you both
     have sorting AND depth positioning, and switch between them using a compile-time flag.
+* Fix pairwise / pairwise sliceable to NOT take in functor to get edge weight + NOT take in WEIGHT param
 * sequence implementations for the following (see seqeunce concept)
   * ~~wrapper that pads out with dummy (or truncates) to a certain size~~ 
   * ~~mmap'd file data~~

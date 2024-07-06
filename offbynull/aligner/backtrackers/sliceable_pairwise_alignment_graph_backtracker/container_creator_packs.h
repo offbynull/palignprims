@@ -29,8 +29,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     concept container_creator_pack =
         readable_sliceable_pairwise_alignment_graph<G>
         && weight<WEIGHT>
-        && container_creator_of_type<typename T::SLICE_SLOT_CONTAINER_CREATOR, slot<typename G::N, typename G::E, WEIGHT>>
-        && container_creator_of_type<typename T::RESIDENT_SLOT_CONTAINER_CREATOR, slot<typename G::N, typename G::E, WEIGHT>>
+        && container_creator_of_type<typename T::SLICE_SLOT_CONTAINER_CREATOR, slot<typename G::E, WEIGHT>>
+        && container_creator_of_type<typename T::RESIDENT_SLOT_CONTAINER_CREATOR, slot<typename G::E, WEIGHT>>
         && container_creator_of_type<typename T::ELEMENT_CONTAINER_CREATOR, element<typename G::E>>
         && container_creator_of_type<typename T::PATH_CONTAINER_CREATOR, typename G::E>;
 
@@ -42,8 +42,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     struct heap_container_creator_pack {
         using N = typename G::N;
         using E = typename G::E;
-        using SLICE_SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, WEIGHT>, error_check>;
-        using RESIDENT_SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, WEIGHT>, error_check>;
+        using SLICE_SLOT_CONTAINER_CREATOR=vector_container_creator<slot<E, WEIGHT>, error_check>;
+        using RESIDENT_SLOT_CONTAINER_CREATOR=vector_container_creator<slot<E, WEIGHT>, error_check>;
         using ELEMENT_CONTAINER_CREATOR=vector_container_creator<element<E>, error_check>;
         using PATH_CONTAINER_CREATOR=vector_container_creator<E, error_check>;
     };
@@ -59,7 +59,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using N = typename G::N;
         using E = typename G::E;
         using SLICE_SLOT_CONTAINER_CREATOR=static_vector_container_creator<
-            slot<N, E, WEIGHT>,
+            slot<E, WEIGHT>,
             G::limits(
                 grid_down_cnt,
                 grid_right_cnt
@@ -67,7 +67,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             error_check
         >;
         using RESIDENT_SLOT_CONTAINER_CREATOR=static_vector_container_creator<
-            slot<N, E, WEIGHT>,
+            slot<E, WEIGHT>,
             G::limits(
                 grid_down_cnt,
                 grid_right_cnt
