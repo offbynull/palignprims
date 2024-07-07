@@ -1,7 +1,6 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_BACKTRACKER_H
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_BACKTRACKER_H
 
-#include <functional>
 #include <ranges>
 #include <algorithm>
 #include <iostream>
@@ -91,10 +90,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         )
         : backtracker(
             g,
-            0u,
-            0u,
-            g.grid_down_cnt,
-            g.grid_right_cnt,
+            g.get_root_node(),
+            g.get_leaf_node(),
             slice_slot_container_creator,
             resident_slot_container_creator,
             path_container_creator
@@ -102,10 +99,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
         backtracker(
             G& g,
-            INDEX grid_down_offset,
-            INDEX grid_right_offset,
-            INDEX grid_down_cnt,
-            INDEX grid_right_cnt,
+            const N& root_node,
+            const N& leaf_node,
             SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
             RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {},
             PATH_CONTAINER_CREATOR path_container_creator = {}
@@ -116,21 +111,17 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , path_container_creator { path_container_creator }
         , sub_graph {
             whole_graph,
-            grid_down_offset,
-            grid_right_offset,
-            grid_down_cnt,
-            grid_right_cnt
+            root_node,
+            leaf_node
         }
         , mid_down_offset { (sub_graph.grid_down_cnt - 1u) / 2u }
         , prefix_graph {
             sub_graph,
-            mid_down_offset + 1,
-            sub_graph.grid_right_cnt
+            sub_graph.slice_last_node(mid_down_offset)
         }
         , suffix_graph {
             sub_graph,
-            sub_graph.grid_down_cnt - mid_down_offset,
-            sub_graph.grid_right_cnt
+            sub_graph.slice_first_node(mid_down_offset)
         }
         , reversed_suffix_graph {
             suffix_graph
@@ -169,10 +160,28 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             element<E>* parent_element,
             walk_direction dir
         ) {
+            const auto& [root_down_offset, root_right_offset, root_depth] { whole_graph.node_to_grid_offsets(sub_graph.get_root_node()) };
+            const auto& [leaf_down_offset, leaf_right_offset, leaf_depth] { whole_graph.node_to_grid_offsets(sub_graph.get_leaf_node()) };
+            static int indent { 0 };
+            std::string indent_str {};
+            for (auto i { 0 }; i < indent; i++) {
+                indent_str += ' ';
+            }
+            std::cout
+                    << indent_str
+                    << "root: [" << root_down_offset << "," << root_right_offset << "]"
+                    << " leaf: [" << leaf_down_offset << "," << leaf_right_offset << "]"
+                    << std::endl;
+
+            if (sub_graph.grid_down_cnt == 1u && sub_graph.grid_right_cnt == 1u) {
+                return 0.0;
+            }
             ED max_weight;
             N max_node;
             E max_edge;
             {
+                auto x { prefix_graph.slice_first_node(0u)};
+                auto y { prefix_graph.slice_last_node(0u)};
                 sliced_walker<
                     decltype(prefix_graph),
                     SLICE_SLOT_CONTAINER_CREATOR,
@@ -206,7 +215,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 std::tuple<WEIGHT, N, E> max {
                     first_forward_slot.backtracking_weight + first_backward_slot.backtracking_weight,
                     first_node,
-                    first_forward_slot.backtracking_edge
+                    first_backward_slot.backtracking_edge // don't use first_forward_slot's backtracking_edge because it'll be unset for first
+                                                          // backward_forward_slot's backtracking edge fomat is the same as first_forward_slot's backtracking_edge -- you can break it using sub_graph
                 };
                 for (const N& node : sub_graph.slice_nodes(mid_down_offset)) {
                     const auto forward_slot { forward_walker.find(node) };
@@ -226,17 +236,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 max_edge = max_edge_;
             }  // Everything above wrapped in its own scope so that walkers (and their associated containers) are destroyed
 
-
-            const auto& [cut_down_offset, cut_right_offset, _] { sub_graph.node_to_grid_offsets(max_node) };
+            const auto& [cut_down_offset, cut_right_offset, cut_depth] { whole_graph.node_to_grid_offsets(max_node) };
             std::cout
-                    << "down bounds: ["
-                    << sub_graph.grid_down_offset << "," << sub_graph.grid_down_offset + sub_graph.grid_down_cnt - 1u << "]"
-                    << std::endl
-                    << "right bounds: ["
-                    << sub_graph.grid_right_offset << "," << sub_graph.grid_right_offset + sub_graph.grid_right_cnt - 1u << "]"
-                    << std::endl;
-            std::cout
-                    << "found " << sub_graph.grid_down_offset + cut_down_offset << "x" << sub_graph.grid_right_offset + cut_right_offset
+                    << indent_str
+                    << "found: [" << cut_down_offset << "," << cut_right_offset << "]"
                     << std::endl;
             if (cut_down_offset == 0u && cut_right_offset == 0u) {
                 return max_weight;
@@ -262,22 +265,17 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             }
 
             // Recurse
+            indent++;
             {
-                backtracker<
-                    G,
-                    WEIGHT,
-                    CONTAINER_CREATOR_PACK,
-                    error_check
-                > upper_half_backtracker {
+                const N& new_leaf_node { whole_graph.get_edge_from(max_edge) };
+                backtracker upper_half_backtracker {
                     whole_graph,
-                    sub_graph.grid_down_offset,
-                    sub_graph.grid_right_offset,
-                    cut_down_offset + 1u,
-                    cut_right_offset + 1u,
+                    sub_graph.get_root_node(),
+                    new_leaf_node,
                     slice_slot_container_creator,
                     resident_slot_container_creator
                 };
-                std::cout << "topleft" << std::endl;
+                std::cout << indent_str << " topleft" << std::endl;
                 upper_half_backtracker.walk(
                     path_container_,
                     current_element,
@@ -285,27 +283,23 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 );
             } // Everything above wrapped in its own scope so that backtracker (and its associated containers) are destroyed
             {
-                backtracker<
-                    G,
-                    WEIGHT,
-                    CONTAINER_CREATOR_PACK,
-                    error_check
-                > lower_half_backtracker {
+                const N& new_root_node { whole_graph.get_edge_to(max_edge) };
+                backtracker lower_half_backtracker {
                     whole_graph,
-                    sub_graph.grid_down_offset + cut_down_offset,
-                    sub_graph.grid_right_offset + cut_right_offset,
-                    sub_graph.grid_down_cnt - cut_down_offset,
-                    sub_graph.grid_right_cnt - cut_right_offset,
+                    new_root_node,
+                    sub_graph.get_leaf_node(),
                     slice_slot_container_creator,
                     resident_slot_container_creator
                 };
-                std::cout << "bottomright" << std::endl;
+                std::cout << indent_str << " bottomright" << std::endl;
                 lower_half_backtracker.walk(
                     path_container_,
                     current_element,
                     walk_direction::SUFFIX
                 );
             } // Everything above wrapped in its own scope so that backtracker (and its associated containers) are destroyed
+
+            indent--;
 
             return max_weight;
         }

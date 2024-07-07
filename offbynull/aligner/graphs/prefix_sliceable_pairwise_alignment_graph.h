@@ -70,7 +70,13 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         : g{g_}
         , new_leaf_node{ new_leaf_node_ }
         , grid_down_cnt{ std::get<0>(g.node_to_grid_offsets(new_leaf_node)) + 1u }
-        , grid_right_cnt{ std::get<1>(g.node_to_grid_offsets(new_leaf_node)) + 1u } {}
+        , grid_right_cnt{ std::get<1>(g.node_to_grid_offsets(new_leaf_node)) + 1u } {
+            if constexpr (error_check) {
+                if (!g.has_node(new_leaf_node)) {
+                    throw std::runtime_error("Leaf node not found");
+                }
+            }
+        }
 
         // The first implementation of this was proxing the exact type. For example...
         //

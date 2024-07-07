@@ -60,7 +60,7 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
             if constexpr (error_check) {
                 const auto& [root_down_offset, root_right_offset, root_depth] { g_.node_to_grid_offsets(new_root_node_) };
                 const auto& [leaf_down_offset, leaf_right_offset, leaf_depth] { g_.node_to_grid_offsets(new_leaf_node_) };
-                if (!(root_down_offset < leaf_down_offset || root_right_offset < leaf_right_offset)) {
+                if (!(root_down_offset <= leaf_down_offset || root_right_offset <= leaf_right_offset)) {
                     throw std::runtime_error("Bad grid range");
                 }
             }

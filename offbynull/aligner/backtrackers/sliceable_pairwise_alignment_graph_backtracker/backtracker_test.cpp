@@ -30,7 +30,7 @@ namespace {
             [](
                 const auto& edge
             ) -> std::float64_t {
-                return -1.0f64;
+                return 0.0f64;
             }
         };
         std::string seq1 { "abc" };
@@ -42,6 +42,7 @@ namespace {
             indel_lookup
         };
 
+        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         // walk
@@ -57,12 +58,29 @@ namespace {
         }
         std::cout << std::endl;
         std::cout << weight << std::endl;
-        EXPECT_EQ(
-            path,
-            (std::vector<E> {
-                { std::pair{0zu, 0zu}, std::pair{1zu, 1zu} },
-                { std::pair{1zu, 1zu}, std::pair{1zu, 2zu} }
-            })
-        );
+
+        std::vector<E> option1 {
+            E { N {0zu, 0zu}, N {1zu, 1zu} },
+            E { N {1zu, 1zu}, N {2zu, 1zu} },
+            E { N {2zu, 1zu}, N {2zu, 2zu} },
+            E { N {2zu, 2zu}, N {3zu, 3zu} }
+        };
+        std::vector<E> option2 {
+            E { N {0zu, 0zu}, N {1zu, 1zu} },
+            E { N {1zu, 1zu}, N {1zu, 2zu} },
+            E { N {1zu, 2zu}, N {2zu, 2zu} },
+            E { N {2zu, 2zu}, N {3zu, 3zu} }
+        };
+        EXPECT_TRUE(path == option1 || path == option2);
+
+        // EXPECT_EQ(
+        //     path,
+        //     (std::vector<E> {
+        //         { std::pair{0zu, 0zu}, std::pair{1zu, 1zu} },
+        //         { std::pair{1zu, 1zu}, std::pair{2zu, 1zu} },
+        //         { std::pair{2zu, 1zu}, std::pair{2zu, 2zu} },
+        //         { std::pair{2zu, 2zu}, std::pair{3zu, 3zu} }
+        //     })
+        // );
     }
 }

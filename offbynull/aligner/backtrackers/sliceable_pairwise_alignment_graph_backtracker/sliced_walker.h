@@ -205,9 +205,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
             // Move to next node / next slice
             bool at_last_node_in_slice {
-                current_slice_entry.node != graph.slice_last_node(slice_slots.grid_down_offset)
+                current_slice_entry.node == graph.slice_last_node(slice_slots.grid_down_offset)
             };
-            if (at_last_node_in_slice) {
+            if (!at_last_node_in_slice) {
                 next_slice_entry.node = graph.slice_next_node(current_slice_entry.node);
                 next_slice_entry.slot_ptr = &find(next_slice_entry.node);
             } else {

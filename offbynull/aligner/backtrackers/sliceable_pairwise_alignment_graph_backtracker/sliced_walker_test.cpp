@@ -91,6 +91,57 @@ namespace {
         EXPECT_THROW(walker.find(N { 1zu, 3zu }), std::runtime_error);
     }
 
+    TEST(SlicedWalkerTest, SingleSliceForwardWalkWithoutResidents) {
+        auto match_lookup {
+            [](
+                const auto& edge,
+                const char& down_elem,
+                const char& right_elem
+            ) -> std::float64_t {
+                if (down_elem == right_elem) {
+                    return 1.0f64;
+                } else {
+                    return -1.0f64;
+                }
+            }
+        };
+        auto indel_lookup {
+            [](
+                const auto& edge
+            ) -> std::float64_t {
+                return -1.0f64;
+            }
+        };
+        std::string seq1 { "" };
+        std::string seq2 { "azc" };
+        pairwise_global_alignment_graph<decltype(seq1), decltype(seq2)> g {
+            seq1,
+            seq2,
+            match_lookup,
+            indel_lookup
+        };
+
+        using ND = typename decltype(g)::ND;
+        using ED = typename decltype(g)::ED;
+        using N = typename decltype(g)::N;
+        using E = typename decltype(g)::E;
+
+        // walk
+        sliced_walker<decltype(g)> walker{ g };
+        EXPECT_FALSE(walker.next());
+        EXPECT_FALSE(walker.next());
+        EXPECT_FALSE(walker.next());
+        EXPECT_TRUE(walker.next());
+        EXPECT_EQ(walker.find(N { 0zu, 0zu }).backtracking_weight, 0.0);
+        EXPECT_EQ(walker.find(N { 0zu, 1zu }).backtracking_weight, -1.0);
+        EXPECT_EQ(walker.find(N { 0zu, 2zu }).backtracking_weight, -2.0);
+        EXPECT_EQ(walker.find(N { 0zu, 3zu }).backtracking_weight, -3.0);
+
+        EXPECT_TRUE(walker.next());
+        EXPECT_EQ(walker.find(N { 0zu, 3zu }).backtracking_weight, -3.0);
+        EXPECT_THROW(walker.find(N { 1zu, 3zu }), std::runtime_error);
+    }
+
     TEST(SlicedWalkerTest, ForwardWalkWithResidents) {
         auto match_lookup {
             [](
