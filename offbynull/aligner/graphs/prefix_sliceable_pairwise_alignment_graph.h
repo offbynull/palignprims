@@ -23,10 +23,36 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
 
     private:
         G& g;
+        const N new_leaf_node;
+
+        bool is_leaf_node_reachable(const N& src_node) {
+            if (src_node == new_leaf_node) {
+                return true;
+            }
+            const auto& [leaf_down_offset, leaf_right_offset, leaf_grid_offset] { g.node_to_grid_offsets(new_leaf_node) };
+            for (const E& edge : g.get_outputs(src_node)) {
+                const N& dst_node { g.get_edge_to(edge) };
+                const auto& [dst_down_offset, dst_right_offset, dst_grid_offset] { g.node_to_grid_offsets(dst_node) };
+                if (dst_down_offset > leaf_down_offset || dst_right_offset > leaf_right_offset) {
+                    return false;
+                }
+                return is_leaf_node_reachable(dst_node);
+            }
+            return false;
+        }
 
         bool node_out_of_bound(const N& node) {
             const auto& [down_offset, right_offset, _] { g.node_to_grid_offsets(node) };
-            return down_offset >= grid_down_cnt || right_offset >= grid_right_cnt;
+            if (down_offset >= grid_down_cnt || right_offset >= grid_right_cnt) {
+                return true;
+            }
+            // If you're testing a node that's within the same grid offset as the leaf node, test to make sure that it
+            // actually reaches the leaf node. If it doesn't reach the leaf node (walks into a grid offset that's
+            // further down/right), that means it is out of bounds.
+            if (down_offset == grid_down_cnt - 1u && right_offset == grid_right_cnt - 1u) {
+                return !is_leaf_node_reachable(node);
+            }
+            return false;
         }
 
         bool edge_out_of_bound(const E& edge) {
@@ -38,19 +64,13 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         const INDEX grid_right_cnt;
 
         prefix_sliceable_pairwise_alignment_graph(
-            G& _g,
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt
+            G& g_,
+            const N& new_leaf_node_
         )
-        : g{_g}
-        , grid_down_cnt{_grid_down_cnt}
-        , grid_right_cnt{_grid_right_cnt} {
-            if constexpr (error_check) {
-                if (grid_down_cnt > g.grid_down_cnt || grid_right_cnt > g.grid_right_cnt) {
-                    throw std::runtime_error("Out of bounds");
-                }
-            }
-        }
+        : g{g_}
+        , new_leaf_node{ new_leaf_node_ }
+        , grid_down_cnt{ std::get<0>(g.node_to_grid_offsets(new_leaf_node)) + 1u }
+        , grid_right_cnt{ std::get<1>(g.node_to_grid_offsets(new_leaf_node)) + 1u } {}
 
         // The first implementation of this was proxing the exact type. For example...
         //
@@ -120,7 +140,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         N get_leaf_node() {
-            return g.slice_last_node(grid_down_cnt - 1u, grid_right_cnt - 1u);
+            return new_leaf_node;
         }
 
         auto get_nodes() {

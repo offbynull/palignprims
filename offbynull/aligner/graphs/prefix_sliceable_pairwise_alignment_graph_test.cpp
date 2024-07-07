@@ -50,8 +50,7 @@ namespace {
         graph_bundle(
             std::string _down_seq,
             std::string _right_seq,
-            unsigned int prefix_down_cnt,
-            unsigned int prefix_right_cnt
+            decltype(backing_g)::N new_leaf_node
         )
         : down_seq{_down_seq}
         , right_seq{_right_seq}
@@ -62,17 +61,17 @@ namespace {
             indel_lookup,
             freeride_lookup
         }
-        , prefix_g{backing_g, prefix_down_cnt, prefix_right_cnt} {}
+        , prefix_g{backing_g, new_leaf_node} {}
     };
 
     TEST(PrefixPairwiseAlignmentGraphTest, ConceptCheck) {
-        using G = decltype(graph_bundle{"234567", "2345678", 2zu, 3zu}.prefix_g);
+        using G = decltype(graph_bundle{ "234567", "2345678", { 1zu, 2zu } }.prefix_g);
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, ListNodes) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
         auto n = g.get_nodes();
@@ -86,7 +85,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, ListEdges) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
         using E = typename std::remove_reference_t<decltype(g)>::E;
@@ -119,7 +118,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, NodesExist) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
         
         EXPECT_TRUE(g.has_node({0zu, 0zu}));
@@ -134,7 +133,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, RightEdgesExist) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
         
         EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{0zu, 0zu}, {0zu, 1zu}}}));
@@ -146,7 +145,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, DownEdgesExist) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
         EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{0zu, 0zu}, {1zu, 0zu}}}));
@@ -158,7 +157,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, DiagEdgesExist) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
         EXPECT_TRUE(g.has_edge({edge_type::NORMAL, {{0zu, 0zu}, {1zu, 1zu}}}));
@@ -170,7 +169,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, FreeRideEdgesExist) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
         EXPECT_FALSE(g.has_edge({ edge_type::FREE_RIDE, std::pair { std::pair{0zu, 0zu}, std::pair{0zu, 0zu} } }));
@@ -189,7 +188,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, GetOutputs) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
         using E = typename std::remove_reference_t<decltype(g)>::E;
@@ -241,7 +240,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, GetInputs) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
         using E = typename std::remove_reference_t<decltype(g)>::E;
@@ -289,7 +288,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, GetOutputDegree) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
         EXPECT_EQ(g.get_out_degree(std::pair{ 0zu, 0zu } ), 8);
@@ -299,7 +298,7 @@ namespace {
     }
 
     TEST(PrefixPairwiseAlignmentGraphTest, GetInputDegree) {
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
         
         EXPECT_EQ(g.get_in_degree(std::pair{ 0zu, 0zu } ), 0);
@@ -321,7 +320,7 @@ namespace {
             }
         };
 
-        graph_bundle g_bundle { "234567", "2345678", 2zu, 3zu };
+        graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
         using G = std::decay_t<decltype(g)>;

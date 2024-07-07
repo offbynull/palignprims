@@ -39,32 +39,32 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
         > g;
 
     public:
-        const INDEX grid_down_offset;
-        const INDEX grid_right_offset;
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
 
         middle_sliceable_pairwise_alignment_graph(
-            G& _g,
-            INDEX grid_down_offset,
-            INDEX grid_right_offset,
-            INDEX grid_down_cnt,
-            INDEX grid_right_cnt
+            G& g_,
+            const N& new_root_node_,
+            const N& new_leaf_node_
         )
         : inner_g {
-            _g,
-            grid_down_offset + grid_down_cnt,
-            grid_right_offset + grid_right_cnt
+            g_,
+            new_leaf_node_
         }
         , g {
             inner_g,
-            grid_down_cnt,
-            grid_right_cnt
+            new_root_node_
         }
-        , grid_down_offset { grid_down_offset }
-        , grid_right_offset { grid_right_offset }
-        , grid_down_cnt { grid_down_cnt }
-        , grid_right_cnt { grid_right_cnt } { }
+        , grid_down_cnt { g.grid_down_cnt }
+        , grid_right_cnt { g.grid_right_cnt } {
+            if constexpr (error_check) {
+                const auto& [root_down_offset, root_right_offset, root_depth] { g_.node_to_grid_offsets(new_root_node_) };
+                const auto& [leaf_down_offset, leaf_right_offset, leaf_depth] { g_.node_to_grid_offsets(new_leaf_node_) };
+                if (!(root_down_offset < leaf_down_offset || root_right_offset < leaf_right_offset)) {
+                    throw std::runtime_error("Bad grid range");
+                }
+            }
+        }
 
         static middle_sliceable_pairwise_alignment_graph<G, error_check> create_using_offsets(
             G& g,

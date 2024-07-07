@@ -49,10 +49,8 @@ namespace {
         graph_bundle(
             std::string _down_seq,
             std::string _right_seq,
-            unsigned int down_offset,
-            unsigned int right_offset,
-            unsigned int down_cnt,
-            unsigned int right_cnt
+            decltype(backing_g)::N root_node,
+            decltype(backing_g)::N leaf_node
         )
         : down_seq{_down_seq}
         , right_seq{_right_seq}
@@ -63,17 +61,17 @@ namespace {
             indel_lookup,
             freeride_lookup
         }
-        , middle_g{backing_g, down_offset, right_offset, down_cnt, right_cnt} {}
+        , middle_g{backing_g, root_node, leaf_node} {}
     };
 
     TEST(MiddlePairwiseAlignmentGraphTest, ConceptCheck) {
-        using G = decltype(graph_bundle{"abc", "acc", 1zu, 1zu, 2zu, 2zu}.middle_g);
+        using G = decltype(graph_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } }.middle_g);
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, ListNodes) {
-        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
         auto n = g.get_nodes();
@@ -87,7 +85,7 @@ namespace {
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, ListEdges) {
-        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
         using E = typename std::remove_reference_t<decltype(g)>::E;
@@ -110,7 +108,7 @@ namespace {
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, NodesExist) {
-        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
         EXPECT_FALSE(g.has_node({0zu, 0zu}));
@@ -132,7 +130,7 @@ namespace {
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, EdgesExist) {
-        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
         EXPECT_FALSE(g.has_edge({edge_type::NORMAL, {{0zu, 0zu}, {0zu, 1zu}}}));
@@ -146,7 +144,7 @@ namespace {
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, GetOutputs) {
-        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
         using E = typename std::remove_reference_t<decltype(g)>::E;
@@ -191,7 +189,7 @@ namespace {
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, GetInputs) {
-        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
         using E = typename std::remove_reference_t<decltype(g)>::E;
@@ -237,7 +235,7 @@ namespace {
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, GetOutputDegree) {
-        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
         EXPECT_EQ(g.get_out_degree(std::pair{ 1zu, 1zu } ), 3);
@@ -247,7 +245,7 @@ namespace {
     }
 
     TEST(MiddlePairwiseAlignmentGraphTest, GetInputDegree) {
-        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
         EXPECT_EQ(g.get_in_degree(std::pair{ 1zu, 1zu } ), 0);
@@ -269,7 +267,7 @@ namespace {
             }
         };
 
-        graph_bundle g_bundle { "abc", "acc", 1zu, 1zu, 2zu, 2zu };
+        graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
         using G = std::decay_t<decltype(g)>;

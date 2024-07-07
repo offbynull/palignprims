@@ -53,15 +53,14 @@ namespace offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph 
         const INDEX grid_right_cnt;
 
         suffix_sliceable_pairwise_alignment_graph(
-            G& _g,
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt
+            G& g_,
+            const N& new_root_node_
         )
-        : inner_inner_g{ _g }
-        , inner_g { inner_inner_g, _grid_down_cnt, _grid_right_cnt }
+        : inner_inner_g{ g_ }
+        , inner_g { inner_inner_g, new_root_node_ }
         , g { inner_g }
-        , grid_down_cnt{_grid_down_cnt}
-        , grid_right_cnt{_grid_right_cnt} {}
+        , grid_down_cnt { g.grid_down_cnt }
+        , grid_right_cnt { g.grid_right_cnt } {}
 
         // The first implementation of this was proxing the exact type. For example...
         //
