@@ -12,7 +12,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type;
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
 
-    TEST(SliceablePairwiseAlignmentGraphBacktrackTest, GlobalTest) {
+    TEST(SliceablePairwiseAlignmentGraphSubdividerTest, GlobalTest) {
         auto match_lookup {
             [](
                 const auto& edge,
@@ -48,7 +48,7 @@ namespace {
         // walk
         sliced_subdivider<decltype(g)> subdivider { g };
         auto path { subdivider.subdivide() };
-        auto backward_path_view { path.walk_path_backward(g) };
+        auto backward_path_view { path.walk_path_backward() };
         std::vector<E> forward_path(backward_path_view.begin(), backward_path_view.end());
         std::reverse(forward_path.begin(), forward_path.end());
         for (const E& e : forward_path) {
@@ -73,7 +73,7 @@ namespace {
         EXPECT_TRUE(forward_path == option1 || forward_path == option2);
     }
 
-    TEST(SliceablePairwiseAlignmentGraphBacktrackTest, IsolatedLocalTest) {
+    TEST(SliceablePairwiseAlignmentGraphSubdividerTest, IsolatedLocalTest) {
         auto match_lookup {
             [](
                 const auto& edge,
@@ -121,7 +121,7 @@ namespace {
         // walk
         sliced_subdivider<decltype(g)> subdivider { g };
         auto path { subdivider.subdivide() };
-        auto backward_path_view { path.walk_path_backward(g) };
+        auto backward_path_view { path.walk_path_backward() };
         std::vector<E> forward_path(backward_path_view.begin(), backward_path_view.end());
         std::reverse(forward_path.begin(), forward_path.end());
         for (const E& e : forward_path) {
@@ -146,7 +146,7 @@ namespace {
         EXPECT_TRUE(forward_path == option1 || forward_path == option2);
     }
 
-    TEST(SliceablePairwiseAlignmentGraphBacktrackTest, UnisolatedLocalTest) {
+    TEST(SliceablePairwiseAlignmentGraphSubdividerTest, UnisolatedLocalTest) {
         auto match_lookup {
             [](
                 const auto& edge,

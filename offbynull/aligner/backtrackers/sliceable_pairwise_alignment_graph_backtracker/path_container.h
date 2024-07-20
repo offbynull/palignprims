@@ -120,6 +120,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     private:
         using E = typename G::E;
         using ELEMENT_CONTAINER=decltype(std::declval<ELEMENT_CONTAINER_CREATOR>().create_empty(0zu));
+        G& g;
 
     public:
         ELEMENT_CONTAINER element_container;
@@ -127,10 +128,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         element<E>* tail;
 
         path_container(
+            G& g_,
             std::size_t max_path_edge_cnt,
             ELEMENT_CONTAINER_CREATOR element_container_creator = {}
         )
-        : element_container{ element_container_creator.create_empty(max_path_edge_cnt) } {}
+        : g { g_ }
+        , element_container{ element_container_creator.create_empty(max_path_edge_cnt) } {}
 
         element<E>* initialize(const E& backtracking_edge) {
             if constexpr (error_check) {
@@ -205,7 +208,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             return suffix_entry;
         }
 
-        std::ranges::forward_range auto walk_path_backward(G& g) {
+        std::ranges::forward_range auto walk_path_backward() {
             return backward_walker_range<G> { g, head, tail };
         }
     };

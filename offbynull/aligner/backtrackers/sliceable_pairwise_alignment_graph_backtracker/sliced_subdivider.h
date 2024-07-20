@@ -43,14 +43,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             slot<
                 typename G::E,
                 typename G::ED
-            >
+            >,
+            true
         >,
         container_creator ELEMENT_CONTAINER_CREATOR=vector_container_creator<
             element<typename G::E>,
-            true
-        >,
-        container_creator PATH_CONTAINER_CREATOR=vector_container_creator<
-            typename G::E,
             true
         >,
         bool error_check = true
@@ -78,7 +75,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         G& whole_graph;
         SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator;
         RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator;
-        PATH_CONTAINER_CREATOR path_container_creator;
+        ELEMENT_CONTAINER_CREATOR element_container_creator;
 
         enum class walk_direction {
             PREFIX,
@@ -90,13 +87,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         sliced_subdivider(
             G& g,
             SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
-            RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {},
-            PATH_CONTAINER_CREATOR path_container_creator = {}
+            ELEMENT_CONTAINER_CREATOR element_container_creator = {}
         )
         : whole_graph { g }
         , slice_slot_container_creator { slice_slot_container_creator }
-        , resident_slot_container_creator { resident_slot_container_creator }
-        , path_container_creator { path_container_creator } {
+        , element_container_creator { element_container_creator } {
             if constexpr (error_check) {
                 for (const auto& _ : whole_graph.resident_nodes()) {
                     throw std::runtime_error("Graph must not have any resident nodes");
@@ -106,10 +101,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
         path_container<G, ELEMENT_CONTAINER_CREATOR, error_check> subdivide() {
             path_container<G, ELEMENT_CONTAINER_CREATOR, error_check> path_container_ {
+                whole_graph,
                 G::limits(
                     whole_graph.grid_down_cnt,
                     whole_graph.grid_right_cnt
-                ).max_path_edge_cnt
+                ).max_path_edge_cnt,
+                element_container_creator
             };
 
             ED weight {
@@ -249,38 +246,26 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
             // Recurse
             indent++;
-            {
-                const N& new_leaf_node { whole_graph.get_edge_from(max_edge) };
-                sliced_subdivider upper_half_sliced_subdivider {
-                    whole_graph,
-                    slice_slot_container_creator,
-                    resident_slot_container_creator
-                };
-                std::cout << indent_str << " topleft" << std::endl;
-                upper_half_sliced_subdivider.subdivide(
-                    path_container_,
-                    current_element,
-                    walk_direction::PREFIX,
-                    sub_graph.get_root_node(),
-                    new_leaf_node
-                );
-            } // Everything above wrapped in its own scope so that backtracker (and its associated containers) are destroyed
-            {
-                const N& new_root_node { whole_graph.get_edge_to(max_edge) };
-                sliced_subdivider lower_half_sliced_subdivider {
-                    whole_graph,
-                    slice_slot_container_creator,
-                    resident_slot_container_creator
-                };
-                std::cout << indent_str << " bottomright" << std::endl;
-                lower_half_sliced_subdivider.subdivide(
-                    path_container_,
-                    current_element,
-                    walk_direction::SUFFIX,
-                    new_root_node,
-                    sub_graph.get_leaf_node()
-                );
-            } // Everything above wrapped in its own scope so that backtracker (and its associated containers) are destroyed
+
+            const N& new_leaf_node { whole_graph.get_edge_from(max_edge) };
+            std::cout << indent_str << " topleft" << std::endl;
+            subdivide(
+                path_container_,
+                current_element,
+                walk_direction::PREFIX,
+                sub_graph.get_root_node(),
+                new_leaf_node
+            );
+
+            const N& new_root_node { whole_graph.get_edge_to(max_edge) };
+            std::cout << indent_str << " bottomright" << std::endl;
+            subdivide(
+                path_container_,
+                current_element,
+                walk_direction::SUFFIX,
+                new_root_node,
+                sub_graph.get_leaf_node()
+            );
 
             indent--;
 

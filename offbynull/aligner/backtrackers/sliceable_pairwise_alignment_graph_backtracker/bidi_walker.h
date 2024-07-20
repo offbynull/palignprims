@@ -21,15 +21,32 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::concepts::backtrackable_node;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::concepts::backtrackable_edge;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slot::slot;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::node_searchable_slot;
     using offbynull::helpers::container_creators::container_creator;
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
+    using offbynull::helpers::container_creators::container_creator_of_type;
+    using offbynull::helpers::container_creators::vector_container_creator;
+    using offbynull::helpers::container_creators::static_vector_container_creator;
     using offbynull::utils::static_vector_typer;
 
     template<
         readable_sliceable_pairwise_alignment_graph G,
-        container_creator_pack<G, typename G::ED> CONTAINER_CREATOR_PACK = heap_container_creator_pack<G, typename G::ED, true>,
+        container_creator SLICE_SLOT_CONTAINER_CREATOR=vector_container_creator<
+            slot<
+                typename G::E,
+                typename G::ED
+            >
+        >,
+        container_creator RESIDENT_SLOT_CONTAINER_CREATOR=vector_container_creator<
+            node_searchable_slot<
+                typename G::N,
+                typename G::E,
+                typename G::ED
+            >
+        >,
         bool error_check = true
     >
     requires backtrackable_node<typename G::N> &&
@@ -41,9 +58,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ND = typename G::ND;
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
-
-        using SLICE_SLOT_CONTAINER_CREATOR = typename CONTAINER_CREATOR_PACK::SLICE_SLOT_CONTAINER_CREATOR;
-        using RESIDENT_SLOT_CONTAINER_CREATOR = typename CONTAINER_CREATOR_PACK::RESIDENT_SLOT_CONTAINER_CREATOR;
 
         G& g;
         SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator;
