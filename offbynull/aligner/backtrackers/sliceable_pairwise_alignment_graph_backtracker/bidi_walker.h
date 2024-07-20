@@ -7,14 +7,11 @@
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/concepts.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/container_creator_packs.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/sliced_walker.h"
-#include "offbynull/aligner/concepts.h"
 #include "offbynull/helpers/container_creators.h"
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h"
-#include "offbynull/aligner/graphs/middle_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph.h"
-#include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker {
@@ -53,6 +50,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator;
 
     public:
+        struct hop {
+            E edge;
+        };
+
+        struct segment {
+            N from_node;
+            N to_node;
+        };
+
         bidi_walker(
             G& g_,
             SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
@@ -124,42 +130,50 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 )
             };
 
-            // constexpr std::size_t container_size {
-            //     G::limits(g.grid_down_cnt, g.grid_right_cnt).max_resident_nodes_cnt + 2zu
-            // };
-            // using CONTAINER = static_vector_typer<N, container_size, error_check>::type;
-            using CONTAINER = std::vector<N>;
-
-            CONTAINER container {};
             auto applicable_resident_nodes {
                 g.resident_nodes()
                 | std::views::transform([this, final_weight](const N& node) {
                     const auto& [weight, forward_edge, backward_edge] { walk_to_node(node) };
                     if (final_weight != weight) {
-                        return std::optional<N> { std::nullopt };
+                        return std::optional<E> { std::nullopt };
                     }
                     if (!g.has_inputs(node)) {  // is root node
-                        return std::optional<N> { g.get_edge_to(*backward_edge) };
+                        return std::optional<E> { *backward_edge };
                     }
                     // is NOT root node (leaf node or any node that isn't root node)
-                    return std::optional<N> { g.get_edge_from(*forward_edge) };
+                    return std::optional<E> { *forward_edge };
                 })
-                | std::views::filter([](const auto& node_opt) {
-                    return node_opt.has_value();
+                | std::views::filter([](const std::optional<E>& edge_opt) {
+                    return edge_opt.has_value();
                 })
-                | std::views::transform([](const auto& node_opt) {
-                    N node { *node_opt };
-                    return node;
+                | std::views::transform([](const std::optional<E>& edge_opt) {
+                    E edge { *edge_opt };
+                    return edge;
                 })
             };
-            container.push_back(g.get_root_node());
-            container.insert(
-                container.end(),
-                applicable_resident_nodes.begin(),
-                applicable_resident_nodes.end()
-            );
-            container.push_back(g.get_leaf_node());
+            // constexpr std::size_t container_size {
+            //     G::limits(g.grid_down_cnt, g.grid_right_cnt).max_resident_nodes_cnt
+            // };
+            // using CONTAINER = static_vector_typer<N, container_size, error_check>::type;
+            // TODO: INSTEAD OF VECTOR, USE CONTAINER CREATOR PACK;
+            using CONTAINER = std::vector<E>;
+            CONTAINER container(applicable_resident_nodes.begin(), applicable_resident_nodes.end());
             std::ranges::sort(container);
+
+            std::vector<std::variant<hop, segment>> parts;
+            N from_node { g.get_root_node() };
+            for (const E& resident_edge : container) {
+                N to_node { g.get_edge_from(resident_edge) };
+                if (from_node != to_node) {
+                    parts.push_back({ segment { from_node, to_node } });
+                }
+                parts.push_back({ hop { resident_edge } });
+                from_node = g.get_edge_to(resident_edge);
+            }
+            N to_node { g.get_leaf_node() };
+            if (from_node != to_node) {
+                parts.push_back({ segment { from_node, to_node } });
+            }
 
             // container will contain the nodes at which you should cut the graph for divide-and-conquer algorihtm.
             // These are points in that graph where you KNOW resident nodes won't be involved. You can walk using slices
@@ -168,7 +182,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             // n1 < n2 if n1 is higher up OR n1 is more to the left OR feeds into n2 (exactly the same grid position but
             // eventually feeds in to n2).
 
-            return std::make_pair(container, final_weight);
+            return std::make_pair(parts, final_weight);
         }
     };
 }

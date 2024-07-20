@@ -353,15 +353,31 @@ namespace {
         };
 
         bidi_walker<decltype(g)> bidi_walker_ { g };
-        const auto& [segmentation_points, final_weight] { bidi_walker_.backtrack_segmentation_points() };
+        using hop = decltype(bidi_walker_)::hop;
+        using segment = decltype(bidi_walker_)::segment;
+        const auto& [parts, final_weight] { bidi_walker_.backtrack_segmentation_points() };
         std::cout << final_weight << std::endl;
-        for (const auto& window : std::views::slide(segmentation_points, 2zu)) {
-            std::cout << '[';
-            for (const auto& node : window) {
-                const auto& [grid_down, grid_right] { node };
-                std::cout << grid_down << 'x' << grid_right << ',';
+        for (const auto& part : parts) {
+            if (const hop* hop_ptr = std::get_if<hop>(&part)) {
+                const auto& [from_node, to_node] { hop_ptr->edge.inner_edge };
+                const auto& [from_node_down_offset, from_node_right_offset] { from_node };
+                const auto& [to_node_down_offset, to_node_right_offset] { to_node };
+                const auto& type { hop_ptr->edge.type };
+                std::cout << "hop: " << from_node_down_offset << ',' << from_node_right_offset
+                    << " to "
+                    << to_node_down_offset << ',' << to_node_right_offset
+                    << " edgetype " << static_cast<std::uint8_t>(type)
+                    << std::endl;
+            } else if (const segment* segment_ptr = std::get_if<segment>(&part)) {
+                const auto& [from_node_down_offset, from_node_right_offset] { segment_ptr->from_node };
+                const auto& [to_node_down_offset, to_node_right_offset] { segment_ptr->to_node };
+                std::cout << "segment: " << from_node_down_offset << ',' << from_node_right_offset
+                    << " to "
+                    << to_node_down_offset << ',' << to_node_right_offset
+                    << std::endl;
+            } else {
+                throw std::runtime_error("This should never hapen");
             }
-            std::cout << ']' << std::endl;
         }
     }
 

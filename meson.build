@@ -56,6 +56,7 @@ tests_src = [
 #        'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container_test.cpp',
         'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/sliced_walker_test.cpp',
         'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/bidi_walker_test.cpp',
+        'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/sliced_subdivider_test.cpp',
 #        'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/backtracker_test.cpp',
 #        'offbynull/aligner/sequences/mmap_sequence_test.cpp',
 #        'offbynull/aligner/sequences/iota_sequence_test.cpp',
