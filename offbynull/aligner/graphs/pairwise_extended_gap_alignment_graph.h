@@ -28,9 +28,9 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using empty_type = std::tuple<>;
 
     enum class layer : uint8_t {
-        DIAGONAL,
         DOWN,
-        RIGHT
+        RIGHT,
+        DIAGONAL  // Make sure this is last, because, while in the same grid offset, this is the layer that the other two feed into. Algorithms expect this.
     };
 
     template<

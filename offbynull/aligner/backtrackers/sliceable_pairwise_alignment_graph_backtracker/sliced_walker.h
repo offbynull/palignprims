@@ -17,6 +17,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slot::slot;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container::slice_slot_container;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::node_searchable_slot;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_container;
     using offbynull::aligner::concepts::weight;
     using offbynull::helpers::container_creators::container_creator;
@@ -135,7 +136,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         slot<E, ED>& find(const N& node) {
             auto found_resident { resident_slots.find(node) };
             if (found_resident.has_value()) {
-                return *found_resident;
+                return (*found_resident).get().slot_;
             }
             auto found_slice { slice_slots.find(node) };
             if (found_slice.has_value()) {
@@ -187,7 +188,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             // Update resident node weights
             for (const E& edge : graph.outputs_to_residents(current_slice_entry.node)) {
                 const N& resident_node { graph.get_edge_to(edge) };
-                std::optional<std::reference_wrapper<slot<E, ED>>> resident_slot_maybe {
+                std::optional<std::reference_wrapper<resident_slot<E, ED>>> resident_slot_maybe {
                     resident_slots.find(resident_node)
                 };
                 if constexpr (error_check) {
@@ -195,11 +196,18 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                         throw std::runtime_error("This should never happen");
                     }
                 }
-                slot<E, ED>& resident_slot { (*resident_slot_maybe).get() };
+                resident_slot<E, ED>& resident_slot_ { (*resident_slot_maybe).get() };
                 const ED& edge_weight { graph.get_edge_data(edge) };
-                const ED& new_weight { current_slice_entry.slot_ptr->backtracking_weight + edge_weight };
-                if (new_weight > resident_slot.backtracking_weight) {
-                    resident_slot.backtracking_weight = new_weight;
+                if (!resident_slot_.initialized) {
+                    resident_slot_.slot_.backtracking_edge = edge;
+                    resident_slot_.slot_.backtracking_weight = edge_weight;
+                    resident_slot_.initialized = true;
+                } else {
+                    const ED& new_weight { current_slice_entry.slot_ptr->backtracking_weight + edge_weight };
+                    if (new_weight > resident_slot_.slot_.backtracking_weight) {
+                        resident_slot_.slot_.backtracking_edge = edge;
+                        resident_slot_.slot_.backtracking_weight = new_weight;
+                    }
                 }
             }
 

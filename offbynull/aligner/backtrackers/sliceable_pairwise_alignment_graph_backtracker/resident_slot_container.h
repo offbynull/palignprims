@@ -16,10 +16,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::helpers::container_creators::container_creator;
     using offbynull::helpers::container_creators::vector_container_creator;
 
+    template<typename E, weight WEIGHT>
+    struct resident_slot {
+        bool initialized;
+        slot<E, WEIGHT> slot_;
+    };
+
     template<typename N, typename E, weight WEIGHT>
     struct node_searchable_slot {
         N node;
-        slot<E, WEIGHT> slot_;
+        resident_slot<E, WEIGHT> slot_;
     };
 
     template<typename N, typename E, weight WEIGHT>
@@ -87,7 +93,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             std::ranges::sort(slots.begin(), slots.end(), node_searchable_slot_comparator<N, E, ED>{});
         }
 
-        std::optional<std::reference_wrapper<slot<E, ED>>> find(const N& node) {
+        std::optional<std::reference_wrapper<resident_slot<E, ED>>> find(const N& node) {
             auto it {
                 std::lower_bound(
                     slots.begin(),
