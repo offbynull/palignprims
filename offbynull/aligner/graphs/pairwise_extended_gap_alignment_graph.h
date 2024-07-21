@@ -504,8 +504,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         auto slice_nodes(INDEX grid_down) {
+            return slice_nodes(grid_down, grid_right_cnt);
+        }
+
+        auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) {
             return forward_range_join_view {
-                std::views::iota(1u, grid_right_cnt)
+                std::views::iota(1u, override_grid_right_cnt)
                 | std::views::transform(
                     [grid_down](const auto& grid_right) {
                         using CONTAINER = static_vector_typer<N, 3zu, error_check>::type;
@@ -523,12 +527,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     }
                 )
             };
-        }
-
-        auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) {
-            auto node_cnt { slice_nodes_capacity(0u, override_grid_right_cnt) };
-            return slice_nodes(grid_down)
-                | std::views::take(node_cnt);
         }
 
         N slice_first_node(INDEX grid_down) {

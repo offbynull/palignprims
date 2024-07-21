@@ -12,6 +12,7 @@
 #include "offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph.h"
+#include "offbynull/aligner/graphs/middle_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker {
@@ -27,6 +28,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
+    using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
     using offbynull::helpers::container_creators::container_creator_of_type;
     using offbynull::helpers::container_creators::vector_container_creator;
     using offbynull::helpers::container_creators::static_vector_container_creator;
@@ -144,49 +146,76 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 )
             };
 
-            auto applicable_resident_nodes {
-                g.resident_nodes()
-                | std::views::transform([this, final_weight](const N& node) {
-                    const auto& [weight, forward_edge, backward_edge] { walk_to_node(node) };
-                    if (final_weight != weight) {
-                        return std::optional<E> { std::nullopt };
-                    }
-                    if (!g.has_inputs(node)) {  // is root node
-                        return std::optional<E> { *backward_edge };
-                    }
-                    // is NOT root node (leaf node or any node that isn't root node)
-                    return std::optional<E> { *forward_edge };
-                })
-                | std::views::filter([](const std::optional<E>& edge_opt) {
-                    return edge_opt.has_value();
-                })
-                | std::views::transform([](const std::optional<E>& edge_opt) {
-                    E edge { *edge_opt };
-                    return edge;
-                })
-            };
-            // constexpr std::size_t container_size {
-            //     G::limits(g.grid_down_cnt, g.grid_right_cnt).max_resident_nodes_cnt
-            // };
-            // using CONTAINER = static_vector_typer<N, container_size, error_check>::type;
-            // TODO: INSTEAD OF VECTOR, USE CONTAINER CREATOR PACK;
-            using CONTAINER = std::vector<E>;
-            CONTAINER container(applicable_resident_nodes.begin(), applicable_resident_nodes.end());
-            std::ranges::sort(container);
+            const auto& resident_nodes { g.resident_nodes() };
+            std::vector<N> resident_nodes_sorted(resident_nodes.begin(), resident_nodes.end());
+            std::ranges::sort(resident_nodes_sorted);
 
-            std::vector<std::variant<hop, segment>> parts;
-            N from_node { g.get_root_node() };
-            for (const E& resident_edge : container) {
-                N to_node { g.get_edge_from(resident_edge) };
-                if (from_node != to_node) {
-                    parts.push_back({ segment { from_node, to_node } });
+            std::vector<E> resident_edges {};
+            resident_edges.reserve(resident_nodes_sorted.size());
+            {
+                N last_to_node { g.get_root_node() };
+                for (const N& resident_node : resident_nodes) {
+                    // Does an optimal path path through this resident node? If it doesn't, skip. IS THIS STEP ACTUALLY
+                    // NECESSARY?
+                    {
+                        const auto& [weight, forward_edge, backward_edge] { walk_to_node(resident_node) };
+                        if (weight != final_weight) {
+                            continue;
+                        }
+                    }
+                    // Isolate graph such that root is last_to_node and walk it instead of full graph. This is required
+                    // because, when walking using the whole graph (not isolated), sometimes the edge's "from node" will
+                    // be BEFORE last_to_node. Having a "from node" BEFORE last_to_node is a known issue because there
+                    // may be more than 1 optimal path and the prior edge vs this edge are targeting different optimal
+                    // paths. The problem is that we can't accept that because we're targeting exactly one optimal path,
+                    // and so we want to reject anything BEFORE last_to_node because if it goes BEFORE last_to_node then
+                    // we know it's targeting a different optimal path vs the one that goes through last_to_node.
+                    middle_sliceable_pairwise_alignment_graph<G, error_check> sub_graph {
+                        g,
+                        last_to_node,
+                        g.get_leaf_node()
+                    };
+                    bidi_walker<
+                        decltype(sub_graph),
+                        SLICE_SLOT_CONTAINER_CREATOR,
+                        RESIDENT_SLOT_CONTAINER_CREATOR
+                    > sub_graph_bidi_walker {
+                        sub_graph,
+                        slice_slot_container_creator,
+                        resident_slot_container_creator
+                    };
+                    const auto& [weight, forward_edge, backward_edge] { sub_graph_bidi_walker.walk_to_node(resident_node) };
+                    if (!sub_graph.has_node(resident_node)) { // if node isn't visible, skip
+                        continue;
+                    }
+                    E resident_edge;
+                    if (!g.has_inputs(resident_node)) {  // is root node
+                        resident_edge = *backward_edge;
+                    } else { // is NOT root node (leaf node or any node that isn't root node)
+                        resident_edge = *forward_edge;
+                    }
+                    resident_edges.push_back(resident_edge);
+                    last_to_node = g.get_edge_to(resident_edge);
                 }
-                parts.push_back({ hop { resident_edge } });
-                from_node = g.get_edge_to(resident_edge);
             }
-            N to_node { g.get_leaf_node() };
-            if (from_node != to_node) {
-                parts.push_back({ segment { from_node, to_node } });
+
+            std::vector<std::variant<hop, segment>> parts {};
+            parts.reserve(resident_edges.size() * 2zu + 1zu);
+            {
+                N last_to_node { g.get_root_node() };
+                for (const E& resident_edge : resident_edges) {
+                    N from_node { g.get_edge_from(resident_edge) };
+                    N to_node { g.get_edge_to(resident_edge) };
+                    if (last_to_node != from_node) {
+                        parts.push_back({ segment { last_to_node, from_node } });
+                    }
+                    parts.push_back({ hop { resident_edge } });
+                    last_to_node = to_node;
+                }
+                N final_to_node { g.get_leaf_node() };
+                if (last_to_node != final_to_node) {
+                    parts.push_back({ segment { last_to_node, final_to_node } });
+                }
             }
 
             // container will contain the nodes at which you should cut the graph for divide-and-conquer algorihtm.

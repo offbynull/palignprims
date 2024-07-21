@@ -80,8 +80,8 @@ namespace {
                 return 0.0f64;
             }
         };
-        std::string seq1 { "aaalmaaa" };
-        std::string seq2 { "zzzlmzzz" };
+        std::string seq1 { "aaaaalmnaaaaa" };
+        std::string seq2 { "zzzzzlVnzzzzz" };
         pairwise_local_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
@@ -342,8 +342,8 @@ namespace {
                 return 0.0f64;
             }
         };
-        std::string seq1 { "aaalmaaa" };
-        std::string seq2 { "zzzlmzzz" };
+        std::string seq1 { "aaaaalmnaaaaa" };
+        std::string seq2 { "zzzzzlVnzzzzz" };
         pairwise_local_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
