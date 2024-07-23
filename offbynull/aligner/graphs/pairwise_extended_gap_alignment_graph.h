@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_EXTENDED_GAP_ALIGNMENT_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_EXTENDED_GAP_ALIGNMENT_GRAPH_H
 
+#include <cstdint>
 #include <cstddef>
 #include <ranges>
 #include <tuple>
@@ -42,6 +43,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     >
     class pairwise_extended_gap_alignment_graph {
     public:
+        using DOWN_ELEM = std::decay_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
         using INDEX = INDEX_;
         using N = std::tuple<layer, INDEX, INDEX>;
         using ND = empty_type;
@@ -54,23 +57,29 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         std::function<
             WEIGHT(
                 const E&,
-                const std::decay_t<decltype(down_seq[0u])>&,
-                const std::decay_t<decltype(right_seq[0u])>&
+                const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
             )
         > match_lookup;
         std::function<
             WEIGHT(
-                const E&
+                const E&,
+                const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
             )
         > initial_indel_lookup;
         std::function<
             WEIGHT(
-                const E&
+                const E&,
+                const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
             )
         > extended_indel_lookup;
         std::function<
             WEIGHT(
-                const E&
+                const E&,
+                const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
             )
         > freeride_lookup;
 
@@ -99,23 +108,29 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             std::function<
                 WEIGHT(
                     const E&,
-                    const std::decay_t<decltype(_down_seq[0u])>&,
-                    const std::decay_t<decltype(_right_seq[0u])>&
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _match_lookup,
             std::function<
                 WEIGHT(
-                    const E&
+                    const E&,
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _initial_indel_lookup,
             std::function<
                 WEIGHT(
-                    const E&
+                    const E&,
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _extended_indel_lookup,
             std::function<
                 WEIGHT(
-                    const E&
+                    const E&,
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _freeride_lookup
         )
@@ -148,21 +163,45 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             if (n1_layer == layer::DIAGONAL && n2_layer == layer::DIAGONAL) {  // match
                 return match_lookup(
                     edge,
-                    down_seq[n1_grid_down],
-                    right_seq[n1_grid_right]
+                    { { down_seq[n1_grid_down] } },
+                    { { right_seq[n1_grid_right] } }
                 );
             } else if (n1_layer == layer::DOWN && n2_layer == layer::DOWN) {  // gap
-                return extended_indel_lookup(edge);
+                return extended_indel_lookup(
+                    edge,
+                    { { down_seq[n1_grid_down] } },
+                    { std::nullopt }
+                );
             } else if (n1_layer == layer::RIGHT && n2_layer == layer::RIGHT) {  // gap
-                return extended_indel_lookup(edge);
+                return extended_indel_lookup(
+                    edge,
+                    { std::nullopt },
+                    { { right_seq[n1_grid_right] } }
+                );
             } else if (n1_layer == layer::DIAGONAL && n2_layer == layer::DOWN) {  // indel
-                return initial_indel_lookup(edge);
+                return initial_indel_lookup(
+                    edge,
+                    { { down_seq[n1_grid_down] } },
+                    { std::nullopt }
+                );
             } else if (n1_layer == layer::DIAGONAL && n2_layer == layer::RIGHT) {  // indel
-                return initial_indel_lookup(edge);
+                return initial_indel_lookup(
+                    edge,
+                    { std::nullopt },
+                    { { right_seq[n1_grid_right] } }
+                );
             } else if (n1_layer == layer::DOWN && n2_layer == layer::DIAGONAL) {  // freeride
-                return freeride_lookup(edge);
+                return freeride_lookup(
+                    edge,
+                    { std::nullopt },
+                    { std::nullopt }
+                );
             } else if (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL) {  // freeride
-                return freeride_lookup(edge);
+                return freeride_lookup(
+                    edge,
+                    { std::nullopt },
+                    { std::nullopt }
+                );
             }
             if constexpr (error_check) {
                 throw std::runtime_error("Bad edge");
@@ -508,12 +547,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) {
-            REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
+            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
+            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
+            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
+            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
+            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
+            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
             return forward_range_join_view {
                 std::views::iota(1u, override_grid_right_cnt)
                 | std::views::transform(

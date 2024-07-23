@@ -2,46 +2,18 @@
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
+#include "offbynull/aligner/scorers/simple_scorer.h"
 #include "gtest/gtest.h"
 
 namespace {
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::pairwise_extended_gap_alignment_graph;
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::layer;
+    using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    auto match_lookup {
-        [](
-            const auto& edge,
-            const char& down_elem,
-            const char& right_elem
-        ) -> std::float64_t {
-            if (down_elem == right_elem) {
-                return 1.0f64;
-            } else {
-                return -1.0f64;
-            }
-        }
-    };
-    auto initial_indel_lookup {
-        [](
-            const auto& edge
-        ) -> std::float64_t {
-            return 0.0f64;
-        }
-    };
-    auto extended_indel_lookup {
-        [](
-            const auto& edge
-        ) -> std::float64_t {
-            return 0.1f64;
-        }
-    };
-    auto freeride_lookup {
-        [](
-            const auto& edge
-        ) -> std::float64_t {
-            return 0.0f64;
-        }
-    };
+    auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+    auto initial_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(0.0f64) };
+    auto extended_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(0.1f64) };
+    auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride() };
 
     TEST(PairwiseExtendedGapAlignmentGraphTest, ConceptCheck) {
         using G = pairwise_extended_gap_alignment_graph<std::string, std::string>;
@@ -55,10 +27,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         using N = typename std::remove_reference_t<decltype(g)>::N;
@@ -109,10 +81,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         using N = typename std::remove_reference_t<decltype(g)>::N;
@@ -189,10 +161,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         EXPECT_TRUE(g.has_node({layer::DIAGONAL, 0zu, 0zu}));
@@ -253,10 +225,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 0zu, 0zu}, {layer::RIGHT, 0zu, 1zu}}));
@@ -280,10 +252,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         EXPECT_TRUE(g.has_edge({{layer::DIAGONAL, 0zu, 0zu}, {layer::DOWN, 1zu, 0zu}}));
@@ -307,10 +279,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         EXPECT_TRUE(g.has_edge({ {layer::DIAGONAL, 0zu, 0zu}, {layer::DIAGONAL, 1zu, 1zu} }));
@@ -330,10 +302,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         EXPECT_FALSE(g.has_edge({{layer::DOWN, 0zu, 0zu}, {layer::DIAGONAL, 0zu, 0zu}}));
@@ -360,10 +332,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         EXPECT_FALSE(g.has_edge({{layer::RIGHT, 0zu, 0zu}, {layer::DIAGONAL, 0zu, 0zu}}));
@@ -390,10 +362,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         using E = typename std::remove_reference_t<decltype(g)>::E;
@@ -676,10 +648,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         using E = typename std::remove_reference_t<decltype(g)>::E;
@@ -962,10 +934,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         // Diagonal 0,0 to 0,3
@@ -1013,10 +985,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         // Diagonal 0,0 to 0,3
@@ -1064,10 +1036,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         EXPECT_EQ(1.0f64, g.get_edge_data({{layer::DIAGONAL, 0zu, 0zu}, {layer::DIAGONAL, 1zu, 1zu}}));
@@ -1098,10 +1070,10 @@ namespace {
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            initial_indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
 
         using G = std::decay_t<decltype(g)>;

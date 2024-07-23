@@ -35,6 +35,8 @@ namespace offbynull::aligner::graphs::grid_graph {
     >
     class grid_graph {
     public:
+        using DOWN_ELEM = std::decay_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
         using INDEX = INDEX_;
         using N = std::pair<INDEX, INDEX>;
         using ND = empty_type;
@@ -47,13 +49,15 @@ namespace offbynull::aligner::graphs::grid_graph {
         std::function<
             WEIGHT(
                 const E&,
-                const std::decay_t<decltype(down_seq[0u])>&,
-                const std::decay_t<decltype(right_seq[0u])>&
+                const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
             )
         > match_lookup;
         std::function<
             WEIGHT(
-                const E&
+                const E&,
+                const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
             )
         > indel_lookup;
 
@@ -84,13 +88,15 @@ namespace offbynull::aligner::graphs::grid_graph {
             std::function<
                 WEIGHT(
                     const E&,
-                    const std::decay_t<decltype(_down_seq[0u])>&,
-                    const std::decay_t<decltype(_right_seq[0u])>&
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _match_lookup,
             std::function<
                 WEIGHT(
-                    const E&
+                    const E&,
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _indel_lookup
         )
@@ -119,14 +125,22 @@ namespace offbynull::aligner::graphs::grid_graph {
             const auto& [n1_grid_down, n1_grid_right] { edge.first };
             const auto& [n2_grid_down, n2_grid_right] { edge.second };
             if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
-                return indel_lookup(edge);
+                return indel_lookup(
+                    edge,
+                    { std::nullopt },
+                    { { right_seq[n1_grid_right] } }
+                );
             } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {
-                return indel_lookup(edge);
+                return indel_lookup(
+                    edge,
+                    { { down_seq[n1_grid_down] } },
+                    { std::nullopt }
+                );
             } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
                 return match_lookup(
                     edge,
-                    down_seq[n1_grid_down],
-                    right_seq[n1_grid_right]
+                    { { down_seq[n1_grid_down] } },
+                    { { right_seq[n1_grid_right] } }
                 );
             }
             if constexpr (error_check) {

@@ -5,6 +5,7 @@
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_local_alignment_graph.h"
 #include "offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h"
+#include "offbynull/aligner/scorers/simple_scorer.h"
 #include "gtest/gtest.h"
 
 namespace {
@@ -12,34 +13,11 @@ namespace {
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge;
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type;
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
+    using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    auto match_lookup {
-        [](
-            const auto& edge,
-            const char& down_elem,
-            const char& right_elem
-        ) -> std::float64_t {
-            if (down_elem == right_elem) {
-                return 1.0f64;
-            } else {
-                return -1.0f64;
-            }
-        }
-    };
-    auto indel_lookup {
-        [](
-            const auto& edge
-        ) -> std::float64_t {
-            return 0.0f64;
-        }
-    };
-    auto freeride_lookup {
-        [](
-            const auto& edge
-        ) -> std::float64_t {
-            return 0.0f64;
-        }
-    };
+    auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+    auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(0.0f64) };
+    auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride() };
 
     struct graph_bundle {
         std::string down_seq;
@@ -57,9 +35,9 @@ namespace {
         , backing_g{
             down_seq,
             right_seq,
-            match_lookup,
-            indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            gap_scorer,
+            freeride_scorer
         }
         , suffix_g{backing_g, new_root_node} {}
     };

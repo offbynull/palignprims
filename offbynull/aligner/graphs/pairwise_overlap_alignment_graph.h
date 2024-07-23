@@ -1,6 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_OVERLAP_ALIGNMENT_GRAPH_H
 #define OFFBYNULL_ALIGNER_GRAPHS_PAIRWISE_OVERLAP_ALIGNMENT_GRAPH_H
 
+#include <cstdint>
 #include <cstddef>
 #include <ranges>
 #include <tuple>
@@ -50,6 +51,8 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
     >
     class pairwise_overlap_alignment_graph {
     public:
+        using DOWN_ELEM = std::decay_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
         using INDEX = INDEX_;
         using N = std::pair<INDEX, INDEX>;
         using E = edge<INDEX>;
@@ -66,7 +69,9 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         > g;
         std::function<
             WEIGHT(
-                const E& edge
+                const E&,
+                const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
             )
         > freeride_lookup;
 
@@ -80,18 +85,22 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
             std::function<
                 WEIGHT(
                     const E&,
-                    const std::decay_t<decltype(_down_seq[0u])>&,
-                    const std::decay_t<decltype(_right_seq[0u])>&
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _match_lookup,
             std::function<
                 WEIGHT(
-                    const E&
+                    const E&,
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _indel_lookup,
             std::function<
                 WEIGHT(
-                    const E&
+                    const E&,
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _freeride_lookup
         )
@@ -100,18 +109,24 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
             _right_seq,
             [_match_lookup](
                 const typename decltype(g)::E& edge,
-                const std::decay_t<decltype(_down_seq[0u])>& down_elem,
-                const std::decay_t<decltype(_right_seq[0u])>& right_elem
+                const std::optional<std::reference_wrapper<const DOWN_ELEM>> down_elem,
+                const std::optional<std::reference_wrapper<const RIGHT_ELEM>> right_elem
             ) {
                 return _match_lookup(
-                    {edge_type::NORMAL, edge}, down_elem, right_elem
+                    {edge_type::NORMAL, edge},
+                    down_elem,
+                    right_elem
                  );
             },
             [_indel_lookup] (
-                const typename decltype(g)::E& edge
+                const typename decltype(g)::E& edge,
+                const std::optional<std::reference_wrapper<const DOWN_ELEM>> down_elem,
+                const std::optional<std::reference_wrapper<const RIGHT_ELEM>> right_elem
             ) {
                 return _indel_lookup(
-                    {edge_type::NORMAL, edge}
+                    {edge_type::NORMAL, edge},
+                    down_elem,
+                    right_elem
                  );
             }
         }
@@ -143,7 +158,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
             }
             if (edge.type == edge_type::FREE_RIDE) {
                 const auto& [n1, n2] { edge.inner_edge };
-                return std::tuple<N, N, ED> {n1, n2, freeride_lookup(edge)};
+                return std::tuple<N, N, ED> {n1, n2, freeride_lookup(edge, { std::nullopt }, { std::nullopt })};
             } else {
                 return g.get_edge(edge.inner_edge);
             }
@@ -243,7 +258,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
                     N n1 { std::get<1>(raw_full_edge) };
                     N n2 { std::get<2>(raw_full_edge) };
                     E e { edge_type::NORMAL, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
                 })
             };
             bool has_freeride_to_leaf { std::get<0>(node) == grid_down_cnt - 1u && std::get<1>(node) < grid_right_cnt - 1u };
@@ -252,7 +267,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
                 | std::views::transform([node, this](const N& n2) noexcept {
                     N n1 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
                 })
                 | std::views::filter([has_freeride_to_leaf](const auto&) noexcept {
                     return has_freeride_to_leaf;
@@ -267,7 +282,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
                 | std::views::transform([this](const N& n2) {
                     N n1 { 0, 0 };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
                 })
                 | std::views::filter([has_freeride_from_root](const auto&) {
                     return has_freeride_from_root;
@@ -289,7 +304,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
                     N n1 { std::get<1>(raw_full_edge) };
                     N n2 { std::get<2>(raw_full_edge) };
                     E e { edge_type::NORMAL, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
                 })
             };
             bool has_freeride_to_leaf { node == get_leaf_node() };
@@ -301,7 +316,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
                 | std::views::transform([this](const N& n1) {
                     N n2 { get_leaf_node() };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
                 })
                 | std::views::filter([has_freeride_to_leaf](const auto&) {
                     return has_freeride_to_leaf;
@@ -313,7 +328,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
                 | std::views::transform([node, this](const N& n1) {
                     N n2 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e)};
+                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
                 })
                 | std::views::filter([has_freeride_from_root](const auto&) {
                     return has_freeride_from_root;

@@ -3,6 +3,7 @@
 
 #include <concepts>
 #include <optional>
+#include <limits>
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/concepts.h"
 
@@ -36,13 +37,63 @@ namespace offbynull::aligner::scorers::simple_scorer {
         , right_missing_weight { right_missing_weight_ }
         , both_missing_weight { both_missing_weight_ } {}
 
-        simple_scorer(
+        static simple_scorer<DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_substitution(
             WEIGHT match_weight_,
-            WEIGHT mismatch_weight_,
-            WEIGHT indel_weight_,
-            WEIGHT free_ride_weight_ = {}
-        )
-        : simple_scorer { match_weight_, mismatch_weight_, indel_weight_, indel_weight_, free_ride_weight_ } {}
+            WEIGHT mismatch_weight_
+        ) {
+            constexpr bool nan_available { std::numeric_limits<WEIGHT>::has_quiet_NaN };
+            constexpr WEIGHT missing_val { nan_available ? std::numeric_limits<WEIGHT>::quiet_NaN() : std::numeric_limits<WEIGHT>::max() };
+            return {
+                match_weight_,
+                mismatch_weight_,
+                missing_val,
+                missing_val,
+                missing_val
+            };
+        }
+
+        static simple_scorer<DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap(
+            WEIGHT gap_weight_
+        ) {
+            constexpr bool nan_available { std::numeric_limits<WEIGHT>::has_quiet_NaN };
+            constexpr WEIGHT missing_val { nan_available ? std::numeric_limits<WEIGHT>::quiet_NaN() : std::numeric_limits<WEIGHT>::max() };
+            return {
+                missing_val,
+                missing_val,
+                gap_weight_,
+                gap_weight_,
+                missing_val
+            };
+        }
+
+        static simple_scorer<DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap_asymmetric(
+            WEIGHT down_gap_weight_,
+            WEIGHT right_gap_weight_
+        ) {
+            constexpr bool nan_available { std::numeric_limits<WEIGHT>::has_quiet_NaN };
+            constexpr WEIGHT missing_val { nan_available ? std::numeric_limits<WEIGHT>::quiet_NaN() : std::numeric_limits<WEIGHT>::max() };
+            return {
+                missing_val,
+                missing_val,
+                down_gap_weight_,
+                right_gap_weight_,
+                missing_val
+            };
+        }
+
+        static simple_scorer<DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_freeride(
+            WEIGHT freeride_weight_ = {}
+        ) {
+            constexpr bool nan_available { std::numeric_limits<WEIGHT>::has_quiet_NaN };
+            constexpr WEIGHT missing_val { nan_available ? std::numeric_limits<WEIGHT>::quiet_NaN() : std::numeric_limits<WEIGHT>::max() };
+            return {
+                missing_val,
+                missing_val,
+                missing_val,
+                missing_val,
+                freeride_weight_
+            };
+        }
 
         WEIGHT operator()(
             const auto& edge,

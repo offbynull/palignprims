@@ -20,6 +20,7 @@ namespace offbynull::aligner::scorers::levenshtein_scorer {
             static_cast<WEIGHT>(-1),
             static_cast<WEIGHT>(0),
             static_cast<WEIGHT>(0),
+            static_cast<WEIGHT>(0),
             static_cast<WEIGHT>(0)
         } {}
     };

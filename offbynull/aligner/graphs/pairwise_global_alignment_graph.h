@@ -30,6 +30,8 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
     >
     class pairwise_global_alignment_graph {
     public:
+        using DOWN_ELEM = std::decay_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
         using INDEX = INDEX_;
         using N = std::pair<INDEX, INDEX>;
         using E = std::pair<N, N>;
@@ -55,13 +57,15 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             std::function<
                 WEIGHT(
                     const E&,
-                    const std::decay_t<decltype(_down_seq[0u])>&,
-                    const std::decay_t<decltype(_right_seq[0u])>&
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _match_lookup,
             std::function<
                 WEIGHT(
-                    const E&
+                    const E&,
+                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
+                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
                 )
             > _indel_lookup
         )
@@ -70,47 +74,22 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         , grid_right_cnt{g.grid_right_cnt} {}
 
         ND get_node_data(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.get_node_data(node);
         }
 
         ED get_edge_data(const E& edge) {
-            if constexpr (error_check) {
-                if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
-                }
-            }
             return g.get_edge_data(edge);
         }
 
         N get_edge_from(const E& edge) {
-            if constexpr (error_check) {
-                if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
-                }
-            }
             return g.get_edge_from(edge);
         }
 
         N get_edge_to(const E& edge) {
-            if constexpr (error_check) {
-                if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
-                }
-            }
             return g.get_edge_to(edge);
         }
 
         std::tuple<N, N, ED> get_edge(const E& edge) {
-            if constexpr (error_check) {
-                if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
-                }
-            }
             return g.get_edge(edge);
         }
 
@@ -147,74 +126,34 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         }
 
         auto get_outputs_full(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.get_outputs_full(node);
         }
 
         auto get_inputs_full(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.get_inputs_full(node);
         }
 
         auto get_outputs(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.get_outputs(node);
         }
 
         auto get_inputs(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.get_inputs(node);
         }
 
         bool has_outputs(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.has_outputs(node);
         }
 
         bool has_inputs(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.has_inputs(node);
         }
 
         std::size_t get_out_degree(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.get_out_degree(node);
         }
 
         std::size_t get_in_degree(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.get_in_degree(node);
         }
 
@@ -248,11 +187,6 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         }
 
         std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offsets(const N& node) {
-            if constexpr (error_check) {
-                if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
-                }
-            }
             return g.node_to_grid_offsets(node);
         }
 
