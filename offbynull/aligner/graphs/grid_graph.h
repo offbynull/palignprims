@@ -13,7 +13,6 @@
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/graph/utils.h"
-#include "offbynull/helpers/forward_range_join_view.h"
 
 namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::concepts::widenable_to_size_t;
@@ -21,7 +20,6 @@ namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::static_vector_typer;
-    using offbynull::helpers::forward_range_join_view::forward_range_join_view;
     using offbynull::aligner::graph::utils::generic_slicable_pairwise_alignment_graph_limits;
 
     using empty_type = std::tuple<>;
@@ -203,17 +201,28 @@ namespace offbynull::aligner::graphs::grid_graph {
                 });
         }
 
-        auto get_edges() const {
-            return forward_range_join_view {
+        std::ranges::bidirectional_range auto get_edges() const {
+            return
                 std::views::cartesian_product(
                     std::views::iota(0u, grid_down_cnt),
-                    std::views::iota(0u, grid_right_cnt)
+                    std::views::iota(0u, grid_right_cnt),
+                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2)),
+                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2))
                 )
-                | std::views::transform([&](const auto & p) {
-                    N node { std::get<0>(p), std::get<1>(p) };
-                    return this->get_outputs(node);
+                | std::views::filter([](const auto& tuple) {
+                    const auto& [grid_down_idx, grid_right_idx, down_offset, right_offset] { tuple };
+                    return !(down_offset == 0u && right_offset == 0u);
                 })
-            };
+                | std::views::transform([](const auto& tuple) {
+                    const auto& [grid_down_idx, grid_right_idx, down_offset, right_offset] { tuple };
+                    return E {
+                        N { grid_down_idx, grid_right_idx },
+                        N { grid_down_idx + down_offset, grid_right_idx + right_offset }
+                    };
+                })
+                | std::views::filter([this](const E& edge) {
+                    return has_edge(edge);
+                });
         }
 
         bool has_node(const N& node) const {
@@ -229,25 +238,20 @@ namespace offbynull::aligner::graphs::grid_graph {
                 || (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right && n2_grid_down < grid_down_cnt && n2_grid_right < grid_right_cnt);
         }
 
-        auto get_outputs_full(const N& node) const {
+        std::ranges::bidirectional_range auto get_outputs_full(const N& node) const {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
             // Cartesian product has some issues with bloat, so not using it here:
-            //     std::views::cartesian_product(
-            //         std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(1)),
-            //         std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(1))
-            //     )
-            //     | std::views::drop(1)
-            std::array<N, 3zu> offsets {
-                std::pair{ static_cast<INDEX>(0),static_cast<INDEX>(1) },
-                std::pair{ static_cast<INDEX>(1),static_cast<INDEX>(0) },
-                std::pair{ static_cast<INDEX>(1),static_cast<INDEX>(1) }
-            };
-            return std::move(offsets)
-                | std::views::filter([node, this](const auto& offset) {
+            return
+                std::views::cartesian_product(
+                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2)),
+                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2))
+                )
+                | std::views::drop(1)
+                | std::views::filter([node = node, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [grid_down, grid_right] { node };
                     if (down_offset == 1u && grid_down == grid_down_cnt - 1u) {
@@ -258,7 +262,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                     }
                     return true;
                 })
-                | std::views::transform([node, this](const auto& offset) {
+                | std::views::transform([node = node, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [grid_down, grid_right] { node };
                     N n2 { grid_down + down_offset, grid_right + right_offset };
@@ -272,13 +276,13 @@ namespace offbynull::aligner::graphs::grid_graph {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            std::array<N, 3zu> offsets {
-                std::pair{ static_cast<INDEX>(0),static_cast<INDEX>(1) },
-                std::pair{ static_cast<INDEX>(1),static_cast<INDEX>(0) },
-                std::pair{ static_cast<INDEX>(1),static_cast<INDEX>(1) }
-            };
-            return std::move(offsets)
-                | std::views::filter([node, this](const auto& offset) {
+            return
+                std::views::cartesian_product(
+                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2)),
+                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2))
+                )
+                | std::views::drop(1)
+                | std::views::filter([node = node, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [grid_down, grid_right] { node };
                     if (down_offset == 1u && grid_down == 0u) {
@@ -289,7 +293,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                     }
                     return true;
                 })
-                | std::views::transform([node, this](const auto& offset) {
+                | std::views::transform([node = node, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [grid_down, grid_right] { node };
                     N n1 { grid_down - down_offset, grid_right - right_offset };
@@ -297,7 +301,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                 });
         }
 
-        auto get_outputs(const N& node) const {
+        std::ranges::bidirectional_range auto get_outputs(const N& node) const {
             if constexpr (error_check) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
@@ -342,7 +346,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                 }
             }
             auto outputs { this->get_outputs(node) };
-            auto dist { std::distance(outputs.begin(), outputs.end()) };
+            auto dist { std::ranges::distance(outputs) };
             return static_cast<std::size_t>(dist);
         }
 
@@ -353,7 +357,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                 }
             }
             auto inputs { this->get_inputs(node) };
-            auto dist { std::distance(inputs.begin(), inputs.end()) };
+            auto dist { std::ranges::distance(inputs) };
             return static_cast<std::size_t>(dist);
         }
 

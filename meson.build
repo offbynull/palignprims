@@ -36,9 +36,7 @@ gtest_dep = gtest.get_variable('gtest_dep')
 gmock_dep = gtest.get_variable('gmock_dep')
 tests_src = [
         'gtest-all.cpp',
-        'offbynull/helpers/forward_range_join_view_test.cpp',
         'offbynull/helpers/concat_view_test.cpp',
-        'offbynull/helpers/cartesian_product_2d_view_test.cpp',
         'offbynull/aligner/graph/utils_test.cpp',
         'offbynull/aligner/graphs/directed_graph_test.cpp',
         'offbynull/aligner/graphs/grid_graph_test.cpp',
@@ -57,7 +55,7 @@ tests_src = [
         'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/forward_walker_test.cpp',
         'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/bidi_walker_test.cpp',
         'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/sliced_subdivider_test.cpp',
-#        'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/backtracker_test.cpp',  FIX THIS ONE SEE README.md
+        'offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/backtracker_test.cpp',
         'offbynull/aligner/sequences/mmap_sequence_test.cpp',
         'offbynull/aligner/sequences/iota_sequence_test.cpp',
         'offbynull/aligner/sequences/transform_sequence_test.cpp',

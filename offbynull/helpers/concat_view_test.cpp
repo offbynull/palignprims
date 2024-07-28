@@ -5,7 +5,7 @@
 namespace {
     using offbynull::helpers::concat_view::concat_view;
 
-    TEST(ConcatViewTest, ForwardRangeTest) {
+    TEST(ConcatViewTest, ForwardTest) {
         std::vector<int> vec1 {1, 2};
         std::vector<int> vec2 {3, 4};
         concat_view r{vec1, vec2};
@@ -14,6 +14,19 @@ namespace {
             std::cout << n << ' ';
         }
         for (int n : r) {
+            std::cout << n << ' ';
+        }
+    }
+
+    TEST(ConcatViewTest, ReverseTest) {
+        std::vector<int> vec1 {1, 2};
+        std::vector<int> vec2 {3, 4};
+        concat_view r{vec1, vec2};
+        static_assert(std::ranges::forward_range<decltype(r)>);
+        for (int n : r | std::views::reverse) {
+            std::cout << n << ' ';
+        }
+        for (int n : r | std::views::reverse) {
             std::cout << n << ' ';
         }
     }

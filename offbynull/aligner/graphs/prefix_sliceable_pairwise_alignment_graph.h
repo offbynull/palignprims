@@ -232,7 +232,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             auto outputs { std::views::common(get_outputs(node)) };
-            auto dist { std::distance(outputs.begin(), outputs.end()) };
+            auto dist { std::ranges::distance(outputs) };
             return static_cast<std::size_t>(dist);
         }
 
@@ -243,7 +243,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             auto inputs { std::views::common(get_inputs(node)) };
-            auto dist { std::distance(inputs.begin(), inputs.end()) };
+            auto dist { std::ranges::distance(inputs) };
             return static_cast<std::size_t>(dist);
         }
 

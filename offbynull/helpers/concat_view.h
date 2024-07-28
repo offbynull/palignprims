@@ -16,15 +16,17 @@ namespace offbynull::helpers::concat_view {
 
     // https://www.reddit.com/r/cpp_questions/comments/1cp0rwu/how_to_lazily_concatenate_two_views/
     template <
-        std::forward_iterator It1,
+        std::bidirectional_iterator It1,
         std::sentinel_for<It1> S1,
-        std::forward_iterator It2,
+        std::bidirectional_iterator It2,
         std::sentinel_for<It2> S2
     >
     requires std::same_as<decltype(*std::declval<It1>()), decltype(*std::declval<It2>())>
     class iterator {
+        It1 begin1;
         It1 it1;
         S1 end1;
+        It2 begin2;
         It2 it2;
         S2 end2;
         bool is_first;
@@ -33,22 +35,26 @@ namespace offbynull::helpers::concat_view {
         using difference_type = std::ptrdiff_t;
         using value_type = typename It1::value_type;
         // using reference = typename It1::reference;
-        using iterator_category = std::forward_iterator_tag;
+        using iterator_category = std::bidirectional_iterator_tag;
 
         iterator(const iterator<It1, S1, It2, S2> &src) = default;
 
         iterator(iterator<It1, S1, It2, S2> &&src) = default;
 
         iterator()
-        : it1{}
+        : begin1{}
+        , it1{}
         , end1{}
+        , begin2{}
         , it2{}
         , end2{}
         , is_first{false} {}
 
         iterator(It1 a_first, S1 a_last, It2 b_first, S2 b_last)
-        : it1(a_first)
+        : begin1(a_first)
+        , it1(a_first)
         , end1(a_last)
+        , begin2(b_first)
         , it2(b_first)
         , end2(b_last)
         , is_first(a_first == a_last ? false : true) {}
@@ -80,6 +86,27 @@ namespace offbynull::helpers::concat_view {
             return tmp;
         }
 
+        iterator& operator--() {
+            if (!is_first) {
+                if (it2 == begin2) {
+                    is_first = true;
+                    --it1;
+                } else {
+                    --it2;
+                }
+            } else {
+                --it1;
+            }
+            return *this;
+        }
+
+        iterator operator--(int) {
+            iterator tmp = *this;
+            --(*this);
+            return tmp;
+        }
+
+
         bool operator==(const iterator& other) const {
             return is_first == other.is_first &&
                    (is_first ? it1 == other.it1 : it2 == other.it2);
@@ -110,7 +137,7 @@ namespace offbynull::helpers::concat_view {
         concat_view<R1, R2>& operator=(const concat_view<R1, R2>& other) = default;
         concat_view<R1, R2>& operator=(concat_view<R1, R2>&& other) = default;
 
-        std::forward_iterator auto begin() {
+        std::bidirectional_iterator auto begin() {
             return iterator(
                 std::ranges::begin(first_range),
                 std::ranges::end(first_range),

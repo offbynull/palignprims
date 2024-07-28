@@ -1,4 +1,5 @@
 #include <cstddef>
+#include <algorithm>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
@@ -91,64 +92,64 @@ namespace {
         using E = typename std::remove_reference_t<decltype(g)>::E;
 
         auto e = g.get_edges();
-        std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
+        std::vector<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
         for (auto _e : e) {
-            actual.insert(_e);
+            actual.push_back(_e);
         }
-        std::set expected {
-            std::set<E> {
-                E { N {layer::DIAGONAL, 0zu, 0zu}, N {layer::DIAGONAL, 1zu, 1zu} },
-                E { N {layer::DIAGONAL, 0zu, 1zu}, N {layer::DIAGONAL, 1zu, 2zu} },
-                E { N {layer::DIAGONAL, 0zu, 2zu}, N {layer::DIAGONAL, 1zu, 3zu} },
-                E { N {layer::DIAGONAL, 1zu, 0zu}, N {layer::DIAGONAL, 2zu, 1zu} },
-                E { N {layer::DIAGONAL, 1zu, 1zu}, N {layer::DIAGONAL, 2zu, 2zu} },
-                E { N {layer::DIAGONAL, 1zu, 2zu}, N {layer::DIAGONAL, 2zu, 3zu} },
-                E { N {layer::DIAGONAL, 0zu, 0zu}, N {layer::RIGHT, 0zu, 1zu} },
-                E { N {layer::DIAGONAL, 0zu, 1zu}, N {layer::RIGHT, 0zu, 2zu} },
-                E { N {layer::DIAGONAL, 0zu, 2zu}, N {layer::RIGHT, 0zu, 3zu} },
-                E { N {layer::DIAGONAL, 1zu, 0zu}, N {layer::RIGHT, 1zu, 1zu} },
-                E { N {layer::DIAGONAL, 1zu, 1zu}, N {layer::RIGHT, 1zu, 2zu} },
-                E { N {layer::DIAGONAL, 1zu, 2zu}, N {layer::RIGHT, 1zu, 3zu} },
-                E { N {layer::DIAGONAL, 2zu, 0zu}, N {layer::RIGHT, 2zu, 1zu} },
-                E { N {layer::DIAGONAL, 2zu, 1zu}, N {layer::RIGHT, 2zu, 2zu} },
-                E { N {layer::DIAGONAL, 2zu, 2zu}, N {layer::RIGHT, 2zu, 3zu} },
-                E { N {layer::DIAGONAL, 0zu, 0zu}, N {layer::DOWN, 1zu, 0zu} },
-                E { N {layer::DIAGONAL, 1zu, 0zu}, N {layer::DOWN, 2zu, 0zu} },
-                E { N {layer::DIAGONAL, 0zu, 1zu}, N {layer::DOWN, 1zu, 1zu} },
-                E { N {layer::DIAGONAL, 1zu, 1zu}, N {layer::DOWN, 2zu, 1zu} },
-                E { N {layer::DIAGONAL, 0zu, 2zu}, N {layer::DOWN, 1zu, 2zu} },
-                E { N {layer::DIAGONAL, 1zu, 2zu}, N {layer::DOWN, 2zu, 2zu} },
-                E { N {layer::DIAGONAL, 0zu, 3zu}, N {layer::DOWN, 1zu, 3zu} },
-                E { N {layer::DIAGONAL, 1zu, 3zu}, N {layer::DOWN, 2zu, 3zu} },
-                E { N {layer::DOWN, 1zu, 0zu}, N {layer::DIAGONAL, 1zu, 0zu} },
-                E { N {layer::DOWN, 1zu, 1zu}, N {layer::DIAGONAL, 1zu, 1zu} },
-                E { N {layer::DOWN, 1zu, 2zu}, N {layer::DIAGONAL, 1zu, 2zu} },
-                E { N {layer::DOWN, 1zu, 3zu}, N {layer::DIAGONAL, 1zu, 3zu} },
-                E { N {layer::DOWN, 2zu, 0zu}, N {layer::DIAGONAL, 2zu, 0zu} },
-                E { N {layer::DOWN, 2zu, 1zu}, N {layer::DIAGONAL, 2zu, 1zu} },
-                E { N {layer::DOWN, 2zu, 2zu}, N {layer::DIAGONAL, 2zu, 2zu} },
-                E { N {layer::DOWN, 2zu, 3zu}, N {layer::DIAGONAL, 2zu, 3zu} },
-                E { N {layer::DOWN, 1zu, 0zu}, N {layer::DOWN, 2zu, 0zu} },
-                E { N {layer::DOWN, 1zu, 1zu}, N {layer::DOWN, 2zu, 1zu} },
-                E { N {layer::DOWN, 1zu, 2zu}, N {layer::DOWN, 2zu, 2zu} },
-                E { N {layer::DOWN, 1zu, 3zu}, N {layer::DOWN, 2zu, 3zu} },
-                E { N {layer::RIGHT, 0zu, 1zu}, N {layer::DIAGONAL, 0zu, 1zu} },
-                E { N {layer::RIGHT, 0zu, 2zu}, N {layer::DIAGONAL, 0zu, 2zu} },
-                E { N {layer::RIGHT, 0zu, 3zu}, N {layer::DIAGONAL, 0zu, 3zu} },
-                E { N {layer::RIGHT, 1zu, 1zu}, N {layer::DIAGONAL, 1zu, 1zu} },
-                E { N {layer::RIGHT, 1zu, 2zu}, N {layer::DIAGONAL, 1zu, 2zu} },
-                E { N {layer::RIGHT, 1zu, 3zu}, N {layer::DIAGONAL, 1zu, 3zu} },
-                E { N {layer::RIGHT, 2zu, 1zu}, N {layer::DIAGONAL, 2zu, 1zu} },
-                E { N {layer::RIGHT, 2zu, 2zu}, N {layer::DIAGONAL, 2zu, 2zu} },
-                E { N {layer::RIGHT, 2zu, 3zu}, N {layer::DIAGONAL, 2zu, 3zu} },
-                E { N {layer::RIGHT, 0zu, 1zu}, N {layer::RIGHT, 0zu, 2zu} },
-                E { N {layer::RIGHT, 0zu, 2zu}, N {layer::RIGHT, 0zu, 3zu} },
-                E { N {layer::RIGHT, 1zu, 1zu}, N {layer::RIGHT, 1zu, 2zu} },
-                E { N {layer::RIGHT, 1zu, 2zu}, N {layer::RIGHT, 1zu, 3zu} },
-                E { N {layer::RIGHT, 2zu, 1zu}, N {layer::RIGHT, 2zu, 2zu} },
-                E { N {layer::RIGHT, 2zu, 2zu}, N {layer::RIGHT, 2zu, 3zu} },
-            }
+        std::ranges::sort(actual);
+        std::vector<E> expected {
+            E { N {layer::DIAGONAL, 0zu, 0zu}, N {layer::DIAGONAL, 1zu, 1zu} },
+            E { N {layer::DIAGONAL, 0zu, 1zu}, N {layer::DIAGONAL, 1zu, 2zu} },
+            E { N {layer::DIAGONAL, 0zu, 2zu}, N {layer::DIAGONAL, 1zu, 3zu} },
+            E { N {layer::DIAGONAL, 1zu, 0zu}, N {layer::DIAGONAL, 2zu, 1zu} },
+            E { N {layer::DIAGONAL, 1zu, 1zu}, N {layer::DIAGONAL, 2zu, 2zu} },
+            E { N {layer::DIAGONAL, 1zu, 2zu}, N {layer::DIAGONAL, 2zu, 3zu} },
+            E { N {layer::DIAGONAL, 0zu, 0zu}, N {layer::RIGHT, 0zu, 1zu} },
+            E { N {layer::DIAGONAL, 0zu, 1zu}, N {layer::RIGHT, 0zu, 2zu} },
+            E { N {layer::DIAGONAL, 0zu, 2zu}, N {layer::RIGHT, 0zu, 3zu} },
+            E { N {layer::DIAGONAL, 1zu, 0zu}, N {layer::RIGHT, 1zu, 1zu} },
+            E { N {layer::DIAGONAL, 1zu, 1zu}, N {layer::RIGHT, 1zu, 2zu} },
+            E { N {layer::DIAGONAL, 1zu, 2zu}, N {layer::RIGHT, 1zu, 3zu} },
+            E { N {layer::DIAGONAL, 2zu, 0zu}, N {layer::RIGHT, 2zu, 1zu} },
+            E { N {layer::DIAGONAL, 2zu, 1zu}, N {layer::RIGHT, 2zu, 2zu} },
+            E { N {layer::DIAGONAL, 2zu, 2zu}, N {layer::RIGHT, 2zu, 3zu} },
+            E { N {layer::DIAGONAL, 0zu, 0zu}, N {layer::DOWN, 1zu, 0zu} },
+            E { N {layer::DIAGONAL, 1zu, 0zu}, N {layer::DOWN, 2zu, 0zu} },
+            E { N {layer::DIAGONAL, 0zu, 1zu}, N {layer::DOWN, 1zu, 1zu} },
+            E { N {layer::DIAGONAL, 1zu, 1zu}, N {layer::DOWN, 2zu, 1zu} },
+            E { N {layer::DIAGONAL, 0zu, 2zu}, N {layer::DOWN, 1zu, 2zu} },
+            E { N {layer::DIAGONAL, 1zu, 2zu}, N {layer::DOWN, 2zu, 2zu} },
+            E { N {layer::DIAGONAL, 0zu, 3zu}, N {layer::DOWN, 1zu, 3zu} },
+            E { N {layer::DIAGONAL, 1zu, 3zu}, N {layer::DOWN, 2zu, 3zu} },
+            E { N {layer::DOWN, 1zu, 0zu}, N {layer::DIAGONAL, 1zu, 0zu} },
+            E { N {layer::DOWN, 1zu, 1zu}, N {layer::DIAGONAL, 1zu, 1zu} },
+            E { N {layer::DOWN, 1zu, 2zu}, N {layer::DIAGONAL, 1zu, 2zu} },
+            E { N {layer::DOWN, 1zu, 3zu}, N {layer::DIAGONAL, 1zu, 3zu} },
+            E { N {layer::DOWN, 2zu, 0zu}, N {layer::DIAGONAL, 2zu, 0zu} },
+            E { N {layer::DOWN, 2zu, 1zu}, N {layer::DIAGONAL, 2zu, 1zu} },
+            E { N {layer::DOWN, 2zu, 2zu}, N {layer::DIAGONAL, 2zu, 2zu} },
+            E { N {layer::DOWN, 2zu, 3zu}, N {layer::DIAGONAL, 2zu, 3zu} },
+            E { N {layer::DOWN, 1zu, 0zu}, N {layer::DOWN, 2zu, 0zu} },
+            E { N {layer::DOWN, 1zu, 1zu}, N {layer::DOWN, 2zu, 1zu} },
+            E { N {layer::DOWN, 1zu, 2zu}, N {layer::DOWN, 2zu, 2zu} },
+            E { N {layer::DOWN, 1zu, 3zu}, N {layer::DOWN, 2zu, 3zu} },
+            E { N {layer::RIGHT, 0zu, 1zu}, N {layer::DIAGONAL, 0zu, 1zu} },
+            E { N {layer::RIGHT, 0zu, 2zu}, N {layer::DIAGONAL, 0zu, 2zu} },
+            E { N {layer::RIGHT, 0zu, 3zu}, N {layer::DIAGONAL, 0zu, 3zu} },
+            E { N {layer::RIGHT, 1zu, 1zu}, N {layer::DIAGONAL, 1zu, 1zu} },
+            E { N {layer::RIGHT, 1zu, 2zu}, N {layer::DIAGONAL, 1zu, 2zu} },
+            E { N {layer::RIGHT, 1zu, 3zu}, N {layer::DIAGONAL, 1zu, 3zu} },
+            E { N {layer::RIGHT, 2zu, 1zu}, N {layer::DIAGONAL, 2zu, 1zu} },
+            E { N {layer::RIGHT, 2zu, 2zu}, N {layer::DIAGONAL, 2zu, 2zu} },
+            E { N {layer::RIGHT, 2zu, 3zu}, N {layer::DIAGONAL, 2zu, 3zu} },
+            E { N {layer::RIGHT, 0zu, 1zu}, N {layer::RIGHT, 0zu, 2zu} },
+            E { N {layer::RIGHT, 0zu, 2zu}, N {layer::RIGHT, 0zu, 3zu} },
+            E { N {layer::RIGHT, 1zu, 1zu}, N {layer::RIGHT, 1zu, 2zu} },
+            E { N {layer::RIGHT, 1zu, 2zu}, N {layer::RIGHT, 1zu, 3zu} },
+            E { N {layer::RIGHT, 2zu, 1zu}, N {layer::RIGHT, 2zu, 2zu} },
+            E { N {layer::RIGHT, 2zu, 2zu}, N {layer::RIGHT, 2zu, 3zu} }
         };
+        std::ranges::sort(expected);
         EXPECT_EQ(
             actual,
             expected

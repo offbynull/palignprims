@@ -9,7 +9,6 @@
 #include <utility>
 #include <functional>
 #include <stdfloat>
-#include "offbynull/helpers/forward_range_join_view.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/concepts.h"
@@ -23,7 +22,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::helpers::concat_view::concat_view;
     using offbynull::utils::static_vector_typer;
-    using offbynull::helpers::forward_range_join_view::forward_range_join_view;
     using offbynull::aligner::graph::utils::generic_slicable_pairwise_alignment_graph_limits;
 
     using empty_type = std::tuple<>;
@@ -292,43 +290,72 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             );
         }
 
-        auto get_edges() const {
+        std::ranges::bidirectional_range auto get_edges() const {
             auto diagonal_layer_edges {
-                forward_range_join_view {
-                    std::views::cartesian_product(
-                        std::views::iota(0u, grid_down_cnt),
-                        std::views::iota(0u, grid_right_cnt)
-                    )
-                    | std::views::transform([&](const auto & p) noexcept {
-                        const auto &[grid_down, grid_right] { p };
-                        return this->get_outputs(N { layer::DIAGONAL, grid_down, grid_right });
-                    })
+                std::views::cartesian_product(
+                    std::array<layer, 3zu> { layer::DIAGONAL, layer::DOWN, layer::RIGHT },
+                    std::views::iota(0u, grid_down_cnt),
+                    std::views::iota(0u, grid_right_cnt)
+                )
+                | std::views::transform([](const auto& tuple) {
+                    const auto& [n2_layer, n1_grid_down, n1_grid_right] { tuple };
+                    const N n1 { layer::DIAGONAL, n1_grid_down, n1_grid_right };
+                    if (n2_layer == layer::DIAGONAL) {
+                        return E { n1, N { n2_layer, n1_grid_down + 1u, n1_grid_right + 1u } };
+                    } else if (n2_layer == layer::DOWN) {
+                        return E { n1, N { n2_layer, n1_grid_down + 1u, n1_grid_right } };
+                    } else if (n2_layer == layer::RIGHT) {
+                        return E { n1, N { n2_layer, n1_grid_down, n1_grid_right + 1u } };
                     }
+                    std::unreachable();
+                })
+                | std::views::filter([this](const E& edge) {
+                    return has_edge(edge);
+                })
             };
+            static_assert(std::ranges::bidirectional_range<decltype(diagonal_layer_edges)>);
             auto down_layer_edges {
-                forward_range_join_view {
-                    std::views::cartesian_product(
-                        std::views::iota(1u, grid_down_cnt),
-                        std::views::iota(0u, grid_right_cnt)
-                    )
-                    | std::views::transform([&](const auto & p) noexcept {
-                        const auto &[grid_down, grid_right] { p };
-                        return this->get_outputs(N { layer::DOWN, grid_down, grid_right });
-                    })
-                }
+                std::views::cartesian_product(
+                    std::array<layer, 2zu> { layer::DIAGONAL, layer::DOWN },
+                    std::views::iota(1u, grid_down_cnt),
+                    std::views::iota(0u, grid_right_cnt)
+                )
+                | std::views::transform([](const auto& tuple) {
+                    const auto& [n2_layer, n1_grid_down, n1_grid_right] { tuple };
+                    const N n1 { layer::DOWN, n1_grid_down, n1_grid_right };
+                    if (n2_layer == layer::DIAGONAL) {
+                        return E { n1, N { n2_layer, n1_grid_down, n1_grid_right } };
+                    } else if (n2_layer == layer::DOWN) {
+                        return E { n1, N { n2_layer, n1_grid_down + 1u, n1_grid_right } };
+                    }
+                    std::unreachable();
+                })
+                | std::views::filter([this](const E& edge) {
+                    return has_edge(edge);
+                })
             };
+            static_assert(std::ranges::bidirectional_range<decltype(down_layer_edges)>);
             auto right_layer_edges {
-                forward_range_join_view {
-                    std::views::cartesian_product(
-                        std::views::iota(0u, grid_down_cnt),
-                        std::views::iota(1u, grid_right_cnt)
-                    )
-                    | std::views::transform([&](const auto & p) noexcept {
-                        const auto &[grid_down, grid_right] { p };
-                        return this->get_outputs(N { layer::RIGHT, grid_down, grid_right });
-                    })
-                }
+                std::views::cartesian_product(
+                    std::array<layer, 2zu> { layer::DIAGONAL, layer::RIGHT },
+                    std::views::iota(0u, grid_down_cnt),
+                    std::views::iota(1u, grid_right_cnt)
+                )
+                | std::views::transform([](const auto& tuple) {
+                    const auto& [n2_layer, n1_grid_down, n1_grid_right] { tuple };
+                    const N n1 { layer::RIGHT, n1_grid_down, n1_grid_right };
+                    if (n2_layer == layer::DIAGONAL) {
+                        return E { n1, N { n2_layer, n1_grid_down, n1_grid_right } };
+                    } else if (n2_layer == layer::RIGHT) {
+                        return E { n1, N { n2_layer, n1_grid_down, n1_grid_right + 1u } };
+                    }
+                    std::unreachable();
+                })
+                | std::views::filter([this](const E& edge) {
+                    return has_edge(edge);
+                })
             };
+            static_assert(std::ranges::bidirectional_range<decltype(right_layer_edges)>);
             return concat_view(
                 std::move(diagonal_layer_edges),
                 concat_view(
@@ -546,32 +573,25 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return slice_nodes(grid_down, grid_right_cnt);
         }
 
-        auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) const {
-            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            // REPALCE THIS WITH IOTA, AND THEN CALCULATE N BASED ON BY TRANSFORMING THE NUMBER THAT IOTA IS AT?;
-            return forward_range_join_view {
-                std::views::iota(1u, override_grid_right_cnt)
-                | std::views::transform(
-                    [grid_down](const auto& grid_right) {
-                        using CONTAINER = static_vector_typer<N, 3zu, error_check>::type;
-                        CONTAINER ret {};
-                        if (grid_down == 0u) {
-                            ret.push_back(N { layer::DIAGONAL, grid_down, grid_right });
-                        } else {
-                            if (grid_right != 0u) {
-                                ret.push_back(N { layer::DOWN, grid_down, grid_right });
-                                ret.push_back(N { layer::RIGHT, grid_down, grid_right });
-                            }
-                            ret.push_back(N { layer::DIAGONAL, grid_down, grid_right });
-                        }
-                        return ret;
+        std::ranges::bidirectional_range auto slice_nodes(INDEX grid_down, INDEX override_grid_right_cnt) const {
+            return
+                std::views::cartesian_product(
+                    std::views::iota(1u, override_grid_right_cnt),
+                    std::array<layer, 3zu> { layer::DIAGONAL, layer::RIGHT, layer::DOWN }
+                )
+                | std::views::filter(
+                    [grid_down](const auto& tuple) {
+                        const auto& [grid_right, layer] { tuple };
+                        return layer == layer::DIAGONAL
+                            || (grid_down != 0u && grid_right != 0u && (layer == layer::DOWN || layer == layer::RIGHT));
                     }
                 )
-            };
+                | std::views::transform(
+                    [grid_down](const auto& tuple) {
+                        const auto& [grid_right, layer] { tuple };
+                        return N { layer::DIAGONAL, grid_down, grid_right };
+                    }
+                );
         }
 
         N slice_first_node(INDEX grid_down) const {

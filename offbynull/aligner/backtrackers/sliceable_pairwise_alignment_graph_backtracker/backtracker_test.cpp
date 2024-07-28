@@ -5,6 +5,7 @@
 #include "offbynull/aligner/graphs/pairwise_global_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/backtracker.h"
+#include "offbynull/aligner/scorers/simple_scorer.h"
 #include "gtest/gtest.h"
 #include <stdfloat>
 
@@ -16,35 +17,18 @@ namespace {
     using offbynull::aligner::graphs::pairwise_fitting_alignment_graph::pairwise_fitting_alignment_graph;
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::pairwise_extended_gap_alignment_graph;
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
+    using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, GlobalTest) {
-        auto match_lookup {
-            [](
-                const auto& edge,
-                const char& down_elem,
-                const char& right_elem
-            ) -> std::float64_t {
-                if (down_elem == right_elem) {
-                    return 1.0f64;
-                } else {
-                    return -1.0f64;
-                }
-            }
-        };
-        auto indel_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return 0.0f64;
-            }
-        };
+        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abc" };
         std::string seq2 { "azc" };
         pairwise_global_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            indel_lookup
+            substitution_scorer,
+            gap_scorer
         };
 
         using N = typename decltype(g)::N;
@@ -76,41 +60,17 @@ namespace {
     }
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, LocalTest) {
-        auto match_lookup {
-            [](
-                const auto& edge,
-                const char& down_elem,
-                const char& right_elem
-            ) -> std::float64_t {
-                if (down_elem == right_elem) {
-                    return 1.0f64;
-                } else {
-                    return -1.0f64;
-                }
-            }
-        };
-        auto indel_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return -1.0f64;
-            }
-        };
-        auto freeride_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return 0.0f64;
-            }
-        };
+        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "zzzzzlmnzzzzz" };
         pairwise_local_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            gap_scorer,
+            freeride_scorer
         };
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
@@ -137,41 +97,17 @@ namespace {
     }
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, OverlapTest) {
-        auto match_lookup {
-            [](
-                const auto& edge,
-                const char& down_elem,
-                const char& right_elem
-            ) -> std::float64_t {
-                if (down_elem == right_elem) {
-                    return 1.0f64;
-                } else {
-                    return -1.0f64;
-                }
-            }
-        };
-        auto indel_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return -1.0f64;
-            }
-        };
-        auto freeride_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return 0.0f64;
-            }
-        };
+        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmn" };
         std::string seq2 { "lmnzzzzz" };
         pairwise_overlap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            gap_scorer,
+            freeride_scorer
         };
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
@@ -198,41 +134,17 @@ namespace {
     }
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, FittingTest) {
-        auto match_lookup {
-            [](
-                const auto& edge,
-                const char& down_elem,
-                const char& right_elem
-            ) -> std::float64_t {
-                if (down_elem == right_elem) {
-                    return 1.0f64;
-                } else {
-                    return -1.0f64;
-                }
-            }
-        };
-        auto indel_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return -1.0f64;
-            }
-        };
-        auto freeride_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return 0.0f64;
-            }
-        };
+        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "lmn" };
         pairwise_fitting_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            gap_scorer,
+            freeride_scorer
         };
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
@@ -259,49 +171,19 @@ namespace {
     }
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, ExtendedGapTest) {
-        auto match_lookup {
-            [](
-                const auto& edge,
-                const char& down_elem,
-                const char& right_elem
-            ) -> std::float64_t {
-                if (down_elem == right_elem) {
-                    return 1.0f64;
-                } else {
-                    return -1.0f64;
-                }
-            }
-        };
-        auto indel_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return -1.0f64;
-            }
-        };
-        auto extended_indel_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return 0.0f64;
-            }
-        };
-        auto freeride_lookup {
-            [](
-                const auto& edge
-            ) -> std::float64_t {
-                return 0.0f64;
-            }
-        };
+        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto extended_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaalaaamaaanaa" };
         std::string seq2 { "lmn" };
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
             seq1,
             seq2,
-            match_lookup,
-            indel_lookup,
-            extended_indel_lookup,
-            freeride_lookup
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
         };
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
@@ -310,8 +192,10 @@ namespace {
         backtracker<decltype(g)> backtracker_ { };
         const auto& [path, weight] { backtracker_.find_max_path(g) };
         for (const E& e : path) {
-            const auto& [n1, n2] { e.inner_edge };
-            std::cout << n1.first << '/' << n1.second << "->" << n2.first << '/' << n2.second << ' ';
+            const auto& [n1, n2] { e };
+            const auto& [n1_layer, n1_down, n1_right] { n1 };
+            const auto& [n2_layer, n2_down, n2_right] { n2 };
+            std::cout << static_cast<int>(n1_layer) << '/' << n1_down << '/' << n1_right << "->" << static_cast<int>(n2_layer) << '/' << n2_down << '/' << n2_right << ' ';
         }
         std::cout << std::endl;
         // std::cout << weight << std::endl;

@@ -154,11 +154,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             for (auto i { 0 }; i < indent; i++) {
                 indent_str += ' ';
             }
-            std::cout
-                    << indent_str
-                    << "root: [" << root_down_offset << "," << root_right_offset << "]"
-                    << " leaf: [" << leaf_down_offset << "," << leaf_right_offset << "]"
-                    << std::endl;
+            // std::cout
+            //         << indent_str
+            //         << "root: [" << root_down_offset << "," << root_right_offset << "]"
+            //         << " leaf: [" << leaf_down_offset << "," << leaf_right_offset << "]"
+            //         << std::endl;
 
             if (sub_graph.grid_down_cnt == 1u && sub_graph.grid_right_cnt == 1u) {
                 return 0.0;
@@ -216,14 +216,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 max_edge = max_edge_;
             }  // Everything above wrapped in its own scope so that walkers (and their associated containers) are destroyed
 
-            const auto& n1 { whole_graph.get_edge_from(max_edge) };
-            const auto& n2 { whole_graph.get_edge_to(max_edge) };
-            const auto& [n1_down, n1_right] { n1 };
-            const auto& [n2_down, n2_right] { n2 };
-            std::cout
-                    << indent_str
-                    << "found: " << n1_down << 'x' << n1_right << "->" << n2_down << 'x' << n2_right
-                    << " weight: " << max_weight << std::endl;
+            // const auto& n1 { whole_graph.get_edge_from(max_edge) };
+            // const auto& n2 { whole_graph.get_edge_to(max_edge) };
+            // const auto& [n1_down, n1_right] { n1 };
+            // const auto& [n2_down, n2_right] { n2 };
+            // std::cout
+            //         << indent_str
+            //         << "found: " << n1_down << 'x' << n1_right << "->" << n2_down << 'x' << n2_right
+            //         << " weight: " << max_weight << std::endl;
 
             // Add
             element<E>* current_element { nullptr };
@@ -248,7 +248,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             indent++;
 
             const N& new_leaf_node { whole_graph.get_edge_from(max_edge) };
-            std::cout << indent_str << " topleft" << std::endl;
+            // std::cout << indent_str << " topleft" << std::endl;
             subdivide(
                 path_container_,
                 current_element,
@@ -258,7 +258,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             );
 
             const N& new_root_node { whole_graph.get_edge_to(max_edge) };
-            std::cout << indent_str << " bottomright" << std::endl;
+            // std::cout << indent_str << " bottomright" << std::endl;
             subdivide(
                 path_container_,
                 current_element,

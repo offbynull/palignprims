@@ -260,7 +260,7 @@ namespace {
 
         EXPECT_EQ(G::limits(g.grid_down_cnt, g.grid_right_cnt).max_resident_nodes_cnt, 2zu); // directly proxied from backing graph
         auto resident_nodes { g.resident_nodes() };
-        EXPECT_EQ(std::distance(resident_nodes.begin(), resident_nodes.end()), 0zu);
+        EXPECT_EQ(std::ranges::distance(resident_nodes.begin(), resident_nodes.end()), 0zu);
         auto resident_nodes_it { resident_nodes.begin() };
         EXPECT_EQ(resident_nodes_it, resident_nodes.end());
 

@@ -14,7 +14,6 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/concepts.h"
 #include "offbynull/helpers/concat_view.h"
-#include "offbynull/helpers/cartesian_product_2d_view.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
@@ -24,7 +23,6 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::helpers::concat_view::concat_view;
-    using offbynull::helpers::cartesian_product_2d_view::cartesian_product_2d_view;
     using offbynull::utils::static_vector_typer;
     using offbynull::aligner::graph::utils::generic_slicable_pairwise_alignment_graph_limits;
 
@@ -286,10 +284,10 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             };
             bool has_freeride_from_root { node == get_root_node() };
             auto freeride_set_2 {
-                cartesian_product_2d_view {
-                    grid_down_cnt,
-                    grid_right_cnt
-                }
+                std::views::cartesian_product(
+                    std::views::iota(0u, grid_down_cnt),
+                    std::views::iota(0u, grid_right_cnt)
+                )
                 | std::views::take(grid_down_cnt * grid_right_cnt - 1u)  // Remove leaf (will be added by non_leaf_only_outputs)
                 | std::views::drop(1u)  // Remove root
                 | std::views::transform([this](const N& n2) {
@@ -322,10 +320,10 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             };
             bool has_freeride_to_leaf { node == get_leaf_node() };
             auto freeride_set_1 {
-                cartesian_product_2d_view {
-                    grid_down_cnt,
-                    grid_right_cnt
-                }
+                std::views::cartesian_product(
+                    std::views::iota(0u, grid_down_cnt),
+                    std::views::iota(0u, grid_right_cnt)
+                )
                 | std::views::take(grid_down_cnt * grid_right_cnt - 1u)  // Remove leaf
                 | std::views::drop(1u)  // Remove root (will be added by non_root_only_inputs)
                 | std::views::transform([this](const N& n1) {
@@ -405,7 +403,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 }
             }
             auto outputs { std::ranges::common_view { this->get_outputs(node) } };
-            auto dist { std::distance(outputs.begin(), outputs.end()) };
+            auto dist { std::ranges::distance(outputs) };
             return static_cast<std::size_t>(dist);
         }
 
@@ -416,7 +414,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 }
             }
             auto inputs { std::ranges::common_view { this->get_inputs(node) } };
-            auto dist { std::distance(inputs.begin(), inputs.end()) };
+            auto dist { std::ranges::distance(inputs) };
             return static_cast<std::size_t>(dist);
         }
 
