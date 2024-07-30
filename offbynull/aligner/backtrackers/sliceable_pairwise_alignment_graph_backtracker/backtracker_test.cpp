@@ -198,7 +198,7 @@ namespace {
             std::cout << static_cast<int>(n1_layer) << '/' << n1_down << '/' << n1_right << "->" << static_cast<int>(n2_layer) << '/' << n2_down << '/' << n2_right << ' ';
         }
         std::cout << std::endl;
-        // std::cout << weight << std::endl;
+        std::cout << weight << std::endl;
 
         using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::layer;
         std::vector<E> expected_path {

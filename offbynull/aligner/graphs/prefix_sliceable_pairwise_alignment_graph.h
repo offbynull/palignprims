@@ -25,32 +25,10 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         const G& g;
         const N new_leaf_node;
 
-        bool is_leaf_node_reachable(const N& src_node) const {
-            if (src_node == new_leaf_node) {
-                return true;
-            }
-            const auto& [leaf_down_offset, leaf_right_offset, leaf_grid_offset] { g.node_to_grid_offsets(new_leaf_node) };
-            for (const E& edge : g.get_outputs(src_node)) {
-                const N& dst_node { g.get_edge_to(edge) };
-                const auto& [dst_down_offset, dst_right_offset, dst_grid_offset] { g.node_to_grid_offsets(dst_node) };
-                if (dst_down_offset > leaf_down_offset || dst_right_offset > leaf_right_offset) {
-                    return false;
-                }
-                return is_leaf_node_reachable(dst_node);
-            }
-            return false;
-        }
-
         bool node_out_of_bound(const N& node) const {
             const auto& [down_offset, right_offset, _] { g.node_to_grid_offsets(node) };
             if (down_offset >= grid_down_cnt || right_offset >= grid_right_cnt) {
                 return true;
-            }
-            // If you're testing a node that's within the same grid offset as the leaf node, test to make sure that it
-            // actually reaches the leaf node. If it doesn't reach the leaf node (walks into a grid offset that's
-            // further down/right), that means it is out of bounds.
-            if (down_offset == grid_down_cnt - 1u && right_offset == grid_right_cnt - 1u) {
-                return !is_leaf_node_reachable(node);
             }
             return false;
         }
@@ -269,7 +247,21 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         auto slice_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
+            if constexpr (error_check) {
+                if (!has_node(root_node) || !has_node(leaf_node)) {
+                    throw std::runtime_error {"Node doesn't exist"};
+                }
+            }
             return g.slice_nodes(grid_down, root_node, leaf_node);
+        }
+
+        bool is_reachable(const N& n1, const N& n2) const {
+            if constexpr (error_check) {
+                if (!has_node(n1) || !has_node(n2)) {
+                    throw std::runtime_error {"Node doesn't exist"};
+                }
+            }
+            return g.is_reachable(n1, n2);
         }
 
         auto resident_nodes() const {

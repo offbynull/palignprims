@@ -163,6 +163,10 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
             return g.slice_nodes(grid_down_cnt - grid_down - 1u, leaf_node, root_node) | std::views::reverse;
         }
 
+        bool is_reachable(const N& n1, const N& n2) const {
+            return g.is_reachable(n2, n1);
+        }
+
         auto resident_nodes() const {
             return g.resident_nodes();
         }

@@ -198,6 +198,10 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             return g.slice_nodes(grid_down, root_node, leaf_node);
         }
 
+        bool is_reachable(const N& n1, const N& n2) const {
+            return g.is_reachable(n1, n2);
+        }
+
         auto resident_nodes() const {
             return g.resident_nodes();
         }

@@ -129,11 +129,27 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const N& root_node,
             const N& leaf_node
         ) {
+            std::string indent_str {};
+            static int indent { 0 };
+            for (auto i { 0 }; i < indent; i++) {
+                indent_str += ' ';
+            }
             middle_sliceable_pairwise_alignment_graph<G, error_check> sub_graph {
                 whole_graph,
                 root_node,
                 leaf_node
             };
+            const auto& [root_down_offset, root_right_offset, root_depth] { whole_graph.node_to_grid_offsets(sub_graph.get_root_node()) };
+            const auto& [leaf_down_offset, leaf_right_offset, leaf_depth] { whole_graph.node_to_grid_offsets(sub_graph.get_leaf_node()) };
+            std::cout
+                    << indent_str
+                    << "root: [" << root_down_offset << "," << root_right_offset << ',' << root_depth << "]"
+                    << " leaf: [" << leaf_down_offset << "," << leaf_right_offset << ',' << leaf_depth << "]"
+                    << std::endl;
+            if (!whole_graph.is_reachable(root_node, leaf_node)) {
+                std::cout << indent_str << "unreachable" << std::endl;
+                return 0.0;
+            }
             INDEX mid_down_offset { (sub_graph.grid_down_cnt - 1u) / 2u };
             N last_node { *(--sub_graph.slice_nodes(mid_down_offset).end()) };
             prefix_sliceable_pairwise_alignment_graph<decltype(sub_graph), error_check> prefix_graph {
@@ -148,19 +164,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             reversed_sliceable_pairwise_alignment_graph<decltype(suffix_graph)> reversed_suffix_graph {
                 suffix_graph
             };
-
-            const auto& [root_down_offset, root_right_offset, root_depth] { whole_graph.node_to_grid_offsets(sub_graph.get_root_node()) };
-            const auto& [leaf_down_offset, leaf_right_offset, leaf_depth] { whole_graph.node_to_grid_offsets(sub_graph.get_leaf_node()) };
-            static int indent { 0 };
-            std::string indent_str {};
-            for (auto i { 0 }; i < indent; i++) {
-                indent_str += ' ';
-            }
-            std::cout
-                    << indent_str
-                    << "root: [" << root_down_offset << "," << root_right_offset << ',' << root_depth << "]"
-                    << " leaf: [" << leaf_down_offset << "," << leaf_right_offset << ',' << leaf_depth << "]"
-                    << std::endl;
 
             if (sub_graph.grid_down_cnt == 1u && sub_graph.grid_right_cnt == 1u) {
                 return 0.0;

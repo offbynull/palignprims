@@ -32,6 +32,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
             { G::limits(grid_down, grid_right) } -> readable_sliceable_pairwise_alignment_graph_limits;
             { g.slice_nodes(grid_down) } -> range_of_one_of<typename G::N, const typename G::N&>;
             { g.slice_nodes(grid_down, node, node) } -> range_of_one_of<typename G::N, const typename G::N&>;
+            { g.is_reachable(node, node) } -> std::same_as<bool>;
             { g.resident_nodes() } -> range_of_one_of<typename G::N, const typename G::N&>;
             { g.outputs_to_residents(node) } -> range_of_one_of<typename G::E, const typename G::E&>;  // children in slice
             { g.inputs_from_residents(node) } -> range_of_one_of<typename G::E, const typename G::E&>;  // children in slice

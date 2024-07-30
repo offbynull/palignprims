@@ -397,6 +397,18 @@ namespace offbynull::aligner::graphs::grid_graph {
                 | std::views::transform([grid_down](const auto& grid_right) { return N { grid_down, grid_right }; });
         }
 
+        bool is_reachable(const N& n1, const N& n2) const {
+            if constexpr (error_check) {
+                if (!has_node(n1) || !has_node(n2)) {
+                    throw std::runtime_error("Bad node");
+                }
+                if (!(n1 <= n2)) {
+                    throw std::runtime_error("Bad node");
+                }
+            }
+            return true;
+        }
+
         auto resident_nodes() const {
             return std::views::empty<N>;
         }
