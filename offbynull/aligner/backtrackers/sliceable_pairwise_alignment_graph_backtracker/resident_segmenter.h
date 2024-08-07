@@ -150,12 +150,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const auto& resident_nodes { g.resident_nodes() };
             std::vector<N> resident_nodes_sorted(resident_nodes.begin(), resident_nodes.end());
             std::ranges::sort(resident_nodes_sorted);
+            auto resident_nodes_sorted_it { resident_nodes_sorted.begin() };
 
             std::vector<E> resident_edges {};
             resident_edges.reserve(resident_nodes_sorted.size());
             {
                 N last_to_node { g.get_root_node() };
-                for (const N& resident_node : resident_nodes) {
+                while (resident_nodes_sorted_it != resident_nodes_sorted.end()) {
+                    resident_nodes_sorted_it = std::lower_bound(resident_nodes_sorted_it, resident_nodes_sorted.end(), last_to_node);
+                    const N& resident_node { *resident_nodes_sorted_it };
                     // Does an optimal path through this resident node? If it doesn't, skip. IS THIS STEP ACTUALLY
                     // NECESSARY?
                     // TODO: Optimize this so that if multiple resident nodes are on the same slice, you don't have to walk the entire graph for each one
@@ -170,6 +173,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                         )
                     };
                     if (!on_max_path) {
+                        ++resident_nodes_sorted_it;
                         continue;
                     }
                     // Isolate graph such that root is last_to_node and walk it instead of full graph. This is required
@@ -192,6 +196,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                         >(sub_graph, resident_node)
                     };
                     if (!sub_graph.has_node(resident_node)) { // if node isn't visible, skip
+                        ++resident_nodes_sorted_it;
                         continue;
                     }
                     E resident_edge;
@@ -202,6 +207,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     }
                     resident_edges.push_back(resident_edge);
                     last_to_node = g.get_edge_to(resident_edge);
+                    ++resident_nodes_sorted_it;
                 }
             }
 

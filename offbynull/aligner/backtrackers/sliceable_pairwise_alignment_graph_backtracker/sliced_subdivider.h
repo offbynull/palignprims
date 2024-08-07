@@ -62,14 +62,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        // whole_graph expected to have 0 resident nodes, so enforce this as a 0-length array
-        using RESIDENT_SLOT_CONTAINER_CREATOR = array_container_creator<
+        // whole_graph expected to have 2 resident nodes at most (one at root and one at leaf), so enforce this as a
+        // 2-length static_vector
+        using RESIDENT_SLOT_CONTAINER_CREATOR = static_vector_container_creator<
             node_searchable_slot<
                 typename G::N,
                 typename G::E,
                 typename G::ED
             >,
-            0zu
+            2zu,
+            false
         >;
 
         G& whole_graph;
@@ -93,8 +95,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , slice_slot_container_creator { slice_slot_container_creator }
         , element_container_creator { element_container_creator } {
             if constexpr (error_check) {
-                for (const auto& _ : whole_graph.resident_nodes()) {
-                    throw std::runtime_error("Graph must not have any resident nodes");
+                for (const auto& resident_node : whole_graph.resident_nodes()) {
+                    if (resident_node != whole_graph.get_root_node() && resident_node != whole_graph.get_leaf_node()) {
+                        throw std::runtime_error("Graph must not have any resident nodes");
+                    }
                 }
             }
         }
