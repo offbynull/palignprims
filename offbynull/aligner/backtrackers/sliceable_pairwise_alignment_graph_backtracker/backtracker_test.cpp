@@ -38,7 +38,7 @@ namespace {
 
         // walk
         backtracker<decltype(g)> backtracker_ { };
-        const auto& [path, weight] { backtracker_.find_max_path(g) };
+        const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             const auto& [n1, n2] { e };
             std::cout << n1.first << '/' << n1.second << "->" << n2.first << '/' << n2.second << ' ';
@@ -79,7 +79,7 @@ namespace {
 
         // walk
         backtracker<decltype(g)> backtracker_ { };
-        const auto& [path, weight] { backtracker_.find_max_path(g) };
+        const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             const auto& [n1, n2] { e.inner_edge };
             std::cout << n1.first << '/' << n1.second << "->" << n2.first << '/' << n2.second << ' ';
@@ -116,7 +116,7 @@ namespace {
 
         // walk
         backtracker<decltype(g)> backtracker_ { };
-        const auto& [path, weight] { backtracker_.find_max_path(g) };
+        const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             const auto& [n1, n2] { e.inner_edge };
             std::cout << n1.first << '/' << n1.second << "->" << n2.first << '/' << n2.second << ' ';
@@ -153,7 +153,7 @@ namespace {
 
         // walk
         backtracker<decltype(g)> backtracker_ { };
-        const auto& [path, weight] { backtracker_.find_max_path(g) };
+        const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             const auto& [n1, n2] { e.inner_edge };
             std::cout << n1.first << '/' << n1.second << "->" << n2.first << '/' << n2.second << ' ';
@@ -211,7 +211,7 @@ namespace {
         std::float64_t actual_weight {};
         {
             backtracker<decltype(g)> backtracker_ { };
-            const auto& [path, weight] { backtracker_.find_max_path(g) };
+            const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
             for (const E& e : path) {
                 const auto& [n1, n2] { e };
                 const auto& [n1_layer, n1_down, n1_right] { n1 };
@@ -284,7 +284,7 @@ namespace {
         std::float64_t actual_weight {};
         {
             backtracker<decltype(g)> backtracker_ { };
-            const auto& [path, weight] { backtracker_.find_max_path(g) };
+            const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
             for (const E& e : path) {
                 const auto& [n1, n2] { e };
                 const auto& [n1_layer, n1_down, n1_right] { n1 };
@@ -375,7 +375,7 @@ namespace {
         std::float64_t actual_weight {};
         {
             backtracker<decltype(g)> backtracker_ { };
-            const auto& [path, weight] { backtracker_.find_max_path(g) };
+            const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
             for (const E& e : path) {
                 const auto& [n1, n2] { e };
                 const auto& [n1_layer, n1_down, n1_right] { n1 };
@@ -445,7 +445,7 @@ namespace {
             std::float64_t actual_weight {};
             {
                 backtracker<decltype(g)> backtracker_ { };
-                const auto& [path, weight] { backtracker_.find_max_path(g) };
+                const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
                 actual_path = path;
                 // actual_weight = weight;  // don't use weight -- instead manually tally up the weight from the edges (just to be sure)
                 for (const E& e : path) {

@@ -55,7 +55,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         backtrackable_edge<typename G::E>
     class bidi_walker {
     public:
-    public:
         using N = typename G::N;
         using E = typename G::E;
         using ND = typename G::ND;
@@ -63,20 +62,20 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using INDEX = typename G::INDEX;
 
     private:
-        G& g;
-        INDEX target_slice;
-        reversed_sliceable_pairwise_alignment_graph<G, error_check> reversed_g;
+        const G& g;
+        const INDEX target_slice;
+        const reversed_sliceable_pairwise_alignment_graph<G, error_check> reversed_g;
         forward_walker<G, SLICE_SLOT_CONTAINER_CREATOR, RESIDENT_SLOT_CONTAINER_CREATOR, error_check> forward_walker_;
         forward_walker<decltype(reversed_g), SLICE_SLOT_CONTAINER_CREATOR, RESIDENT_SLOT_CONTAINER_CREATOR, error_check> backward_walker;
-        SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator;
-        RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator;
+        const SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator;
+        const RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator;
 
     public:
         static bidi_walker create_and_initialize(
-            G& graph,
-            INDEX target_slice,
-            SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
-            RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
+            const G& graph,
+            const INDEX target_slice,
+            const SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
+            const RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
         ) {
             if constexpr (error_check) {
                 if (target_slice >= graph.grid_down_cnt) {
@@ -115,12 +114,51 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 });
         }
 
+        static find_result converge(
+            const G& g,
+            const N& node
+        ) {
+            const auto& [down, right, depth] { g.node_to_grid_offsets(node) };
+            bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g, down) };
+            return bidi_walker_.find(node);
+        }
+
+        static ED converge_weight(
+            const G& g,
+            const N& node
+        ) {
+            find_result slots { converge(g, node) };
+            return slots.forward_slot.backtracking_weight + slots.backward_slot.backtracking_weight;
+        }
+
+        static bool is_node_on_max_path(
+            const G& g,
+            const typename G::N& node,
+            const typename G::ED max_path_weight,
+            const typename G::ED max_path_weight_comparison_tolerance
+        ) {
+            const auto& [down, right, depth] { g.node_to_grid_offsets(node) };
+
+            bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g, down) };
+            auto list_entries { bidi_walker_.list() };
+
+            auto first_entry { *list_entries.begin() };
+            for (const auto& entry : bidi_walker_.list()) {
+                N node { entry.node };
+                ED node_converged_weight { entry.slots.forward_slot.backtracking_weight + entry.slots.backward_slot.backtracking_weight };
+                if (std::abs(node_converged_weight -  max_path_weight) <= max_path_weight_comparison_tolerance) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     private:
         bidi_walker(
-            G& g_,
-            INDEX target_slice_,
-            SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
-            RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
+            const G& g_,
+            const INDEX target_slice_,
+            const SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
+            const RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
         )
         : g { g_ }
         , target_slice { target_slice_ }

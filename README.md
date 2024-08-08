@@ -29,6 +29,13 @@ TODO:
   * ~~make adapater that create forward_range / forward_backward_range based on callbacks (e.g. next(value) func and prev(value) func)~~
 
 * resident_segmenter - some use of std::vector -- move creation of types in container_pack_creators (SEE TODOs IN RESIDENT_SEGMENTER -- DOES IT EVEN NEED TO EXIST?)
+* ~~resident_segmenter - move is_node_on_max_path/walk_to_node to static functions in bidiwalker?~~
+* DONT DO THIS, but make a note that it's possible to do in the code (but may result in rounding errors):
+  * make it so forward_walker can move backward, so if you're at slice n, you can subtract your way back to slice n-1
+  * make it so backward_walker can move backward, so if you're at slice n, you can subtract your way back to slice n+1
+  * make it so bidiwalker can move at will (making use of both points above)
+* ~~resident_segmenter, when finding if a resident node is a partition point, should first get the final weight of the graph, then TEST the bidiwalk'd weight at that node to see if it matches the final weight (USER MUST DEFINE TOLERANCE)~~
+* ~~subdivider, when finding the node in the slice that's being passed through, should first get the final weight of the graph, then TEST the bidiwalk'd weight at that node to see if it matches the final weight (USER MUST DEFINE TOLERANCE)~~ DONT NEED TO DO THIS the assumption with subdivider is that at least 1 node in each slice goes over max path, so it's fine just pulling out the max weight for a slice
 * ~~sliceable_pairwise_alignment_graph_backtracker use bidiwalker instead (make sure to update bidiwalker's logic to what's in backtracker)~~
 * ~~sliceable_pairwise_alignment_graph_backtracker randomized tests against pairwise_alignment_graph_backtracker~~
 * run profiler and optmize functions (some local alignment functions may be doing a ton of unneeded work -- e.g. get_outputs_full)

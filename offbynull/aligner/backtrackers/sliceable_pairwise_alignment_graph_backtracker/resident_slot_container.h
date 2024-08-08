@@ -76,7 +76,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     public:
         resident_slot_container(
-            G& graph_,
+            const G& graph_,
             const CONTAINER_CREATOR& container_creator
         )
         : slots{

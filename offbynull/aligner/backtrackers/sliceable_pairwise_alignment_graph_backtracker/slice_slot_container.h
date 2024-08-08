@@ -28,14 +28,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
         using CONTAINER=decltype(std::declval<CONTAINER_CREATOR>().create_objects(0zu));
-        G& graph;
+
+        const G& graph;
         CONTAINER slots;
         INDEX grid_down;
 
     public:
         slice_slot_container(
-            G& graph_,
-            CONTAINER_CREATOR container_creator
+            const G& graph_,
+            const CONTAINER_CREATOR container_creator
         )
         : graph{graph_}
         , slots{
@@ -43,7 +44,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 graph_.grid_right_cnt * G::limits(graph_.grid_down_cnt, graph_.grid_right_cnt).max_grid_node_depth
             )
         }
-        , grid_down {} {}
+        , grid_down{} {}
 
         std::optional<std::reference_wrapper<slot<E, ED>>> find(const N& node) {
             const auto& [down_offset, right_offset, depth] { graph.node_to_grid_offsets(node) };

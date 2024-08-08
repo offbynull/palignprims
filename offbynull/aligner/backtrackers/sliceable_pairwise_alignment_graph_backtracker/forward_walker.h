@@ -54,8 +54,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         INDEX grid_down_offset;
 
         slice_slot_container_pair(
-            G& graph,
-            SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator
+            const G& graph,
+            const SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator
         )
         : slots1{graph, slice_slot_container_creator}
         , slots2{graph, slice_slot_container_creator}
@@ -110,7 +110,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ND = typename G::ND;
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
-        G& graph;
+
+        const G& graph;
         resident_slot_container<G, RESIDENT_SLOT_CONTAINER_CREATOR, error_check> resident_slots;
         slice_slot_container_pair<G, SLICE_SLOT_CONTAINER_CREATOR, error_check> slice_slots;
         decltype(graph.slice_nodes(0u)) slice;
@@ -119,10 +120,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     public:
         static forward_walker create_and_initialize(
-            G& graph,
-            INDEX target_slice,
-            SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
-            RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
+            const G& graph,
+            const INDEX target_slice,
+            const SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
+            const RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
         ) {
             if constexpr (error_check) {
                 if (target_slice >= graph.grid_down_cnt) {
@@ -153,9 +154,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     private:
         forward_walker(
-            G& graph_,
-            SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
-            RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
+            const G& graph_,
+            const SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
+            const RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
         )
         : graph{graph_}
         , resident_slots{graph, resident_slot_container_creator}

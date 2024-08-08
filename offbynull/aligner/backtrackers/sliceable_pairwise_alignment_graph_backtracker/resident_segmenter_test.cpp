@@ -31,10 +31,10 @@ namespace {
             freeride_scorer
         };
 
-        resident_segmenter<decltype(g)> segmenter { g };
+        resident_segmenter<decltype(g)> segmenter {};
         using hop = decltype(segmenter)::hop;
         using segment = decltype(segmenter)::segment;
-        const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points() };
+        const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points(g, 0.000001f64) };
         std::cout << final_weight << std::endl;
         for (const auto& part : parts) {
             if (const hop* hop_ptr = std::get_if<hop>(&part)) {
@@ -89,10 +89,10 @@ namespace {
         // 0/0->5/0 5/0->6/1 6/1->7/2 7/2->8/3 8/3->8/8
         // 3
 
-        resident_segmenter<decltype(g)> segmenter { g };
+        resident_segmenter<decltype(g)> segmenter {};
         using hop = decltype(segmenter)::hop;
         using segment = decltype(segmenter)::segment;
-        const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points() };
+        const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points(g, 0.000001f64) };
         std::cout << final_weight << std::endl;
         for (const auto& part : parts) {
             if (const hop* hop_ptr = std::get_if<hop>(&part)) {

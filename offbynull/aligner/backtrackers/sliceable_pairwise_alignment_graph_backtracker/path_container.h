@@ -36,7 +36,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using E = typename G::E;
 
         element<E>* current;
-        G* g;
 
     public:
         using difference_type = std::ptrdiff_t;
@@ -46,12 +45,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using iterator_category = std::forward_iterator_tag;
 
         backward_walker_iterator()
-        : g {}
-        , current {} {}
+        : current {} {}
 
-        backward_walker_iterator(G& g_, element<E>* tail)
-        : g { &g_ }
-        , current { tail } {}
+        backward_walker_iterator(element<E>* tail)
+        : current { tail } {}
 
         reference operator*() const {
             return current->backtracking_edge;
@@ -59,17 +56,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
         backward_walker_iterator& operator++() {
             current = current->prev;
-            // const N& next_edge_src { g->get_edge_from(current->backtracking_edge) };
-            // while (true) {
-            //     current = current->prev;
-            //     if (current == nullptr) {
-            //         break;
-            //     }
-            //     const N& prev_edge_dst { g->get_edge_to(current->backtracking_edge) };
-            //     if (next_edge_src == prev_edge_dst) {
-            //         break;
-            //     }
-            // }
             return *this;
         }
 
@@ -89,26 +75,23 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     private:
         using E = typename G::E;
 
-        G& g;
         element<E>* head;
         element<E>* tail;
 
     public:
         backward_walker_range(
-            G& g_,
             element<E>* head_,
             element<E>* tail_
         )
-        : g{ g_ }
-        , head{ head_ }
+        : head{ head_ }
         , tail{ tail_ } {}
 
-        backward_walker_iterator<G> begin() {
-            return backward_walker_iterator<G>{ g, tail };
+        backward_walker_iterator<G> begin() const {
+            return backward_walker_iterator<G>{ tail };
         }
 
-        backward_walker_iterator<G> end() {
-            return backward_walker_iterator<G>{ g, nullptr };
+        backward_walker_iterator<G> end() const {
+            return backward_walker_iterator<G>{ nullptr };
         }
     };
 
@@ -121,20 +104,17 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     private:
         using E = typename G::E;
         using ELEMENT_CONTAINER=decltype(std::declval<ELEMENT_CONTAINER_CREATOR>().create_empty(0zu));
-        G& g;
 
-    public:
         ELEMENT_CONTAINER element_container;
         element<E>* head;
         element<E>* tail;
 
+    public:
         path_container(
-            G& g_,
-            std::size_t max_path_edge_cnt,
-            ELEMENT_CONTAINER_CREATOR element_container_creator = {}
+            const std::size_t max_path_edge_cnt,
+            const ELEMENT_CONTAINER_CREATOR element_container_creator = {}
         )
-        : g { g_ }
-        , element_container{ element_container_creator.create_empty(max_path_edge_cnt) } {}
+        : element_container{ element_container_creator.create_empty(max_path_edge_cnt) } {}
 
         element<E>* initialize(const E& backtracking_edge) {
             if constexpr (error_check) {
@@ -210,7 +190,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         }
 
         std::ranges::forward_range auto walk_path_backward() {
-            return backward_walker_range<G> { g, head, tail };
+            return backward_walker_range<G> { head, tail };
         }
     };
 }

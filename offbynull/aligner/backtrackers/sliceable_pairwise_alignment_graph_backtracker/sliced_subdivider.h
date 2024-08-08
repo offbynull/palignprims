@@ -74,7 +74,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             false
         >;
 
-        G& whole_graph;
+        const G& whole_graph;
         SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator;
         RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator;
         ELEMENT_CONTAINER_CREATOR element_container_creator;
@@ -87,9 +87,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     public:
         sliced_subdivider(
-            G& g,
-            SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
-            ELEMENT_CONTAINER_CREATOR element_container_creator = {}
+            const G& g,
+            const SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
+            const ELEMENT_CONTAINER_CREATOR element_container_creator = {}
         )
         : whole_graph { g }
         , slice_slot_container_creator { slice_slot_container_creator }
@@ -105,7 +105,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
         path_container<G, ELEMENT_CONTAINER_CREATOR, error_check> subdivide() {
             path_container<G, ELEMENT_CONTAINER_CREATOR, error_check> path_container_ {
-                whole_graph,
                 G::limits(
                     whole_graph.grid_down_cnt,
                     whole_graph.grid_right_cnt
@@ -129,7 +128,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         ED subdivide(
             path_container<G, ELEMENT_CONTAINER_CREATOR>& path_container_,
             element<E>* parent_element,
-            walk_direction dir,
+            const walk_direction dir,
             const N& root_node,
             const N& leaf_node,
             const ED existing_weight_at_root = {},

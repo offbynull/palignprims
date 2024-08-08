@@ -69,30 +69,32 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     public:
         backtracker(
-            SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
-            RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {},
-            ELEMENT_CONTAINER_CREATOR element_container_creator = {},
-            PATH_CONTAINER_CREATOR path_container_creator = {}
+            const SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
+            const RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {},
+            const ELEMENT_CONTAINER_CREATOR element_container_creator = {},
+            const PATH_CONTAINER_CREATOR path_container_creator = {}
         )
         : slice_slot_container_creator { slice_slot_container_creator }
         , resident_slot_container_creator { resident_slot_container_creator }
         , element_container_creator { element_container_creator }
         , path_container_creator { path_container_creator } {}
 
-        auto find_max_path(G& g) {
+        auto find_max_path(
+            const G& g,
+            const ED final_weight_comparison_tolerance
+        ) {
             resident_segmenter<
                 G,
                 SLICE_SLOT_CONTAINER_CREATOR,
                 RESIDENT_SLOT_CONTAINER_CREATOR,
                 error_check
             > resident_segmenter_ {
-                g,
                 slice_slot_container_creator,
                 resident_slot_container_creator
             };
             using hop = decltype(resident_segmenter_)::hop;
             using segment = decltype(resident_segmenter_)::segment;
-            const auto& [parts, final_weight] { resident_segmenter_.backtrack_segmentation_points() };
+            const auto& [parts, final_weight] { resident_segmenter_.backtrack_segmentation_points(g, final_weight_comparison_tolerance) };
             auto path { path_container_creator.create_empty(std::nullopt) };
             for (const auto& part : parts) {
                 if (const hop* hop_ptr = std::get_if<hop>(&part)) {

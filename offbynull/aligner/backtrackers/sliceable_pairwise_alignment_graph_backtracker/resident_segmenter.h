@@ -36,59 +36,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     template<
         readable_sliceable_pairwise_alignment_graph G,
-        container_creator SLICE_SLOT_CONTAINER_CREATOR,
-        container_creator RESIDENT_SLOT_CONTAINER_CREATOR,
-        bool error_check = true
-    >
-    auto walk_to_node(G& g, auto node) {
-        using E = typename G::E;
-        using ED = typename G::ED;
-
-        const auto& [down, right, depth] { g.node_to_grid_offsets(node) };
-
-        using BIDI_WALKER_TYPE = bidi_walker<G, SLICE_SLOT_CONTAINER_CREATOR, RESIDENT_SLOT_CONTAINER_CREATOR, error_check>;
-        BIDI_WALKER_TYPE bidi_walker_ { BIDI_WALKER_TYPE::create_and_initialize(g, down) };
-        auto slots { bidi_walker_.find(node) };
-
-        ED weight { slots.forward_slot.backtracking_weight + slots.backward_slot.backtracking_weight };
-        std::optional<E> forward_edge { slots.forward_slot.backtracking_edge };
-        std::optional<E> backward_edge { slots.backward_slot.backtracking_edge };
-        return std::tuple<ED, std::optional<E>, std::optional<E>> { weight, forward_edge, backward_edge };
-    }
-
-    template<
-        readable_sliceable_pairwise_alignment_graph G,
-        container_creator SLICE_SLOT_CONTAINER_CREATOR,
-        container_creator RESIDENT_SLOT_CONTAINER_CREATOR,
-        bool error_check = true
-    >
-    bool is_node_on_max_path(G& g, auto node) {
-        using N = typename G::N;
-        using E = typename G::E;
-        using ED = typename G::ED;
-
-        const auto& [down, right, depth] { g.node_to_grid_offsets(node) };
-
-        using BIDI_WALKER_TYPE = bidi_walker<G, SLICE_SLOT_CONTAINER_CREATOR, RESIDENT_SLOT_CONTAINER_CREATOR, error_check>;
-        BIDI_WALKER_TYPE bidi_walker_ { BIDI_WALKER_TYPE::create_and_initialize(g, down) };
-        auto list_entries { bidi_walker_.list() };
-
-        auto first_entry { *list_entries.begin() };
-        N max_node { first_entry.node };
-        ED max_node_weight { first_entry.slots.forward_slot.backtracking_weight + first_entry.slots.backward_slot.backtracking_weight };
-        for (const auto& entry : bidi_walker_.list()) {
-            N node { entry.node };
-            ED node_weight { entry.slots.forward_slot.backtracking_weight + entry.slots.backward_slot.backtracking_weight };
-            if (node_weight > max_node_weight) {
-                max_node = node;
-                max_node_weight = node_weight;
-            }
-        }
-        return node == max_node;
-    }
-
-    template<
-        readable_sliceable_pairwise_alignment_graph G,
         container_creator SLICE_SLOT_CONTAINER_CREATOR=vector_container_creator<
             slot<
                 typename G::E,
@@ -114,7 +61,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        G& g;
         SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator;
         RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator;
 
@@ -129,21 +75,22 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         };
 
         resident_segmenter(
-            G& g_,
-            SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
-            RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
+            const SLICE_SLOT_CONTAINER_CREATOR slice_slot_container_creator = {},
+            const RESIDENT_SLOT_CONTAINER_CREATOR resident_slot_container_creator = {}
         )
-        : g { g_ }
-        , slice_slot_container_creator { slice_slot_container_creator }
+        : slice_slot_container_creator { slice_slot_container_creator }
         , resident_slot_container_creator { resident_slot_container_creator } {}
 
-        auto backtrack_segmentation_points() {
-            ED final_weight {
-                std::get<0>(
-                    walk_to_node<G, SLICE_SLOT_CONTAINER_CREATOR, RESIDENT_SLOT_CONTAINER_CREATOR>(
-                        g,
-                        g.get_leaf_node()
-                    )
+        auto backtrack_segmentation_points(const G& g, const ED max_path_weight_comparison_tolerance) {
+            ED max_path_weight {
+                bidi_walker<
+                    G,
+                    SLICE_SLOT_CONTAINER_CREATOR,
+                    RESIDENT_SLOT_CONTAINER_CREATOR,
+                    error_check
+                >::converge_weight(
+                    g,
+                    g.get_leaf_node()
                 )
             };
 
@@ -168,8 +115,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     // TODO: Is there a better way to do this? Find first resident, then instead of looping and walking again, you can shift up/down the existing bidiwalker?
                     // TODO: Is this class even necessary? If you start subdividing from the whole graph, every subdivision should be for a region that the path travels through? IT IS NECESSARY -- THE MIDDLE SLICE OF THE GRAPH MAY BE HOPPED OVER?
                     bool on_max_path {
-                        is_node_on_max_path<G, SLICE_SLOT_CONTAINER_CREATOR, RESIDENT_SLOT_CONTAINER_CREATOR>(
-                            g, resident_node
+                        bidi_walker<
+                            G,
+                            SLICE_SLOT_CONTAINER_CREATOR,
+                            RESIDENT_SLOT_CONTAINER_CREATOR,
+                            error_check
+                        >::is_node_on_max_path(
+                            g,
+                            resident_node,
+                            max_path_weight,
+                            max_path_weight_comparison_tolerance
                         )
                     };
                     if (!on_max_path) {
@@ -188,12 +143,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                         last_to_node,
                         g.get_leaf_node()
                     };
-                    const auto& [weight, forward_edge, backward_edge] {
-                        walk_to_node<
+                    const auto& converged_edges_at_resident_node {
+                        bidi_walker<
                             decltype(sub_graph),
                             SLICE_SLOT_CONTAINER_CREATOR,
-                            RESIDENT_SLOT_CONTAINER_CREATOR
-                        >(sub_graph, resident_node)
+                            RESIDENT_SLOT_CONTAINER_CREATOR,
+                            error_check
+                        >::converge(
+                            sub_graph,
+                            resident_node
+                        )
                     };
                     if (!sub_graph.has_node(resident_node)) { // if node isn't visible, skip
                         ++resident_nodes_sorted_it;
@@ -201,9 +160,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     }
                     E resident_edge;
                     if (!g.has_inputs(resident_node)) {  // is root node
-                        resident_edge = *backward_edge;
+                        resident_edge = *(converged_edges_at_resident_node.backward_slot).backtracking_edge;
                     } else { // is NOT root node (leaf node or any node that isn't root node)
-                        resident_edge = *forward_edge;
+                        resident_edge = *(converged_edges_at_resident_node.forward_slot).backtracking_edge;
                     }
                     resident_edges.push_back(resident_edge);
                     last_to_node = g.get_edge_to(resident_edge);
@@ -237,7 +196,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             // n1 < n2 if n1 is higher up OR n1 is more to the left OR feeds into n2 (exactly the same grid position but
             // eventually feeds in to n2).
 
-            return std::make_pair(parts, final_weight);
+            return std::make_pair(parts, max_path_weight);
         }
     };
 }
