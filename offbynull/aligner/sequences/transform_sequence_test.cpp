@@ -9,7 +9,7 @@ namespace {
 
     TEST(TransformSequenceTest, SanityTest) {
         // u8 literal suffix not enabled unless special flag is present? -fext-numeric-literals
-        transform_sequence<std::size_t> seq { 3zu, [](std::size_t idx) { return idx * 2zu; } };
+        transform_sequence<true, std::size_t> seq { 3zu, [](std::size_t idx) { return idx * 2zu; } };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], static_cast<std::uint8_t>(0));
         EXPECT_EQ(seq[1], static_cast<std::uint8_t>(2));

@@ -10,7 +10,7 @@ namespace offbynull::aligner::scorers::constant_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
 
-    template<weight WEIGHT>
+    template<bool error_check, weight WEIGHT>
     class constant_scorer {
     private:
         const WEIGHT weight;
@@ -30,7 +30,7 @@ namespace offbynull::aligner::scorers::constant_scorer {
 
     static_assert(
         scorer<
-            constant_scorer<float>,
+            constant_scorer<true, float>,
             std::pair<int, int>,
             char,
             char,

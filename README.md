@@ -28,7 +28,7 @@ TODO:
 * ~~FIX EXTENDEDGAP slice_nodes() function to not use forward_range_join_view~~
   * ~~make adapater that create forward_range / forward_backward_range based on callbacks (e.g. next(value) func and prev(value) func)~~
 
-* revise container_pack pattern being used across project to how it's being done in sliceable_pairwise_alignment_graph_backtracker 
+* ~~revise container_pack pattern being used across project to how it's being done in sliceable_pairwise_alignment_graph_backtracker~~ 
 * graph node/edge types to structs instead of std::pair -- add friend functions that print out to std::out
 * error_check -> debug_mode
 * container creators -- make them into static functions so you don't have to create an instance of container_creator each time you use it

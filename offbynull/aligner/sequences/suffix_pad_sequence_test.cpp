@@ -9,7 +9,7 @@ namespace {
 
     TEST(SuffixPadSequenceTest, SanityTest) {
         std::string data { "hello!" };
-        suffix_pad_sequence<std::string> seq { data, 'x', 3zu };
+        suffix_pad_sequence<true, std::string> seq { data, 'x', 3zu };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], 'h');
         EXPECT_EQ(seq[1], 'e');

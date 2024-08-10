@@ -9,7 +9,7 @@
 namespace offbynull::aligner::sequences::iota_sequence {
     using offbynull::concepts::widenable_to_size_t;
 
-    template<widenable_to_size_t I, bool error_check = true>
+    template<bool error_check, widenable_to_size_t I>
     class iota_sequence {
     private:
         const I offset;

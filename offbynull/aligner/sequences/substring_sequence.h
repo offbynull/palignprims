@@ -8,7 +8,7 @@
 namespace offbynull::aligner::sequences::substring_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
 
-    template<sequence SEQ, bool error_check = true>
+    template<bool error_check, sequence SEQ>
     class substring_sequence {
     private:
         const SEQ& seq;

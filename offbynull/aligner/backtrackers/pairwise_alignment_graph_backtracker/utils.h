@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <boost/safe_numerics/safe_integer.hpp>
 
+// USE ME SOMEWHERE?
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::utils {
     using namespace boost::safe_numerics;
 

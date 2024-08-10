@@ -7,7 +7,7 @@ namespace {
     using offbynull::aligner::scorers::blosum80_scorer::blosum80_scorer;
 
     TEST(Blosum80ScorerTest, SanityTest) {
-        blosum80_scorer<int> scorer {};
+        blosum80_scorer<true, int> scorer {};
         char a_ { 'A' };
         char c_ { 'C' };
         EXPECT_EQ(5, (scorer(std::tuple<>{}, { { a_ } }, { { a_ } })));

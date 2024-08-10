@@ -2,7 +2,6 @@
 #include "offbynull/aligner/sequences/iota_sequence.h"
 #include "offbynull/aligner/sequences/zip_sequence.h"
 #include "gtest/gtest.h"
-#include <cstddef>
 
 namespace {
     using offbynull::aligner::sequence::sequence::sequence;
@@ -10,10 +9,10 @@ namespace {
     using offbynull::aligner::sequences::zip_sequence::zip_sequence;
 
     TEST(ZipSequenceTest, SanityTest) {
-        iota_sequence<unsigned int> seq1 { 10u, 15u };
-        iota_sequence<unsigned int> seq2 { 20u, 24u };
-        iota_sequence<unsigned int> seq3 { 30u, 36u };
-        zip_sequence seq { seq1, seq2, seq3 };
+        iota_sequence<true, unsigned int> seq1 { 10u, 15u };
+        iota_sequence<true, unsigned int> seq2 { 20u, 24u };
+        iota_sequence<true, unsigned int> seq3 { 30u, 36u };
+        zip_sequence<true, decltype(seq1), decltype(seq2), decltype(seq3)> seq { seq1, seq2, seq3 };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], std::make_tuple(10, 20, 30));
         EXPECT_EQ(seq[1], std::make_tuple(11, 21, 31));

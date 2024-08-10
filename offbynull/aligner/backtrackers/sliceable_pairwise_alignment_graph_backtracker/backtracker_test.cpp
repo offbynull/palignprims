@@ -22,8 +22,8 @@ namespace {
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, GlobalTest) {
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abc" };
         std::string seq2 { "azc" };
         pairwise_global_alignment_graph<decltype(seq1), decltype(seq2)> g {
@@ -62,9 +62,9 @@ namespace {
     }
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, LocalTest) {
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "zzzzzlmnzzzzz" };
         pairwise_local_alignment_graph<decltype(seq1), decltype(seq2)> g {
@@ -99,9 +99,9 @@ namespace {
     }
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, OverlapTest) {
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmn" };
         std::string seq2 { "lmnzzzzz" };
         pairwise_overlap_alignment_graph<decltype(seq1), decltype(seq2)> g {
@@ -136,9 +136,9 @@ namespace {
     }
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, FittingTest) {
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "lmn" };
         pairwise_fitting_alignment_graph<decltype(seq1), decltype(seq2)> g {
@@ -173,10 +173,10 @@ namespace {
     }
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, ExtendedGapTest) {
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto initial_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto extended_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-0.1f64) };
-        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaalaa" };
         std::string seq2 { "l" };
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
@@ -230,10 +230,10 @@ namespace {
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, ExtendedGapTest2) {
         // This specific test case is from the randomized tests in the function below. It was failing and so it was moved here to help debug. Keeping it here just in case the bug comes back
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(0.35204742999374439f64, 0.79108113322398843f64) };
-        auto initial_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(0.93320748544184262f64) };
-        auto extended_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-0.17625114138457276f64) };
-        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(-0.55461590857866616f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(0.35204742999374439f64, 0.79108113322398843f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.93320748544184262f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-0.17625114138457276f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(-0.55461590857866616f64) };
         std::string seq1 { "bj" };
         std::string seq2 { "ya" };
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
@@ -308,10 +308,10 @@ namespace {
 
     TEST(SliceablePairwiseAlignmentGraphBacktrackerTest, ExtendedGapTest3) {
         // This specific test case is from the randomized tests in the function below. It was failing and so it was moved here to help debug. Keeping it here just in case the bug comes back
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(0.55939218269393787f64, -0.0048009351678480749f64) };
-        auto initial_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(0.082629150808506191f64) };
-        auto extended_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(0.71003697638657703f64) };
-        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(-0.68120966590317833f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(0.55939218269393787f64, -0.0048009351678480749f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.082629150808506191f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.71003697638657703f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(-0.68120966590317833f64) };
         std::string seq1 { "rczs" };
         std::string seq2 { "r" };
         pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {
@@ -412,10 +412,10 @@ namespace {
             }
         };
         for (auto i : std::views::iota(0u, 1000u)) {
-            auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(random_float(-1.0f64, 1.0f64), random_float(-1.0f64, 1.0f64)) };
-            auto initial_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(random_float(-1.0f64, 1.0f64)) };
-            auto extended_gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(random_float(-1.0f64, 1.0f64)) };
-            auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(random_float(-1.0f64, 1.0f64)) };
+            auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(random_float(-1.0f64, 1.0f64), random_float(-1.0f64, 1.0f64)) };
+            auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(random_float(-1.0f64, 1.0f64)) };
+            auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(random_float(-1.0f64, 1.0f64)) };
+            auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(random_float(-1.0f64, 1.0f64)) };
             std::string seq1 { random_string(5zu) };
             std::string seq2 { random_string(5zu) };
             pairwise_extended_gap_alignment_graph<decltype(seq1), decltype(seq2)> g {

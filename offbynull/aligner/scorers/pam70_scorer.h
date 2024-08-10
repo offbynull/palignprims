@@ -44,16 +44,16 @@ X  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -
         )"
     };
 
-    template<weight WEIGHT>
-    class pam70_scorer : public single_character_substitution_matrix_scorer<WEIGHT, 25zu> {
+    template<bool error_check, weight WEIGHT>
+    class pam70_scorer : public single_character_substitution_matrix_scorer<error_check, WEIGHT, 25zu> {
     public:
         pam70_scorer()
-        : single_character_substitution_matrix_scorer<WEIGHT, 25zu> { text_table } {}
+        : single_character_substitution_matrix_scorer<error_check, WEIGHT, 25zu> { text_table } {}
     };
 
     static_assert(
         scorer<
-            pam70_scorer<float>,
+            pam70_scorer<true, float>,
             std::pair<int, int>,
             char,
             char,

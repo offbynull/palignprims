@@ -44,16 +44,16 @@ X -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -4
         )"
     };
 
-    template<weight WEIGHT>
-    class blosum62_scorer : public single_character_substitution_matrix_scorer<WEIGHT, 25zu> {
+    template<bool error_check, weight WEIGHT>
+    class blosum62_scorer : public single_character_substitution_matrix_scorer<error_check, WEIGHT, 25zu> {
     public:
         blosum62_scorer()
-        : single_character_substitution_matrix_scorer<WEIGHT, 25zu> { text_table } {}
+        : single_character_substitution_matrix_scorer<error_check, WEIGHT, 25zu> { text_table } {}
     };
 
     static_assert(
         scorer<
-            blosum62_scorer<float>,
+            blosum62_scorer<true, float>,
             std::pair<int, int>,
             char,
             char,

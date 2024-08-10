@@ -16,8 +16,8 @@ namespace {
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
     TEST(ForwardWalkerTest, ForwardWalkWithoutResidents) {
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
         std::string seq1 { "abc" };
         std::string seq2 { "azc" };
         pairwise_global_alignment_graph<decltype(seq1), decltype(seq2)> g {
@@ -115,9 +115,9 @@ namespace {
     }
 
     TEST(ForwardWalkerTest, ForwardWalkWithResidents) {
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaa" };
         std::string seq2 { "zaz" };
         pairwise_local_alignment_graph<decltype(seq1), decltype(seq2)> g {

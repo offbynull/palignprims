@@ -18,7 +18,7 @@ namespace {
         file.write(reinterpret_cast<char*>(&y), sizeof(y));
         file.close();
 
-        mmap_sequence<int> seq { temp_path.string() };
+        mmap_sequence<true, int> seq { temp_path.string() };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], 42);
         EXPECT_EQ(seq[1], 100);

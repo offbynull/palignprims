@@ -15,7 +15,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::utils::type_displayer;
 
-    template<weight WEIGHT, std::size_t ALPHABET_SIZE, bool error_check = true>
+    template<bool error_check, weight WEIGHT, std::size_t ALPHABET_SIZE>
     class single_character_substitution_matrix_scorer {
     private:
         static_assert(ALPHABET_SIZE <= 255zu, "Alphabet greater than 255 symbols");
@@ -205,7 +205,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
 
     static_assert(
         scorer<
-            single_character_substitution_matrix_scorer<float, 95zu>,
+            single_character_substitution_matrix_scorer<true, float, 95zu>,
             std::pair<int, int>,
             char,
             char,

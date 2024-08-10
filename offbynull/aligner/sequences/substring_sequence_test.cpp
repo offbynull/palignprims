@@ -9,7 +9,7 @@ namespace {
 
     TEST(MiddleSequenceTest, SanityTest) {
         std::string data { "hello!" };
-        substring_sequence<std::string> seq { data, 1zu, 3zu };
+        substring_sequence<true, std::string> seq { data, 1zu, 3zu };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], 'e');
         EXPECT_EQ(seq[1], 'l');

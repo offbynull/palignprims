@@ -9,7 +9,7 @@ namespace {
 
     TEST(ReversedSequenceTest, SanityTest) {
         std::string data { "hello!" };
-        reversed_sequence<std::string> seq { data };
+        reversed_sequence<true, std::string> seq { data };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], '!');
         EXPECT_EQ(seq[1], 'o');

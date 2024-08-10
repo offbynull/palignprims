@@ -13,7 +13,7 @@ namespace {
 
     TEST(SlidingWindowSequenceTest, CompiletimeSanityTest) {
         std::string data { "hell" };
-        compiletime_sliding_window_sequence<std::string, 2zu> seq { data };
+        compiletime_sliding_window_sequence<true, std::string, 2zu> seq { data };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], (std::array<char, 2zu> { 'h', 'e' }));
         EXPECT_EQ(seq[1], (std::array<char, 2zu> { 'e', 'l' }));
@@ -31,7 +31,7 @@ namespace {
         };
 
         std::string data { "hell" };
-        runtime_sliding_window_sequence<std::string> seq { data, 2zu };
+        runtime_sliding_window_sequence<true, std::string> seq { data, 2zu };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(to_vector(seq[0]), (std::vector<char> { 'h', 'e' }));
         EXPECT_EQ(to_vector(seq[1]), (std::vector<char> { 'e', 'l' }));

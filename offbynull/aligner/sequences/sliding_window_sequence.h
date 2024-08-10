@@ -13,7 +13,7 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
     using offbynull::helpers::container_creators::container_creator;
     using offbynull::helpers::container_creators::small_vector_container_creator;
 
-    template<sequence SEQ, std::size_t WINDOW_LENGTH, bool error_check = true>
+    template<bool error_check, sequence SEQ, std::size_t WINDOW_LENGTH>
     class compiletime_sliding_window_sequence {
     private:
         const SEQ& seq;
@@ -46,13 +46,13 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
 
 
     template<
+        bool error_check,
         sequence SEQ,
         container_creator CONTAINER_CREATOR = small_vector_container_creator<
             std::decay_t<decltype(std::declval<SEQ>()[0zu])>,
             12zu,
             false
-        >,
-        bool error_check = true
+        >
     >
     class runtime_sliding_window_sequence {
     private:

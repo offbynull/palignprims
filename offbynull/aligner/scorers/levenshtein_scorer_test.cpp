@@ -7,7 +7,7 @@ namespace {
     using offbynull::aligner::scorers::levenshtein_scorer::levenshtein_scorer;
 
     TEST(LevenshteinScorerTest, SanityTest) {
-        levenshtein_scorer<char, char, int> scorer { };
+        levenshtein_scorer<true, char, char, int> scorer { };
         char a_ { 'a' };
         char b_ { 'b' };
         EXPECT_EQ(-1, (scorer(std::tuple<>{}, { { a_ } }, { { a_ } })));

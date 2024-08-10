@@ -13,7 +13,7 @@ namespace {
 
     TEST(ChunkedSequenceTest, CompiletimeSanityTest) {
         std::string data { "hello!!" };
-        compiletime_chunked_sequence<std::string, 2zu> seq { data };
+        compiletime_chunked_sequence<true, std::string, 2zu> seq { data };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], (std::array<char, 2zu> { 'h', 'e' }));
         EXPECT_EQ(seq[1], (std::array<char, 2zu> { 'l', 'l' }));
@@ -31,7 +31,7 @@ namespace {
         };
 
         std::string data { "hello!!" };
-        runtime_chunked_sequence<std::string> seq { data, 2zu };
+        runtime_chunked_sequence<true, std::string> seq { data, 2zu };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(to_vector(seq[0]), (std::vector<char> { 'h', 'e' }));
         EXPECT_EQ(to_vector(seq[1]), (std::vector<char> { 'l', 'l' }));

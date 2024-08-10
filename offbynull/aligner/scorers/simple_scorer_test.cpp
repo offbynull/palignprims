@@ -7,7 +7,7 @@ namespace {
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
     TEST(SimpleScorerTest, SanityTest) {
-        simple_scorer<char, char, int> scorer { 1, 0, -1, -1, 0 };
+        simple_scorer<true, char, char, int> scorer { 1, 0, -1, -1, 0 };
         char a_ { 'a' };
         char b_ { 'b' };
         EXPECT_EQ(1, (scorer(std::tuple<>{}, { { a_ } }, { { a_ } })));

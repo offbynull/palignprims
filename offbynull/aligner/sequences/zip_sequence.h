@@ -3,7 +3,6 @@
 
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/concepts.h"
-#include "offbynull/utils.h"
 #include <cstddef>
 #include <utility>
 #include <tuple>
@@ -18,7 +17,7 @@ namespace offbynull::aligner::sequences::zip_sequence {
     }
 
     template<sequence T>
-    static std::size_t min_size(std::size_t current_min, T first) {
+    static std::size_t min_size(std::size_t current_min, const T& first) {
         std::size_t next_size { first.size() };
         if (next_size < current_min) {
             current_min = next_size;
@@ -27,7 +26,7 @@ namespace offbynull::aligner::sequences::zip_sequence {
     }
 
     template<sequence T, sequence... OTHERS>
-    static std::size_t min_size(std::size_t current_min, T first, OTHERS... others) {
+    static std::size_t min_size(std::size_t current_min, const T& first, const OTHERS& ... others) {
         std::size_t next_size { first.size() };
         if (next_size < current_min) {
             current_min = next_size;
@@ -36,27 +35,27 @@ namespace offbynull::aligner::sequences::zip_sequence {
     }
 
     template<sequence T>
-    auto access(std::size_t index, T&& seq) {
+    auto access(std::size_t index, const T& seq) {
         return std::make_tuple(seq[index]);
     }
 
     template<sequence T, sequence... OTHERS>
-    auto access(std::size_t index, T&& seq, OTHERS&& ... others) {
+    auto access(std::size_t index, const T& seq, const OTHERS& ... others) {
         return std::tuple_cat(
             access(index, seq),
             access(index, others...)
         );
     }
 
-    template<sequence... SEQUENCES>
+    template<bool error_check, sequence... SEQUENCES>
     class zip_sequence {
     private:
         const std::tuple<const SEQUENCES&...> seqs;
         const std::size_t size_;
 
     public:
-        zip_sequence(const SEQUENCES&&... seqs_)
-        : seqs { std::forward_as_tuple(seqs_...) }
+        zip_sequence(const SEQUENCES&... seqs_)
+        : seqs { std::tie(seqs_...) }
         , size_ { min_size(std::numeric_limits<std::size_t>::max(), seqs_...) } {}
 
         auto operator[](std::size_t index) const {
@@ -76,12 +75,6 @@ namespace offbynull::aligner::sequences::zip_sequence {
             return size_;
         }
     };
-
-    template<sequence... SEQUENCES>
-    zip_sequence(SEQUENCES&&... seqs_) -> zip_sequence<SEQUENCES...>;
-
-    template<sequence... SEQUENCES>
-    zip_sequence(const SEQUENCES&&... seqs_) -> zip_sequence<SEQUENCES...>;
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_ZIP_SEQUENCE_H

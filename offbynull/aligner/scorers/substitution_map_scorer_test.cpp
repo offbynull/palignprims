@@ -7,7 +7,7 @@ namespace {
     using offbynull::aligner::scorers::substitution_map_scorer::substitution_map_scorer;
 
     TEST(SubstitutionMapScorerTest, SanityTest) {
-        substitution_map_scorer<char, char, int> scorer {
+        substitution_map_scorer<true, char, char, int> scorer {
             {
                 { { 'a', 'a' }, 1 },
                 { { 'a', 'b' }, 0 },

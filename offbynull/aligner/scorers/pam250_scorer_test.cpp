@@ -7,7 +7,7 @@ namespace {
     using offbynull::aligner::scorers::pam250_scorer::pam250_scorer;
 
     TEST(Pam250ScorerTest, SanityTest) {
-        pam250_scorer<int> scorer {};
+        pam250_scorer<true, int> scorer {};
         char a_ { 'A' };
         char c_ { 'C' };
         EXPECT_EQ(2, (scorer(std::tuple<>{}, { { a_ } }, { { a_ } })));

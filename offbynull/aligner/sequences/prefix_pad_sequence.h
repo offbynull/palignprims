@@ -9,7 +9,7 @@
 namespace offbynull::aligner::sequences::prefix_pad_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
 
-    template<sequence SEQ, bool error_check = true>
+    template<bool error_check, sequence SEQ>
     class prefix_pad_sequence {
     private:
         using SEQ_ELEM_RET_TYPE = decltype(std::declval<SEQ>()[0zu]);

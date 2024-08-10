@@ -8,7 +8,7 @@ namespace {
     using offbynull::aligner::sequences::iota_sequence::iota_sequence;
 
     TEST(IotaSequenceTest, SanityTest) {
-        iota_sequence<unsigned int> seq { 3u, 6u };
+        iota_sequence<true, unsigned int> seq { 3u, 6u };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], 3u);
         EXPECT_EQ(seq[1], 4u);

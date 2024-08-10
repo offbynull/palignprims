@@ -20,9 +20,9 @@ namespace {
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
     TEST(ResidentSegmenterTest, SegmentationPointsLocal) {
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "zzzzzlVnzzzzz" };
         pairwise_local_alignment_graph<decltype(seq1), decltype(seq2)> g {
@@ -66,9 +66,9 @@ namespace {
     }
 
     TEST(ResidentSegmenterTest, SegmentationPointsOverlap) {
-        auto substitution_scorer { simple_scorer<char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmn" };
         std::string seq2 { "lmnzzzzz" };
         pairwise_overlap_alignment_graph<decltype(seq1), decltype(seq2)> g {
