@@ -29,7 +29,7 @@ namespace {
         using E = decltype(g)::E;
         using ED = decltype(g)::ED;
 
-        backtracker<decltype(g), std::uint8_t, ED> _backtracker{};
+        backtracker<true, decltype(g), ED> _backtracker{};
         const auto& [path, weight] {
             _backtracker.find_max_path(
                 g,
@@ -77,7 +77,7 @@ namespace {
         g.insert_edge(std::pair { std::pair{0zu, 1zu}, std::pair{1zu, 2zu} }, std::pair{0zu, 1zu}, std::pair{1zu, 2zu}, 0.0);
         g.update_edge_data({ {0zu, 0zu}, {0zu, 1zu} }, 1.1);
         g.update_edge_data({ {1zu, 1zu}, {1zu, 2zu} }, 1.4);
-        backtracker<decltype(g), std::size_t, ED> _backtracker{};
+        backtracker<true, decltype(g), ED> _backtracker{};
         const auto& [path, weight] {
             _backtracker.find_max_path(
                 g,

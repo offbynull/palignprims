@@ -2,6 +2,7 @@
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_GRAPH_BACKTRACKER_SLOT_CONTAINER_H
 
 #include <cstddef>
+#include <ranges>
 #include "offbynull/helpers/container_creators.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/concepts.h"
@@ -9,23 +10,25 @@
 namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
     using offbynull::aligner::concepts::weight;
     using offbynull::helpers::container_creators::container_creator;
+    using offbynull::helpers::container_creators::container_creator_of_type;
     using offbynull::helpers::container_creators::vector_container_creator;
+    using offbynull::helpers::container_creators::small_vector_container_creator;
     using offbynull::concepts::input_iterator_of_type;
     using offbynull::concepts::widenable_to_size_t;
+    using offbynull::aligner::graph::graph::readable_graph;
 
-    template<typename N, typename E, widenable_to_size_t COUNT, weight WEIGHT>
+    template<typename N, typename E, weight WEIGHT>
     struct slot {
         N node;
-        COUNT unwalked_parent_cnt;
+        std::size_t unwalked_parent_cnt;
         E backtracking_edge;
         WEIGHT backtracking_weight;
 
-        slot(N node_, COUNT unwalked_parent_cnt_)
+        slot(N node_, std::size_t unwalked_parent_cnt_)
         : node{node_}
         , unwalked_parent_cnt{unwalked_parent_cnt_}
         , backtracking_edge{}
         , backtracking_weight{} {}
-
 
         slot()
         : node{}
@@ -37,34 +40,83 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
     template<
         typename N,
         typename E,
-        widenable_to_size_t COUNT,
         weight WEIGHT
     >
     struct slots_comparator {
-        bool operator()(const slot<N, E, COUNT, WEIGHT>& lhs, const slot<N, E, COUNT, WEIGHT>& rhs) const noexcept {
+        bool operator()(const slot<N, E, WEIGHT>& lhs, const slot<N, E, WEIGHT>& rhs) const noexcept {
             return lhs.node < rhs.node;
         }
 
-        bool operator()(const slot<N, E, COUNT, WEIGHT>& lhs, const N& rhs) const noexcept {
+        bool operator()(const slot<N, E, WEIGHT>& lhs, const N& rhs) const noexcept {
             return lhs.node < rhs;
         }
 
-        bool operator()(const N& lhs, const slot<N, E, COUNT, WEIGHT>& rhs) const noexcept {
+        bool operator()(const N& lhs, const slot<N, E, WEIGHT>& rhs) const noexcept {
             return lhs < rhs.node;
         }
     };
 
+
+
+
+
     template<
-        typename N,
-        typename E,
-        widenable_to_size_t COUNT,
+        typename T,
+        typename G,
+        typename WEIGHT
+    >
+    concept slot_container_container_creator_pack =
+    readable_graph<G>
+    && weight<WEIGHT>
+    && container_creator_of_type<typename T::SLOT_CONTAINER_CREATOR, slot<typename G::N, typename G::E, WEIGHT>>;
+
+    template<
+        bool error_check,
+        readable_graph G,
+        weight WEIGHT
+    >
+    struct slot_container_heap_container_creator_pack {
+        using N = typename G::N;
+        using E = typename G::E;
+        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, WEIGHT>, error_check>;
+    };
+
+    template<
+        bool error_check,
+        readable_graph G,
         weight WEIGHT,
-        container_creator CONTAINER_CREATOR=vector_container_creator<slot<N, E, COUNT, WEIGHT>>,
-        bool error_check=true
+        std::size_t heap_escape_size = 100zu
+    >
+    struct slot_container_stack_container_creator_pack {
+        using N = typename G::N;
+        using E = typename G::E;
+        using SLOT_CONTAINER_CREATOR=small_vector_container_creator<
+            slot<N, E, WEIGHT>,
+            heap_escape_size,
+            error_check
+        >;
+    };
+
+
+
+
+
+    template<
+        bool error_check,
+        readable_graph G,
+        weight WEIGHT,
+        slot_container_container_creator_pack<G, WEIGHT> CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<error_check, G, WEIGHT>
     >
     class slot_container {
     private:
-        decltype(std::declval<CONTAINER_CREATOR>().create_empty(std::nullopt)) slots;
+        using N = typename G::N;
+        using E = typename G::E;
+
+        using SLOT_CONTAINER_CREATOR=typename CONTAINER_CREATOR_PACK::SLOT_CONTAINER_CREATOR;
+        using SLOT_CONTAINER=decltype(std::declval<SLOT_CONTAINER_CREATOR>().create_objects(0zu));
+
+        const G& g;
+        SLOT_CONTAINER slots;
     public:
         // Concepts for params have been commented out because THEY FAIL when you pass in a std::views::common(...)'s
         // iterator. Apparently the iterator doesn't contain ::value_type? Or the iterator that's passed in isn't
@@ -74,34 +126,35 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         //
         // https://www.reddit.com/r/cpp_questions/comments/1d5z7sh/bizarre_requirement_of_stdinput_iterator/
         slot_container(
+            const G& g_,
             /*input_iterator_of_type<slot<N, E, COUNT, WEIGHT>>*/ auto begin,
-            /*std::sentinel_for<decltype(begin)>*/ auto end,
-            CONTAINER_CREATOR container_creator = {}
+            /*std::sentinel_for<decltype(begin)>*/ auto end
         )
-        : slots(container_creator.create_copy(begin, end)) {
+        : g { g_ }
+        , slots { SLOT_CONTAINER_CREATOR {}.create_copy(begin, end) } {
             std::ranges::sort(
                 slots.begin(),
                 slots.end(),
-                slots_comparator<N, E, COUNT, WEIGHT>{}
+                slots_comparator<N, E, WEIGHT>{}
             );
         }
 
         std::size_t find_idx(const N& node){
-            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, COUNT, WEIGHT>{}) };
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT>{}) };
             return it - slots.begin();
         }
 
-        slot<N, E, COUNT, WEIGHT>& find_ref(const N& node) {
-            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, COUNT, WEIGHT>{}) };
+        slot<N, E, WEIGHT>& find_ref(const N& node) {
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT>{}) };
             return *it;
         }
 
-        slot<N, E, COUNT, WEIGHT>& at_idx(const std::size_t idx) {
+        slot<N, E, WEIGHT>& at_idx(const std::size_t idx) {
             return slots[idx];
         }
 
-        std::pair<std::size_t, slot<N, E, COUNT, WEIGHT>&> find(const N& node) {
-            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, COUNT, WEIGHT>{}) };
+        std::pair<std::size_t, slot<N, E, WEIGHT>&> find(const N& node) {
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT>{}) };
             auto dist_from_beginning { std::ranges::distance(slots.begin(), it) };
             std::size_t idx;
             if constexpr (error_check && !widenable_to_size_t<decltype(dist_from_beginning)>) {
@@ -118,7 +171,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
             } else {
                 idx = { dist_from_beginning };
             }
-            slot<N, E, COUNT, WEIGHT>& slot { *it };
+            slot<N, E, WEIGHT>& slot { *it };
             return { idx, slot };
         }
     };

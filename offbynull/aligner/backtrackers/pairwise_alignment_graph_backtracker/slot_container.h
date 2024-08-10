@@ -102,7 +102,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using SLOT_CONTAINER=decltype(std::declval<SLOT_CONTAINER_CREATOR>().create_objects(0zu));
 
         const G& g;
-        decltype(std::declval<SLOT_CONTAINER_CREATOR>().create_empty(std::nullopt)) slots;
+        SLOT_CONTAINER slots;
 
     public:
         slot_container(
