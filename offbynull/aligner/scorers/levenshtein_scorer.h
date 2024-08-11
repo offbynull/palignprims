@@ -12,11 +12,11 @@ namespace offbynull::aligner::scorers::levenshtein_scorer {
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    template<bool error_check, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
-    class levenshtein_scorer : public simple_scorer<error_check, DOWN_ELEM, RIGHT_ELEM, WEIGHT> {
+    template<bool debug_mode, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
+    class levenshtein_scorer : public simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> {
     public:
         levenshtein_scorer()
-        : simple_scorer<error_check, DOWN_ELEM, RIGHT_ELEM, WEIGHT> {
+        : simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> {
             static_cast<WEIGHT>(-1),
             static_cast<WEIGHT>(0),
             static_cast<WEIGHT>(0),

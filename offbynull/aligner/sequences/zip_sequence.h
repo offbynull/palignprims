@@ -47,7 +47,7 @@ namespace offbynull::aligner::sequences::zip_sequence {
         );
     }
 
-    template<bool error_check, sequence... SEQUENCES>
+    template<bool debug_mode, sequence... SEQUENCES>
     class zip_sequence {
     private:
         const std::tuple<const SEQUENCES&...> seqs;

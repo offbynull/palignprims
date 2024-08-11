@@ -15,7 +15,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::utils::type_displayer;
 
-    template<bool error_check, weight WEIGHT, std::size_t ALPHABET_SIZE>
+    template<bool debug_mode, weight WEIGHT, std::size_t ALPHABET_SIZE>
     class single_character_substitution_matrix_scorer {
     private:
         static_assert(ALPHABET_SIZE <= 255zu, "Alphabet greater than 255 symbols");
@@ -66,13 +66,13 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
 
         static char extract_symbol(const auto& element_view) {
             auto element_view_it { element_view.begin() };
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (element_view_it == element_view.end()) {
                     throw std::runtime_error("Expected 1 character for each alphabet item -- empty");
                 }
             }
             char ret { *element_view_it };
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 ++element_view_it;
                 if (element_view_it != element_view.end()) {
                     throw std::runtime_error("Expected 1 character for each alphabet item -- multiple");
@@ -88,7 +88,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
             // pull out header and split on space
             auto header_words { *lines_it };
             // set alphabet
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 auto size { std::ranges::distance(header_words) };
                 if (size != ALPHABET_SIZE) {
                     throw std::runtime_error("Unexpected number of characters");
@@ -110,13 +110,13 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
             const char right_elem
         ) {
             auto down_it { std::lower_bound(sorted_alphabet.begin(), sorted_alphabet.end(), down_elem) };
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (*down_it != down_elem) {
                     throw std::runtime_error("Not found");
                 }
             }
             auto right_it { std::lower_bound(sorted_alphabet.begin(), sorted_alphabet.end(), right_elem) };
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (*right_it != right_elem) {
                     throw std::runtime_error("Not found");
                 }
@@ -156,7 +156,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
                     ++row_words_it;
                     WEIGHT weight {};
                     bool convert_success { std::istringstream { weight_str.data() } >> weight };
-                    if constexpr (error_check) {
+                    if constexpr (debug_mode) {
                         if (!convert_success) {
                             throw std::runtime_error("Failed to convert string to numeric");
                         }

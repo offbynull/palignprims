@@ -11,7 +11,7 @@ namespace offbynull::aligner::sequences::mmap_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
     using boost::iostreams::mapped_file_source;
 
-    template<bool error_check, typename ELEM>
+    template<bool debug_mode, typename ELEM>
     class mmap_sequence {
     private:
         mapped_file_source file;
@@ -34,7 +34,7 @@ namespace offbynull::aligner::sequences::mmap_sequence {
         : file { path, boost::iostreams::mapped_file_base::readonly }
         , transformer { transformer_ }
         , bytes_per_elem { bytes_per_elem_ } {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!file.is_open()) {
                     throw std::runtime_error("File not open");
                 }

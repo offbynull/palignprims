@@ -7,7 +7,7 @@
 namespace offbynull::aligner::sequences::reversed_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
 
-    template<bool error_check, sequence SEQ>
+    template<bool debug_mode, sequence SEQ>
     class reversed_sequence {
     private:
         const SEQ& seq;

@@ -53,7 +53,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     && container_creator_of_type<typename T::SLOT_CONTAINER_CREATOR, slot<typename G::N, typename G::E, typename G::ED>>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_pairwise_alignment_graph G
     >
     struct slot_container_heap_container_creator_pack {
@@ -61,11 +61,11 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using E = typename G::E;
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
-        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, ED>, error_check>;
+        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, ED>, debug_mode>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
@@ -77,7 +77,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using SLOT_CONTAINER_CREATOR=array_container_creator<
             slot<N, E, ED>,
             grid_down_cnt * grid_right_cnt * G::limits(grid_down_cnt, grid_right_cnt).max_grid_node_depth,
-            error_check
+            debug_mode
         >;
     };
 
@@ -86,9 +86,9 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_pairwise_alignment_graph G,
-        slot_container_container_creator_pack<G> CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<error_check, G>
+        slot_container_container_creator_pack<G> CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<debug_mode, G>
     >
     class slot_container {
     private:

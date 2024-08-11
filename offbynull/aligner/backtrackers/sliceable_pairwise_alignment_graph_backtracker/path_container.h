@@ -119,17 +119,17 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && container_creator_of_type<typename T::ELEMENT_CONTAINER_CREATOR, element<typename G::E>>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     struct path_container_heap_container_creator_pack {
         using E = typename G::E;
         using ED = typename G::ED;
-        using ELEMENT_CONTAINER_CREATOR=vector_container_creator<element<typename G::E>, error_check>;
+        using ELEMENT_CONTAINER_CREATOR=vector_container_creator<element<typename G::E>, debug_mode>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
@@ -141,7 +141,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ELEMENT_CONTAINER_CREATOR=static_vector_container_creator<
             element<typename G::E>,
             G::limits(grid_down_cnt, grid_right_cnt).max_path_edge_cnt,
-            error_check
+            debug_mode
         >;
     };
 
@@ -153,9 +153,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        path_container_container_creator_pack<G> CONTAINER_CREATOR_PACK=path_container_heap_container_creator_pack<error_check, G>
+        path_container_container_creator_pack<G> CONTAINER_CREATOR_PACK=path_container_heap_container_creator_pack<debug_mode, G>
     >
     class path_container {
     private:
@@ -184,7 +184,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , next_idx{0zu} {}
 
         element<E>* initialize(const E& backtracking_edge) {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (next_idx != 0zu) {
                     throw std::runtime_error("Already initialized");
                 }
@@ -202,7 +202,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         }
 
         element<E>* push_prefix(element<E>* entry, const E& backtracking_edge) {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (next_idx == 0zu) {
                     throw std::runtime_error("Not initialized");
                 }
@@ -228,7 +228,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         }
 
         element<E>* push_suffix(element<E>* entry, const E& backtracking_edge) {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (next_idx == 0zu) {
                     throw std::runtime_error("Not initialized");
                 }

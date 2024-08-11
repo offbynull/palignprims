@@ -48,19 +48,19 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         && container_creator_of_type<typename T::PATH_CONTAINER_CREATOR, typename G::E>;;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_pairwise_alignment_graph G
     >
     struct backtracker_heap_container_creator_pack {
         using E = typename G::E;
 
-        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<error_check, G>;
-        using READY_QUEUE_CONTAINER_CREATOR_PACK=ready_queue_heap_container_creator_pack<error_check, G>;
-        using PATH_CONTAINER_CREATOR=vector_container_creator<E, error_check>;
+        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<debug_mode, G>;
+        using READY_QUEUE_CONTAINER_CREATOR_PACK=ready_queue_heap_container_creator_pack<debug_mode, G>;
+        using PATH_CONTAINER_CREATOR=vector_container_creator<E, debug_mode>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
@@ -69,13 +69,13 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using E = typename G::E;
 
         using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=slot_container_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             grid_down_cnt,
             grid_right_cnt
         >;
         using READY_QUEUE_CONTAINER_CREATOR_PACK=ready_queue_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             grid_down_cnt,
             grid_right_cnt
@@ -83,7 +83,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using PATH_CONTAINER_CREATOR=static_vector_container_creator<
             E,
             G::limits(grid_down_cnt, grid_right_cnt).max_path_edge_cnt,
-            error_check
+            debug_mode
         >;
     };
 
@@ -92,7 +92,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_pairwise_alignment_graph G,
         backtracker_container_creator_pack<G> CONTAINER_CREATOR_PACK=backtracker_heap_container_creator_pack<true, G>
     >
@@ -110,8 +110,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using PATH_CONTAINER_CREATOR=typename CONTAINER_CREATOR_PACK::PATH_CONTAINER_CREATOR;
         using PATH_CONTAINER=decltype(std::declval<PATH_CONTAINER_CREATOR>().create_empty(std::nullopt));
 
-        using slot_container_t = slot_container<error_check, G, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
-        using ready_queue_t = ready_queue<error_check, G, READY_QUEUE_CONTAINER_CREATOR_PACK>;
+        using slot_container_t = slot_container<debug_mode, G, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
+        using ready_queue_t = ready_queue<debug_mode, G, READY_QUEUE_CONTAINER_CREATOR_PACK>;
 
         slot_container_t populate_weights_and_backtrack_pointers(
             G& g
@@ -199,7 +199,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
                 for (const auto& edge : g.get_outputs(current_slot.node)) {
                     const auto& dst_node { g.get_edge_to(edge) };
                     const auto& [dst_slot_idx, dst_slot] { slots.find(dst_node) };
-                    if constexpr (error_check) {
+                    if constexpr (debug_mode) {
                         if (dst_slot.unwalked_parent_cnt == 0u) {
                             throw std::runtime_error("Invalid number of unprocessed parents");
                         }

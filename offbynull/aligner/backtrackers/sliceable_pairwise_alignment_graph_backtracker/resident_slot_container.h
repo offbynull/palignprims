@@ -74,18 +74,18 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         >;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     struct resident_slot_container_heap_container_creator_pack {
         using N = typename G::N;
         using E = typename G::E;
         using ED = typename G::ED;
-        using SLOT_CONTAINER_CREATOR=vector_container_creator<resident_slot_with_node<N, E, ED>, error_check>;
+        using SLOT_CONTAINER_CREATOR=vector_container_creator<resident_slot_with_node<N, E, ED>, debug_mode>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
@@ -97,7 +97,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using SLOT_CONTAINER_CREATOR=static_vector_container_creator<
             resident_slot_with_node<N, E, ED>,
             G::limits(grid_down_cnt, grid_right_cnt).max_resident_nodes_cnt,
-            error_check
+            debug_mode
         >;
     };
 
@@ -105,9 +105,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        resident_slot_container_container_creator_pack<G> CONTAINER_CREATOR_PACK=resident_slot_container_heap_container_creator_pack<error_check, G>
+        resident_slot_container_container_creator_pack<G> CONTAINER_CREATOR_PACK=resident_slot_container_heap_container_creator_pack<debug_mode, G>
     >
     class resident_slot_container {
     private:

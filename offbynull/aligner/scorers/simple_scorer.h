@@ -11,7 +11,7 @@ namespace offbynull::aligner::scorers::simple_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
 
-    template<bool error_check, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
+    template<bool debug_mode, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
     requires requires (const DOWN_ELEM down_elem, const RIGHT_ELEM right_elem) {
         { down_elem == right_elem } -> std::same_as<bool>;
     }
@@ -37,7 +37,7 @@ namespace offbynull::aligner::scorers::simple_scorer {
         , right_missing_weight { right_missing_weight_ }
         , both_missing_weight { both_missing_weight_ } {}
 
-        static simple_scorer<error_check, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_substitution(
+        static simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_substitution(
             WEIGHT match_weight_,
             WEIGHT mismatch_weight_
         ) {
@@ -52,7 +52,7 @@ namespace offbynull::aligner::scorers::simple_scorer {
             };
         }
 
-        static simple_scorer<error_check, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap(
+        static simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap(
             WEIGHT gap_weight_
         ) {
             constexpr bool nan_available { std::numeric_limits<WEIGHT>::has_quiet_NaN };
@@ -66,7 +66,7 @@ namespace offbynull::aligner::scorers::simple_scorer {
             };
         }
 
-        static simple_scorer<error_check, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap_asymmetric(
+        static simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap_asymmetric(
             WEIGHT down_gap_weight_,
             WEIGHT right_gap_weight_
         ) {
@@ -81,7 +81,7 @@ namespace offbynull::aligner::scorers::simple_scorer {
             };
         }
 
-        static simple_scorer<error_check, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_freeride(
+        static simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_freeride(
             WEIGHT freeride_weight_ = {}
         ) {
             constexpr bool nan_available { std::numeric_limits<WEIGHT>::has_quiet_NaN };

@@ -43,7 +43,7 @@ namespace offbynull::aligner::aligner {
 
     template<
         weight WEIGHT,
-        bool error_check
+        bool debug_mode
     >
     auto align_heap(
         readable_pairwise_alignment_graph auto& graph,
@@ -57,8 +57,8 @@ namespace offbynull::aligner::aligner {
         using N = typename G::N;
         using E = typename G::E;
         using COUNT = std::size_t;
-        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, COUNT, WEIGHT>, error_check>;
-        using PATH_CONTAINER_CREATOR=vector_container_creator<E, error_check>;
+        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, COUNT, WEIGHT>, debug_mode>;
+        using PATH_CONTAINER_CREATOR=vector_container_creator<E, debug_mode>;
         backtracker<G, COUNT, WEIGHT, SLOT_CONTAINER_CREATOR, PATH_CONTAINER_CREATOR> backtracker_ {};
         using E = typename G::E;
         auto [path, weight] {
@@ -82,7 +82,7 @@ namespace offbynull::aligner::aligner {
                     } else if (w_idx.has_value()) {
                         return std::pair<V_TYPE, W_TYPE> { { std::nullopt }, { w[*w_idx] } };
                     }
-                    if constexpr (error_check) {
+                    if constexpr (debug_mode) {
                         throw std::runtime_error("Bad edge");
                     }
                     std::unreachable();
@@ -94,7 +94,7 @@ namespace offbynull::aligner::aligner {
     template<
         widenable_to_size_t INDEX,  // C++ won't let you infer this because it relies on v/w's size, qhich aren't known at compile-time
         weight WEIGHT,
-        bool error_check
+        bool debug_mode
     >
     auto global_align_heap(
         std::ranges::random_access_range auto&& v,
@@ -111,7 +111,7 @@ namespace offbynull::aligner::aligner {
 
         INDEX v_node_cnt { static_cast<INDEX>(v.size() + 1zu) };
         INDEX w_node_cnt { static_cast<INDEX>(w.size() + 1zu) };
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (v_node_cnt != v.size() + 1zu || w_node_cnt != w.size() + 1zu) {
                 throw std::runtime_error("Index type too narrow");
             }
@@ -123,9 +123,9 @@ namespace offbynull::aligner::aligner {
             ND,
             ED,
             INDEX,
-            vector_grid_container_creator<ND, INDEX, error_check>,
-            vector_grid_container_creator<ED, INDEX, error_check>,
-            error_check
+            vector_grid_container_creator<ND, INDEX, debug_mode>,
+            vector_grid_container_creator<ED, INDEX, debug_mode>,
+            debug_mode
         > graph { v_node_cnt, w_node_cnt };
         graph.template assign_weights<WEIGHT>(
             v,
@@ -133,13 +133,13 @@ namespace offbynull::aligner::aligner {
             weight_lookup,
             [](WEIGHT& edge_data, WEIGHT weight) { edge_data = weight; }
         );
-        return align_heap<WEIGHT, error_check>(graph, v, w);
+        return align_heap<WEIGHT, debug_mode>(graph, v, w);
     }
 
     template<
         widenable_to_size_t INDEX,  // C++ won't let you infer this because it relies on v/w's size, qhich aren't known at compile-time
         weight WEIGHT,
-        bool error_check
+        bool debug_mode
     >
     auto local_align_heap(
         std::ranges::random_access_range auto&& v,
@@ -157,7 +157,7 @@ namespace offbynull::aligner::aligner {
 
         INDEX v_node_cnt { static_cast<INDEX>(v.size() + 1zu) };
         INDEX w_node_cnt { static_cast<INDEX>(w.size() + 1zu) };
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (v_node_cnt != v.size() + 1zu || w_node_cnt != w.size() + 1zu) {
                 throw std::runtime_error("Index type too narrow");
             }
@@ -169,8 +169,8 @@ namespace offbynull::aligner::aligner {
             ND,
             ED,
             INDEX,
-            vector_grid_container_creator<ND, INDEX, error_check>,
-            vector_grid_container_creator<ED, INDEX, error_check>
+            vector_grid_container_creator<ND, INDEX, debug_mode>,
+            vector_grid_container_creator<ED, INDEX, debug_mode>
         > graph { v_node_cnt, w_node_cnt };
         graph.template assign_weights<WEIGHT>(
             v,
@@ -179,13 +179,13 @@ namespace offbynull::aligner::aligner {
             [](WEIGHT& edge_data, WEIGHT weight) { edge_data = weight; },
             freeride_weight
         );
-        return align_heap<WEIGHT, error_check>(graph, v, w);
+        return align_heap<WEIGHT, debug_mode>(graph, v, w);
     }
 
     template<
         widenable_to_size_t INDEX,  // C++ won't let you infer this because it relies on v/w's size, qhich aren't known at compile-time
         weight WEIGHT,
-        bool error_check
+        bool debug_mode
     >
     auto fitting_align_heap(
         std::ranges::random_access_range auto&& v,
@@ -203,7 +203,7 @@ namespace offbynull::aligner::aligner {
 
         INDEX v_node_cnt { static_cast<INDEX>(v.size() + 1zu) };
         INDEX w_node_cnt { static_cast<INDEX>(w.size() + 1zu) };
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (v_node_cnt != v.size() + 1zu || w_node_cnt != w.size() + 1zu) {
                 throw std::runtime_error("Index type too narrow");
             }
@@ -215,9 +215,9 @@ namespace offbynull::aligner::aligner {
             ND,
             ED,
             INDEX,
-            vector_grid_container_creator<ND, INDEX, error_check>,
-            vector_grid_container_creator<ED, INDEX, error_check>,
-            error_check
+            vector_grid_container_creator<ND, INDEX, debug_mode>,
+            vector_grid_container_creator<ED, INDEX, debug_mode>,
+            debug_mode
         > graph { v_node_cnt, w_node_cnt };
         graph.template assign_weights<WEIGHT>(
             v,
@@ -226,14 +226,14 @@ namespace offbynull::aligner::aligner {
             [](WEIGHT& edge_data, WEIGHT weight) { edge_data = weight; },
             freeride_weight
         );
-        return align_heap<WEIGHT, error_check>(graph, v, w);
+        return align_heap<WEIGHT, debug_mode>(graph, v, w);
     }
 
 
     template<
         widenable_to_size_t INDEX,  // C++ won't let you infer this because it relies on v/w's size, qhich aren't known at compile-time
         weight WEIGHT,
-        bool error_check
+        bool debug_mode
     >
     auto extended_gap_align_heap(
         std::ranges::random_access_range auto&& v,
@@ -252,7 +252,7 @@ namespace offbynull::aligner::aligner {
 
         INDEX v_slot_cnt { static_cast<INDEX>(v.size() + 1zu) };
         INDEX w_slot_cnt { static_cast<INDEX>(w.size() + 1zu) };
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (v_slot_cnt != v.size() + 1zu || w_slot_cnt != w.size() + 1zu) {
                 throw std::runtime_error("Index type too narrow");
             }
@@ -267,9 +267,9 @@ namespace offbynull::aligner::aligner {
             vector_grid_container_creator<
                 extended_gap_slot<ND, ED>,
                 INDEX,
-                error_check
+                debug_mode
             >,
-            error_check
+            debug_mode
         > graph { v_slot_cnt, w_slot_cnt };
         graph.template assign_weights<WEIGHT>(
             v,
@@ -279,7 +279,7 @@ namespace offbynull::aligner::aligner {
             gap_weight,
             freeride_weight
         );
-        return align_heap<WEIGHT, error_check>(graph, v, w);
+        return align_heap<WEIGHT, debug_mode>(graph, v, w);
     }
 
 
@@ -301,7 +301,7 @@ namespace offbynull::aligner::aligner {
         weight WEIGHT,
         std::size_t V_SIZE,
         std::size_t W_SIZE,
-        bool error_check
+        bool debug_mode
     >
     auto align_stack(
         readable_pairwise_alignment_graph auto& graph,
@@ -311,7 +311,7 @@ namespace offbynull::aligner::aligner {
         static_assert(!std::is_rvalue_reference_v<decltype(v)>, "v cannot be an rvalue reference: Function returns references into v, meaning v should continue to exist once function returns.");
         static_assert(!std::is_rvalue_reference_v<decltype(w)>, "w cannot be an rvalue reference: Function returns references into w, meaning w should continue to exist once function returns.");
 
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (V_SIZE != v.size() || W_SIZE != w.size()) {
                 throw std::runtime_error("Size mismatch");
             }
@@ -322,8 +322,8 @@ namespace offbynull::aligner::aligner {
         using N = typename G::N;
         using E = typename G::E;
         using COUNT = std::size_t;
-        using SLOT_CONTAINER_CREATOR=array_container_creator<slot<N, E, COUNT, WEIGHT>, G::node_count(v_node_cnt, w_node_cnt), error_check>;
-        using PATH_CONTAINER_CREATOR=static_vector_container_creator<E, G::longest_path_edge_count(v_node_cnt, w_node_cnt), error_check>;
+        using SLOT_CONTAINER_CREATOR=array_container_creator<slot<N, E, COUNT, WEIGHT>, G::node_count(v_node_cnt, w_node_cnt), debug_mode>;
+        using PATH_CONTAINER_CREATOR=static_vector_container_creator<E, G::longest_path_edge_count(v_node_cnt, w_node_cnt), debug_mode>;
         backtracker<G, COUNT, WEIGHT, SLOT_CONTAINER_CREATOR, PATH_CONTAINER_CREATOR> backtracker_ {};
         using E = typename G::E;
         auto [path, weight] {
@@ -346,7 +346,7 @@ namespace offbynull::aligner::aligner {
         weight WEIGHT,
         std::size_t V_SIZE,
         std::size_t W_SIZE,
-        bool error_check
+        bool debug_mode
     >
     auto global_align_stack(
         std::ranges::random_access_range auto&& v,
@@ -361,14 +361,14 @@ namespace offbynull::aligner::aligner {
         static_assert(!std::is_rvalue_reference_v<decltype(v)>, "v cannot be an rvalue reference: Function returns references into v, meaning v should continue to exist once function returns.");
         static_assert(!std::is_rvalue_reference_v<decltype(w)>, "w cannot be an rvalue reference: Function returns references into w, meaning w should continue to exist once function returns.");
 
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (V_SIZE != v.size() || W_SIZE != w.size()) {
                 throw std::runtime_error("Size mismatch");
             }
         }
         constexpr INDEX v_node_cnt { V_SIZE + 1zu };
         constexpr INDEX w_node_cnt { W_SIZE + 1zu };
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (v_node_cnt != v.size() + 1zu || w_node_cnt != w.size() + 1zu) {
                 throw std::runtime_error("Index type too narrow");
             }
@@ -380,9 +380,9 @@ namespace offbynull::aligner::aligner {
             ND,
             ED,
             INDEX,
-            array_grid_container_creator<ND, INDEX, v_node_cnt, w_node_cnt, error_check>,
-            array_grid_container_creator<ED, INDEX, v_node_cnt, w_node_cnt, error_check>,
-            error_check
+            array_grid_container_creator<ND, INDEX, v_node_cnt, w_node_cnt, debug_mode>,
+            array_grid_container_creator<ED, INDEX, v_node_cnt, w_node_cnt, debug_mode>,
+            debug_mode
         > graph { v_node_cnt, w_node_cnt };
         graph.template assign_weights<WEIGHT>(
             v,
@@ -390,7 +390,7 @@ namespace offbynull::aligner::aligner {
             weight_lookup,
             [](WEIGHT& edge_data, WEIGHT weight) { edge_data = weight; }
         );
-        return align_heap<WEIGHT, error_check>(graph, v, w);
+        return align_heap<WEIGHT, debug_mode>(graph, v, w);
     }
 
     template<
@@ -398,7 +398,7 @@ namespace offbynull::aligner::aligner {
         weight WEIGHT,
         std::size_t V_SIZE,
         std::size_t W_SIZE,
-        bool error_check
+        bool debug_mode
     >
     auto local_align_stack(
         std::ranges::random_access_range auto&& v,
@@ -414,14 +414,14 @@ namespace offbynull::aligner::aligner {
         static_assert(!std::is_rvalue_reference_v<decltype(v)>, "v cannot be an rvalue reference: Function returns references into v, meaning v should continue to exist once function returns.");
         static_assert(!std::is_rvalue_reference_v<decltype(w)>, "w cannot be an rvalue reference: Function returns references into w, meaning w should continue to exist once function returns.");
 
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (V_SIZE != v.size() || W_SIZE != w.size()) {
                 throw std::runtime_error("Size mismatch");
             }
         }
         constexpr INDEX v_node_cnt { V_SIZE + 1zu };
         constexpr INDEX w_node_cnt { W_SIZE + 1zu };
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (v_node_cnt != v.size() + 1zu || w_node_cnt != w.size() + 1zu) {
                 throw std::runtime_error("Index type too narrow");
             }
@@ -433,8 +433,8 @@ namespace offbynull::aligner::aligner {
             ND,
             ED,
             INDEX,
-            array_grid_container_creator<ND, INDEX, v_node_cnt, w_node_cnt, error_check>,
-            array_grid_container_creator<ED, INDEX, v_node_cnt, w_node_cnt, error_check>
+            array_grid_container_creator<ND, INDEX, v_node_cnt, w_node_cnt, debug_mode>,
+            array_grid_container_creator<ED, INDEX, v_node_cnt, w_node_cnt, debug_mode>
         > graph { v_node_cnt, w_node_cnt };
         graph.template assign_weights<WEIGHT>(
             v,
@@ -443,7 +443,7 @@ namespace offbynull::aligner::aligner {
             [](WEIGHT& edge_data, WEIGHT weight) { edge_data = weight; },
             freeride_weight
         );
-        return align_heap<WEIGHT, error_check>(graph, v, w);
+        return align_heap<WEIGHT, debug_mode>(graph, v, w);
     }
 
     template<
@@ -451,7 +451,7 @@ namespace offbynull::aligner::aligner {
         weight WEIGHT,
         std::size_t V_SIZE,
         std::size_t W_SIZE,
-        bool error_check
+        bool debug_mode
     >
     auto fitting_align_stack(
         std::ranges::random_access_range auto&& v,
@@ -467,14 +467,14 @@ namespace offbynull::aligner::aligner {
         static_assert(!std::is_rvalue_reference_v<decltype(v)>, "v cannot be an rvalue reference: Function returns references into v, meaning v should continue to exist once function returns.");
         static_assert(!std::is_rvalue_reference_v<decltype(w)>, "w cannot be an rvalue reference: Function returns references into w, meaning w should continue to exist once function returns.");
 
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (V_SIZE != v.size() || W_SIZE != w.size()) {
                 throw std::runtime_error("Size mismatch");
             }
         }
         constexpr INDEX v_node_cnt { V_SIZE + 1zu };
         constexpr INDEX w_node_cnt { W_SIZE + 1zu };
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (v_node_cnt != v.size() + 1zu || w_node_cnt != w.size() + 1zu) {
                 throw std::runtime_error("Index type too narrow");
             }
@@ -486,9 +486,9 @@ namespace offbynull::aligner::aligner {
             ND,
             ED,
             INDEX,
-            array_grid_container_creator<ND, INDEX, v_node_cnt, w_node_cnt, error_check>,
-            array_grid_container_creator<ED, INDEX, v_node_cnt, w_node_cnt, error_check>,
-            error_check
+            array_grid_container_creator<ND, INDEX, v_node_cnt, w_node_cnt, debug_mode>,
+            array_grid_container_creator<ED, INDEX, v_node_cnt, w_node_cnt, debug_mode>,
+            debug_mode
         > graph { v_node_cnt, w_node_cnt };
         graph.template assign_weights<WEIGHT>(
             v,
@@ -497,7 +497,7 @@ namespace offbynull::aligner::aligner {
             [](WEIGHT& edge_data, WEIGHT weight) { edge_data = weight; },
             freeride_weight
         );
-        return align_heap<WEIGHT, error_check>(graph, v, w);
+        return align_heap<WEIGHT, debug_mode>(graph, v, w);
     }
 
     template<
@@ -505,7 +505,7 @@ namespace offbynull::aligner::aligner {
         weight WEIGHT,
         std::size_t V_SIZE,
         std::size_t W_SIZE,
-        bool error_check
+        bool debug_mode
     >
     auto extended_gap_align_stack(
         std::ranges::random_access_range auto&& v,
@@ -522,14 +522,14 @@ namespace offbynull::aligner::aligner {
         static_assert(!std::is_rvalue_reference_v<decltype(v)>, "v cannot be an rvalue reference: Function returns references into v, meaning v should continue to exist once function returns.");
         static_assert(!std::is_rvalue_reference_v<decltype(w)>, "w cannot be an rvalue reference: Function returns references into w, meaning w should continue to exist once function returns.");
 
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (V_SIZE != v.size() || W_SIZE != w.size()) {
                 throw std::runtime_error("Size mismatch");
             }
         }
         constexpr INDEX v_slot_cnt { V_SIZE + 1zu };
         constexpr INDEX w_slot_cnt { W_SIZE + 1zu };
-        if constexpr (error_check) {
+        if constexpr (debug_mode) {
             if (v_slot_cnt != v.size() + 1zu || w_slot_cnt != w.size() + 1zu) {
                 throw std::runtime_error("Index type too narrow");
             }
@@ -546,9 +546,9 @@ namespace offbynull::aligner::aligner {
                 INDEX,
                 v_slot_cnt,
                 w_slot_cnt,
-                error_check
+                debug_mode
             >,
-            error_check
+            debug_mode
         > graph { v_slot_cnt, w_slot_cnt };
         graph.template assign_weights<WEIGHT>(
             v,
@@ -558,7 +558,7 @@ namespace offbynull::aligner::aligner {
             gap_weight,
             freeride_weight
         );
-        return align_heap<WEIGHT, error_check>(graph, v, w);
+        return align_heap<WEIGHT, debug_mode>(graph, v, w);
     }
 
 

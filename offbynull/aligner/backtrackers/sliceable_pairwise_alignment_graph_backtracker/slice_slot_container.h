@@ -29,17 +29,17 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && container_creator_of_type<typename T::SLOT_CONTAINER_CREATOR, slot<typename G::E, typename G::ED>>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     struct slice_slot_container_heap_container_creator_pack {
         using E = typename G::E;
         using ED = typename G::ED;
-        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<E, ED>, error_check>;
+        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<E, ED>, debug_mode>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
@@ -50,7 +50,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using SLOT_CONTAINER_CREATOR=static_vector_container_creator<
             slot<E, ED>,
             grid_right_cnt * G::limits(grid_down_cnt, grid_right_cnt).max_grid_node_depth,
-            error_check
+            debug_mode
         >;
     };
 
@@ -58,9 +58,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        slice_slot_container_container_creator_pack<G> CONTAINER_CREATOR_PACK=slice_slot_container_heap_container_creator_pack<error_check, G>
+        slice_slot_container_container_creator_pack<G> CONTAINER_CREATOR_PACK=slice_slot_container_heap_container_creator_pack<debug_mode, G>
     >
     class slice_slot_container {
     private:

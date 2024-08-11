@@ -25,7 +25,7 @@ namespace offbynull::aligner::graphs::grid_graph {
     using empty_type = std::tuple<>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         sequence DOWN_SEQ,
         sequence RIGHT_SEQ,
         widenable_to_size_t INDEX_ = std::size_t,
@@ -106,7 +106,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         , grid_right_cnt{_right_seq.size() + 1zu} {}
 
         ND get_node_data(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -115,7 +115,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         ED get_edge_data(const E& edge) const  {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error("Edge doesn't exist");
                 }
@@ -141,14 +141,14 @@ namespace offbynull::aligner::graphs::grid_graph {
                     { { right_seq[n1_grid_right] } }
                 );
             }
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 throw std::runtime_error("Bad edge");
             }
             std::unreachable();
         }
 
         N get_edge_from(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -157,7 +157,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         N get_edge_to(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -166,7 +166,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         std::tuple<N, N, ED> get_edge(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -239,7 +239,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         std::ranges::bidirectional_range auto get_outputs_full(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -271,7 +271,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         auto get_inputs_full(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -302,7 +302,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         std::ranges::bidirectional_range auto get_outputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -312,7 +312,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         auto get_inputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -322,7 +322,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         bool has_outputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -331,7 +331,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         bool has_inputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -340,7 +340,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         std::size_t get_out_degree(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -351,7 +351,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         std::size_t get_in_degree(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -382,7 +382,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         auto slice_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(root_node) || !has_node(leaf_node)) {
                     throw std::runtime_error("Bad node");
                 }
@@ -398,7 +398,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         }
 
         bool is_reachable(const N& n1, const N& n2) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(n1) || !has_node(n2)) {
                     throw std::runtime_error("Bad node");
                 }

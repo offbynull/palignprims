@@ -35,7 +35,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         sequence DOWN_SEQ,
         sequence RIGHT_SEQ,
         widenable_to_size_t INDEX_ = std::size_t,
@@ -144,7 +144,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         , grid_right_cnt{_right_seq.size() + 1zu} {}
 
         ND get_node_data(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -153,7 +153,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         ED get_edge_data(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -203,14 +203,14 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     { std::nullopt }
                 );
             }
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 throw std::runtime_error("Bad edge");
             }
             std::unreachable();
         }
 
         N get_edge_from(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -219,7 +219,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         N get_edge_to(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -228,7 +228,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         std::tuple<N, N, ED> get_edge(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -387,12 +387,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         auto get_outputs_full(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            typename static_vector_typer<std::tuple<E, N, N, ED>, 3u, error_check>::type ret {};
+            typename static_vector_typer<std::tuple<E, N, N, ED>, 3u, debug_mode>::type ret {};
             const auto& [n1_layer, n1_grid_down, n1_grid_right] { node };
             if (n1_layer == layer::DIAGONAL) {
                 if (n1_grid_down == grid_down_cnt - 1u && n1_grid_right == grid_right_cnt - 1u) {
@@ -421,12 +421,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         auto get_inputs_full(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
             }
-            typename static_vector_typer<std::tuple<E, N, N, ED>, 3u, error_check>::type ret {};
+            typename static_vector_typer<std::tuple<E, N, N, ED>, 3u, debug_mode>::type ret {};
             const auto& [n2_layer, n2_grid_down, n2_grid_right] { node };
             if (n2_layer == layer::DIAGONAL) {
                 if (n2_grid_down == 0u && n2_grid_right == 0u) {
@@ -459,7 +459,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         auto get_outputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -468,7 +468,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         auto get_inputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -477,7 +477,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         bool has_outputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -486,7 +486,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         bool has_inputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -495,7 +495,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         std::size_t get_out_degree(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -504,7 +504,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         std::size_t get_in_degree(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -539,7 +539,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 || (n1_layer == layer::RIGHT && n2_layer == layer::DIAGONAL)) {  // freeride
                 return RET { std::nullopt };
             }
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 throw std::runtime_error("Bad edge");
             }
             std::unreachable();
@@ -585,7 +585,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             } else if (layer_ == layer::DIAGONAL) {
                 next_node = { layer::DOWN, grid_down, grid_right + 1u };
             } else {
-                if constexpr (error_check) {
+                if constexpr (debug_mode) {
                     throw std::runtime_error("This should never happen");
                 }
             }
@@ -612,7 +612,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             } else if (layer_ == layer::DIAGONAL) {
                 prev_node = { layer::RIGHT, grid_down, grid_right };
             } else {
-                if constexpr (error_check) {
+                if constexpr (debug_mode) {
                     throw std::runtime_error("This should never happen");
                 }
             }
@@ -625,7 +625,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         auto slice_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(root_node) || !has_node(leaf_node)) {
                     throw std::runtime_error("Bad node");
                 }
@@ -695,7 +695,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         bool is_reachable(const N& n1, const N& n2) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(n1) || !has_node(n2)) {
                     throw std::runtime_error("Bad node");
                 }

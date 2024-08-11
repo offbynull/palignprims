@@ -8,7 +8,7 @@
 namespace offbynull::aligner::sequences::substring_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
 
-    template<bool error_check, sequence SEQ>
+    template<bool debug_mode, sequence SEQ>
     class substring_sequence {
     private:
         const SEQ& seq;
@@ -20,7 +20,7 @@ namespace offbynull::aligner::sequences::substring_sequence {
         : seq { seq_ }
         , offset { offset_ }
         , length { length_ } {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (seq.length() - offset < length_) {
                     throw std::runtime_error("Out of bounds length");
                 }

@@ -10,7 +10,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
     using offbynull::aligner::concepts::weight;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     class prefix_sliceable_pairwise_alignment_graph {
@@ -53,7 +53,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         , new_leaf_node{ new_leaf_node_ }
         , grid_down_cnt{ std::get<0>(g.node_to_grid_offsets(new_leaf_node)) + 1u }
         , grid_right_cnt{ std::get<1>(g.node_to_grid_offsets(new_leaf_node)) + 1u } {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!g.has_node(new_leaf_node)) {
                     throw std::runtime_error("Leaf node not found");
                 }
@@ -71,7 +71,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         // object.
 
         ND get_node_data(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -80,7 +80,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         ED get_edge_data(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -89,7 +89,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         N get_edge_from(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -98,7 +98,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         N get_edge_to(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -107,7 +107,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         std::tuple<N, N, ED> get_edge(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -150,7 +150,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         auto get_outputs_full(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -160,7 +160,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         auto get_inputs_full(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -170,7 +170,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         auto get_outputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -180,7 +180,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         auto get_inputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -190,7 +190,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         bool has_outputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -199,7 +199,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         bool has_inputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -208,7 +208,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         std::size_t get_out_degree(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -219,7 +219,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         std::size_t get_in_degree(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -251,7 +251,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         auto slice_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(root_node) || !has_node(leaf_node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -261,7 +261,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         bool is_reachable(const N& n1, const N& n2) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(n1) || !has_node(n2)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }

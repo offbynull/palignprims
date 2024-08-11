@@ -45,22 +45,22 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && forward_walker_container_creator_pack<typename T::FORWARD_WALKER_CONTAINER_CREATOR_PACK, G>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     struct bidi_walker_heap_container_creator_pack {
-        using FORWARD_WALKER_CONTAINER_CREATOR_PACK=forward_walker_heap_container_creator_pack<error_check, G>;
+        using FORWARD_WALKER_CONTAINER_CREATOR_PACK=forward_walker_heap_container_creator_pack<debug_mode, G>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
     >
     struct bidi_walker_stack_container_creator_pack {
         using FORWARD_WALKER_CONTAINER_CREATOR_PACK=forward_walker_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             grid_down_cnt,
             grid_right_cnt
@@ -71,9 +71,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        bidi_walker_container_creator_pack<G> CONTAINER_CREATOR_PACK=bidi_walker_heap_container_creator_pack<error_check, G>
+        bidi_walker_container_creator_pack<G> CONTAINER_CREATOR_PACK=bidi_walker_heap_container_creator_pack<debug_mode, G>
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -90,16 +90,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     private:
         const G& g;
         const INDEX target_slice;
-        const reversed_sliceable_pairwise_alignment_graph<error_check, G> reversed_g;
-        forward_walker<error_check, G, FORWARD_WALKER_CONTAINER_CREATOR_PACK> forward_walker_;
-        forward_walker<error_check, decltype(reversed_g), FORWARD_WALKER_CONTAINER_CREATOR_PACK> backward_walker;
+        const reversed_sliceable_pairwise_alignment_graph<debug_mode, G> reversed_g;
+        forward_walker<debug_mode, G, FORWARD_WALKER_CONTAINER_CREATOR_PACK> forward_walker_;
+        forward_walker<debug_mode, decltype(reversed_g), FORWARD_WALKER_CONTAINER_CREATOR_PACK> backward_walker;
 
     public:
         static bidi_walker create_and_initialize(
             const G& graph,
             const INDEX target_slice
         ) {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (target_slice >= graph.grid_down_cnt) {
                     throw std::runtime_error("Slice too far down");
                 }

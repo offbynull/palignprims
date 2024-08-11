@@ -30,7 +30,7 @@ TODO:
 
 * ~~revise container_pack pattern being used across project to how it's being done in sliceable_pairwise_alignment_graph_backtracker~~ 
 * graph node/edge types to structs instead of std::pair -- add friend functions that print out to std::out
-* error_check -> debug_mode
+* ~~error_check -> debug_mode~~
 * container creators -- make them into static functions so you don't have to create an instance of container_creator each time you use it
 * add E_COUNT type to readable_pairwise_alignment_graph concept and graph implementations -- make use of it in slot_container.h rather than asking the user to supply it
   E_COUNT is a type wide enough to hold the maximum number of edges from one node to another

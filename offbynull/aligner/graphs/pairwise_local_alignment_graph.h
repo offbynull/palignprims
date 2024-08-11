@@ -42,7 +42,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         sequence DOWN_SEQ,
         sequence RIGHT_SEQ,
         widenable_to_size_t INDEX_ = std::size_t,
@@ -60,7 +60,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
 
     private:
         const grid_graph<
-            error_check,
+            debug_mode,
             DOWN_SEQ,
             RIGHT_SEQ,
             INDEX,
@@ -150,7 +150,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         std::tuple<N, N, ED> get_edge(const E& edge) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
                     throw std::runtime_error {"Edge doesn't exist"};
                 }
@@ -357,7 +357,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         auto get_outputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -367,7 +367,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         auto get_inputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -377,7 +377,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         bool has_outputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -387,7 +387,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         bool has_inputs(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -397,7 +397,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         std::size_t get_out_degree(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -408,7 +408,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         std::size_t get_in_degree(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -437,7 +437,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             } else if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
                 return RET { { std::nullopt, { n1_grid_right } } };
             }
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 throw std::runtime_error("Bad edge");
             }
             std::unreachable();
@@ -451,7 +451,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offsets(const N& node) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!has_node(node)) {
                     throw std::runtime_error {"Node doesn't exist"};
                 }
@@ -488,7 +488,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         auto outputs_to_residents(const N& node) const {
-            using CONTAINER = static_vector_typer<E, 2zu, error_check>::type;
+            using CONTAINER = static_vector_typer<E, 2zu, debug_mode>::type;
             CONTAINER ret {};
             const N& leaf_node { get_leaf_node() };
             if (node != leaf_node) {
@@ -505,7 +505,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         auto inputs_from_residents(const N& node) const {
-            using CONTAINER = static_vector_typer<E, 2zu, error_check>::type;
+            using CONTAINER = static_vector_typer<E, 2zu, debug_mode>::type;
             CONTAINER ret {};
             const N& root_node { get_root_node() };
             if (node != root_node) {

@@ -55,29 +55,29 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && path_container_container_creator_pack<typename T::PATH_CONTAINER_CONTAINER_CREATOR_PACK, G>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     struct sliced_subdivider_heap_container_creator_pack {
-        using BIDI_WALKER_CONTAINER_CREATOR_PACK=bidi_walker_heap_container_creator_pack<error_check, G>;
-        using PATH_CONTAINER_CONTAINER_CREATOR_PACK=path_container_heap_container_creator_pack<error_check, G>;
+        using BIDI_WALKER_CONTAINER_CREATOR_PACK=bidi_walker_heap_container_creator_pack<debug_mode, G>;
+        using PATH_CONTAINER_CONTAINER_CREATOR_PACK=path_container_heap_container_creator_pack<debug_mode, G>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
     >
     struct sliced_subdivider_stack_container_creator_pack {
         using BIDI_WALKER_CONTAINER_CREATOR_PACK=bidi_walker_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             grid_down_cnt,
             grid_right_cnt
         >;
         using PATH_CONTAINER_CONTAINER_CREATOR_PACK=path_container_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             grid_down_cnt,
             grid_right_cnt
@@ -88,9 +88,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        sliced_subdivider_container_creator_pack<G> CONTAINER_CREATOR_PACK=sliced_subdivider_heap_container_creator_pack<error_check, G>
+        sliced_subdivider_container_creator_pack<G> CONTAINER_CREATOR_PACK=sliced_subdivider_heap_container_creator_pack<debug_mode, G>
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -130,7 +130,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const G& g
         )
         : whole_graph { g } {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 for (const auto& resident_node : whole_graph.resident_nodes()) {
                     if (resident_node != whole_graph.get_root_node() && resident_node != whole_graph.get_leaf_node()) {
                         throw std::runtime_error("Graph must not have any resident nodes");
@@ -139,8 +139,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             }
         }
 
-        path_container<error_check, G, PATH_CONTAINER_CONTAINER_CREATOR_PACK> subdivide() {
-            path_container<error_check, G, PATH_CONTAINER_CONTAINER_CREATOR_PACK> path_container_ { whole_graph };
+        path_container<debug_mode, G, PATH_CONTAINER_CONTAINER_CREATOR_PACK> subdivide() {
+            path_container<debug_mode, G, PATH_CONTAINER_CONTAINER_CREATOR_PACK> path_container_ { whole_graph };
 
             ED weight {
                 subdivide(
@@ -156,7 +156,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         }
 
         ED subdivide(
-            path_container<error_check, G, PATH_CONTAINER_CONTAINER_CREATOR_PACK>& path_container_,
+            path_container<debug_mode, G, PATH_CONTAINER_CONTAINER_CREATOR_PACK>& path_container_,
             element<E>* parent_element,
             const walk_direction dir,
             const N& root_node,
@@ -169,7 +169,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             // for (auto i { 0 }; i < indent; i++) {
             //     indent_str += ' ';
             // }
-            middle_sliceable_pairwise_alignment_graph<error_check, G> sub_graph {
+            middle_sliceable_pairwise_alignment_graph<debug_mode, G> sub_graph {
                 whole_graph,
                 root_node,
                 leaf_node
@@ -181,7 +181,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             //         << "root: [" << root_down_offset << "," << root_right_offset << ',' << root_depth << "]"
             //         << " leaf: [" << leaf_down_offset << "," << leaf_right_offset << ',' << leaf_depth << "]"
             //         << std::endl;
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!whole_graph.is_reachable(root_node, leaf_node)) {
                     throw std::runtime_error("Root doesn't reach leaf");
                 }
@@ -198,11 +198,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             ED after_max_edge_weight;
             bool max_edge_assigned {};
             {
-                using BIDI_WALKER_TYPE = bidi_walker<error_check, decltype(sub_graph), BIDI_WALKER_CONTAINER_CREATOR_PACK>;
+                using BIDI_WALKER_TYPE = bidi_walker<debug_mode, decltype(sub_graph), BIDI_WALKER_CONTAINER_CREATOR_PACK>;
                 BIDI_WALKER_TYPE bidi_walker_ { BIDI_WALKER_TYPE::create_and_initialize(sub_graph, mid_down_offset) };
 
                 auto mid_slice { sub_graph.slice_nodes(mid_down_offset) };
-                if constexpr (error_check) {
+                if constexpr (debug_mode) {
                     if (mid_slice.begin() == mid_slice.end()) {
                         throw std::runtime_error("Slice should never be empty");
                     }
@@ -228,7 +228,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                         max_edge_assigned = true;
                     }
                 }
-                if constexpr (error_check) {
+                if constexpr (debug_mode) {
                     if (!max_edge_assigned) {
                         throw std::runtime_error("Couldn't find a reachable node");
                     }
@@ -260,7 +260,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     current_element = path_container_.initialize(max_edge);
                     break;
                 [[unlikely]] default:
-                    if constexpr (error_check) {
+                    if constexpr (debug_mode) {
                         throw std::runtime_error("Unexpected");
                     }
                     break;

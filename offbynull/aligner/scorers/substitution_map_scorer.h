@@ -12,7 +12,7 @@ namespace offbynull::aligner::scorers::substitution_map_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
 
-    template<bool error_check, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
+    template<bool debug_mode, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
     requires requires (const DOWN_ELEM down_elem, const RIGHT_ELEM right_elem) {
         { down_elem < down_elem } -> std::same_as<bool>;
         { right_elem < right_elem } -> std::same_as<bool>;

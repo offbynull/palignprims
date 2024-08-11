@@ -22,7 +22,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
     using offbynull::concepts::widenable_to_size_t;
 
     template<
-        bool error_check,
+        bool debug_mode,
         sequence DOWN_SEQ,
         sequence RIGHT_SEQ,
         widenable_to_size_t INDEX_ = std::size_t,
@@ -40,7 +40,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
 
     private:
         const grid_graph<
-            error_check,
+            debug_mode,
             DOWN_SEQ,
             RIGHT_SEQ,
             INDEX,
@@ -173,7 +173,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             } else if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
                 return RET { { std::nullopt, { n1_grid_right } } };
             }
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 throw std::runtime_error("Bad edge");
             }
             std::unreachable();

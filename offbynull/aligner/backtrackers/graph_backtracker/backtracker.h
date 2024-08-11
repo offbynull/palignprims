@@ -51,20 +51,20 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         && container_creator_of_type<typename T::PATH_CONTAINER_CREATOR, typename G::E>;;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_graph G,
         weight WEIGHT
     >
     struct backtracker_heap_container_creator_pack {
         using E = typename G::E;
 
-        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<error_check, G, WEIGHT>;
-        using READY_QUEUE_CONTAINER_CREATOR_PACK=ready_queue_heap_container_creator_pack<error_check, G>;
-        using PATH_CONTAINER_CREATOR=vector_container_creator<E, error_check>;
+        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<debug_mode, G, WEIGHT>;
+        using READY_QUEUE_CONTAINER_CREATOR_PACK=ready_queue_heap_container_creator_pack<debug_mode, G>;
+        using PATH_CONTAINER_CREATOR=vector_container_creator<E, debug_mode>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_graph G,
         weight WEIGHT,
         std::size_t slot_container_heap_escape_size = 100zu,
@@ -75,20 +75,20 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         using E = typename G::E;
 
         using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=slot_container_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             WEIGHT,
             slot_container_heap_escape_size
         >;
         using READY_QUEUE_CONTAINER_CREATOR_PACK=ready_queue_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             ready_queue_heap_escape_size
         >;
         using PATH_CONTAINER_CREATOR=small_vector_container_creator<
             E,
             path_container_heap_escape_size,
-            error_check
+            debug_mode
         >;
     };
 
@@ -97,7 +97,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_graph G,
         weight WEIGHT,
         backtracker_container_creator_pack<G, WEIGHT> CONTAINER_CREATOR_PACK=backtracker_heap_container_creator_pack<true, G, WEIGHT>
@@ -114,8 +114,8 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         using PATH_CONTAINER_CREATOR=typename CONTAINER_CREATOR_PACK::PATH_CONTAINER_CREATOR;
         using PATH_CONTAINER=decltype(std::declval<PATH_CONTAINER_CREATOR>().create_empty(std::nullopt));
 
-        using slot_container_t = slot_container<error_check, G, WEIGHT, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
-        using ready_queue_t = ready_queue<error_check, G, READY_QUEUE_CONTAINER_CREATOR_PACK>;
+        using slot_container_t = slot_container<debug_mode, G, WEIGHT, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
+        using ready_queue_t = ready_queue<debug_mode, G, READY_QUEUE_CONTAINER_CREATOR_PACK>;
 
         slot_container_t populate_weights_and_backtrack_pointers(
             const G& g,
@@ -132,7 +132,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
                     | std::views::transform([&](const auto& n) -> slot<N, E, WEIGHT> {
                         std::size_t in_degree { g.get_in_degree(n) };
                         // COUNT in_degree_narrowed { static_cast<COUNT>(in_degree) };
-                        // if constexpr (error_check) {
+                        // if constexpr (debug_mode) {
                         //     if (in_degree_narrowed != in_degree) {
                         //         throw std::runtime_error("Narrowed but led to information loss");
                         //     }
@@ -206,7 +206,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
                 for (const auto& edge : g.get_outputs(current_slot.node)) {
                     const auto& dst_node { g.get_edge_to(edge) };
                     const auto& [dst_slot_idx, dst_slot] { slots.find(dst_node) };
-                    if constexpr (error_check) {
+                    if constexpr (debug_mode) {
                         if (dst_slot.unwalked_parent_cnt == 0u) {
                             throw std::runtime_error("Invalid number of unprocessed parents");
                         }

@@ -9,7 +9,7 @@
 namespace offbynull::aligner::sequences::iota_sequence {
     using offbynull::concepts::widenable_to_size_t;
 
-    template<bool error_check, widenable_to_size_t I>
+    template<bool debug_mode, widenable_to_size_t I>
     class iota_sequence {
     private:
         const I offset;
@@ -22,7 +22,7 @@ namespace offbynull::aligner::sequences::iota_sequence {
         iota_sequence(I offset_, I bound_)
         : offset { offset_ }
         , bound { bound_ } {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (offset > bound) {
                     throw std::runtime_error("value exceeds bound");
                 }

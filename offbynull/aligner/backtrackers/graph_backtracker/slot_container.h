@@ -71,18 +71,18 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
     && container_creator_of_type<typename T::SLOT_CONTAINER_CREATOR, slot<typename G::N, typename G::E, WEIGHT>>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_graph G,
         weight WEIGHT
     >
     struct slot_container_heap_container_creator_pack {
         using N = typename G::N;
         using E = typename G::E;
-        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, WEIGHT>, error_check>;
+        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, WEIGHT>, debug_mode>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_graph G,
         weight WEIGHT,
         std::size_t heap_escape_size = 100zu
@@ -93,7 +93,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         using SLOT_CONTAINER_CREATOR=small_vector_container_creator<
             slot<N, E, WEIGHT>,
             heap_escape_size,
-            error_check
+            debug_mode
         >;
     };
 
@@ -102,10 +102,10 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_graph G,
         weight WEIGHT,
-        slot_container_container_creator_pack<G, WEIGHT> CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<error_check, G, WEIGHT>
+        slot_container_container_creator_pack<G, WEIGHT> CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<debug_mode, G, WEIGHT>
     >
     class slot_container {
     private:
@@ -157,7 +157,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
             auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT>{}) };
             auto dist_from_beginning { std::ranges::distance(slots.begin(), it) };
             std::size_t idx;
-            if constexpr (error_check && !widenable_to_size_t<decltype(dist_from_beginning)>) {
+            if constexpr (debug_mode && !widenable_to_size_t<decltype(dist_from_beginning)>) {
                 // It may be that dist_from_beginning is signed, in which case the widenable_to_size_t fails (it tests
                 // for unsignedness in addition testing to see if widenable). If it is signed, check the max value of
                 // both types. If max_value(decltype(dist_from_beginning)) < max_value(size_t), it's safe to do a

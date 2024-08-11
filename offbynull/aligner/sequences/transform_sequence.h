@@ -8,7 +8,7 @@
 namespace offbynull::aligner::sequences::transform_sequence {
     using offbynull::concepts::widenable_to_size_t;
 
-    template<bool error_check, typename ELEM>
+    template<bool debug_mode, typename ELEM>
     class transform_sequence {
     private:
         const std::size_t size_;

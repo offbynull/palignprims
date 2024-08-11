@@ -24,15 +24,15 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     && container_creator_of_type<typename T::QUEUE_CONTAINER_CREATOR, std::size_t>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_pairwise_alignment_graph G
     >
     struct ready_queue_heap_container_creator_pack {
-        using QUEUE_CONTAINER_CREATOR=vector_container_creator<std::size_t, error_check>;
+        using QUEUE_CONTAINER_CREATOR=vector_container_creator<std::size_t, debug_mode>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
@@ -41,7 +41,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using QUEUE_CONTAINER_CREATOR=static_vector_container_creator<
             std::size_t,
             grid_down_cnt * grid_right_cnt * G::limits(grid_down_cnt, grid_right_cnt).max_grid_node_depth,
-            error_check
+            debug_mode
         >;
     };
     
@@ -49,9 +49,9 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     
     
     template<
-        bool error_check,
+        bool debug_mode,
         readable_pairwise_alignment_graph G,
-        ready_queue_container_creator_pack<G> CONTAINER_CREATOR_PACK=ready_queue_heap_container_creator_pack<error_check, G>
+        ready_queue_container_creator_pack<G> CONTAINER_CREATOR_PACK=ready_queue_heap_container_creator_pack<debug_mode, G>
     >
     class ready_queue {
     private:
@@ -63,7 +63,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     public:
         ready_queue()
         : queue{QUEUE_CONTAINER_CREATOR {}.create_empty(std::nullopt)} {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (!queue.empty()) {
                     throw std::runtime_error("Queue must be sized 0 on creation");  // Happens on std::array sized > 0
                 }

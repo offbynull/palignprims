@@ -9,7 +9,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
     using offbynull::aligner::concepts::weight;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     class reversed_sliceable_pairwise_alignment_graph {

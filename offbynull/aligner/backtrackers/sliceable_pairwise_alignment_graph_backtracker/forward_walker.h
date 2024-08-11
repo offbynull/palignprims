@@ -44,29 +44,29 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && resident_slot_container_container_creator_pack<typename T::RESIDENT_SLOT_CONTAINER_CREATOR_PACK, G>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     struct forward_walker_heap_container_creator_pack {
-        using SLICE_SLOT_CONTAINER_CREATOR_PACK=slice_slot_container_heap_container_creator_pack<error_check, G>;
-        using RESIDENT_SLOT_CONTAINER_CREATOR_PACK=resident_slot_container_heap_container_creator_pack<error_check, G>;
+        using SLICE_SLOT_CONTAINER_CREATOR_PACK=slice_slot_container_heap_container_creator_pack<debug_mode, G>;
+        using RESIDENT_SLOT_CONTAINER_CREATOR_PACK=resident_slot_container_heap_container_creator_pack<debug_mode, G>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
     >
     struct forward_walker_stack_container_creator_pack {
         using SLICE_SLOT_CONTAINER_CREATOR_PACK=slice_slot_container_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             grid_down_cnt,
             grid_right_cnt
         >;
         using RESIDENT_SLOT_CONTAINER_CREATOR_PACK=slice_slot_container_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             grid_down_cnt,
             grid_right_cnt
@@ -87,7 +87,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
         slice_slot_container_container_creator_pack<G> SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK
     >
@@ -98,10 +98,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        slice_slot_container<error_check, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slots1;
-        slice_slot_container<error_check, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slots2;
-        slice_slot_container<error_check, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK>* previous_slots;  // row above current row
-        slice_slot_container<error_check, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK>* current_slots;  // current row
+        slice_slot_container<debug_mode, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slots1;
+        slice_slot_container<debug_mode, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slots2;
+        slice_slot_container<debug_mode, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK>* previous_slots;  // row above current row
+        slice_slot_container<debug_mode, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK>* current_slots;  // current row
         INDEX grid_down_offset;
 
         slice_slot_container_pair(
@@ -137,9 +137,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        forward_walker_container_creator_pack<G> CONTAINER_CREATOR_PACK=forward_walker_heap_container_creator_pack<error_check, G>
+        forward_walker_container_creator_pack<G> CONTAINER_CREATOR_PACK=forward_walker_heap_container_creator_pack<debug_mode, G>
     >
     class forward_walker {
     private:
@@ -153,8 +153,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK=typename CONTAINER_CREATOR_PACK::RESIDENT_SLOT_CONTAINER_CREATOR_PACK;
 
         const G& graph;
-        resident_slot_container<error_check, G, RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> resident_slots;
-        slice_slot_container_pair<error_check, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slice_slots;
+        resident_slot_container<debug_mode, G, RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> resident_slots;
+        slice_slot_container_pair<debug_mode, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slice_slots;
         decltype(graph.slice_nodes(0u)) slice;
         decltype(slice.begin()) slice_it;
         slice_entry<N, E, ED> slice_entry_;
@@ -164,7 +164,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const G& graph,
             const INDEX target_slice
         ) {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (target_slice >= graph.grid_down_cnt) {
                     throw std::runtime_error("Slice too far down");
                 }
@@ -185,7 +185,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             if (found_slice.has_value()) {
                 return *found_slice;
             }
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 throw std::runtime_error("Node not found");
             }
             std::unreachable();
@@ -257,7 +257,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 std::optional<std::reference_wrapper<resident_slot<E, ED>>> resident_slot_maybe {
                     resident_slots.find(resident_node)
                 };
-                if constexpr (error_check) {
+                if constexpr (debug_mode) {
                     if (!resident_slot_maybe.has_value()) {
                         throw std::runtime_error("This should never happen");
                     }

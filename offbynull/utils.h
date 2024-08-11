@@ -12,7 +12,7 @@ namespace offbynull::utils {
     template<typename T>
     struct type_displayer;
 
-    template<typename ELEM, std::size_t cnt, bool error_check>
+    template<typename ELEM, std::size_t cnt, bool debug_mode>
     struct static_vector_typer;
 
     template<typename ELEM, std::size_t cnt>

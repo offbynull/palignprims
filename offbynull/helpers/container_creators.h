@@ -33,7 +33,7 @@ namespace offbynull::helpers::container_creators {
     concept container_creator_of_type =
         container_creator<T> && std::is_same_v<typename T::ELEM, ELEM>;
 
-    template<typename ELEM_, bool error_check = true>
+    template<typename ELEM_, bool debug_mode = true>
     class vector_container_creator {
     public:
         using ELEM = ELEM_;
@@ -60,7 +60,7 @@ namespace offbynull::helpers::container_creators {
     };
     static_assert(container_creator<vector_container_creator<int>>);  // Sanity check
 
-    template<typename ELEM_, std::size_t size, bool error_check = true>
+    template<typename ELEM_, std::size_t size, bool debug_mode = true>
     class array_container_creator {
     public:
         using ELEM = ELEM_;
@@ -72,7 +72,7 @@ namespace offbynull::helpers::container_creators {
         }
 
         std::array<ELEM, size> create_objects(std::size_t cnt) const {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (cnt != size) {
                     throw std::runtime_error("Unexpected number of elements");
                 }
@@ -86,7 +86,7 @@ namespace offbynull::helpers::container_creators {
 
         std::array<ELEM, size> create_copy(auto&& begin, auto&& end) const {
             std::array<ELEM, size> ret;
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 auto it { begin };
                 std::size_t cnt {};
                 while (it != end) {
@@ -106,30 +106,30 @@ namespace offbynull::helpers::container_creators {
     };
     static_assert(container_creator<array_container_creator<int, 0zu>>);  // Sanity check
 
-    template<typename ELEM_, std::size_t max_size, bool error_check = true>
+    template<typename ELEM_, std::size_t max_size, bool debug_mode = true>
     class static_vector_container_creator {
     public:
         using ELEM = ELEM_;
 
-        static_vector_typer<ELEM, max_size, error_check>::type create_empty(std::optional<std::size_t> capacity) const {
-            return typename static_vector_typer<ELEM, max_size, error_check>::type {};
+        static_vector_typer<ELEM, max_size, debug_mode>::type create_empty(std::optional<std::size_t> capacity) const {
+            return typename static_vector_typer<ELEM, max_size, debug_mode>::type {};
         }
 
-        static_vector_typer<ELEM, max_size, error_check>::type create_objects(std::size_t cnt) const {
-            if constexpr (error_check) {
+        static_vector_typer<ELEM, max_size, debug_mode>::type create_objects(std::size_t cnt) const {
+            if constexpr (debug_mode) {
                 if (cnt > max_size) {
                     throw std::runtime_error("Too many elements");
                 }
             }
-            return typename static_vector_typer<ELEM, max_size, error_check>::type(cnt);
+            return typename static_vector_typer<ELEM, max_size, debug_mode>::type(cnt);
         }
 
-        static_vector_typer<ELEM, max_size, error_check>::type create_copy(std::ranges::range auto&& range) const {
+        static_vector_typer<ELEM, max_size, debug_mode>::type create_copy(std::ranges::range auto&& range) const {
             return create_copy(range.begin(), range.end());
         }
 
-        static_vector_typer<ELEM, max_size, error_check>::type create_copy(auto&& begin, auto&& end) const {
-            if constexpr (error_check) {
+        static_vector_typer<ELEM, max_size, debug_mode>::type create_copy(auto&& begin, auto&& end) const {
+            if constexpr (debug_mode) {
                 auto cnt { end - begin };
                 if (cnt > max_size) {
                     throw std::runtime_error("Too many elements");
@@ -137,12 +137,12 @@ namespace offbynull::helpers::container_creators {
             }
             // In the signature, if I set the return type to auto, I get a bunch of concept check errors? So instead I
             // set it to the actual return type.
-            return typename static_vector_typer<ELEM, max_size, error_check>::type(begin, end);
+            return typename static_vector_typer<ELEM, max_size, debug_mode>::type(begin, end);
         }
     };
     static_assert(container_creator<static_vector_container_creator<int, 0zu>>);  // Sanity check
 
-    template<typename ELEM_, std::size_t max_stack_size, bool error_check = true>
+    template<typename ELEM_, std::size_t max_stack_size, bool debug_mode = true>
     class small_vector_container_creator {
     public:
         using ELEM = ELEM_;

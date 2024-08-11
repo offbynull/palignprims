@@ -63,21 +63,21 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && container_creator_of_type<typename T::SEGMENT_CONTAINER_CREATOR, std::variant<hop<typename G::E>, segment<typename G::N>>>;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     struct resident_segmenter_heap_container_creator_pack {
         using N = typename G::N;
         using E = typename G::E;
 
-        using BIDI_WALKER_CONTAINER_CREATOR_PACK=bidi_walker_heap_container_creator_pack<error_check, G>;
-        using RESIDENT_NODE_CONTAINER_CREATOR=vector_container_creator<N, error_check>;
-        using RESIDENT_EDGE_CONTAINER_CREATOR=vector_container_creator<E, error_check>;
-        using SEGMENT_CONTAINER_CREATOR=vector_container_creator<std::variant<hop<E>, segment<N>>, error_check>;
+        using BIDI_WALKER_CONTAINER_CREATOR_PACK=bidi_walker_heap_container_creator_pack<debug_mode, G>;
+        using RESIDENT_NODE_CONTAINER_CREATOR=vector_container_creator<N, debug_mode>;
+        using RESIDENT_EDGE_CONTAINER_CREATOR=vector_container_creator<E, debug_mode>;
+        using SEGMENT_CONTAINER_CREATOR=vector_container_creator<std::variant<hop<E>, segment<N>>, debug_mode>;
     };
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt
@@ -87,7 +87,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using E = typename G::E;
 
         using BIDI_WALKER_CONTAINER_CREATOR_PACK=bidi_walker_stack_container_creator_pack<
-            error_check,
+            debug_mode,
             G,
             grid_down_cnt,
             grid_right_cnt
@@ -95,17 +95,17 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using RESIDENT_NODE_CONTAINER_CREATOR=static_vector_container_creator<
             N,
             G::limits(grid_down_cnt, grid_right_cnt).max_resident_nodes_cnt,
-            error_check
+            debug_mode
         >;
         using RESIDENT_EDGE_CONTAINER_CREATOR=static_vector_container_creator<
             E,
             G::limits(grid_down_cnt, grid_right_cnt).max_resident_nodes_cnt,
-            error_check
+            debug_mode
         >;
         using SEGMENT_CONTAINER_CREATOR=static_vector_container_creator<
             std::variant<hop<E>, segment<N>>,
             G::limits(grid_down_cnt, grid_right_cnt).max_path_edge_cnt * 2zu + 1zu,
-            error_check
+            debug_mode
         >;
     };
 
@@ -115,9 +115,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        resident_segmenter_container_creator_pack<G> CONTAINER_CREATOR_PACK=resident_segmenter_heap_container_creator_pack<error_check, G>
+        resident_segmenter_container_creator_pack<G> CONTAINER_CREATOR_PACK=resident_segmenter_heap_container_creator_pack<debug_mode, G>
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -143,7 +143,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         auto backtrack_segmentation_points(const G& g, const ED max_path_weight_comparison_tolerance) {
             ED max_path_weight {
                 bidi_walker<
-                    error_check,
+                    debug_mode,
                     G,
                     BIDI_WALKER_CONTAINER_CREATOR_PACK
                 >::converge_weight(
@@ -177,7 +177,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     // TODO: Is this class even necessary? If you start subdividing from the whole graph, every subdivision should be for a region that the path travels through? IT IS NECESSARY -- THE MIDDLE SLICE OF THE GRAPH MAY BE HOPPED OVER?
                     bool on_max_path {
                         bidi_walker<
-                            error_check,
+                            debug_mode,
                             G,
                             BIDI_WALKER_CONTAINER_CREATOR_PACK
                         >::is_node_on_max_path(
@@ -198,14 +198,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     // paths. The problem is that we can't accept that because we're targeting exactly one optimal path,
                     // and so we want to reject anything BEFORE last_to_node because if it goes BEFORE last_to_node then
                     // we know it's targeting a different optimal path vs the one that goes through last_to_node.
-                    middle_sliceable_pairwise_alignment_graph<error_check, G> sub_graph {
+                    middle_sliceable_pairwise_alignment_graph<debug_mode, G> sub_graph {
                         g,
                         last_to_node,
                         g.get_leaf_node()
                     };
                     const auto& converged_edges_at_resident_node {
                         bidi_walker<
-                            error_check,
+                            debug_mode,
                             decltype(sub_graph),
                             BIDI_WALKER_CONTAINER_CREATOR_PACK
                         >::converge(

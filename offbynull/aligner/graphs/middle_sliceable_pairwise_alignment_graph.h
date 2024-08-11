@@ -14,7 +14,7 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
     using offbynull::aligner::concepts::weight;
 
     template<
-        bool error_check,
+        bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G
     >
     class middle_sliceable_pairwise_alignment_graph {
@@ -27,13 +27,13 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
 
     private:
         const prefix_sliceable_pairwise_alignment_graph<
-            error_check,
+            debug_mode,
             G
         > inner_g;
         const suffix_sliceable_pairwise_alignment_graph<
-            error_check,
+            debug_mode,
             prefix_sliceable_pairwise_alignment_graph<
-                error_check,
+                debug_mode,
                 G
             >
         > g;
@@ -57,7 +57,7 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
         }
         , grid_down_cnt { g.grid_down_cnt }
         , grid_right_cnt { g.grid_right_cnt } {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 const auto& [root_down_offset, root_right_offset, root_depth] { g_.node_to_grid_offsets(new_root_node_) };
                 const auto& [leaf_down_offset, leaf_right_offset, leaf_depth] { g_.node_to_grid_offsets(new_leaf_node_) };
                 if (!(root_down_offset <= leaf_down_offset || root_right_offset <= leaf_right_offset)) {
@@ -66,19 +66,19 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
             }
         }
 
-        static middle_sliceable_pairwise_alignment_graph<error_check, G> create_using_offsets(
+        static middle_sliceable_pairwise_alignment_graph<debug_mode, G> create_using_offsets(
             const G& g,
             const INDEX down_offset_1,
             const INDEX right_offset_1,
             const INDEX down_offset_2,
             const INDEX right_offset_2
         ) {
-            if constexpr (error_check) {
+            if constexpr (debug_mode) {
                 if (down_offset_1 > down_offset_2 || right_offset_1 > right_offset_2) {
                     throw std::runtime_error("Top-left isn't top-left");
                 }
             }
-            return middle_sliceable_pairwise_alignment_graph<error_check, G> {
+            return middle_sliceable_pairwise_alignment_graph<debug_mode, G> {
                 g,
                 down_offset_1,
                 right_offset_1,

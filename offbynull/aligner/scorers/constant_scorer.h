@@ -10,7 +10,7 @@ namespace offbynull::aligner::scorers::constant_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
 
-    template<bool error_check, weight WEIGHT>
+    template<bool debug_mode, weight WEIGHT>
     class constant_scorer {
     private:
         const WEIGHT weight;
