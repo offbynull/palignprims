@@ -11,7 +11,6 @@
 #include "offbynull/aligner/backtrackers/graph_backtracker/ready_queue.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/slot_container.h"
 #include "offbynull/aligner/graph/graph.h"
-#include "offbynull/helpers/container_creators.h"
 #include "offbynull/concepts.h"
 
 namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
@@ -28,12 +27,9 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
     using offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue_container_creator_pack;
     using offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue_heap_container_creator_pack;
     using offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue_stack_container_creator_pack;
-    using offbynull::helpers::container_creators::container_creator;
-    using offbynull::helpers::container_creators::container_creator_of_type;
-    using offbynull::helpers::container_creators::vector_container_creator;
-    using offbynull::helpers::container_creators::small_vector_container_creator;
     using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
+    using offbynull::concepts::random_access_range_of_type;
 
 
 
@@ -46,9 +42,11 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
     concept backtracker_container_creator_pack =
         readable_graph<G>
         && weight<WEIGHT>
-        && slot_container_container_creator_pack<typename T::SLOT_CONTAINER_CONTAINER_CREATOR_PACK, G, WEIGHT>
-        && ready_queue_container_creator_pack<typename T::READY_QUEUE_CONTAINER_CREATOR_PACK, G>
-        && container_creator_of_type<typename T::PATH_CONTAINER_CREATOR, typename G::E>;;
+        && requires(T t) {
+            { t.create_slot_container_container_creator_pack() } -> slot_container_container_creator_pack<G, WEIGHT>;
+            { t.create_ready_queue_container_creator_pack() } -> ready_queue_container_creator_pack<G>;
+            { t.create_path_container() } -> random_access_range_of_type<typename G::E>;
+        };
 
     template<
         bool debug_mode,
@@ -58,9 +56,17 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
     struct backtracker_heap_container_creator_pack {
         using E = typename G::E;
 
-        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<debug_mode, G, WEIGHT>;
-        using READY_QUEUE_CONTAINER_CREATOR_PACK=ready_queue_heap_container_creator_pack<debug_mode, G>;
-        using PATH_CONTAINER_CREATOR=vector_container_creator<E, debug_mode>;
+        slot_container_heap_container_creator_pack<debug_mode, G, WEIGHT> create_slot_container_container_creator_pack() {
+            return slot_container_heap_container_creator_pack<debug_mode, G, WEIGHT> {};
+        }
+
+        ready_queue_heap_container_creator_pack<debug_mode, G> create_ready_queue_container_creator_pack() {
+            return ready_queue_heap_container_creator_pack<debug_mode, G> {};
+        }
+
+        std::vector<E> create_path_container() {
+            return std::vector<E> {};
+        }
     };
 
     template<
@@ -74,22 +80,17 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
     struct backtracker_stack_container_creator_pack {
         using E = typename G::E;
 
-        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=slot_container_stack_container_creator_pack<
-            debug_mode,
-            G,
-            WEIGHT,
-            slot_container_heap_escape_size
-        >;
-        using READY_QUEUE_CONTAINER_CREATOR_PACK=ready_queue_stack_container_creator_pack<
-            debug_mode,
-            G,
-            ready_queue_heap_escape_size
-        >;
-        using PATH_CONTAINER_CREATOR=small_vector_container_creator<
-            E,
-            path_container_heap_escape_size,
-            debug_mode
-        >;
+        slot_container_stack_container_creator_pack<debug_mode, G, WEIGHT, slot_container_heap_escape_size> create_slot_container_container_creator_pack() {
+            return slot_container_stack_container_creator_pack<debug_mode, G, WEIGHT, slot_container_heap_escape_size> {};
+        }
+
+        ready_queue_stack_container_creator_pack<debug_mode, G, ready_queue_heap_escape_size> create_ready_queue_container_creator_pack() {
+            return ready_queue_stack_container_creator_pack<debug_mode, G, ready_queue_heap_escape_size> {};
+        }
+
+        boost::container::small_vector<E, path_container_heap_escape_size> create_path_container() {
+            return boost::container::small_vector<E, path_container_heap_escape_size> {};
+        }
     };
 
 
@@ -100,7 +101,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         bool debug_mode,
         readable_graph G,
         weight WEIGHT,
-        backtracker_container_creator_pack<G, WEIGHT> CONTAINER_CREATOR_PACK=backtracker_heap_container_creator_pack<true, G, WEIGHT>
+        backtracker_container_creator_pack<G, WEIGHT> CONTAINER_CREATOR_PACK=backtracker_heap_container_creator_pack<debug_mode, G, WEIGHT>
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -109,13 +110,19 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         using N = typename G::N;
         using E = typename G::E;
 
-        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=typename CONTAINER_CREATOR_PACK::SLOT_CONTAINER_CONTAINER_CREATOR_PACK;
-        using READY_QUEUE_CONTAINER_CREATOR_PACK=typename CONTAINER_CREATOR_PACK::READY_QUEUE_CONTAINER_CREATOR_PACK;
-        using PATH_CONTAINER_CREATOR=typename CONTAINER_CREATOR_PACK::PATH_CONTAINER_CREATOR;
-        using PATH_CONTAINER=decltype(std::declval<PATH_CONTAINER_CREATOR>().create_empty(std::nullopt));
+        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container_container_creator_pack());
+        using READY_QUEUE_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_ready_queue_container_creator_pack());
+        using PATH_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container());
 
         using slot_container_t = slot_container<debug_mode, G, WEIGHT, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
         using ready_queue_t = ready_queue<debug_mode, G, READY_QUEUE_CONTAINER_CREATOR_PACK>;
+
+        CONTAINER_CREATOR_PACK container_creator_pack;
+
+        backtracker(
+            CONTAINER_CREATOR_PACK container_creator_pack_ = {}
+        )
+        : container_creator_pack{container_creator_pack_} {}
 
         slot_container_t populate_weights_and_backtrack_pointers(
             const G& g,
@@ -141,14 +148,21 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
                     })
                 )
             };
-            slot_container_t slots { g, slots_lazy.begin(), slots_lazy.end() };
+            slot_container_t slots {
+                g,
+                slots_lazy.begin(),
+                slots_lazy.end(),
+                container_creator_pack.create_slot_container_container_creator_pack()
+            };
             // Create "ready_idxes" queue
             // --------------------------
             // The "ready_idxes" queue contains indicies within "slots" that are ready-to-process (node in that slot has had all
             // parents processed, and so it can be processed). Since root nodes have no parents, they are ready-to-process from
             // the get-go. As such, the "ready_idxes" queue is primed with the "slots" indices for root nodes (of which there
             // should be only one).
-            ready_queue_t ready_idxes {};
+            ready_queue_t ready_idxes {
+                container_creator_pack.create_ready_queue_container_creator_pack()
+            };
             const N& root_node { g.get_root_node() };
             const auto& [root_slot_idx, root_slot] { slots.find(root_node) };
             ready_idxes.push(root_slot_idx);
@@ -224,11 +238,12 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         range_of_type<E> auto backtrack(
                 G& g,
                 slot_container_t& slots,
-                const N& end_node,
-                PATH_CONTAINER_CREATOR path_container_creator = {}
+                const N& end_node
         ) {
             auto next_node { end_node };
-            auto path { path_container_creator.create_empty(std::nullopt) };
+            PATH_CONTAINER path {
+                container_creator_pack.create_path_container()
+            };
             while (true) {
                 auto node { next_node };
                 if (!g.has_inputs(node)) {

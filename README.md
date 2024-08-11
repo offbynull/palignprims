@@ -22,8 +22,8 @@ TODO:
   * ~~Levenshtein scorer~~
   * ~~ascii substitution matrix scorer~~
   * ~~pam/blosum scorer~~
-  * qwerty-keyboard scorer
   * ~~FIX single_character_substitution_matrix_scorer.h -- LAST CHAR IS NOT INDEL SCORE~~
+  * qwerty-keyboard scorer
 
 * ~~FIX EXTENDEDGAP slice_nodes() function to not use forward_range_join_view~~
   * ~~make adapater that create forward_range / forward_backward_range based on callbacks (e.g. next(value) func and prev(value) func)~~

@@ -3,18 +3,15 @@
 
 #include <cstddef>
 #include <ranges>
-#include "offbynull/helpers/container_creators.h"
+#include <boost/container/small_vector.hpp>
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/concepts.h"
 
 namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
     using offbynull::aligner::concepts::weight;
-    using offbynull::helpers::container_creators::container_creator;
-    using offbynull::helpers::container_creators::container_creator_of_type;
-    using offbynull::helpers::container_creators::vector_container_creator;
-    using offbynull::helpers::container_creators::small_vector_container_creator;
     using offbynull::concepts::input_iterator_of_type;
     using offbynull::concepts::widenable_to_size_t;
+    using offbynull::concepts::random_access_range_of_type;
     using offbynull::aligner::graph::graph::readable_graph;
 
     template<typename N, typename E, weight WEIGHT>
@@ -68,7 +65,9 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
     concept slot_container_container_creator_pack =
     readable_graph<G>
     && weight<WEIGHT>
-    && container_creator_of_type<typename T::SLOT_CONTAINER_CREATOR, slot<typename G::N, typename G::E, WEIGHT>>;
+    && requires(T t, std::vector<slot<typename G::N, typename G::E, WEIGHT>> fake_range) {
+        { t.create_slot_container(fake_range.begin(), fake_range.end()) } -> random_access_range_of_type<slot<typename G::N, typename G::E, WEIGHT>>;
+    };
 
     template<
         bool debug_mode,
@@ -78,7 +77,10 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
     struct slot_container_heap_container_creator_pack {
         using N = typename G::N;
         using E = typename G::E;
-        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, WEIGHT>, debug_mode>;
+
+        std::vector<slot<N, E, WEIGHT>> create_slot_container(auto begin, auto end) {
+            return std::vector<slot<N, E, WEIGHT>>(begin, end);
+        }
     };
 
     template<
@@ -90,11 +92,10 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
     struct slot_container_stack_container_creator_pack {
         using N = typename G::N;
         using E = typename G::E;
-        using SLOT_CONTAINER_CREATOR=small_vector_container_creator<
-            slot<N, E, WEIGHT>,
-            heap_escape_size,
-            debug_mode
-        >;
+
+        boost::container::small_vector<slot<N, E, WEIGHT>, heap_escape_size> create_slot_container(auto begin, auto end) {
+            return boost::container::small_vector<slot<N, E, WEIGHT>, heap_escape_size>(begin, end);
+        }
     };
 
 
@@ -112,8 +113,12 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         using N = typename G::N;
         using E = typename G::E;
 
-        using SLOT_CONTAINER_CREATOR=typename CONTAINER_CREATOR_PACK::SLOT_CONTAINER_CREATOR;
-        using SLOT_CONTAINER=decltype(std::declval<SLOT_CONTAINER_CREATOR>().create_objects(0zu));
+        using SLOT_CONTAINER=decltype(
+            std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(
+                std::declval<std::vector<slot<N, E, WEIGHT>>>().begin(),
+                std::declval<std::vector<slot<N, E, WEIGHT>>>().end()
+            )
+        );
 
         const G& g;
         SLOT_CONTAINER slots;
@@ -128,10 +133,11 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         slot_container(
             const G& g_,
             /*input_iterator_of_type<slot<N, E, COUNT, WEIGHT>>*/ auto begin,
-            /*std::sentinel_for<decltype(begin)>*/ auto end
+            /*std::sentinel_for<decltype(begin)>*/ auto end,
+            CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
         : g { g_ }
-        , slots { SLOT_CONTAINER_CREATOR {}.create_copy(begin, end) } {
+        , slots { container_creator_pack.create_slot_container(begin, end) } {
             std::ranges::sort(
                 slots.begin(),
                 slots.end(),
