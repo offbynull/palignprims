@@ -4,6 +4,7 @@
 #include <functional>
 #include <ranges>
 #include <algorithm>
+#include <utility>
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/slot.h"

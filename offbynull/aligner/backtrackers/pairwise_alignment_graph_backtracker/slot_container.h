@@ -119,15 +119,14 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             container_creator_pack.create_slot_container(
                 g.grid_down_cnt,
                 g.grid_right_cnt,
-                G::limits(g.grid_down_cnt, g.grid_right_cnt).max_grid_node_depth
+                g.grid_depth_cnt
             )
         } {
             auto it { begin };
             while (it != end) {
                 const auto& slot { *it };
                 const auto& [down_offset, right_offset, depth] { g.node_to_grid_offsets(slot.node) };
-                const auto& max_grid_node_depth { G::limits(g.grid_down_cnt, g.grid_right_cnt).max_grid_node_depth };
-                std::size_t idx { (max_grid_node_depth * ((down_offset * g.grid_right_cnt) + right_offset)) + depth };
+                std::size_t idx { (g.grid_depth_cnt * ((down_offset * g.grid_right_cnt) + right_offset)) + depth };
                 slots[idx] = slot;
                 ++it;
             }
@@ -135,8 +134,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
 
         std::size_t find_idx(const N& node){
             const auto& [down_offset, right_offset, depth] { g.node_to_grid_offsets(node) };
-            const auto& max_grid_node_depth { G::limits(g.grid_down_cnt, g.grid_right_cnt).max_grid_node_depth };
-            return (max_grid_node_depth * ((down_offset * g.grid_right_cnt) + right_offset)) + depth;
+            return (g.grid_depth_cnt * ((down_offset * g.grid_right_cnt) + right_offset)) + depth;
         }
 
         slot<N, E, ED>& find_ref(const N& node) {

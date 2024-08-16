@@ -2,74 +2,85 @@
 #define OFFBYNULL_ALIGNER_SEQUENCES_CHUNKED_SEQUENCE_H
 
 #include "offbynull/aligner/sequence/sequence.h"
-#include "offbynull/helpers/container_creators.h"
+#include "offbynull/concepts.h"
 #include <cstddef>
 #include <array>
+#include <vector>
 #include <type_traits>
-#include <stdexcept>
 
 namespace offbynull::aligner::sequences::chunked_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
-    using offbynull::helpers::container_creators::container_creator;
-    using offbynull::helpers::container_creators::small_vector_container_creator;
+    using offbynull::concepts::random_access_range_of_type;
 
-    template<bool debug_mode, sequence SEQ, std::size_t CHUNK_LENGTH>
-    class compiletime_chunked_sequence {
-    private:
-        const SEQ& seq;
 
-        using INNER_ELEM = std::decay_t<decltype(seq[0zu])>;
 
-    public:
-        compiletime_chunked_sequence(const SEQ& seq_)
-        : seq { seq_ } {}
 
-        std::array<INNER_ELEM, CHUNK_LENGTH> operator[](std::size_t index) const {
-            std::size_t offset { index * CHUNK_LENGTH };
-            std::array<INNER_ELEM, CHUNK_LENGTH> ret { };
-            for (std::size_t i { 0zu }; i < CHUNK_LENGTH; i++) {
-                ret[i] = seq[offset + i];
-            }
-            return ret;
-        }
+    template<
+        typename T,
+        typename E
+    >
+    concept chunked_sequence_container_creator_pack =
+        requires(const T t, std::size_t reserve_len) {
+            { t.create_result_container(reserve_len) } -> random_access_range_of_type<E>;
+        };
 
-        std::size_t size() const {
-            return seq.size() / CHUNK_LENGTH;
+    template<
+        bool debug_mode,
+        typename E
+    >
+    struct chunked_sequence_heap_container_creator_pack {
+        std::vector<E> create_result_container(std::size_t reserve_len) const {
+            return std::vector<E>(reserve_len);
         }
     };
+
+    template<
+        bool debug_mode,
+        typename E,
+        std::size_t chunk_len
+    >
+    struct chunked_sequence_stack_container_creator_pack {
+        std::array<E, chunk_len> create_result_container(std::size_t reserve_len) const {
+            if constexpr (debug_mode) {
+                if (chunk_len != reserve_len) {
+                    throw std::runtime_error("Bad element count");
+                }
+            }
+            return std::array<E, chunk_len> {};
+        }
+    };
+
+
 
 
 
     template<
         bool debug_mode,
         sequence SEQ,
-        container_creator CONTAINER_CREATOR = small_vector_container_creator<
-            std::decay_t<decltype(std::declval<SEQ>()[0zu])>,
-            12zu,
-            false
-        >
+        chunked_sequence_container_creator_pack<std::decay_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK=chunked_sequence_heap_container_creator_pack<debug_mode, std::decay_t<decltype(std::declval<SEQ>()[0zu])>>
     >
-    class runtime_chunked_sequence {
+    class chunked_sequence {
     private:
         const SEQ& seq;
         const std::size_t chunk_length;
-        const CONTAINER_CREATOR container_creator;
 
-        using INNER_ELEM = std::decay_t<decltype(seq[0zu])>;
+        using RESULT_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_result_container(0zu));
+
+        CONTAINER_CREATOR_PACK container_creator_pack;
 
     public:
-        runtime_chunked_sequence(
-            SEQ& seq_,
+        chunked_sequence(
+            const SEQ& seq_,
             std::size_t chunk_length_,
-            CONTAINER_CREATOR container_creator_ = {}
+            CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
         : seq { seq_ }
         , chunk_length { chunk_length_ }
-        , container_creator { container_creator_ } {}
+        , container_creator_pack { container_creator_pack_ } {}
 
-        auto operator[](std::size_t index) const {
+        RESULT_CONTAINER operator[](std::size_t index) const {
             std::size_t offset { index * chunk_length };
-            auto ret { container_creator.create_objects({ chunk_length }) };
+            RESULT_CONTAINER ret { container_creator_pack.create_result_container(chunk_length) };
             for (std::size_t i { 0zu }; i < chunk_length; i++) {
                 ret[i] = seq[offset + i];
             }

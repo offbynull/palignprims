@@ -31,10 +31,13 @@ TODO:
 * ~~revise container_pack pattern being used across project to how it's being done in sliceable_pairwise_alignment_graph_backtracker~~ 
 * graph node/edge types to structs instead of std::pair -- add friend functions that print out to std::out
 * ~~error_check -> debug_mode~~
-* remove limits() function -- move fields directly into graph class and make them constexpr
-  * at least move grid depth into graph class, making it constexpr
+* ~~remove limits() function -- move fields directly into graph class and make them constexpr~~
+  * ~~at least move grid depth into graph class, making it constexpr~~
+  * ~~move max_path_edge_cnt~~
+  * ~~move max_resident_nodes_cnt~~
+  * ~~remove limits() function entirely~~
 * ~~container creators -- make them into functions so you don't have to create an instance of container_creator each time you use it~~
-* container creators -- vectors being created can be reserved to max size????
+* container creator packs -- vectors being created can be reserved to max size???? MAKE THIS AN OPTIONAL PARAMETER IN THE CONTAINER CREATOR PACK OR THE FUNCTION BEING CALLED?
 * ~~const correct container_creator_packs~~
 * CHANGE const G& graph TO const G& g
 * sliced_subdivider -- changed "whole_graph" to "graph_partition"?

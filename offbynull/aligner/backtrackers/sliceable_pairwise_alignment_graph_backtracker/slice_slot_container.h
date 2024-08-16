@@ -4,6 +4,7 @@
 #include <functional>
 #include <ranges>
 #include "offbynull/concepts.h"
+#include "offbynull/utils.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/slot.h"
@@ -92,10 +93,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , slots{
             container_creator_pack.create_slot_container(
                 graph.grid_right_cnt,
-                G::limits(
-                    graph.grid_down_cnt,
-                    graph.grid_right_cnt
-                ).max_grid_node_depth
+                graph.grid_depth_cnt
             )
         }
         , grid_down{} {}
@@ -105,15 +103,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             if (grid_down != down_offset) {
                 return { std::nullopt };
             }
-            std::size_t idx {
-                (
-                    right_offset
-                    * G::limits(
-                        graph.grid_down_cnt,
-                        graph.grid_right_cnt
-                    ).max_grid_node_depth
-                ) + depth
-            };
+            std::size_t idx { (right_offset * graph.grid_depth_cnt) + depth };
             return { { slots[idx] } };
         }
 

@@ -1,7 +1,6 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_PATH_CONTAINER_H
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_PATH_CONTAINER_H
 
-#include "offbynull/helpers/container_creators.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/forward_walker.h"
 
@@ -172,12 +171,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
         : element_container{
-            container_creator_pack.create_element_container(
-                G::limits(
-                    g.grid_down_cnt,
-                    g.grid_right_cnt
-                ).max_path_edge_cnt
-            )
+            container_creator_pack.create_element_container(g.max_path_edge_cnt)
         }
         , head{nullptr}
         , tail{nullptr}
@@ -189,7 +183,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     throw std::runtime_error("Already initialized");
                 }
                 if (next_idx >= element_container.size()) {
-                    // If this happens, G::limits().max_path_edge_cnt is probably giving back a number that's too low
+                    // If this happens, G::max_path_edge_cnt is probably giving back a number that's too low
                     throw std::runtime_error("Container too small");
                 }
             }
@@ -207,7 +201,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     throw std::runtime_error("Not initialized");
                 }
                 if (next_idx >= element_container.size()) {
-                    // If this happens, G::limits().max_path_edge_cnt is probably giving back a number that's too low
+                    // If this happens, G::max_path_edge_cnt is probably giving back a number that's too low
                     throw std::runtime_error("Container too small");
                 }
             }
@@ -233,7 +227,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     throw std::runtime_error("Not initialized");
                 }
                 if (next_idx >= element_container.size()) {
-                    // If this happens, G::limits().max_path_edge_cnt is probably giving back a number that's too low
+                    // If this happens, G::max_path_edge_cnt is probably giving back a number that's too low
                     throw std::runtime_error("Container too small");
                 }
             }

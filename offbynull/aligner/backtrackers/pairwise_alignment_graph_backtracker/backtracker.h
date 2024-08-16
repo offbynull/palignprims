@@ -10,7 +10,6 @@
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/ready_queue.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
-#include "offbynull/helpers/container_creators.h"
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 
@@ -28,10 +27,6 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_container_creator_pack;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_heap_container_creator_pack;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_stack_container_creator_pack;
-    using offbynull::helpers::container_creators::container_creator;
-    using offbynull::helpers::container_creators::container_creator_of_type;
-    using offbynull::helpers::container_creators::vector_container_creator;
-    using offbynull::helpers::container_creators::static_vector_container_creator;
     using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::random_access_range_of_type;

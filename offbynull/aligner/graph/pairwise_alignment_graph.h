@@ -15,13 +15,6 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::graph::graph::readable_graph;
 
-    template <typename L>
-    concept readable_pairwise_alignment_graph_limits =
-        requires(L l) {
-            { l.max_grid_node_depth } -> std::same_as<const std::size_t&>;
-            { l.max_path_edge_cnt } -> std::same_as<const std::size_t&>;
-        };
-
     template <typename G>
     concept readable_pairwise_alignment_graph =
         readable_graph<G>
@@ -35,7 +28,8 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
         ) {
             { g.grid_down_cnt } -> std::same_as<const typename G::INDEX&>;
             { g.grid_right_cnt } -> std::same_as<const typename G::INDEX&>;
-            { G::limits(indexer, indexer) } -> readable_pairwise_alignment_graph_limits;
+            { g.grid_depth_cnt } -> std::same_as<const typename G::INDEX&>;
+            { g.max_path_edge_cnt } -> std::same_as<const std::size_t&>;
             { g.node_to_grid_offsets(node) } -> std::same_as<
                 std::tuple<
                     typename G::INDEX,

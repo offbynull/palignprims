@@ -12,7 +12,6 @@
 #include "offbynull/utils.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/sequence/sequence.h"
-#include "offbynull/aligner/graph/utils.h"
 
 namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::concepts::widenable_to_size_t;
@@ -20,7 +19,6 @@ namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::static_vector_typer;
-    using offbynull::aligner::graph::utils::generic_slicable_pairwise_alignment_graph_limits;
 
     using empty_type = std::tuple<>;
 
@@ -79,6 +77,9 @@ namespace offbynull::aligner::graphs::grid_graph {
     public:
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
+        static constexpr INDEX grid_depth_cnt { 1u };
+        static constexpr std::size_t max_resident_nodes_cnt { 0zu };
+        const std::size_t max_path_edge_cnt;
 
         grid_graph(
             const DOWN_SEQ& _down_seq,
@@ -103,7 +104,8 @@ namespace offbynull::aligner::graphs::grid_graph {
         , substitution_lookup{_substitution_lookup}
         , gap_lookup{_gap_lookup}
         , grid_down_cnt{_down_seq.size() + 1zu}
-        , grid_right_cnt{_right_seq.size() + 1zu} {}
+        , grid_right_cnt{_right_seq.size() + 1zu}
+        , max_path_edge_cnt{(grid_right_cnt - 1u) + (grid_down_cnt - 1u)} {}
 
         ND get_node_data(const N& node) const {
             if constexpr (debug_mode) {
@@ -359,17 +361,6 @@ namespace offbynull::aligner::graphs::grid_graph {
             auto inputs { this->get_inputs(node) };
             auto dist { std::ranges::distance(inputs) };
             return static_cast<std::size_t>(dist);
-        }
-
-        constexpr static auto limits(
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt
-        ) {
-            return generic_slicable_pairwise_alignment_graph_limits {
-                1zu,
-                (_grid_right_cnt - 1u) + (_grid_down_cnt - 1u),
-                0zu
-            };
         }
 
         std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offsets(const N& node) const {

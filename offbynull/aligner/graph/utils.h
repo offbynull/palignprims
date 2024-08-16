@@ -65,22 +65,6 @@ namespace offbynull::aligner::graph::utils {
             space_between_grid_offsets
         );
     }
-
-
-    struct generic_slicable_pairwise_alignment_graph_limits {
-        const std::size_t max_grid_node_depth;
-        const std::size_t max_path_edge_cnt;
-        const std::size_t max_resident_nodes_cnt;
-
-        constexpr generic_slicable_pairwise_alignment_graph_limits(
-            std::size_t max_grid_node_depth_,
-            std::size_t max_path_edge_cnt_,
-            std::size_t max_resident_nodes_cnt_
-        )
-        : max_grid_node_depth{ max_grid_node_depth_ }
-        , max_path_edge_cnt{ max_path_edge_cnt_ }
-        , max_resident_nodes_cnt{ max_resident_nodes_cnt_ } {}
-    };
 }
 
 #endif //OFFBYNULL_ALIGNER_GRAPH_UTILS_H

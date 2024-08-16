@@ -8,18 +8,7 @@
 
 namespace {
     using offbynull::aligner::sequence::sequence::sequence;
-    using offbynull::aligner::sequences::chunked_sequence::compiletime_chunked_sequence;
-    using offbynull::aligner::sequences::chunked_sequence::runtime_chunked_sequence;
-
-    TEST(ChunkedSequenceTest, CompiletimeSanityTest) {
-        std::string data { "hello!!" };
-        compiletime_chunked_sequence<true, std::string, 2zu> seq { data };
-        static_assert(sequence<decltype(seq)>);
-        EXPECT_EQ(seq[0], (std::array<char, 2zu> { 'h', 'e' }));
-        EXPECT_EQ(seq[1], (std::array<char, 2zu> { 'l', 'l' }));
-        EXPECT_EQ(seq[2], (std::array<char, 2zu> { 'o', '!' }));
-        EXPECT_EQ(seq.size(), 3zu);
-    }
+    using offbynull::aligner::sequences::chunked_sequence::chunked_sequence;
 
     TEST(ChunkedSequenceTest, RuntimeSanityTest) {
         auto to_vector = [](const auto& range) {
@@ -31,7 +20,7 @@ namespace {
         };
 
         std::string data { "hello!!" };
-        runtime_chunked_sequence<true, std::string> seq { data, 2zu };
+        chunked_sequence<true, std::string> seq { data, 2zu };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(to_vector(seq[0]), (std::vector<char> { 'h', 'e' }));
         EXPECT_EQ(to_vector(seq[1]), (std::vector<char> { 'l', 'l' }));

@@ -50,6 +50,9 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
     public:
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
+        static constexpr INDEX grid_depth_cnt { decltype(g)::grid_depth_cnt };  // 0
+        static constexpr std::size_t max_resident_nodes_cnt { decltype(g)::max_resident_nodes_cnt };  // 0
+        const std::size_t max_path_edge_cnt;
 
         pairwise_global_alignment_graph(
             const DOWN_SEQ& _down_seq,
@@ -71,7 +74,8 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         )
         : g{_down_seq, _right_seq, _substitution_lookup, _gap_lookup}
         , grid_down_cnt{g.grid_down_cnt}
-        , grid_right_cnt{g.grid_right_cnt} {}
+        , grid_right_cnt{g.grid_right_cnt}
+        , max_path_edge_cnt{g.max_path_edge_cnt} {}
 
         ND get_node_data(const N& node) const {
             return g.get_node_data(node);
@@ -177,13 +181,6 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
                 throw std::runtime_error("Bad edge");
             }
             std::unreachable();
-        }
-
-        constexpr static auto limits(
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt
-        ) {
-            return decltype(g)::limits(_grid_down_cnt, _grid_right_cnt);;
         }
 
         std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offsets(const N& node) const {

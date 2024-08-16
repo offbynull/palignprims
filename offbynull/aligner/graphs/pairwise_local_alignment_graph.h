@@ -24,7 +24,6 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::helpers::concat_view::concat_view;
     using offbynull::utils::static_vector_typer;
-    using offbynull::aligner::graph::utils::generic_slicable_pairwise_alignment_graph_limits;
 
     enum class edge_type : std::uint8_t {
         FREE_RIDE,
@@ -77,6 +76,9 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     public:
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
+        static constexpr INDEX grid_depth_cnt { decltype(g)::grid_depth_cnt };
+        const std::size_t max_resident_nodes_cnt;
+        const std::size_t max_path_edge_cnt;
 
         pairwise_local_alignment_graph(
             const DOWN_SEQ& _down_seq,
@@ -131,7 +133,9 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
         , freeride_lookup{_freeride_lookup}
         , grid_down_cnt{g.grid_down_cnt}
-        , grid_right_cnt{g.grid_right_cnt} {}
+        , grid_right_cnt{g.grid_right_cnt}
+        , max_resident_nodes_cnt{2zu}
+        , max_path_edge_cnt{g.max_path_edge_cnt} {}
 
         ND get_node_data(const N& node) const {
             return g.get_node_data(node);
@@ -457,18 +461,6 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 }
             }
             return g.node_to_grid_offsets(node);
-        }
-
-        constexpr static auto limits(
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt
-        ) {
-            auto raw { decltype(g)::limits(_grid_down_cnt, _grid_right_cnt) };
-            return generic_slicable_pairwise_alignment_graph_limits {
-                1zu,
-                (_grid_right_cnt - 1u) + (_grid_down_cnt - 1u),
-                2zu
-            };
         }
 
         auto slice_nodes(INDEX grid_down) const {

@@ -13,7 +13,6 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/concepts.h"
 #include "offbynull/helpers/concat_view.h"
-#include "offbynull/aligner/graph/utils.h"
 #include "offbynull/utils.h"
 #include "offbynull/helpers/simple_value_bidirectional_view.h"
 
@@ -23,7 +22,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::helpers::concat_view::concat_view;
     using offbynull::utils::static_vector_typer;
-    using offbynull::aligner::graph::utils::generic_slicable_pairwise_alignment_graph_limits;
     using offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view;
 
     using empty_type = std::tuple<>;
@@ -101,6 +99,9 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     public:
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
+        static constexpr INDEX grid_depth_cnt { 3u };
+        static constexpr std::size_t max_resident_nodes_cnt { 0zu };
+        const std::size_t max_path_edge_cnt;
 
         pairwise_extended_gap_alignment_graph(
             const DOWN_SEQ& _down_seq,
@@ -141,7 +142,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         , extended_gap_lookup{_extended_gap_lookup}
         , freeride_lookup{_freeride_lookup}
         , grid_down_cnt{_down_seq.size() + 1zu}
-        , grid_right_cnt{_right_seq.size() + 1zu} {}
+        , grid_right_cnt{_right_seq.size() + 1zu}
+        , max_path_edge_cnt{(grid_right_cnt - 1zu) * 2zu + (grid_down_cnt - 1zu) * 2zu} {}
 
         ND get_node_data(const N& node) const {
             if constexpr (debug_mode) {
@@ -548,20 +550,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offsets(const N& node) const {
             const auto& [layer, down_offset, right_offset] { node };
             return { down_offset, right_offset, static_cast<std::size_t>(layer) };
-        }
-
-        constexpr static auto limits(
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt
-        ) {
-            std::size_t max_node_depth { 3zu };
-            std::size_t max_path_edge_cnt { (_grid_right_cnt - 1zu) * 2zu + (_grid_down_cnt - 1zu) * 2zu };
-            std::size_t max_resident_nodes_cnt { 0zu };
-            return generic_slicable_pairwise_alignment_graph_limits {
-                max_node_depth,
-                max_path_edge_cnt,
-                max_resident_nodes_cnt
-            };
         }
 
     private:

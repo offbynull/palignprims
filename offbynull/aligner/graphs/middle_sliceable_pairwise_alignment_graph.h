@@ -41,6 +41,9 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
     public:
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
+        const INDEX grid_depth_cnt;
+        const std::size_t max_resident_nodes_cnt;
+        const std::size_t max_path_edge_cnt;
 
         middle_sliceable_pairwise_alignment_graph(
             const G& g_,
@@ -56,7 +59,10 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
             new_root_node_
         }
         , grid_down_cnt { g.grid_down_cnt }
-        , grid_right_cnt { g.grid_right_cnt } {
+        , grid_right_cnt { g.grid_right_cnt }
+        , grid_depth_cnt { g.grid_depth_cnt }
+        , max_resident_nodes_cnt { g.max_resident_nodes_cnt }
+        , max_path_edge_cnt { g.max_path_edge_cnt } {
             if constexpr (debug_mode) {
                 const auto& [root_down_offset, root_right_offset, root_depth] { g_.node_to_grid_offsets(new_root_node_) };
                 const auto& [leaf_down_offset, leaf_right_offset, leaf_depth] { g_.node_to_grid_offsets(new_leaf_node_) };
@@ -177,13 +183,6 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
 
         std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offsets(const N& node) const {
             return g.node_to_grid_offsets(node);
-        }
-
-        constexpr static auto limits(
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt
-        ) {
-            return G::limits(_grid_down_cnt, _grid_right_cnt);;
         }
 
         auto slice_nodes(INDEX grid_down) const {

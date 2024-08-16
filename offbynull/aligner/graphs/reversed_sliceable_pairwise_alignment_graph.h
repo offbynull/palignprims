@@ -26,11 +26,17 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
     public:
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
+        const INDEX grid_depth_cnt;
+        const std::size_t max_resident_nodes_cnt;
+        const std::size_t max_path_edge_cnt;
 
         reversed_sliceable_pairwise_alignment_graph(const G& _g)
         : g{_g}
-        , grid_down_cnt{_g.grid_down_cnt}
-        , grid_right_cnt{_g.grid_right_cnt} {}
+        , grid_down_cnt{ g.grid_down_cnt }
+        , grid_right_cnt{ g.grid_right_cnt }
+        , grid_depth_cnt{ g.grid_depth_cnt }
+        , max_resident_nodes_cnt{ g.max_resident_nodes_cnt }
+        , max_path_edge_cnt{ g.max_path_edge_cnt } {}
 
         // The first implementation of this was proxing the exact type. For example...
         //
@@ -146,13 +152,6 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offsets(const N& node) const {
             const auto& [grid_down, grid_right, depth] { g.node_to_grid_offsets(node) };
             return { grid_down_cnt - grid_down - 1u, grid_right_cnt - grid_right - 1u, depth };
-        }
-
-        constexpr static auto limits(
-            INDEX _grid_down_cnt,
-            INDEX _grid_right_cnt
-        ) {
-            return G::limits(_grid_down_cnt, _grid_right_cnt);;
         }
 
         auto slice_nodes(INDEX grid_down) const {
