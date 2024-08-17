@@ -342,7 +342,7 @@ namespace {
             })
         );
 
-        EXPECT_EQ(g.max_resident_nodes_cnt, 2zu); // directly proxied from backing graph
+        EXPECT_EQ(g.resident_nodes_capacity, 2zu); // directly proxied from backing graph
         auto resident_nodes { g.resident_nodes() };
         EXPECT_EQ(std::ranges::distance(resident_nodes.begin(), resident_nodes.end()), 1zu);
         auto resident_nodes_it { resident_nodes.begin() };

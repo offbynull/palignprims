@@ -77,7 +77,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt,
         std::size_t grid_depth_cnt,
-        std::size_t max_path_edge_cnt
+        std::size_t path_edge_capacity
     >
     struct backtracker_stack_container_creator_pack {
         slot_container_stack_container_creator_pack<debug_mode, N, E, ED, grid_down_cnt, grid_right_cnt, grid_depth_cnt> create_slot_container_container_creator_pack() const {
@@ -88,7 +88,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             return ready_queue_stack_container_creator_pack<debug_mode, grid_down_cnt, grid_right_cnt, grid_depth_cnt> {};
         }
 
-        using PATH_CONTAINER_TYPE = typename static_vector_typer<std::size_t, max_path_edge_cnt, debug_mode>::type;
+        using PATH_CONTAINER_TYPE = typename static_vector_typer<std::size_t, path_edge_capacity, debug_mode>::type;
         PATH_CONTAINER_TYPE create_path_container() const {
             return PATH_CONTAINER_TYPE {};
         }

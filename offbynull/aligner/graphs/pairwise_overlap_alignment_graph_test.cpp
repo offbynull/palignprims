@@ -402,7 +402,7 @@ namespace {
             })
         );
 
-        EXPECT_EQ(g.max_resident_nodes_cnt, 2zu);
+        EXPECT_EQ(g.resident_nodes_capacity, 2zu);
         EXPECT_EQ(g.resident_nodes().size(), 2zu);
         EXPECT_EQ(g.resident_nodes()[0], (N { 0zu, 0zu }));
         EXPECT_EQ(g.resident_nodes()[1], (N { 1zu, 2zu }));

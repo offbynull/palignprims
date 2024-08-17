@@ -346,7 +346,7 @@ namespace {
             })
         );
 
-        EXPECT_EQ(g.max_resident_nodes_cnt, 0zu);
+        EXPECT_EQ(g.resident_nodes_capacity, 0zu);
         EXPECT_EQ(g.resident_nodes().size(), 0zu);
 
         EXPECT_EQ(

@@ -79,14 +79,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         weight ED,
         std::size_t grid_right_cnt,
         std::size_t grid_depth_cnt,
-        std::size_t max_path_edge_cnt
+        std::size_t path_edge_capacity
     >
     struct sliced_subdivider_stack_container_creator_pack {
         slice_slot_container_stack_container_creator_pack<debug_mode, E, ED, grid_right_cnt, grid_depth_cnt> create_slice_slot_container_container_creator_pack() const {
             return {};
         }
 
-        path_container_stack_container_creator_pack<debug_mode, E, max_path_edge_cnt> create_path_container_container_creator_pack() const {
+        path_container_stack_container_creator_pack<debug_mode, E, path_edge_capacity> create_path_container_container_creator_pack() const {
             return {};
         }
     };

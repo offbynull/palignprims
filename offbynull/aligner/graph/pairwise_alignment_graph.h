@@ -29,7 +29,7 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
             { g.grid_down_cnt } -> std::same_as<const typename G::INDEX&>;
             { g.grid_right_cnt } -> std::same_as<const typename G::INDEX&>;
             { g.grid_depth_cnt } -> std::same_as<const typename G::INDEX&>;
-            { g.max_path_edge_cnt } -> std::same_as<const std::size_t&>;
+            { g.path_edge_capacity } -> std::same_as<const std::size_t&>;
             { g.node_to_grid_offsets(node) } -> std::same_as<
                 std::tuple<
                     typename G::INDEX,

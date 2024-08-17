@@ -51,8 +51,8 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
         static constexpr INDEX grid_depth_cnt { decltype(g)::grid_depth_cnt };  // 0
-        static constexpr std::size_t max_resident_nodes_cnt { decltype(g)::max_resident_nodes_cnt };  // 0
-        const std::size_t max_path_edge_cnt;
+        static constexpr std::size_t resident_nodes_capacity { decltype(g)::resident_nodes_capacity };  // 0
+        const std::size_t path_edge_capacity;
 
         pairwise_global_alignment_graph(
             const DOWN_SEQ& _down_seq,
@@ -75,7 +75,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         : g{_down_seq, _right_seq, _substitution_lookup, _gap_lookup}
         , grid_down_cnt{g.grid_down_cnt}
         , grid_right_cnt{g.grid_right_cnt}
-        , max_path_edge_cnt{g.max_path_edge_cnt} {}
+        , path_edge_capacity{g.path_edge_capacity} {}
 
         ND get_node_data(const N& node) const {
             return g.get_node_data(node);

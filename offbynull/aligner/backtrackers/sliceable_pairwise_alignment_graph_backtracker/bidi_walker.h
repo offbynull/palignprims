@@ -68,14 +68,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         weight ED,
         std::size_t grid_right_cnt,
         std::size_t grid_depth_cnt,
-        std::size_t max_resident_nodes_cnt
+        std::size_t resident_nodes_capacity
     >
     struct bidi_walker_stack_container_creator_pack {
-        forward_walker_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, max_resident_nodes_cnt> create_forward_walker_container_creator_pack() {
+        forward_walker_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, resident_nodes_capacity> create_forward_walker_container_creator_pack() {
             return {};
         }
 
-        forward_walker_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, max_resident_nodes_cnt> create_backward_walker_container_creator_pack() {
+        forward_walker_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, resident_nodes_capacity> create_backward_walker_container_creator_pack() {
             return {};
         }
     };
@@ -110,17 +110,17 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     public:
         static bidi_walker create_and_initialize(
-            const G& graph,
+            const G& g_,
             const INDEX target_slice,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         ) {
             if constexpr (debug_mode) {
-                if (target_slice >= graph.grid_down_cnt) {
+                if (target_slice >= g_.grid_down_cnt) {
                     throw std::runtime_error("Slice too far down");
                 }
             }
             bidi_walker ret {
-                graph,
+                g_,
                 target_slice,
                 container_creator_pack
             };
@@ -168,14 +168,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         }
 
         static bool is_node_on_max_path(
-            const G& g,
+            const G& g_,
             const typename G::N& node,
             const typename G::ED max_path_weight,
             const typename G::ED max_path_weight_comparison_tolerance
         ) {
-            const auto& [down, right, depth] { g.node_to_grid_offsets(node) };
+            const auto& [down, right, depth] { g_.node_to_grid_offsets(node) };
 
-            bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g, down) };
+            bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g_, down) };
             auto list_entries { bidi_walker_.list() };
 
             auto first_entry { *list_entries.begin() };

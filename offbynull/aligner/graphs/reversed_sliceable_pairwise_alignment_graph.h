@@ -27,16 +27,16 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
         const INDEX grid_depth_cnt;
-        const std::size_t max_resident_nodes_cnt;
-        const std::size_t max_path_edge_cnt;
+        const std::size_t resident_nodes_capacity;
+        const std::size_t path_edge_capacity;
 
         reversed_sliceable_pairwise_alignment_graph(const G& _g)
         : g{_g}
         , grid_down_cnt{ g.grid_down_cnt }
         , grid_right_cnt{ g.grid_right_cnt }
         , grid_depth_cnt{ g.grid_depth_cnt }
-        , max_resident_nodes_cnt{ g.max_resident_nodes_cnt }
-        , max_path_edge_cnt{ g.max_path_edge_cnt } {}
+        , resident_nodes_capacity{ g.resident_nodes_capacity }
+        , path_edge_capacity{ g.path_edge_capacity } {}
 
         // The first implementation of this was proxing the exact type. For example...
         //

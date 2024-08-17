@@ -59,11 +59,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     >
     concept resident_segmenter_container_creator_pack =
         weight<ED>
-        && requires(const T t, std::size_t max_resident_nodes_cnt, const std::vector<N>& resident_nodes) {
+        && requires(const T t, std::size_t resident_nodes_capacity, const std::vector<N>& resident_nodes) {
             { t.create_bidi_walker_container_creator_pack() } -> bidi_walker_container_creator_pack<N, E, ED>;
             { t.create_resident_node_container(resident_nodes) } -> random_access_range_of_type<N>;
-            { t.create_resident_edge_container(max_resident_nodes_cnt) } -> random_access_range_of_type<E>;
-            { t.create_segment_container(max_resident_nodes_cnt) } -> random_access_range_of_type<std::variant<hop<E>, segment<N>>>;
+            { t.create_resident_edge_container(resident_nodes_capacity) } -> random_access_range_of_type<E>;
+            { t.create_segment_container(resident_nodes_capacity) } -> random_access_range_of_type<std::variant<hop<E>, segment<N>>>;
         };
 
     template<
@@ -81,15 +81,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             return std::vector<N>(resident_nodes.begin(), resident_nodes.end());
         }
 
-        std::vector<E> create_resident_edge_container(std::size_t max_resident_nodes_cnt) const {
+        std::vector<E> create_resident_edge_container(std::size_t resident_nodes_capacity) const {
             std::vector<E> ret {};
-            ret.reserve(max_resident_nodes_cnt);
+            ret.reserve(resident_nodes_capacity);
             return ret;
         }
 
-        std::vector<std::variant<hop<E>, segment<N>>> create_segment_container(std::size_t max_resident_nodes_cnt) const {
+        std::vector<std::variant<hop<E>, segment<N>>> create_segment_container(std::size_t resident_nodes_capacity) const {
             std::vector<std::variant<hop<E>, segment<N>>> ret {};
-            ret.reserve(max_resident_nodes_cnt * 2zu + 1zu);
+            ret.reserve(resident_nodes_capacity * 2zu + 1zu);
             return ret;
         }
     };
@@ -101,29 +101,29 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         typename ED,
         std::size_t grid_right_cnt,
         std::size_t grid_depth_cnt,
-        std::size_t max_resident_nodes_cnt
+        std::size_t resident_nodes_capacity
     >
     struct resident_segmenter_stack_container_creator_pack {
-        bidi_walker_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, max_resident_nodes_cnt> create_bidi_walker_container_creator_pack() const {
+        bidi_walker_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, resident_nodes_capacity> create_bidi_walker_container_creator_pack() const {
             return {};
         }
 
-        using RESIDENT_NODE_CONTAINER_TYPE = typename static_vector_typer<N, max_resident_nodes_cnt, debug_mode>::type;
+        using RESIDENT_NODE_CONTAINER_TYPE = typename static_vector_typer<N, resident_nodes_capacity, debug_mode>::type;
         RESIDENT_NODE_CONTAINER_TYPE create_resident_node_container(range_of_type<N> auto& resident_nodes) const {
             return RESIDENT_NODE_CONTAINER_TYPE(resident_nodes.begin(), resident_nodes.end());
         }
 
-        using RESIDENT_EDGE_CONTAINER_TYPE = typename static_vector_typer<E, max_resident_nodes_cnt, debug_mode>::type;
-        RESIDENT_EDGE_CONTAINER_TYPE create_resident_edge_container(std::size_t max_resident_nodes_cnt_) const {
+        using RESIDENT_EDGE_CONTAINER_TYPE = typename static_vector_typer<E, resident_nodes_capacity, debug_mode>::type;
+        RESIDENT_EDGE_CONTAINER_TYPE create_resident_edge_container(std::size_t resident_nodes_capacity_) const {
             if constexpr (debug_mode) {
-                if (max_resident_nodes_cnt == max_resident_nodes_cnt_) {
+                if (resident_nodes_capacity == resident_nodes_capacity_) {
                     throw std::runtime_error {"Inconsistent node count"};
                 }
             }
             return RESIDENT_EDGE_CONTAINER_TYPE {};
         }
 
-        static constexpr std::size_t max_segment_cnt { max_resident_nodes_cnt * 2zu + 1zu };
+        static constexpr std::size_t max_segment_cnt { resident_nodes_capacity * 2zu + 1zu };
         using SEGMENT_CONTAINER_TYPE = typename static_vector_typer<std::variant<hop<E>, segment<N>>, max_segment_cnt, debug_mode>::type;
         SEGMENT_CONTAINER_TYPE create_segment_container(std::size_t resident_nodes_cnt_) const {
             if constexpr (debug_mode) {

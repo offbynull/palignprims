@@ -100,8 +100,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
         static constexpr INDEX grid_depth_cnt { 3u };
-        static constexpr std::size_t max_resident_nodes_cnt { 0zu };
-        const std::size_t max_path_edge_cnt;
+        static constexpr std::size_t resident_nodes_capacity { 0zu };
+        const std::size_t path_edge_capacity;
 
         pairwise_extended_gap_alignment_graph(
             const DOWN_SEQ& _down_seq,
@@ -143,7 +143,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         , freeride_lookup{_freeride_lookup}
         , grid_down_cnt{_down_seq.size() + 1zu}
         , grid_right_cnt{_right_seq.size() + 1zu}
-        , max_path_edge_cnt{(grid_right_cnt - 1zu) * 2zu + (grid_down_cnt - 1zu) * 2zu} {}
+        , path_edge_capacity{(grid_right_cnt - 1zu) * 2zu + (grid_down_cnt - 1zu) * 2zu} {}
 
         ND get_node_data(const N& node) const {
             if constexpr (debug_mode) {

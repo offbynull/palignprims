@@ -14,6 +14,7 @@ TODO:
   * ~~iota sequence (integer order of an array, you specify start offset and size)~~
   * ~~transform sequence (transform index to object based on lambda)~~
   * decompressing compressed bytes -- when a location is accessed, decompress that chunk and hold it in cache
+  * alphabet bitpacked (e.g. ACTG only 2 bits per element)
 * ~~const correct graph implementations~~
 
 * scorer implementations
@@ -30,6 +31,8 @@ TODO:
 
 * ~~revise container_pack pattern being used across project to how it's being done in sliceable_pairwise_alignment_graph_backtracker~~ 
 * graph node/edge types to structs instead of std::pair -- add friend functions that print out to std::out
+* graph node/edge types -- add concepts to ensure they're regular types + support < operator
+* local/fitting/overlap graph -- clean up ranges being produced so it doesn't run a filter function over an unneccesary number of nodes
 * ~~error_check -> debug_mode~~
 * ~~remove limits() function -- move fields directly into graph class and make them constexpr~~
   * ~~at least move grid depth into graph class, making it constexpr~~
@@ -38,9 +41,9 @@ TODO:
   * ~~remove limits() function entirely~~
 * ~~container creators -- make them into functions so you don't have to create an instance of container_creator each time you use it~~
 * container creator packs -- vectors being created can be reserved to max size???? MAKE THIS AN OPTIONAL PARAMETER IN THE CONTAINER CREATOR PACK OR THE FUNCTION BEING CALLED?
-* max_path_edge_cnt/max_resident_nodes_cnt to path_edge_capacity/resident_nodes_capacity
+* ~~max_path_edge_cnt/max_resident_nodes_cnt to path_edge_capacity/resident_nodes_capacity~~
 * ~~const correct container_creator_packs~~
-* CHANGE const G& graph TO const G& g
+* ~~CHANGE const G& graph TO const G& g~~
 * sliced_subdivider -- changed "whole_graph" to "graph_partition"?
 * add E_COUNT type to readable_pairwise_alignment_graph concept and graph implementations -- make use of it in slot_container.h rather than asking the user to supply it 
   * E_COUNT is a type wide enough to hold the maximum number of edges from one node to another 
@@ -59,6 +62,10 @@ TODO:
 
 * run profiler and optimize functions (some local alignment functions may be doing a ton of unneeded work -- e.g. get_outputs_full)
 * fix compiler warnings
+* cleanup syntax
+  * 120char lines (140 chars)
+  * spaces between squiggly brackets: {}
+  * python helper to ensure #includes are there for all std:: and using offbynull::...
 
 * Update get_in_degree() / get_out_degree() functions to calculate directly
 * Add concept checks to autos

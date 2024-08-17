@@ -112,8 +112,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         typename E
     >
     concept path_container_container_creator_pack =
-        requires(const T t, std::size_t max_path_edge_cnt) {
-            { t.create_element_container(max_path_edge_cnt) } -> random_access_range_of_type<element<E>>;
+        requires(const T t, std::size_t path_edge_capacity) {
+            { t.create_element_container(path_edge_capacity) } -> random_access_range_of_type<element<E>>;
         };
 
     template<
@@ -121,24 +121,24 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         typename E
     >
     struct path_container_heap_container_creator_pack {
-        std::vector<element<E>> create_element_container(std::size_t max_path_edge_cnt) const {
-            return std::vector<element<E>>(max_path_edge_cnt);
+        std::vector<element<E>> create_element_container(std::size_t path_edge_capacity) const {
+            return std::vector<element<E>>(path_edge_capacity);
         }
     };
 
     template<
         bool debug_mode,
         typename E,
-        std::size_t max_path_edge_cnt
+        std::size_t path_edge_capacity
     >
     struct path_container_stack_container_creator_pack {
-        std::array<element<E>, max_path_edge_cnt> create_element_container(std::size_t max_path_edge_cnt_) const {
+        std::array<element<E>, path_edge_capacity> create_element_container(std::size_t path_edge_capacity_) const {
             if constexpr (debug_mode) {
-                if (max_path_edge_cnt != max_path_edge_cnt_) {
+                if (path_edge_capacity != path_edge_capacity_) {
                     throw std::runtime_error("Bad element count");
                 }
             }
-            return std::array<element<E>, max_path_edge_cnt> {};
+            return std::array<element<E>, path_edge_capacity> {};
         }
     };
 
@@ -171,7 +171,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
         : element_container{
-            container_creator_pack.create_element_container(g.max_path_edge_cnt)
+            container_creator_pack.create_element_container(g.path_edge_capacity)
         }
         , head{nullptr}
         , tail{nullptr}
@@ -183,7 +183,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     throw std::runtime_error("Already initialized");
                 }
                 if (next_idx >= element_container.size()) {
-                    // If this happens, G::max_path_edge_cnt is probably giving back a number that's too low
+                    // If this happens, G::path_edge_capacity is probably giving back a number that's too low
                     throw std::runtime_error("Container too small");
                 }
             }
@@ -201,7 +201,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     throw std::runtime_error("Not initialized");
                 }
                 if (next_idx >= element_container.size()) {
-                    // If this happens, G::max_path_edge_cnt is probably giving back a number that's too low
+                    // If this happens, G::path_edge_capacity is probably giving back a number that's too low
                     throw std::runtime_error("Container too small");
                 }
             }
@@ -227,7 +227,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     throw std::runtime_error("Not initialized");
                 }
                 if (next_idx >= element_container.size()) {
-                    // If this happens, G::max_path_edge_cnt is probably giving back a number that's too low
+                    // If this happens, G::path_edge_capacity is probably giving back a number that's too low
                     throw std::runtime_error("Container too small");
                 }
             }

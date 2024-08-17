@@ -68,14 +68,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         weight ED,
         std::size_t grid_right_cnt,
         std::size_t grid_depth_cnt,
-        std::size_t max_resident_nodes_cnt
+        std::size_t resident_nodes_capacity
     >
     struct forward_walker_stack_container_creator_pack {
         slice_slot_container_stack_container_creator_pack<debug_mode, E, ED, grid_right_cnt, grid_depth_cnt> create_slice_slot_container_container_creator_pack() const {
             return {};
         }
 
-        resident_slot_container_stack_container_creator_pack<debug_mode, N, E, ED, max_resident_nodes_cnt> create_resident_slot_container_container_creator_pack() const {
+        resident_slot_container_stack_container_creator_pack<debug_mode, N, E, ED, resident_nodes_capacity> create_resident_slot_container_container_creator_pack() const {
             return {};
         }
     };
@@ -112,11 +112,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         INDEX grid_down_offset;
 
         slice_slot_container_pair(
-            const G& graph,
+            const G& g,
             SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK container_creator_pack={}
         )
-        : slots1{graph, container_creator_pack}
-        , slots2{graph, container_creator_pack}
+        : slots1{g, container_creator_pack}
+        , slots2{g, container_creator_pack}
         , previous_slots{&slots1}
         , current_slots{&slots2}
         , grid_down_offset{0u} {}
@@ -160,26 +160,26 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slice_slot_container_container_creator_pack());
         using RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_slot_container_container_creator_pack());
 
-        const G& graph;
+        const G& g;
         resident_slot_container<debug_mode, G, RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> resident_slots;
         slice_slot_container_pair<debug_mode, G, SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slice_slots;
-        decltype(graph.slice_nodes(0u)) slice;
+        decltype(g.slice_nodes(0u)) slice;
         decltype(slice.begin()) slice_it;
         slice_entry<N, E, ED> slice_entry_;
 
     public:
         static forward_walker create_and_initialize(
-            const G& graph,
+            const G& g_,
             const INDEX target_slice,
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         ) {
             if constexpr (debug_mode) {
-                if (target_slice >= graph.grid_down_cnt) {
+                if (target_slice >= g_.grid_down_cnt) {
                     throw std::runtime_error("Slice too far down");
                 }
             }
             forward_walker ret {
-                graph,
+                g_,
                 container_creator_pack_
             };
             while (ret.slice_slots.grid_down_offset != target_slice || ret.slice_it != ret.slice.end()) {
@@ -205,18 +205,18 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     private:
         forward_walker(
-            const G& graph_,
+            const G& g_,
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
-        : graph{graph_}
-        , resident_slots{graph, container_creator_pack_.create_resident_slot_container_container_creator_pack()}
-        , slice_slots{graph, container_creator_pack_.create_slice_slot_container_container_creator_pack()}
-        , slice{graph.slice_nodes(0u)}
+        : g{g_}
+        , resident_slots{g, container_creator_pack_.create_resident_slot_container_container_creator_pack()}
+        , slice_slots{g, container_creator_pack_.create_slice_slot_container_container_creator_pack()}
+        , slice{g.slice_nodes(0u)}
         , slice_it{slice.begin()}
         , slice_entry_{} {
-            auto&& _resident_slots { graph.resident_nodes() };
+            auto&& _resident_slots { g.resident_nodes() };
             slice_entry_.node = *slice_it;
-            slice_entry_.slot_ptr = &find(slice_entry_.node); // should be equivalent to graph.get_root_node()
+            slice_entry_.slot_ptr = &find(slice_entry_.node); // should be equivalent to g.get_root_node()
         }
 
         void step_forward() {
@@ -224,11 +224,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 slice_entry_.node = *slice_it;
                 slice_entry_.slot_ptr = &find(slice_entry_.node);
             } else {
-                if (slice_slots.grid_down_offset == graph.grid_down_cnt - 1u) {
+                if (slice_slots.grid_down_offset == g.grid_down_cnt - 1u) {
                     return;
                 }
                 slice_slots.move_down();
-                slice = graph.slice_nodes(slice_slots.grid_down_offset);
+                slice = g.slice_nodes(slice_slots.grid_down_offset);
                 slice_it = slice.begin();
                 slice_entry_.node = *slice_it;
                 slice_entry_.slot_ptr = &find(slice_entry_.node);
@@ -238,11 +238,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             if (!resident_slots.find(slice_entry_.node).has_value()) {
                 auto incoming_accumulated {
                     std::views::common(
-                        graph.get_inputs(slice_entry_.node)
+                        g.get_inputs(slice_entry_.node)
                         | std::views::transform(
                             [&](const auto& edge) noexcept -> std::pair<E, ED> {
-                                const N& n_from { graph.get_edge_from(edge) };
-                                const ED& edge_weight { graph.get_edge_data(edge) };
+                                const N& n_from { g.get_edge_from(edge) };
+                                const ED& edge_weight { g.get_edge_data(edge) };
                                 slot<E, ED>& n_from_slot { find(n_from) };
                                 return { edge, n_from_slot.backtracking_weight + edge_weight };
                             }
@@ -265,8 +265,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             }
 
             // Update resident node weights
-            for (const E& edge : graph.outputs_to_residents(slice_entry_.node)) {
-                const N& resident_node { graph.get_edge_to(edge) };
+            for (const E& edge : g.outputs_to_residents(slice_entry_.node)) {
+                const N& resident_node { g.get_edge_to(edge) };
                 std::optional<std::reference_wrapper<resident_slot<E, ED>>> resident_slot_maybe {
                     resident_slots.find(resident_node)
                 };
@@ -276,7 +276,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     }
                 }
                 resident_slot<E, ED>& resident_slot_ { (*resident_slot_maybe).get() };
-                const ED& edge_weight { graph.get_edge_data(edge) };
+                const ED& edge_weight { g.get_edge_data(edge) };
                 if (!resident_slot_.initialized) {
                     resident_slot_.slot_.backtracking_edge = { edge };
                     resident_slot_.slot_.backtracking_weight = edge_weight;

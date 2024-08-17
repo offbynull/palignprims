@@ -78,8 +78,8 @@ namespace offbynull::aligner::graphs::grid_graph {
         const INDEX grid_down_cnt;
         const INDEX grid_right_cnt;
         static constexpr INDEX grid_depth_cnt { 1u };
-        static constexpr std::size_t max_resident_nodes_cnt { 0zu };
-        const std::size_t max_path_edge_cnt;
+        static constexpr std::size_t resident_nodes_capacity { 0zu };
+        const std::size_t path_edge_capacity;
 
         grid_graph(
             const DOWN_SEQ& _down_seq,
@@ -105,7 +105,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         , gap_lookup{_gap_lookup}
         , grid_down_cnt{_down_seq.size() + 1zu}
         , grid_right_cnt{_right_seq.size() + 1zu}
-        , max_path_edge_cnt{(grid_right_cnt - 1u) + (grid_down_cnt - 1u)} {}
+        , path_edge_capacity{(grid_right_cnt - 1u) + (grid_down_cnt - 1u)} {}
 
         ND get_node_data(const N& node) const {
             if constexpr (debug_mode) {

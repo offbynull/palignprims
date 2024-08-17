@@ -18,7 +18,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
             typename G::INDEX grid_right,
             typename G::INDEX override_grid_right_cnt
         ) {
-            { g.max_resident_nodes_cnt } -> std::same_as<const std::size_t&>;
+            { g.resident_nodes_capacity } -> std::same_as<const std::size_t&>;
             { g.slice_nodes(grid_down) } -> range_of_one_of<typename G::N, const typename G::N&>;
             { g.slice_nodes(grid_down, node, node) } -> range_of_one_of<typename G::N, const typename G::N&>;
             { g.is_reachable(node, node) } -> std::same_as<bool>;

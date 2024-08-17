@@ -90,10 +90,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         typename N,
         typename E,
         weight ED,
-        std::size_t max_resident_nodes_cnt
+        std::size_t resident_nodes_capacity
     >
     struct resident_slot_container_stack_container_creator_pack {
-        using CONTAINER_TYPE = typename static_vector_typer<resident_slot_with_node<N, E, ED>, max_resident_nodes_cnt, debug_mode>::type;
+        using CONTAINER_TYPE = typename static_vector_typer<resident_slot_with_node<N, E, ED>, resident_nodes_capacity, debug_mode>::type;
         CONTAINER_TYPE create_slot_container(range_of_type<resident_slot_with_node<N, E, ED>> auto&& r) const  {
             return CONTAINER_TYPE(r.begin(), r.end());
         }
@@ -124,12 +124,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     public:
         resident_slot_container(
-            const G& graph_,
+            const G& g,
             CONTAINER_CREATOR_PACK container_creator_pack={}
         )
         : slots{
             container_creator_pack.create_slot_container(
-                graph_.resident_nodes()
+                g.resident_nodes()
                 | std::views::transform([](const N& node) {
                     return resident_slot_with_node<N, E, ED> {
                         node,

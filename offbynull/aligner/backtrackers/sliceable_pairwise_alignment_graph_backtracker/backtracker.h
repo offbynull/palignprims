@@ -92,19 +92,19 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         weight ED,
         std::size_t grid_right_cnt,
         std::size_t grid_depth_cnt,
-        std::size_t max_resident_nodes_cnt,
-        std::size_t max_path_edge_cnt
+        std::size_t resident_nodes_capacity,
+        std::size_t path_edge_capacity
     >
     struct backtracker_stack_container_creator_pack {
-        resident_segmenter_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, max_resident_nodes_cnt> create_resident_segmenter_container_creator_pack() {
+        resident_segmenter_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, resident_nodes_capacity> create_resident_segmenter_container_creator_pack() {
             return {};
         }
 
-        sliced_subdivider_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, max_resident_nodes_cnt> create_sliced_subdivider_container_creator_pack() {
+        sliced_subdivider_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, resident_nodes_capacity> create_sliced_subdivider_container_creator_pack() {
             return {};
         }
 
-        using CONTAINER_TYPE = typename static_vector_typer<E, max_path_edge_cnt, debug_mode>::type;
+        using CONTAINER_TYPE = typename static_vector_typer<E, path_edge_capacity, debug_mode>::type;
         CONTAINER_TYPE create_path_container() const  {
             return {};
         }
