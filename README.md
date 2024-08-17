@@ -23,7 +23,7 @@ TODO:
   * ~~ascii substitution matrix scorer~~
   * ~~pam/blosum scorer~~
   * ~~FIX single_character_substitution_matrix_scorer.h -- LAST CHAR IS NOT INDEL SCORE~~
-  * qwerty-keyboard scorer
+  * ~~qwerty-keyboard scorer~~
 
 * ~~FIX EXTENDEDGAP slice_nodes() function to not use forward_range_join_view~~
   * ~~make adapater that create forward_range / forward_backward_range based on callbacks (e.g. next(value) func and prev(value) func)~~
@@ -38,13 +38,14 @@ TODO:
   * ~~remove limits() function entirely~~
 * ~~container creators -- make them into functions so you don't have to create an instance of container_creator each time you use it~~
 * container creator packs -- vectors being created can be reserved to max size???? MAKE THIS AN OPTIONAL PARAMETER IN THE CONTAINER CREATOR PACK OR THE FUNCTION BEING CALLED?
+* max_path_edge_cnt/max_resident_nodes_cnt to path_edge_capacity/resident_nodes_capacity
 * ~~const correct container_creator_packs~~
 * CHANGE const G& graph TO const G& g
 * sliced_subdivider -- changed "whole_graph" to "graph_partition"?
 * add E_COUNT type to readable_pairwise_alignment_graph concept and graph implementations -- make use of it in slot_container.h rather than asking the user to supply it 
   * E_COUNT is a type wide enough to hold the maximum number of edges from one node to another 
   * or ... use "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/utils.h" to determine what the correct type should be
-* max_grid_node_depth should be a parameter directly on the class, EVALUATABLE AT COMPILE_TIME
+* ~~max_grid_node_depth should be a parameter directly on the class, EVALUATABLE AT COMPILE_TIME~~
 * ~~resident_segmenter - some use of std::vector -- move creation of types in container_pack_creators (SEE TODOs IN RESIDENT_SEGMENTER -- DOES IT EVEN NEED TO EXIST?)~~
 * ~~resident_segmenter - move is_node_on_max_path/walk_to_node to static functions in bidiwalker?~~
 * DONT DO THIS, but make a note that it's possible to do in the code (but may result in rounding errors):

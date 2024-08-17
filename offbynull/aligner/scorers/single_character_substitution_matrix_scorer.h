@@ -180,11 +180,11 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
         , weights { std::move(extract_sorted_weights(text_table)) } {}
 
         single_character_substitution_matrix_scorer(
-            const std::string_view& text_table,
-            const char
+            const std::array<char, ALPHABET_SIZE>& alphabet_,  // must be sorted
+            const std::array<WEIGHT, ALPHABET_SIZE * ALPHABET_SIZE>& weights_  // must be sorted (based on alphabet pair)
         )
-        : alphabet { std::move(extract_sorted_alphabet(text_table)) }
-        , weights { std::move(extract_sorted_weights(text_table)) } {}
+        : alphabet { alphabet_ }
+        , weights { weights_ } {}
 
         WEIGHT operator()(
             const auto& edge,

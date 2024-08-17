@@ -80,6 +80,7 @@ tests_src = [
         'offbynull/aligner/scorers/pam30_scorer_test.cpp',
         'offbynull/aligner/scorers/pam70_scorer_test.cpp',
         'offbynull/aligner/scorers/pam250_scorer_test.cpp',
+        'offbynull/aligner/scorers/qwerty_scorer_test.cpp',
 ##        'offbynull/aligner/aligner_test.cpp'
 ]
 test_exec = executable(
