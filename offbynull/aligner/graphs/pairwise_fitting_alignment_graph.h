@@ -14,6 +14,7 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/concepts.h"
 #include "offbynull/helpers/concat_view.h"
+#include "offbynull/helpers/blankable_bidirectional_view.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
@@ -25,6 +26,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::helpers::concat_view::concat_view;
+    using offbynull::helpers::blankable_bidirectional_view::blankable_bidirectional_view;
     using offbynull::utils::static_vector_typer;
 
     enum class edge_type : std::uint8_t {
@@ -265,19 +267,18 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 })
             };
             bool has_freeride_to_leaf { node.down < grid_down_cnt - 1u && node.right == grid_right_cnt - 1u };
-            auto freeride_set_1 {
+            blankable_bidirectional_view freeride_set_1 {
+                has_freeride_to_leaf,  // passthru if condition is met, otherwise blank
                 std::views::single(get_leaf_node())
                 | std::views::transform([node, this](const N& n2) noexcept {
                     N n1 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
                 })
-                | std::views::filter([has_freeride_to_leaf](const auto&) noexcept {
-                    return has_freeride_to_leaf;
-                })
             };
             bool has_freeride_from_root { node == get_root_node() };
-            auto freeride_set_2 {
+            blankable_bidirectional_view freeride_set_2 {
+                has_freeride_from_root,  // passthru if condition is met, otherwise blank
                 std::views::iota(1u, grid_down_cnt)
                 | std::views::transform([this](const INDEX& grid_down) {
                     return N { grid_down, 0u };
@@ -286,9 +287,6 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     N n1 { 0, 0 };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
-                })
-                | std::views::filter([has_freeride_from_root](const auto&) {
-                    return has_freeride_from_root;
                 })
             };
             return concat_view {
@@ -311,7 +309,8 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 })
             };
             bool has_freeride_to_leaf { node == get_leaf_node() };
-            auto freeride_set_1 {
+            blankable_bidirectional_view freeride_set_1 {
+                has_freeride_to_leaf,  // passthru if condition is met, otherwise blank
                 std::views::iota(0u, grid_down_cnt - 1u)
                 | std::views::transform([this](const INDEX& grid_down) {
                     return N { grid_down, grid_right_cnt - 1u };
@@ -321,20 +320,15 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
                 })
-                | std::views::filter([has_freeride_to_leaf](const auto&) {
-                    return has_freeride_to_leaf;
-                })
             };
             bool has_freeride_from_root { node.down > 0u && node.right == 0u };
-            auto freeride_set_2 {
+            blankable_bidirectional_view freeride_set_2 {
+                has_freeride_from_root,  // passthru if condition is met, otherwise blank
                 std::views::single(get_root_node())
                 | std::views::transform([node, this](const N& n1) {
                     N n2 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
-                })
-                | std::views::filter([has_freeride_from_root](const auto&) {
-                    return has_freeride_from_root;
                 })
             };
             return concat_view {

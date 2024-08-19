@@ -33,7 +33,7 @@ TODO:
 * ~~graph node/edge types to structs instead of std::pair -- add friend functions that print out to std::out~~
 * ~~graph node/edge types -- add concepts to ensure they're regular types BUT NOT < operator (backtrakcers that need < operator have concept checks for them)~~
 * ~~graphviz dump -- use string formatter / std::cout on node and edge outputs~~
-* local/fitting/overlap graph -- clean up ranges being produced so it doesn't run a filter function over an unneccesary number of nodes
+* ~~local/fitting/overlap graph -- clean up ranges being produced so it doesn't run a filter function over an unnecessary number of nodes~~
 * ~~error_check -> debug_mode~~
 * ~~remove limits() function -- move fields directly into graph class and make them constexpr~~
   * ~~at least move grid depth into graph class, making it constexpr~~
@@ -61,12 +61,15 @@ TODO:
 * ~~sliceable_pairwise_alignment_graph_backtracker use bidiwalker instead (make sure to update bidiwalker's logic to what's in backtracker)~~
 * ~~sliceable_pairwise_alignment_graph_backtracker randomized tests against pairwise_alignment_graph_backtracker~~
 
+* doxygen documentation
 * run profiler and optimize functions (some local alignment functions may be doing a ton of unneeded work -- e.g. get_outputs_full)
 * fix compiler warnings
 * cleanup syntax
   * 120char lines (140 chars)
   * spaces between squiggly brackets: {}
-  * python helper to ensure #includes are there for all std:: and using offbynull::...
+  * python helper to ensure ...
+    * guards are correct
+    * #includes are there for all std:: and using offbynull::...
 
 * Update get_in_degree() / get_out_degree() functions to calculate directly
 * Add concept checks to autos

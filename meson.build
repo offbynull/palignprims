@@ -36,6 +36,7 @@ gtest_dep = gtest.get_variable('gtest_dep')
 gmock_dep = gtest.get_variable('gmock_dep')
 tests_src = [
         'gtest-all.cpp',
+        'offbynull/helpers/blankable_bidirectional_view_test.cpp',
         'offbynull/helpers/concat_view_test.cpp',
         'offbynull/aligner/graph/utils_test.cpp',
         'offbynull/aligner/graphs/directed_graph_test.cpp',
