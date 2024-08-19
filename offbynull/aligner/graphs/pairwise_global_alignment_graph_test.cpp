@@ -86,15 +86,15 @@ namespace {
             gap_scorer
         };
         
-        EXPECT_TRUE(g.has_node({0zu, 0zu}));
-        EXPECT_TRUE(g.has_node({0zu, 1zu}));
-        EXPECT_TRUE(g.has_node({0zu, 2zu}));
-        EXPECT_FALSE(g.has_node({0zu, 3zu}));
-        EXPECT_TRUE(g.has_node({1zu, 0zu}));
-        EXPECT_TRUE(g.has_node({1zu, 1zu}));
-        EXPECT_TRUE(g.has_node({1zu, 2zu}));
-        EXPECT_FALSE(g.has_node({1zu, 3zu}));
-        EXPECT_FALSE(g.has_node({2zu, 3zu}));
+        EXPECT_TRUE(g.has_node({ 0zu, 0zu }));
+        EXPECT_TRUE(g.has_node({ 0zu, 1zu }));
+        EXPECT_TRUE(g.has_node({ 0zu, 2zu }));
+        EXPECT_FALSE(g.has_node({ 0zu, 3zu }));
+        EXPECT_TRUE(g.has_node({ 1zu, 0zu }));
+        EXPECT_TRUE(g.has_node({ 1zu, 1zu }));
+        EXPECT_TRUE(g.has_node({ 1zu, 2zu }));
+        EXPECT_FALSE(g.has_node({ 1zu, 3zu }));
+        EXPECT_FALSE(g.has_node({ 2zu, 3zu }));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, RightEdgesExist) {
@@ -107,12 +107,12 @@ namespace {
             gap_scorer
         };
 
-        EXPECT_TRUE(g.has_edge({{0zu, 0zu}, {0zu, 1zu}}));
-        EXPECT_TRUE(g.has_edge({{0zu, 1zu}, {0zu, 2zu}}));
-        EXPECT_FALSE(g.has_edge({{0zu, 2zu}, {0zu, 3zu}}));
-        EXPECT_TRUE(g.has_edge({{1zu, 0zu}, {1zu, 1zu}}));
-        EXPECT_TRUE(g.has_edge({{1zu, 1zu}, {1zu, 2zu}}));
-        EXPECT_FALSE(g.has_edge({{1zu, 2zu}, {1zu, 3zu}}));
+        EXPECT_TRUE(g.has_edge({ { 0zu, 0zu }, { 0zu, 1zu } }));
+        EXPECT_TRUE(g.has_edge({ { 0zu, 1zu }, { 0zu, 2zu } }));
+        EXPECT_FALSE(g.has_edge({ { 0zu, 2zu }, { 0zu, 3zu } }));
+        EXPECT_TRUE(g.has_edge({ { 1zu, 0zu }, { 1zu, 1zu } }));
+        EXPECT_TRUE(g.has_edge({ { 1zu, 1zu }, { 1zu, 2zu } }));
+        EXPECT_FALSE(g.has_edge({ { 1zu, 2zu }, { 1zu, 3zu } }));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, DownEdgesExist) {
@@ -125,12 +125,12 @@ namespace {
             gap_scorer
         };
         
-        EXPECT_TRUE(g.has_edge({{0zu, 0zu}, {1zu, 0zu}}));
-        EXPECT_FALSE(g.has_edge({{1zu, 0zu}, {2zu, 0zu}}));
-        EXPECT_TRUE(g.has_edge({{0zu, 1zu}, {1zu, 1zu}}));
-        EXPECT_FALSE(g.has_edge({{1zu, 1zu}, {2zu, 1zu}}));
-        EXPECT_TRUE(g.has_edge({{0zu, 2zu}, {1zu, 2zu}}));
-        EXPECT_FALSE(g.has_edge({{1zu, 2zu}, {2zu, 2zu}}));
+        EXPECT_TRUE(g.has_edge({ { 0zu, 0zu }, { 1zu, 0zu } }));
+        EXPECT_FALSE(g.has_edge({ { 1zu, 0zu }, { 2zu, 0zu } }));
+        EXPECT_TRUE(g.has_edge({ { 0zu, 1zu }, { 1zu, 1zu } }));
+        EXPECT_FALSE(g.has_edge({ { 1zu, 1zu }, { 2zu, 1zu } }));
+        EXPECT_TRUE(g.has_edge({ { 0zu, 2zu }, { 1zu, 2zu } }));
+        EXPECT_FALSE(g.has_edge({ { 1zu, 2zu }, { 2zu, 2zu } }));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, DiagEdgesExist) {
@@ -143,12 +143,12 @@ namespace {
             gap_scorer
         };
         
-        EXPECT_TRUE(g.has_edge({{0zu, 0zu}, {1zu, 1zu}}));
-        EXPECT_FALSE(g.has_edge({{1zu, 0zu}, {2zu, 1zu}}));
-        EXPECT_TRUE(g.has_edge({{0zu, 1zu}, {1zu, 2zu}}));
-        EXPECT_FALSE(g.has_edge({{1zu, 1zu}, {2zu, 2zu}}));
-        EXPECT_FALSE(g.has_edge({{0zu, 2zu}, {1zu, 3zu}}));
-        EXPECT_FALSE(g.has_edge({{1zu, 2zu}, {2zu, 3zu}}));
+        EXPECT_TRUE(g.has_edge({ { 0zu, 0zu }, { 1zu, 1zu } }));
+        EXPECT_FALSE(g.has_edge({ { 1zu, 0zu }, { 2zu, 1zu } }));
+        EXPECT_TRUE(g.has_edge({ { 0zu, 1zu }, { 1zu, 2zu } }));
+        EXPECT_FALSE(g.has_edge({ { 1zu, 1zu }, { 2zu, 2zu } }));
+        EXPECT_FALSE(g.has_edge({ { 0zu, 2zu }, { 1zu, 3zu } }));
+        EXPECT_FALSE(g.has_edge({ { 1zu, 2zu }, { 2zu, 3zu } }));
     }
 
     TEST(PairwiseGlobalAlignmentGraphTest, GetOutputs) {

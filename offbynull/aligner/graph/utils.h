@@ -25,7 +25,7 @@ namespace offbynull::aligner::graph::utils {
     }
 
     inline std::string escape_string_for_graphviz(const std::string& in) {
-        std::string ret { };
+        std::string ret {};
         for (const auto& ch : in) {
             if (ch == '"') {
                 ret += "\\\"";
@@ -47,8 +47,8 @@ namespace offbynull::aligner::graph::utils {
     std::string pairwise_graph_to_graphviz(
         const readable_pairwise_alignment_graph auto &g,
         auto to_name_func,
-        float depth_offset=0.3f,
-        float space_between_grid_offsets=3.0f
+        float depth_offset = 0.3f,
+        float space_between_grid_offsets = 3.0f
     ) {
         std::string out {};
         out += "digraph G {\n";
@@ -82,14 +82,14 @@ namespace offbynull::aligner::graph::utils {
 
     std::string pairwise_graph_to_graphviz(
         const readable_pairwise_alignment_graph auto &g,
-        float depth_offset=0.3f,
-        float space_between_grid_offsets=3.0f
+        float depth_offset = 0.3f,
+        float space_between_grid_offsets = 3.0f
     ) {
         return pairwise_graph_to_graphviz(
             g,
             [&](auto n) {
                 // const auto& [down, right, depth] { g.node_to_grid_offsets(n) };
-                // return std::string { std::format("{}x{}x{}", down, right, depth) };
+                // return std::string { std::format(" {}x {}x {}", down, right, depth) };
                 return std::format("{}", n);
             },
             depth_offset,
@@ -133,7 +133,7 @@ namespace offbynull::aligner::graph::utils {
             g,
             [&](auto n) {
                 // const auto& [down, right, depth] { g.node_to_grid_offsets(n) };
-                // return std::string { std::format("{}x{}x{}", down, right, depth) };
+                // return std::string { std::format(" {}x {}x {}", down, right, depth) };
                 return std::format("{}", n);
             }
         );

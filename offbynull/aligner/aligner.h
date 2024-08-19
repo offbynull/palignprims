@@ -29,7 +29,7 @@ namespace offbynull::aligner::aligner {
     using offbynull::concepts::widenable_to_size_t;
 
     template<typename T>
-    struct type_encapsulator{
+    struct type_encapsulator {
         using type = T;
     };
 
@@ -49,8 +49,8 @@ namespace offbynull::aligner::aligner {
         using N = typename G::N;
         using E = typename G::E;
         using COUNT = std::size_t;
-        using SLOT_CONTAINER_CREATOR=vector_container_creator<slot<N, E, COUNT, WEIGHT>, debug_mode>;
-        using PATH_CONTAINER_CREATOR=vector_container_creator<E, debug_mode>;
+        using SLOT_CONTAINER_CREATOR = vector_container_creator<slot<N, E, COUNT, WEIGHT>, debug_mode>;
+        using PATH_CONTAINER_CREATOR = vector_container_creator<E, debug_mode>;
         backtracker<G, COUNT, WEIGHT, SLOT_CONTAINER_CREATOR, PATH_CONTAINER_CREATOR> backtracker_ {};
         using E = typename G::E;
         auto [path, weight] {
@@ -314,8 +314,8 @@ namespace offbynull::aligner::aligner {
         using N = typename G::N;
         using E = typename G::E;
         using COUNT = std::size_t;
-        using SLOT_CONTAINER_CREATOR=array_container_creator<slot<N, E, COUNT, WEIGHT>, G::node_count(v_node_cnt, w_node_cnt), debug_mode>;
-        using PATH_CONTAINER_CREATOR=static_vector_container_creator<E, G::longest_path_edge_count(v_node_cnt, w_node_cnt), debug_mode>;
+        using SLOT_CONTAINER_CREATOR = array_container_creator<slot<N, E, COUNT, WEIGHT>, G::node_count(v_node_cnt, w_node_cnt), debug_mode>;
+        using PATH_CONTAINER_CREATOR = static_vector_container_creator<E, G::longest_path_edge_count(v_node_cnt, w_node_cnt), debug_mode>;
         backtracker<G, COUNT, WEIGHT, SLOT_CONTAINER_CREATOR, PATH_CONTAINER_CREATOR> backtracker_ {};
         using E = typename G::E;
         auto [path, weight] {
@@ -558,13 +558,13 @@ namespace offbynull::aligner::aligner {
     constexpr auto to_efficient_index_type() {
         constexpr std::size_t n { V_NODE_CNT < W_NODE_CNT ? W_NODE_CNT : V_NODE_CNT };
         if constexpr (n <= std::numeric_limits<std::uint8_t>::max()) {
-            return type_encapsulator<std::uint8_t>{};
+            return type_encapsulator<std::uint8_t> {};
         } else if constexpr (n <= std::numeric_limits<std::uint16_t>::max()) {
-            return type_encapsulator<std::uint16_t>{};
+            return type_encapsulator<std::uint16_t> {};
         } else if constexpr (n <= std::numeric_limits<std::uint32_t>::max()) {
-            return type_encapsulator<std::uint32_t>{};
+            return type_encapsulator<std::uint32_t> {};
         } else if constexpr (n <= std::numeric_limits<std::uint64_t>::max()) {
-            return type_encapsulator<std::uint64_t>{};
+            return type_encapsulator<std::uint64_t> {};
         } else {
             throw std::runtime_error("Unable to find type large enough to support max number of incoming edges");
         }

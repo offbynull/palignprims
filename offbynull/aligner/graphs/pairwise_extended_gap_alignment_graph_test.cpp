@@ -99,56 +99,56 @@ namespace {
         }
         std::ranges::sort(actual);
         std::vector<E> expected {
-            E { N {node_layer::DIAGONAL, 0zu, 0zu}, N {node_layer::DIAGONAL, 1zu, 1zu} },
-            E { N {node_layer::DIAGONAL, 0zu, 1zu}, N {node_layer::DIAGONAL, 1zu, 2zu} },
-            E { N {node_layer::DIAGONAL, 0zu, 2zu}, N {node_layer::DIAGONAL, 1zu, 3zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 0zu}, N {node_layer::DIAGONAL, 2zu, 1zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 1zu}, N {node_layer::DIAGONAL, 2zu, 2zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 2zu}, N {node_layer::DIAGONAL, 2zu, 3zu} },
-            E { N {node_layer::DIAGONAL, 0zu, 0zu}, N {node_layer::RIGHT, 0zu, 1zu} },
-            E { N {node_layer::DIAGONAL, 0zu, 1zu}, N {node_layer::RIGHT, 0zu, 2zu} },
-            E { N {node_layer::DIAGONAL, 0zu, 2zu}, N {node_layer::RIGHT, 0zu, 3zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 0zu}, N {node_layer::RIGHT, 1zu, 1zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 1zu}, N {node_layer::RIGHT, 1zu, 2zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 2zu}, N {node_layer::RIGHT, 1zu, 3zu} },
-            E { N {node_layer::DIAGONAL, 2zu, 0zu}, N {node_layer::RIGHT, 2zu, 1zu} },
-            E { N {node_layer::DIAGONAL, 2zu, 1zu}, N {node_layer::RIGHT, 2zu, 2zu} },
-            E { N {node_layer::DIAGONAL, 2zu, 2zu}, N {node_layer::RIGHT, 2zu, 3zu} },
-            E { N {node_layer::DIAGONAL, 0zu, 0zu}, N {node_layer::DOWN, 1zu, 0zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 0zu}, N {node_layer::DOWN, 2zu, 0zu} },
-            E { N {node_layer::DIAGONAL, 0zu, 1zu}, N {node_layer::DOWN, 1zu, 1zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 1zu}, N {node_layer::DOWN, 2zu, 1zu} },
-            E { N {node_layer::DIAGONAL, 0zu, 2zu}, N {node_layer::DOWN, 1zu, 2zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 2zu}, N {node_layer::DOWN, 2zu, 2zu} },
-            E { N {node_layer::DIAGONAL, 0zu, 3zu}, N {node_layer::DOWN, 1zu, 3zu} },
-            E { N {node_layer::DIAGONAL, 1zu, 3zu}, N {node_layer::DOWN, 2zu, 3zu} },
-            E { N {node_layer::DOWN, 1zu, 0zu}, N {node_layer::DIAGONAL, 1zu, 0zu} },
-            E { N {node_layer::DOWN, 1zu, 1zu}, N {node_layer::DIAGONAL, 1zu, 1zu} },
-            E { N {node_layer::DOWN, 1zu, 2zu}, N {node_layer::DIAGONAL, 1zu, 2zu} },
-            E { N {node_layer::DOWN, 1zu, 3zu}, N {node_layer::DIAGONAL, 1zu, 3zu} },
-            E { N {node_layer::DOWN, 2zu, 0zu}, N {node_layer::DIAGONAL, 2zu, 0zu} },
-            E { N {node_layer::DOWN, 2zu, 1zu}, N {node_layer::DIAGONAL, 2zu, 1zu} },
-            E { N {node_layer::DOWN, 2zu, 2zu}, N {node_layer::DIAGONAL, 2zu, 2zu} },
-            E { N {node_layer::DOWN, 2zu, 3zu}, N {node_layer::DIAGONAL, 2zu, 3zu} },
-            E { N {node_layer::DOWN, 1zu, 0zu}, N {node_layer::DOWN, 2zu, 0zu} },
-            E { N {node_layer::DOWN, 1zu, 1zu}, N {node_layer::DOWN, 2zu, 1zu} },
-            E { N {node_layer::DOWN, 1zu, 2zu}, N {node_layer::DOWN, 2zu, 2zu} },
-            E { N {node_layer::DOWN, 1zu, 3zu}, N {node_layer::DOWN, 2zu, 3zu} },
-            E { N {node_layer::RIGHT, 0zu, 1zu}, N {node_layer::DIAGONAL, 0zu, 1zu} },
-            E { N {node_layer::RIGHT, 0zu, 2zu}, N {node_layer::DIAGONAL, 0zu, 2zu} },
-            E { N {node_layer::RIGHT, 0zu, 3zu}, N {node_layer::DIAGONAL, 0zu, 3zu} },
-            E { N {node_layer::RIGHT, 1zu, 1zu}, N {node_layer::DIAGONAL, 1zu, 1zu} },
-            E { N {node_layer::RIGHT, 1zu, 2zu}, N {node_layer::DIAGONAL, 1zu, 2zu} },
-            E { N {node_layer::RIGHT, 1zu, 3zu}, N {node_layer::DIAGONAL, 1zu, 3zu} },
-            E { N {node_layer::RIGHT, 2zu, 1zu}, N {node_layer::DIAGONAL, 2zu, 1zu} },
-            E { N {node_layer::RIGHT, 2zu, 2zu}, N {node_layer::DIAGONAL, 2zu, 2zu} },
-            E { N {node_layer::RIGHT, 2zu, 3zu}, N {node_layer::DIAGONAL, 2zu, 3zu} },
-            E { N {node_layer::RIGHT, 0zu, 1zu}, N {node_layer::RIGHT, 0zu, 2zu} },
-            E { N {node_layer::RIGHT, 0zu, 2zu}, N {node_layer::RIGHT, 0zu, 3zu} },
-            E { N {node_layer::RIGHT, 1zu, 1zu}, N {node_layer::RIGHT, 1zu, 2zu} },
-            E { N {node_layer::RIGHT, 1zu, 2zu}, N {node_layer::RIGHT, 1zu, 3zu} },
-            E { N {node_layer::RIGHT, 2zu, 1zu}, N {node_layer::RIGHT, 2zu, 2zu} },
-            E { N {node_layer::RIGHT, 2zu, 2zu}, N {node_layer::RIGHT, 2zu, 3zu} }
+            E { N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DIAGONAL, 1zu, 1zu } },
+            E { N { node_layer::DIAGONAL, 0zu, 1zu }, N { node_layer::DIAGONAL, 1zu, 2zu } },
+            E { N { node_layer::DIAGONAL, 0zu, 2zu }, N { node_layer::DIAGONAL, 1zu, 3zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 0zu }, N { node_layer::DIAGONAL, 2zu, 1zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::DIAGONAL, 2zu, 2zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 2zu }, N { node_layer::DIAGONAL, 2zu, 3zu } },
+            E { N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::RIGHT, 0zu, 1zu } },
+            E { N { node_layer::DIAGONAL, 0zu, 1zu }, N { node_layer::RIGHT, 0zu, 2zu } },
+            E { N { node_layer::DIAGONAL, 0zu, 2zu }, N { node_layer::RIGHT, 0zu, 3zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 0zu }, N { node_layer::RIGHT, 1zu, 1zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 1zu, 2zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 2zu }, N { node_layer::RIGHT, 1zu, 3zu } },
+            E { N { node_layer::DIAGONAL, 2zu, 0zu }, N { node_layer::RIGHT, 2zu, 1zu } },
+            E { N { node_layer::DIAGONAL, 2zu, 1zu }, N { node_layer::RIGHT, 2zu, 2zu } },
+            E { N { node_layer::DIAGONAL, 2zu, 2zu }, N { node_layer::RIGHT, 2zu, 3zu } },
+            E { N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DOWN, 1zu, 0zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 0zu }, N { node_layer::DOWN, 2zu, 0zu } },
+            E { N { node_layer::DIAGONAL, 0zu, 1zu }, N { node_layer::DOWN, 1zu, 1zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::DOWN, 2zu, 1zu } },
+            E { N { node_layer::DIAGONAL, 0zu, 2zu }, N { node_layer::DOWN, 1zu, 2zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 2zu }, N { node_layer::DOWN, 2zu, 2zu } },
+            E { N { node_layer::DIAGONAL, 0zu, 3zu }, N { node_layer::DOWN, 1zu, 3zu } },
+            E { N { node_layer::DIAGONAL, 1zu, 3zu }, N { node_layer::DOWN, 2zu, 3zu } },
+            E { N { node_layer::DOWN, 1zu, 0zu }, N { node_layer::DIAGONAL, 1zu, 0zu } },
+            E { N { node_layer::DOWN, 1zu, 1zu }, N { node_layer::DIAGONAL, 1zu, 1zu } },
+            E { N { node_layer::DOWN, 1zu, 2zu }, N { node_layer::DIAGONAL, 1zu, 2zu } },
+            E { N { node_layer::DOWN, 1zu, 3zu }, N { node_layer::DIAGONAL, 1zu, 3zu } },
+            E { N { node_layer::DOWN, 2zu, 0zu }, N { node_layer::DIAGONAL, 2zu, 0zu } },
+            E { N { node_layer::DOWN, 2zu, 1zu }, N { node_layer::DIAGONAL, 2zu, 1zu } },
+            E { N { node_layer::DOWN, 2zu, 2zu }, N { node_layer::DIAGONAL, 2zu, 2zu } },
+            E { N { node_layer::DOWN, 2zu, 3zu }, N { node_layer::DIAGONAL, 2zu, 3zu } },
+            E { N { node_layer::DOWN, 1zu, 0zu }, N { node_layer::DOWN, 2zu, 0zu } },
+            E { N { node_layer::DOWN, 1zu, 1zu }, N { node_layer::DOWN, 2zu, 1zu } },
+            E { N { node_layer::DOWN, 1zu, 2zu }, N { node_layer::DOWN, 2zu, 2zu } },
+            E { N { node_layer::DOWN, 1zu, 3zu }, N { node_layer::DOWN, 2zu, 3zu } },
+            E { N { node_layer::RIGHT, 0zu, 1zu }, N { node_layer::DIAGONAL, 0zu, 1zu } },
+            E { N { node_layer::RIGHT, 0zu, 2zu }, N { node_layer::DIAGONAL, 0zu, 2zu } },
+            E { N { node_layer::RIGHT, 0zu, 3zu }, N { node_layer::DIAGONAL, 0zu, 3zu } },
+            E { N { node_layer::RIGHT, 1zu, 1zu }, N { node_layer::DIAGONAL, 1zu, 1zu } },
+            E { N { node_layer::RIGHT, 1zu, 2zu }, N { node_layer::DIAGONAL, 1zu, 2zu } },
+            E { N { node_layer::RIGHT, 1zu, 3zu }, N { node_layer::DIAGONAL, 1zu, 3zu } },
+            E { N { node_layer::RIGHT, 2zu, 1zu }, N { node_layer::DIAGONAL, 2zu, 1zu } },
+            E { N { node_layer::RIGHT, 2zu, 2zu }, N { node_layer::DIAGONAL, 2zu, 2zu } },
+            E { N { node_layer::RIGHT, 2zu, 3zu }, N { node_layer::DIAGONAL, 2zu, 3zu } },
+            E { N { node_layer::RIGHT, 0zu, 1zu }, N { node_layer::RIGHT, 0zu, 2zu } },
+            E { N { node_layer::RIGHT, 0zu, 2zu }, N { node_layer::RIGHT, 0zu, 3zu } },
+            E { N { node_layer::RIGHT, 1zu, 1zu }, N { node_layer::RIGHT, 1zu, 2zu } },
+            E { N { node_layer::RIGHT, 1zu, 2zu }, N { node_layer::RIGHT, 1zu, 3zu } },
+            E { N { node_layer::RIGHT, 2zu, 1zu }, N { node_layer::RIGHT, 2zu, 2zu } },
+            E { N { node_layer::RIGHT, 2zu, 2zu }, N { node_layer::RIGHT, 2zu, 3zu } }
         };
         std::ranges::sort(expected);
         EXPECT_EQ(
@@ -299,15 +299,15 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        EXPECT_TRUE(g.has_edge(E { {node_layer::DIAGONAL, 0zu, 0zu}, {node_layer::DIAGONAL, 1zu, 1zu} }));
-        EXPECT_TRUE(g.has_edge(E { {node_layer::DIAGONAL, 0zu, 1zu}, {node_layer::DIAGONAL, 1zu, 2zu} }));
-        EXPECT_TRUE(g.has_edge(E { {node_layer::DIAGONAL, 0zu, 2zu}, {node_layer::DIAGONAL, 1zu, 3zu} }));
-        EXPECT_FALSE(g.has_edge(E { {node_layer::DIAGONAL, 0zu, 3zu}, {node_layer::DIAGONAL, 1zu, 4zu} }));
-        EXPECT_TRUE(g.has_edge(E { {node_layer::DIAGONAL, 1zu, 0zu}, {node_layer::DIAGONAL, 2zu, 1zu} }));
-        EXPECT_TRUE(g.has_edge(E { {node_layer::DIAGONAL, 1zu, 1zu}, {node_layer::DIAGONAL, 2zu, 2zu} }));
-        EXPECT_TRUE(g.has_edge(E { {node_layer::DIAGONAL, 1zu, 2zu}, {node_layer::DIAGONAL, 2zu, 3zu} }));
-        EXPECT_FALSE(g.has_edge(E { {node_layer::DIAGONAL, 1zu, 3zu}, {node_layer::DIAGONAL, 2zu, 4zu} }));
-        EXPECT_FALSE(g.has_edge(E { {node_layer::DIAGONAL, 2zu, 0zu}, {node_layer::DIAGONAL, 3zu, 1zu} }));
+        EXPECT_TRUE(g.has_edge(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::DIAGONAL, 1zu, 1zu } }));
+        EXPECT_TRUE(g.has_edge(E { { node_layer::DIAGONAL, 0zu, 1zu }, { node_layer::DIAGONAL, 1zu, 2zu } }));
+        EXPECT_TRUE(g.has_edge(E { { node_layer::DIAGONAL, 0zu, 2zu }, { node_layer::DIAGONAL, 1zu, 3zu } }));
+        EXPECT_FALSE(g.has_edge(E { { node_layer::DIAGONAL, 0zu, 3zu }, { node_layer::DIAGONAL, 1zu, 4zu } }));
+        EXPECT_TRUE(g.has_edge(E { { node_layer::DIAGONAL, 1zu, 0zu }, { node_layer::DIAGONAL, 2zu, 1zu } }));
+        EXPECT_TRUE(g.has_edge(E { { node_layer::DIAGONAL, 1zu, 1zu }, { node_layer::DIAGONAL, 2zu, 2zu } }));
+        EXPECT_TRUE(g.has_edge(E { { node_layer::DIAGONAL, 1zu, 2zu }, { node_layer::DIAGONAL, 2zu, 3zu } }));
+        EXPECT_FALSE(g.has_edge(E { { node_layer::DIAGONAL, 1zu, 3zu }, { node_layer::DIAGONAL, 2zu, 4zu } }));
+        EXPECT_FALSE(g.has_edge(E { { node_layer::DIAGONAL, 2zu, 0zu }, { node_layer::DIAGONAL, 3zu, 1zu } }));
     }
 
     TEST(PairwiseExtendedGapAlignmentGraphTest, DownFreeRidgeEdgesExist) {
@@ -443,9 +443,9 @@ namespace {
         EXPECT_EQ(
             (
                 std::set<E> {
-                    E { { node_layer::DIAGONAL, 1zu, 0zu}, { node_layer::DIAGONAL, 2zu, 1zu } },
-                    E { { node_layer::DIAGONAL, 1zu, 0zu}, { node_layer::DOWN, 2zu, 0zu } },
-                    E { { node_layer::DIAGONAL, 1zu, 0zu}, { node_layer::RIGHT, 1zu, 1zu } }
+                    E { { node_layer::DIAGONAL, 1zu, 0zu }, { node_layer::DIAGONAL, 2zu, 1zu } },
+                    E { { node_layer::DIAGONAL, 1zu, 0zu }, { node_layer::DOWN, 2zu, 0zu } },
+                    E { { node_layer::DIAGONAL, 1zu, 0zu }, { node_layer::RIGHT, 1zu, 1zu } }
                 }
             ),
             to_outputs(N { node_layer::DIAGONAL, 1zu, 0zu })
@@ -946,7 +946,7 @@ namespace {
                     E { { node_layer::RIGHT, 2zu, 2zu }, { node_layer::RIGHT, 2zu, 3zu } },
                 }
             ),
-            to_inputs(N {node_layer::RIGHT, 2zu, 3zu })
+            to_inputs(N { node_layer::RIGHT, 2zu, 3zu })
         );
     }
 
@@ -1135,39 +1135,39 @@ namespace {
         );
 
         EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 0zu, 0zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 0zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 0zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 0zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 0zu, 2zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 0zu, 2zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 0zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 1zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 1zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 1zu, 2zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 1zu, 2zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 2zu })), (std::vector<E> {}));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 0zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 0zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 0zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 2zu })), (std::vector<E> { }));
 
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 0zu, 0zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 0zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 0zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 0zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 0zu, 2zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 0zu, 2zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 0zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 1zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 1zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 1zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 1zu, 2zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 1zu, 2zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 2zu })), (std::vector<E> {}));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 0zu, 0zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 0zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 0zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 0zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 2zu })), (std::vector<E> { }));
     }
 
     TEST(PairwiseExtendedGapAlignmentGraphTest, SlicedWalkPartial) {
         auto to_vector {
             [](auto &&r) {
                 auto it { r.begin() };
-                std::vector<std::decay_t<decltype(*it)>> ret {};
+                std::vector<std::decay_t<decltype(*it)>> ret { };
                 while (it != r.end()) {
                     ret.push_back(*it);
                     ++it;

@@ -42,13 +42,13 @@ namespace offbynull::helpers::concat_view {
         iterator(iterator<It1, S1, It2, S2> &&src) = default;
 
         iterator()
-        : begin1{}
-        , it1{}
-        , end1{}
-        , begin2{}
-        , it2{}
-        , end2{}
-        , is_first{false} {}
+        : begin1 {}
+        , it1 {}
+        , end1 {}
+        , begin2 {}
+        , it2 {}
+        , end2 {}
+        , is_first { false } {}
 
         iterator(It1 a_first, S1 a_last, It2 b_first, S2 b_last)
         : begin1(a_first)

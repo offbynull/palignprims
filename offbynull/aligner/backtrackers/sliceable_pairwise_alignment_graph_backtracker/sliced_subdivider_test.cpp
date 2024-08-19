@@ -42,16 +42,16 @@ namespace {
         // std::cout << weight << std::endl;
 
         std::vector<E> option1 {
-            E { N {0zu, 0zu}, N {1zu, 1zu} },
-            E { N {1zu, 1zu}, N {2zu, 1zu} },
-            E { N {2zu, 1zu}, N {2zu, 2zu} },
-            E { N {2zu, 2zu}, N {3zu, 3zu} }
+            E { N { 0zu, 0zu }, N { 1zu, 1zu } },
+            E { N { 1zu, 1zu }, N { 2zu, 1zu } },
+            E { N { 2zu, 1zu }, N { 2zu, 2zu } },
+            E { N { 2zu, 2zu }, N { 3zu, 3zu } }
         };
         std::vector<E> option2 {
-            E { N {0zu, 0zu}, N {1zu, 1zu} },
-            E { N {1zu, 1zu}, N {1zu, 2zu} },
-            E { N {1zu, 2zu}, N {2zu, 2zu} },
-            E { N {2zu, 2zu}, N {3zu, 3zu} }
+            E { N { 0zu, 0zu }, N { 1zu, 1zu } },
+            E { N { 1zu, 1zu }, N { 1zu, 2zu } },
+            E { N { 1zu, 2zu }, N { 2zu, 2zu } },
+            E { N { 2zu, 2zu }, N { 3zu, 3zu } }
         };
         EXPECT_TRUE(forward_path == option1 || forward_path == option2);
     }
@@ -90,16 +90,16 @@ namespace {
         // std::cout << weight << std::endl;
 
         std::vector<E> option1 {
-            E { edge_type::NORMAL, { N {5zu, 5zu}, N {6zu, 6zu} } },
-            E { edge_type::NORMAL, { N {6zu, 6zu}, N {7zu, 6zu} } },
-            E { edge_type::NORMAL, { N {7zu, 6zu}, N {7zu, 7zu} } },
-            E { edge_type::NORMAL, { N {7zu, 7zu}, N {8zu, 8zu} } }
+            E { edge_type::NORMAL, { N { 5zu, 5zu }, N { 6zu, 6zu } } },
+            E { edge_type::NORMAL, { N { 6zu, 6zu }, N { 7zu, 6zu } } },
+            E { edge_type::NORMAL, { N { 7zu, 6zu }, N { 7zu, 7zu } } },
+            E { edge_type::NORMAL, { N { 7zu, 7zu }, N { 8zu, 8zu } } }
         };
         std::vector<E> option2 {
-            E { edge_type::NORMAL, { N {5zu, 5zu}, N {6zu, 6zu} } },
-            E { edge_type::NORMAL, { N {6zu, 6zu}, N {6zu, 7zu} } },
-            E { edge_type::NORMAL, { N {6zu, 7zu}, N {7zu, 7zu} } },
-            E { edge_type::NORMAL, { N {7zu, 7zu}, N {8zu, 8zu} } }
+            E { edge_type::NORMAL, { N { 5zu, 5zu }, N { 6zu, 6zu } } },
+            E { edge_type::NORMAL, { N { 6zu, 6zu }, N { 6zu, 7zu } } },
+            E { edge_type::NORMAL, { N { 6zu, 7zu }, N { 7zu, 7zu } } },
+            E { edge_type::NORMAL, { N { 7zu, 7zu }, N { 8zu, 8zu } } }
         };
         EXPECT_TRUE(forward_path == option1 || forward_path == option2);
     }

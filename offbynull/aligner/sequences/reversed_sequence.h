@@ -14,7 +14,7 @@ namespace offbynull::aligner::sequences::reversed_sequence {
 
     public:
         reversed_sequence(const SEQ& seq_)
-        : seq { seq_ } { }
+        : seq { seq_ } {}
 
         decltype(seq[0zu]) operator[](std::size_t index) const {
             return seq[seq.size() - index - 1zu];

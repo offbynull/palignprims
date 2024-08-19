@@ -57,14 +57,14 @@ namespace offbynull::aligner::sequences::chunked_sequence {
     template<
         bool debug_mode,
         sequence SEQ,
-        chunked_sequence_container_creator_pack<std::decay_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK=chunked_sequence_heap_container_creator_pack<debug_mode, std::decay_t<decltype(std::declval<SEQ>()[0zu])>>
+        chunked_sequence_container_creator_pack<std::decay_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK = chunked_sequence_heap_container_creator_pack<debug_mode, std::decay_t<decltype(std::declval<SEQ>()[0zu])>>
     >
     class chunked_sequence {
     private:
         const SEQ& seq;
         const std::size_t chunk_length;
 
-        using RESULT_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_result_container(0zu));
+        using RESULT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_result_container(0zu));
 
         CONTAINER_CREATOR_PACK container_creator_pack;
 

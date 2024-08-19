@@ -82,7 +82,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // // walk
-        // offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<decltype(g), std::size_t> backtracker_ { };
+        // offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<decltype(g), std::size_t> backtracker_ {};
         // const auto& [path, weight] { backtracker_.find_max_path(g) };
         // for (const E& e : path) {
         //     const auto& [n1, n2] { e.inner_edge };

@@ -69,7 +69,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        slice_slot_container_container_creator_pack<typename G::E, typename G::ED> CONTAINER_CREATOR_PACK=slice_slot_container_heap_container_creator_pack<debug_mode, typename G::E, typename G::ED>
+        slice_slot_container_container_creator_pack<typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = slice_slot_container_heap_container_creator_pack<debug_mode, typename G::E, typename G::ED>
     >
     class slice_slot_container {
     private:
@@ -78,7 +78,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ND = typename G::ND;
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
-        using SLOT_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(0zu, 0zu));
+        using SLOT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(0zu, 0zu));
 
         const G& g;
         SLOT_CONTAINER slots;
@@ -87,16 +87,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     public:
         slice_slot_container(
             const G& g_,
-            CONTAINER_CREATOR_PACK container_creator_pack={}
+            CONTAINER_CREATOR_PACK container_creator_pack= {}
         )
-        : g{g_}
-        , slots{
+        : g { g_ }
+        , slots {
             container_creator_pack.create_slot_container(
                 g.grid_right_cnt,
                 g.grid_depth_cnt
             )
         }
-        , grid_down{} {}
+        , grid_down {} {}
 
         std::optional<std::reference_wrapper<slot<E, ED>>> find(const N& node) {
             const auto& [down_offset, right_offset, depth] { g.node_to_grid_offsets(node) };

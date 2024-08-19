@@ -59,7 +59,7 @@ namespace offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph 
             const G& g_,
             const N& new_root_node_
         )
-        : inner_inner_g{ g_ }
+        : inner_inner_g { g_ }
         , inner_g { inner_inner_g, new_root_node_ }
         , g { inner_g }
         , grid_down_cnt { g.grid_down_cnt }

@@ -86,7 +86,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        bidi_walker_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK=bidi_walker_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        bidi_walker_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = bidi_walker_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -99,8 +99,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using INDEX = typename G::INDEX;
 
     private:
-        using FORWARD_WALKER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_forward_walker_container_creator_pack());
-        using BACKWARD_WALKER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_backward_walker_container_creator_pack());
+        using FORWARD_WALKER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_forward_walker_container_creator_pack());
+        using BACKWARD_WALKER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_backward_walker_container_creator_pack());
 
         const G& g;
         const INDEX target_slice;
@@ -146,7 +146,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         auto list() {
             return g.slice_nodes(target_slice)
                 | std::views::transform([&](const N& n) {
-                    return list_entry {n, find(n) };
+                    return list_entry { n, find(n) };
                 });
         }
 

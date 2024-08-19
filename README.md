@@ -65,8 +65,8 @@ TODO:
 * run profiler and optimize functions (some local alignment functions may be doing a ton of unneeded work -- e.g. get_outputs_full)
 * fix compiler warnings
 * cleanup syntax
-  * 120char lines (140 chars)
-  * spaces between squiggly brackets: {}
+  * 140char lines
+  * ~~spaces between squiggly brackets: {}~~
   * python helper to ensure ...
     * guards are correct
     * #includes are there for all std:: and using offbynull::...

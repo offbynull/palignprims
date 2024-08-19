@@ -27,12 +27,12 @@ namespace {
         {
             auto nodes = g.get_nodes();
             EXPECT_EQ(
-                (std::set<std::string> {"A", "B", "C", "D", "E"}),
+                (std::set<std::string> { "A", "B", "C", "D", "E" }),
                 (std::set<std::string> (nodes.begin(), nodes.end()))
             );
             auto edges = g.get_edges();
             EXPECT_EQ(
-                (std::set<std::string> {"AB1", "AB2", "BC", "CD" ,"AD", "DE"}),
+                (std::set<std::string> { "AB1", "AB2", "BC", "CD" ,"AD", "DE" }),
                 (std::set<std::string> (edges.begin(), edges.end()))
             );
             EXPECT_TRUE(g.has_node("D"));
@@ -66,12 +66,12 @@ namespace {
         {
             auto nodes = g.get_nodes();
             EXPECT_EQ(
-                (std::set<std::string> {"A", "B", "C", "D", "E", "X"}),
+                (std::set<std::string> { "A", "B", "C", "D", "E", "X" }),
                 (std::set<std::string> (nodes.begin(), nodes.end()))
             );
             auto edges = g.get_edges();
             EXPECT_EQ(
-                (std::set<std::string> {"AB1", "AB2", "AD", "BC", "CD" ,"DX", "XE"}),
+                (std::set<std::string> { "AB1", "AB2", "AD", "BC", "CD" ,"DX", "XE" }),
                 (std::set<std::string> (edges.begin(), edges.end()))
             );
             EXPECT_FALSE(g.has_edge("DE"));
@@ -108,12 +108,12 @@ namespace {
         {
             auto nodes = g.get_nodes();
             EXPECT_EQ(
-                (std::set<std::string> {"A", "B", "C", "D", "E"}),
+                (std::set<std::string> { "A", "B", "C", "D", "E" }),
                 (std::set<std::string> (nodes.begin(), nodes.end()))
             );
             auto edges = g.get_edges();
             EXPECT_EQ(
-                (std::set<std::string> {"AB1", "AB2", "BC", "CD"}),
+                (std::set<std::string> { "AB1", "AB2", "BC", "CD" }),
                 (std::set<std::string> (edges.begin(), edges.end()))
             );
             EXPECT_FALSE(g.has_node("X"));
@@ -151,12 +151,12 @@ namespace {
         {
             auto nodes = g.get_nodes();
             EXPECT_EQ(
-                (std::set<std::string> {"A", "B", "C", "D", "E"}),
+                (std::set<std::string> { "A", "B", "C", "D", "E" }),
                 (std::set<std::string> (nodes.begin(), nodes.end()))
             );
             auto edges = g.get_edges();
             EXPECT_EQ(
-                (std::set<std::string> {"AB1", "AB2", "BC", "CD" ,"DE"}),
+                (std::set<std::string> { "AB1", "AB2", "BC", "CD" ,"DE" }),
                 (std::set<std::string> (edges.begin(), edges.end()))
             );
             EXPECT_FALSE(g.has_edge("AD"));
@@ -167,12 +167,12 @@ namespace {
         {
             auto nodes = g.get_nodes();
             EXPECT_EQ(
-                (std::set<std::string> {"A", "B", "C", "D", "E", "X"}),
+                (std::set<std::string> { "A", "B", "C", "D", "E", "X" }),
                 (std::set<std::string> (nodes.begin(), nodes.end()))
             );
             auto edges = g.get_edges();
             EXPECT_EQ(
-                (std::set<std::string> {"AB1", "AB2", "BC", "CD" ,"DX", "XE"}),
+                (std::set<std::string> { "AB1", "AB2", "BC", "CD" ,"DX", "XE" }),
                 (std::set<std::string> (edges.begin(), edges.end()))
             );
             EXPECT_FALSE(g.has_edge("DE"));
@@ -198,7 +198,7 @@ namespace {
             EXPECT_EQ(g.get_root_node(), "A");
             auto nodes = g.get_root_nodes();
             EXPECT_EQ(
-                (std::set<std::string> {"A"}),
+                (std::set<std::string> { "A" }),
                 (std::set<std::string> (nodes.begin(), nodes.end()))
             );
         }
@@ -209,7 +209,7 @@ namespace {
             EXPECT_THROW(g.get_root_node(), std::runtime_error);
             auto nodes = g.get_root_nodes();
             EXPECT_EQ(
-                (std::set<std::string> {"A", "X"}),
+                (std::set<std::string> { "A", "X" }),
                 (std::set<std::string> (nodes.begin(), nodes.end()))
             );
         }
@@ -231,7 +231,7 @@ namespace {
         {
             auto nodes = g.get_leaf_nodes();
             EXPECT_EQ(
-                (std::set<std::string> {"D"}),
+                (std::set<std::string> { "D" }),
                 (std::set<std::string> (nodes.begin(), nodes.end()))
             );
         }
@@ -241,7 +241,7 @@ namespace {
         {
             auto nodes = g.get_leaf_nodes();
             EXPECT_EQ(
-                (std::set<std::string> {"D", "X"}),
+                (std::set<std::string> { "D", "X" }),
                 (std::set<std::string> (nodes.begin(), nodes.end()))
             );
         }
@@ -288,14 +288,14 @@ namespace {
         {
             auto edges = g.get_inputs("B");
             EXPECT_EQ(
-                (std::set<std::string> {"AB1", "AB2"}),
+                (std::set<std::string> { "AB1", "AB2" }),
                 (std::set<std::string> (edges.begin(), edges.end()))
             );
         }
         {
             auto edges = g.get_outputs("A");
             EXPECT_EQ(
-                (std::set<std::string> {"AB1", "AB2", "AD"}),
+                (std::set<std::string> { "AB1", "AB2", "AD" }),
                 (std::set<std::string> (edges.begin(), edges.end()))
             );
         }

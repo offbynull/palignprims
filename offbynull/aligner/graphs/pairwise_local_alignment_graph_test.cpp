@@ -106,15 +106,15 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        EXPECT_TRUE(g.has_node(N {0zu, 0zu}));
-        EXPECT_TRUE(g.has_node(N {0zu, 1zu}));
-        EXPECT_TRUE(g.has_node(N {0zu, 2zu}));
-        EXPECT_FALSE(g.has_node(N {0zu, 3zu}));
-        EXPECT_TRUE(g.has_node(N {1zu, 0zu}));
-        EXPECT_TRUE(g.has_node(N {1zu, 1zu}));
-        EXPECT_TRUE(g.has_node(N {1zu, 2zu}));
-        EXPECT_FALSE(g.has_node(N {1zu, 3zu}));
-        EXPECT_FALSE(g.has_node(N {2zu, 3zu}));
+        EXPECT_TRUE(g.has_node(N { 0zu, 0zu }));
+        EXPECT_TRUE(g.has_node(N { 0zu, 1zu }));
+        EXPECT_TRUE(g.has_node(N { 0zu, 2zu }));
+        EXPECT_FALSE(g.has_node(N { 0zu, 3zu }));
+        EXPECT_TRUE(g.has_node(N { 1zu, 0zu }));
+        EXPECT_TRUE(g.has_node(N { 1zu, 1zu }));
+        EXPECT_TRUE(g.has_node(N { 1zu, 2zu }));
+        EXPECT_FALSE(g.has_node(N { 1zu, 3zu }));
+        EXPECT_FALSE(g.has_node(N { 2zu, 3zu }));
     }
 
     TEST(PairwiseLocalAlignmentGraphTest, RightEdgesExist) {
@@ -131,12 +131,12 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        EXPECT_TRUE(g.has_edge(E {edge_type::NORMAL, {{0zu, 0zu}, {0zu, 1zu}}}));
-        EXPECT_TRUE(g.has_edge(E {edge_type::NORMAL, {{0zu, 1zu}, {0zu, 2zu}}}));
-        EXPECT_FALSE(g.has_edge(E {edge_type::NORMAL, {{0zu, 2zu}, {0zu, 3zu}}}));
-        EXPECT_TRUE(g.has_edge(E {edge_type::NORMAL, {{1zu, 0zu}, {1zu, 1zu}}}));
-        EXPECT_TRUE(g.has_edge(E {edge_type::NORMAL, {{1zu, 1zu}, {1zu, 2zu}}}));
-        EXPECT_FALSE(g.has_edge(E {edge_type::NORMAL, {{1zu, 2zu}, {1zu, 3zu}}}));
+        EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 0zu, 1zu } } }));
+        EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 1zu }, { 0zu, 2zu } } }));
+        EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 2zu }, { 0zu, 3zu } } }));
+        EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 0zu }, { 1zu, 1zu } } }));
+        EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 1zu }, { 1zu, 2zu } } }));
+        EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 2zu }, { 1zu, 3zu } } }));
     }
 
     TEST(PairwiseLocalAlignmentGraphTest, DownEdgesExist) {
@@ -153,12 +153,12 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        EXPECT_TRUE(g.has_edge(E {edge_type::NORMAL, {{0zu, 0zu}, {1zu, 0zu}}}));
-        EXPECT_FALSE(g.has_edge(E {edge_type::NORMAL, {{1zu, 0zu}, {2zu, 0zu}}}));
-        EXPECT_TRUE(g.has_edge(E {edge_type::NORMAL, {{0zu, 1zu}, {1zu, 1zu}}}));
-        EXPECT_FALSE(g.has_edge(E {edge_type::NORMAL, {{1zu, 1zu}, {2zu, 1zu}}}));
-        EXPECT_TRUE(g.has_edge(E {edge_type::NORMAL, {{0zu, 2zu}, {1zu, 2zu}}}));
-        EXPECT_FALSE(g.has_edge(E {edge_type::NORMAL, {{1zu, 2zu}, {2zu, 2zu}}}));
+        EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 0zu } } }));
+        EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 0zu }, { 2zu, 0zu } } }));
+        EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 1zu }, { 1zu, 1zu } } }));
+        EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 1zu }, { 2zu, 1zu } } }));
+        EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 2zu }, { 1zu, 2zu } } }));
+        EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 2zu }, { 2zu, 2zu } } }));
     }
 
     TEST(PairwiseLocalAlignmentGraphTest, DiagEdgesExist) {
@@ -175,12 +175,12 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        EXPECT_TRUE(g.has_edge(E {edge_type::NORMAL, {{0zu, 0zu}, {1zu, 1zu}}}));
-        EXPECT_FALSE(g.has_edge(E {edge_type::NORMAL, {{1zu, 0zu}, {2zu, 1zu}}}));
-        EXPECT_TRUE(g.has_edge(E {edge_type::NORMAL, {{0zu, 1zu}, {1zu, 2zu}}}));
-        EXPECT_FALSE(g.has_edge(E {edge_type::NORMAL, {{1zu, 1zu}, {2zu, 2zu}}}));
-        EXPECT_FALSE(g.has_edge(E {edge_type::NORMAL, {{0zu, 2zu}, {1zu, 3zu}}}));
-        EXPECT_FALSE(g.has_edge(E {edge_type::NORMAL, {{1zu, 2zu}, {2zu, 3zu}}}));
+        EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 1zu } } }));
+        EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 0zu }, { 2zu, 1zu } } }));
+        EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 1zu }, { 1zu, 2zu } } }));
+        EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 1zu }, { 2zu, 2zu } } }));
+        EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 2zu }, { 1zu, 3zu } } }));
+        EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 2zu }, { 2zu, 3zu } } }));
     }
 
     TEST(PairwiseLocalAlignmentGraphTest, FreeRideEdgesExist) {
@@ -233,14 +233,14 @@ namespace {
             }
             std::sort(actual.begin(), actual.end());
             std::vector<E> expected {
-                E { edge_type::FREE_RIDE, {{0zu, 0zu}, {0zu, 1zu} } },
-                E { edge_type::FREE_RIDE, {{0zu, 0zu}, {0zu, 2zu} } },
-                E { edge_type::FREE_RIDE, {{0zu, 0zu}, {1zu, 0zu} } },
-                E { edge_type::FREE_RIDE, {{0zu, 0zu}, {1zu, 1zu} } },
-                E { edge_type::FREE_RIDE, {{0zu, 0zu}, {1zu, 2zu} } },
-                E { edge_type::NORMAL, {{0zu, 0zu}, {0zu, 1zu} } },
-                E { edge_type::NORMAL, {{0zu, 0zu}, {1zu, 0zu} } },
-                E { edge_type::NORMAL, {{0zu, 0zu}, {1zu, 1zu} } }
+                E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 0zu, 1zu } } },
+                E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 0zu, 2zu } } },
+                E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 0zu } } },
+                E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 1zu } } },
+                E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 2zu } } },
+                E { edge_type::NORMAL, { { 0zu, 0zu }, { 0zu, 1zu } } },
+                E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 0zu } } },
+                E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 1zu } } }
             };
             EXPECT_EQ(actual, expected);
         }
@@ -264,10 +264,10 @@ namespace {
             EXPECT_EQ(
                 actual,
                 (std::vector<E> {
-                    E { edge_type::FREE_RIDE, {{0zu, 1zu}, {1zu, 2zu} } },
-                    E { edge_type::NORMAL, { {0zu, 1zu}, {0zu, 2zu} } },
-                    E { edge_type::NORMAL, { {0zu, 1zu}, {1zu, 1zu} } },
-                    E { edge_type::NORMAL, { {0zu, 1zu}, {1zu, 2zu} } }
+                    E { edge_type::FREE_RIDE, { { 0zu, 1zu }, { 1zu, 2zu } } },
+                    E { edge_type::NORMAL, { { 0zu, 1zu }, { 0zu, 2zu } } },
+                    E { edge_type::NORMAL, { { 0zu, 1zu }, { 1zu, 1zu } } },
+                    E { edge_type::NORMAL, { { 0zu, 1zu }, { 1zu, 2zu } } }
                 })
             );
         }
@@ -306,14 +306,14 @@ namespace {
             EXPECT_EQ(
                 actual,
                 (std::vector<E> {
-                    E { edge_type::FREE_RIDE, {{0zu, 0zu}, {1zu, 2zu} } },
-                    E { edge_type::FREE_RIDE, {{0zu, 1zu}, {1zu, 2zu} } },
-                    E { edge_type::FREE_RIDE, {{0zu, 2zu}, {1zu, 2zu} } },
-                    E { edge_type::FREE_RIDE, {{1zu, 0zu}, {1zu, 2zu} } },
-                    E { edge_type::FREE_RIDE, {{1zu, 1zu}, {1zu, 2zu} } },
-                    E { edge_type::NORMAL, {{0zu, 1zu}, {1zu, 2zu} } },
-                    E { edge_type::NORMAL, {{0zu, 2zu}, {1zu, 2zu} } },
-                    E { edge_type::NORMAL, {{1zu, 1zu}, {1zu, 2zu} } }
+                    E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 2zu } } },
+                    E { edge_type::FREE_RIDE, { { 0zu, 1zu }, { 1zu, 2zu } } },
+                    E { edge_type::FREE_RIDE, { { 0zu, 2zu }, { 1zu, 2zu } } },
+                    E { edge_type::FREE_RIDE, { { 1zu, 0zu }, { 1zu, 2zu } } },
+                    E { edge_type::FREE_RIDE, { { 1zu, 1zu }, { 1zu, 2zu } } },
+                    E { edge_type::NORMAL, { { 0zu, 1zu }, { 1zu, 2zu } } },
+                    E { edge_type::NORMAL, { { 0zu, 2zu }, { 1zu, 2zu } } },
+                    E { edge_type::NORMAL, { { 1zu, 1zu }, { 1zu, 2zu } } }
                 })
             );
         }
@@ -326,8 +326,8 @@ namespace {
             EXPECT_EQ(
                 actual,
                 (std::vector<E> {
-                    E { edge_type::FREE_RIDE, { {0zu, 0zu}, {0zu, 2zu} } },
-                    E { edge_type::NORMAL, { {0zu, 1zu}, {0zu, 2zu} } }
+                    E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 0zu, 2zu } } },
+                    E { edge_type::NORMAL, { { 0zu, 1zu }, { 0zu, 2zu } } }
                 })
             );
         }

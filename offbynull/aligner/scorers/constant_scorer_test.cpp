@@ -8,7 +8,7 @@ namespace {
 
     TEST(ConstantScorerTest, SanityTest) {
         constant_scorer<true, int> scorer { 5 };
-        EXPECT_EQ(5, (scorer(std::tuple<>{}, 'a', 'b')));
-        EXPECT_EQ(5, (scorer(std::tuple<>{}, 'z', 'c')));
+        EXPECT_EQ(5, (scorer(std::tuple<> {}, 'a', 'b')));
+        EXPECT_EQ(5, (scorer(std::tuple<> {}, 'z', 'c')));
     }
 }

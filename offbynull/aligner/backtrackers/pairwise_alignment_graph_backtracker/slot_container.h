@@ -20,16 +20,16 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         ED backtracking_weight;
 
         slot(N node_, std::size_t unwalked_parent_cnt_)
-        : node{node_}
-        , unwalked_parent_cnt{unwalked_parent_cnt_}
-        , backtracking_edge{}
-        , backtracking_weight{} {}
+        : node { node_ }
+        , unwalked_parent_cnt { unwalked_parent_cnt_ }
+        , backtracking_edge {}
+        , backtracking_weight {} {}
 
         slot()
-        : node{}
-        , unwalked_parent_cnt{}
-        , backtracking_edge{}
-        , backtracking_weight{} {}
+        : node {}
+        , unwalked_parent_cnt {}
+        , backtracking_edge {}
+        , backtracking_weight {} {}
     };
 
 
@@ -92,7 +92,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     template<
         bool debug_mode,
         readable_pairwise_alignment_graph G,
-        slot_container_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        slot_container_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = slot_container_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
     >
     class slot_container {
     private:
@@ -102,7 +102,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        using SLOT_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(0zu, 0zu, 0zu));
+        using SLOT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(0zu, 0zu, 0zu));
 
         const G& g;
         SLOT_CONTAINER slots;
@@ -132,7 +132,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             }
         }
 
-        std::size_t find_idx(const N& node){
+        std::size_t find_idx(const N& node) {
             const auto& [down_offset, right_offset, depth] { g.node_to_grid_offsets(node) };
             return (g.grid_depth_cnt * ((down_offset * g.grid_right_cnt) + right_offset)) + depth;
         }

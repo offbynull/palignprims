@@ -34,7 +34,7 @@ namespace {
 
         // walk
         {
-            forward_walker<true, decltype(g)> walker{ forward_walker<true, decltype(g)>::create_and_initialize(g, 0u) };
+            forward_walker<true, decltype(g)> walker { forward_walker<true, decltype(g)>::create_and_initialize(g, 0u) };
             EXPECT_EQ(walker.find(N { 0zu, 0zu }).backtracking_weight, 0.0);
             EXPECT_EQ(walker.find(N { 0zu, 1zu }).backtracking_weight, -1.0);
             EXPECT_EQ(walker.find(N { 0zu, 2zu }).backtracking_weight, -2.0);
@@ -54,7 +54,7 @@ namespace {
         }
 
         {
-            forward_walker<true, decltype(g)> walker{ forward_walker<true, decltype(g)>::create_and_initialize(g, 1u) };
+            forward_walker<true, decltype(g)> walker { forward_walker<true, decltype(g)>::create_and_initialize(g, 1u) };
             EXPECT_EQ(walker.find(N { 0zu, 0zu }).backtracking_weight, 0.0);
             EXPECT_EQ(walker.find(N { 0zu, 1zu }).backtracking_weight, -1.0);
             EXPECT_EQ(walker.find(N { 0zu, 2zu }).backtracking_weight, -2.0);
@@ -74,7 +74,7 @@ namespace {
         }
 
         {
-            forward_walker<true, decltype(g)> walker{ forward_walker<true, decltype(g)>::create_and_initialize(g, 2u) };
+            forward_walker<true, decltype(g)> walker { forward_walker<true, decltype(g)>::create_and_initialize(g, 2u) };
             EXPECT_THROW(walker.find(N { 0zu, 0zu }).backtracking_weight, std::runtime_error);
             EXPECT_THROW(walker.find(N { 0zu, 1zu }).backtracking_weight, std::runtime_error);
             EXPECT_THROW(walker.find(N { 0zu, 2zu }).backtracking_weight, std::runtime_error);
@@ -94,7 +94,7 @@ namespace {
         }
 
         {
-            forward_walker<true, decltype(g)> walker{ forward_walker<true, decltype(g)>::create_and_initialize(g, 3u) };
+            forward_walker<true, decltype(g)> walker { forward_walker<true, decltype(g)>::create_and_initialize(g, 3u) };
             EXPECT_THROW(walker.find(N { 0zu, 0zu }).backtracking_weight, std::runtime_error);
             EXPECT_THROW(walker.find(N { 0zu, 1zu }).backtracking_weight, std::runtime_error);
             EXPECT_THROW(walker.find(N { 0zu, 2zu }).backtracking_weight, std::runtime_error);
@@ -135,7 +135,7 @@ namespace {
 
         // walk
         {
-            forward_walker<true, decltype(g)> walker{ forward_walker<true, decltype(g)>::create_and_initialize(g, 0u) };
+            forward_walker<true, decltype(g)> walker { forward_walker<true, decltype(g)>::create_and_initialize(g, 0u) };
             EXPECT_EQ(walker.find(N { 0zu, 0zu }).backtracking_weight, 0.0);
             EXPECT_EQ(walker.find(N { 0zu, 1zu }).backtracking_weight, 0.0);
             EXPECT_EQ(walker.find(N { 0zu, 2zu }).backtracking_weight, 0.0);
@@ -155,7 +155,7 @@ namespace {
         }
 
         {
-            forward_walker<true, decltype(g)> walker{ forward_walker<true, decltype(g)>::create_and_initialize(g, 1u) };
+            forward_walker<true, decltype(g)> walker { forward_walker<true, decltype(g)>::create_and_initialize(g, 1u) };
             EXPECT_EQ(walker.find(N { 0zu, 0zu }).backtracking_weight, 0.0);
             EXPECT_EQ(walker.find(N { 0zu, 1zu }).backtracking_weight, 0.0);
             EXPECT_EQ(walker.find(N { 0zu, 2zu }).backtracking_weight, 0.0);
@@ -175,7 +175,7 @@ namespace {
         }
 
         {
-            forward_walker<true, decltype(g)> walker{ forward_walker<true, decltype(g)>::create_and_initialize(g, 2u) };
+            forward_walker<true, decltype(g)> walker { forward_walker<true, decltype(g)>::create_and_initialize(g, 2u) };
             EXPECT_EQ(walker.find(N { 0zu, 0zu }).backtracking_weight, 0.0);
             EXPECT_THROW(walker.find(N { 0zu, 1zu }).backtracking_weight, std::runtime_error);
             EXPECT_THROW(walker.find(N { 0zu, 2zu }).backtracking_weight, std::runtime_error);
@@ -195,7 +195,7 @@ namespace {
         }
 
         {
-            forward_walker<true, decltype(g)> walker{ forward_walker<true, decltype(g)>::create_and_initialize(g, 3u) };
+            forward_walker<true, decltype(g)> walker { forward_walker<true, decltype(g)>::create_and_initialize(g, 3u) };
             EXPECT_EQ(walker.find(N { 0zu, 0zu }).backtracking_weight, 0.0);
             EXPECT_THROW(walker.find(N { 0zu, 1zu }).backtracking_weight, std::runtime_error);
             EXPECT_THROW(walker.find(N { 0zu, 2zu }).backtracking_weight, std::runtime_error);

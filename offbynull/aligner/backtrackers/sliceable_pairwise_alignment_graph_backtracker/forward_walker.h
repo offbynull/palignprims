@@ -89,8 +89,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         slot<E, WEIGHT>* slot_ptr;
 
         slice_entry()
-        : node{}
-        , slot_ptr{nullptr} {}
+        : node {}
+        , slot_ptr { nullptr } {}
     };
 
     template<
@@ -113,13 +113,13 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
         slice_slot_container_pair(
             const G& g,
-            SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK container_creator_pack={}
+            SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK container_creator_pack= {}
         )
-        : slots1{g, container_creator_pack}
-        , slots2{g, container_creator_pack}
-        , previous_slots{&slots1}
-        , current_slots{&slots2}
-        , grid_down_offset{0u} {}
+        : slots1 { g, container_creator_pack }
+        , slots2 { g, container_creator_pack }
+        , previous_slots { &slots1 }
+        , current_slots { &slots2 }
+        , grid_down_offset { 0u } {}
 
         void move_down() {
             grid_down_offset++;
@@ -147,7 +147,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        forward_walker_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK=forward_walker_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        forward_walker_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = forward_walker_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
     >
     class forward_walker {
     private:
@@ -157,8 +157,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        using SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slice_slot_container_container_creator_pack());
-        using RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_slot_container_container_creator_pack());
+        using SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slice_slot_container_container_creator_pack());
+        using RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_slot_container_container_creator_pack());
 
         const G& g;
         resident_slot_container<debug_mode, G, RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> resident_slots;
@@ -208,12 +208,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const G& g_,
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
-        : g{g_}
-        , resident_slots{g, container_creator_pack_.create_resident_slot_container_container_creator_pack()}
-        , slice_slots{g, container_creator_pack_.create_slice_slot_container_container_creator_pack()}
-        , slice{g.slice_nodes(0u)}
-        , slice_it{slice.begin()}
-        , slice_entry_{} {
+        : g { g_ }
+        , resident_slots { g, container_creator_pack_.create_resident_slot_container_container_creator_pack() }
+        , slice_slots { g, container_creator_pack_.create_slice_slot_container_container_creator_pack() }
+        , slice { g.slice_nodes(0u) }
+        , slice_it { slice.begin() }
+        , slice_entry_ {} {
             auto&& _resident_slots { g.resident_nodes() };
             slice_entry_.node = *slice_it;
             slice_entry_.slot_ptr = &find(slice_entry_.node); // should be equivalent to g.get_root_node()

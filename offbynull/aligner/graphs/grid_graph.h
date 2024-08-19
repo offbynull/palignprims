@@ -115,18 +115,18 @@ namespace offbynull::aligner::graphs::grid_graph {
                 )
             > _gap_lookup
         )
-        : down_seq{_down_seq}
-        , right_seq{_right_seq}
-        , substitution_lookup{_substitution_lookup}
-        , gap_lookup{_gap_lookup}
-        , grid_down_cnt{_down_seq.size() + 1zu}
-        , grid_right_cnt{_right_seq.size() + 1zu}
-        , path_edge_capacity{(grid_right_cnt - 1u) + (grid_down_cnt - 1u)} {}
+        : down_seq { _down_seq }
+        , right_seq { _right_seq }
+        , substitution_lookup { _substitution_lookup }
+        , gap_lookup { _gap_lookup }
+        , grid_down_cnt { _down_seq.size() + 1zu }
+        , grid_right_cnt { _right_seq.size() + 1zu }
+        , path_edge_capacity { (grid_right_cnt - 1u) + (grid_down_cnt - 1u) } {}
 
         ND get_node_data(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return {};
@@ -168,7 +168,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         N get_edge_from(const E& edge) const {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
             return edge.source;
@@ -177,7 +177,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         N get_edge_to(const E& edge) const {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
             return edge.destination;
@@ -186,10 +186,10 @@ namespace offbynull::aligner::graphs::grid_graph {
         std::tuple<N, N, ED> get_edge(const E& edge) const {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
-            return std::tuple<N, N, ED> {this->get_edge_from(edge), this->get_edge_to(edge), this->get_edge_data(edge)};
+            return std::tuple<N, N, ED> { this->get_edge_from(edge), this->get_edge_to(edge), this->get_edge_data(edge) };
         }
 
         auto get_root_nodes() const {
@@ -258,7 +258,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         std::ranges::bidirectional_range auto get_outputs_full(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             // Cartesian product has some issues with bloat, so not using it here:
@@ -290,7 +290,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         auto get_inputs_full(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return
@@ -321,7 +321,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         std::ranges::bidirectional_range auto get_outputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->get_outputs_full(node)
@@ -331,7 +331,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         auto get_inputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->get_inputs_full(node)
@@ -341,7 +341,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         bool has_outputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->get_out_degree(node) > 0zu;
@@ -350,7 +350,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         bool has_inputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->get_in_degree(node) > 0zu;
@@ -359,7 +359,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         std::size_t get_out_degree(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             auto outputs { this->get_outputs(node) };
@@ -370,7 +370,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         std::size_t get_in_degree(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             auto inputs { this->get_inputs(node) };

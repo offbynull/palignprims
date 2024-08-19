@@ -97,7 +97,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        sliced_subdivider_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK=sliced_subdivider_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        sliced_subdivider_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = sliced_subdivider_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -109,8 +109,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        using SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slice_slot_container_container_creator_pack());
-        using PATH_CONTAINER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container_container_creator_pack());
+        using SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slice_slot_container_container_creator_pack());
+        using PATH_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container_container_creator_pack());
 
         CONTAINER_CREATOR_PACK container_creator_pack;
 

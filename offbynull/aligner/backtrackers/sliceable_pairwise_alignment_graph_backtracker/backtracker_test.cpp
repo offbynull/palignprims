@@ -37,7 +37,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        backtracker<true, decltype(g)> backtracker_ { };
+        backtracker<true, decltype(g)> backtracker_ {};
         const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             std::cout << e << ' ';
@@ -46,16 +46,16 @@ namespace {
         // std::cout << weight << std::endl;
 
         std::vector<E> option1 {
-            E { N {0zu, 0zu}, N {1zu, 1zu} },
-            E { N {1zu, 1zu}, N {2zu, 1zu} },
-            E { N {2zu, 1zu}, N {2zu, 2zu} },
-            E { N {2zu, 2zu}, N {3zu, 3zu} }
+            E { N { 0zu, 0zu }, N { 1zu, 1zu } },
+            E { N { 1zu, 1zu }, N { 2zu, 1zu } },
+            E { N { 2zu, 1zu }, N { 2zu, 2zu } },
+            E { N { 2zu, 2zu }, N { 3zu, 3zu } }
         };
         std::vector<E> option2 {
-            E { N {0zu, 0zu}, N {1zu, 1zu} },
-            E { N {1zu, 1zu}, N {1zu, 2zu} },
-            E { N {1zu, 2zu}, N {2zu, 2zu} },
-            E { N {2zu, 2zu}, N {3zu, 3zu} }
+            E { N { 0zu, 0zu }, N { 1zu, 1zu } },
+            E { N { 1zu, 1zu }, N { 1zu, 2zu } },
+            E { N { 1zu, 2zu }, N { 2zu, 2zu } },
+            E { N { 2zu, 2zu }, N { 3zu, 3zu } }
         };
         EXPECT_TRUE(path == option1 || path == option2);
     }
@@ -77,7 +77,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        backtracker<true, decltype(g)> backtracker_ { };
+        backtracker<true, decltype(g)> backtracker_ {};
         const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             std::cout << e << ' ';
@@ -87,11 +87,11 @@ namespace {
 
         using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type;
         std::vector<E> expected_path {
-            E { edge_type::FREE_RIDE, { N {0zu, 0zu}, N {5zu, 5zu} } },
-            E { edge_type::NORMAL, { N {5zu, 5zu}, N {6zu, 6zu} } },
-            E { edge_type::NORMAL, { N {6zu, 6zu}, N {7zu, 7zu} } },
-            E { edge_type::NORMAL, { N {7zu, 7zu}, N {8zu, 8zu} } },
-            E { edge_type::FREE_RIDE, { N {8zu, 8zu}, N {13zu, 13zu} } }
+            E { edge_type::FREE_RIDE, { N { 0zu, 0zu }, N { 5zu, 5zu } } },
+            E { edge_type::NORMAL, { N { 5zu, 5zu }, N { 6zu, 6zu } } },
+            E { edge_type::NORMAL, { N { 6zu, 6zu }, N { 7zu, 7zu } } },
+            E { edge_type::NORMAL, { N { 7zu, 7zu }, N { 8zu, 8zu } } },
+            E { edge_type::FREE_RIDE, { N { 8zu, 8zu }, N { 13zu, 13zu } } }
         };
         EXPECT_EQ(expected_path, path);
     }
@@ -113,7 +113,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        backtracker<true, decltype(g)> backtracker_ { };
+        backtracker<true, decltype(g)> backtracker_ {};
         const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             std::cout << e << ' ';
@@ -123,11 +123,11 @@ namespace {
 
         using offbynull::aligner::graphs::pairwise_overlap_alignment_graph::edge_type;
         std::vector<E> expected_path {
-            E { edge_type::FREE_RIDE, { N {0zu, 0zu}, N {5zu, 0zu} } },
-            E { edge_type::NORMAL, { N {5zu, 0zu}, N {6zu, 1zu} } },
-            E { edge_type::NORMAL, { N {6zu, 1zu}, N {7zu, 2zu} } },
-            E { edge_type::NORMAL, { N {7zu, 2zu}, N {8zu, 3zu} } },
-            E { edge_type::FREE_RIDE, { N {8zu, 3zu}, N {8zu, 8zu} } }
+            E { edge_type::FREE_RIDE, { N { 0zu, 0zu }, N { 5zu, 0zu } } },
+            E { edge_type::NORMAL, { N { 5zu, 0zu }, N { 6zu, 1zu } } },
+            E { edge_type::NORMAL, { N { 6zu, 1zu }, N { 7zu, 2zu } } },
+            E { edge_type::NORMAL, { N { 7zu, 2zu }, N { 8zu, 3zu } } },
+            E { edge_type::FREE_RIDE, { N { 8zu, 3zu }, N { 8zu, 8zu } } }
         };
         EXPECT_EQ(expected_path, path);
     }
@@ -149,7 +149,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        backtracker<true, decltype(g)> backtracker_ { };
+        backtracker<true, decltype(g)> backtracker_ {};
         const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             std::cout << e << ' ';
@@ -159,11 +159,11 @@ namespace {
 
         using offbynull::aligner::graphs::pairwise_fitting_alignment_graph::edge_type;
         std::vector<E> expected_path {
-            E { edge_type::FREE_RIDE, { N {0zu, 0zu}, N {5zu, 0zu} } },
-            E { edge_type::NORMAL, { N {5zu, 0zu}, N {6zu, 1zu} } },
-            E { edge_type::NORMAL, { N {6zu, 1zu}, N {7zu, 2zu} } },
-            E { edge_type::NORMAL, { N {7zu, 2zu}, N {8zu, 3zu} } },
-            E { edge_type::FREE_RIDE, { N {8zu, 3zu}, N {13zu, 3zu} } }
+            E { edge_type::FREE_RIDE, { N { 0zu, 0zu }, N { 5zu, 0zu } } },
+            E { edge_type::NORMAL, { N { 5zu, 0zu }, N { 6zu, 1zu } } },
+            E { edge_type::NORMAL, { N { 6zu, 1zu }, N { 7zu, 2zu } } },
+            E { edge_type::NORMAL, { N { 7zu, 2zu }, N { 8zu, 3zu } } },
+            E { edge_type::FREE_RIDE, { N { 8zu, 3zu }, N { 13zu, 3zu } } }
         };
         EXPECT_EQ(expected_path, path);
     }
@@ -189,7 +189,7 @@ namespace {
         std::vector<E> expected_path {};
         std::float64_t expected_weight {};
         {
-            offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<true, decltype(g)> backtracker_ { };
+            offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<true, decltype(g)> backtracker_ {};
             const auto& [path, weight] { backtracker_.find_max_path(g) };
             for (const E& e : path) {
                 const auto& [n1, n2] { e };
@@ -206,7 +206,7 @@ namespace {
         std::vector<E> actual_path {};
         std::float64_t actual_weight {};
         {
-            backtracker<true, decltype(g)> backtracker_ { };
+            backtracker<true, decltype(g)> backtracker_ {};
             const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
             for (const E& e : path) {
                 const auto& [n1, n2] { e };
@@ -257,7 +257,7 @@ namespace {
         std::vector<E> expected_path {};
         std::float64_t expected_weight {};
         {
-            offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<true, decltype(g)> backtracker_ { };
+            offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<true, decltype(g)> backtracker_ {};
             const auto& [path, weight] { backtracker_.find_max_path(g) };
             for (const E& e : path) {
                 const auto& [n1, n2] { e };
@@ -279,7 +279,7 @@ namespace {
         std::vector<E> actual_path {};
         std::float64_t actual_weight {};
         {
-            backtracker<true, decltype(g)> backtracker_ { };
+            backtracker<true, decltype(g)> backtracker_ {};
             const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
             for (const E& e : path) {
                 const auto& [n1, n2] { e };
@@ -341,14 +341,14 @@ namespace {
         //                 layer_str = "DIAG";
         //             break;
         //         }
-        //         return std::string { std::format("{}x{}x{}", down, right, layer_str) };
+        //         return std::string { std::format(" {}x {}x {}", down, right, layer_str) };
         //     }
         // );
 
         std::vector<E> expected_path {};
         std::float64_t expected_weight {};
         {
-            offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<true, decltype(g)> backtracker_ { };
+            offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<true, decltype(g)> backtracker_ {};
             const auto& [path, weight] { backtracker_.find_max_path(g) };
             for (const E& e : path) {
                 const auto& [n1, n2] { e };
@@ -370,7 +370,7 @@ namespace {
         std::vector<E> actual_path {};
         std::float64_t actual_weight {};
         {
-            backtracker<true, decltype(g)> backtracker_ { };
+            backtracker<true, decltype(g)> backtracker_ {};
             const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
             for (const E& e : path) {
                 const auto& [n1, n2] { e };
@@ -428,7 +428,7 @@ namespace {
             std::vector<E> expected_path {};
             std::float64_t expected_weight {};
             {
-                offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<true, decltype(g)> backtracker_ { };
+                offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<true, decltype(g)> backtracker_ {};
                 const auto& [path, weight] { backtracker_.find_max_path(g) };
                 expected_path = path;
                 // expected_weight = weight;  // don't use weight -- instead manually tally up the weight from the edges (just to be sure)
@@ -440,7 +440,7 @@ namespace {
             std::vector<E> actual_path {};
             std::float64_t actual_weight {};
             {
-                backtracker<true, decltype(g)> backtracker_ { };
+                backtracker<true, decltype(g)> backtracker_ {};
                 const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
                 actual_path = path;
                 // actual_weight = weight;  // don't use weight -- instead manually tally up the weight from the edges (just to be sure)

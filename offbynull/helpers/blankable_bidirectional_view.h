@@ -7,7 +7,7 @@
 namespace offbynull::helpers::blankable_bidirectional_view {
 
     template<std::ranges::bidirectional_range R>
-    class blankable_bidirectional_view : public std::ranges::view_interface<blankable_bidirectional_view<R>>{
+    class blankable_bidirectional_view : public std::ranges::view_interface<blankable_bidirectional_view<R>> {
     private:
         bool passthrough;
         decltype(std::declval<R>() | std::views::common) range;
@@ -18,7 +18,7 @@ namespace offbynull::helpers::blankable_bidirectional_view {
             R&& range
         )
         : passthrough { passthrough }
-        , range { std::forward<R>(range) | std::views::common } { }
+        , range { std::forward<R>(range) | std::views::common } {}
         blankable_bidirectional_view(const blankable_bidirectional_view<R> &src) = default;
         blankable_bidirectional_view(blankable_bidirectional_view<R> &&src) = default;
         blankable_bidirectional_view<R>& operator=(const blankable_bidirectional_view<R>& other) = default;

@@ -33,11 +33,11 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
 
     auto distance_(const point& p1, const horizontal_line& l2) {
         if (p1.x < l2.x_left) {
-            return distance_(p1, point {l2.x_left, l2.y});
+            return distance_(p1, point { l2.x_left, l2.y });
         } else if (p1.x > l2.x_right) {
-            return distance_(p1, point {l2.x_right, l2.y});
+            return distance_(p1, point { l2.x_right, l2.y });
         } else {
-            return distance_(p1, point {p1.x, l2.y});
+            return distance_(p1, point { p1.x, l2.y });
         }
         std::unreachable();
     }
@@ -48,9 +48,9 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
         } else if (l1.x_right >= l2.x_left && l1.x_right <= l2.x_right) {
             return std::abs(l2.y - l1.y);
         } else if (l1.x_right < l2.x_left) {
-            return distance_(point{l1.x_right, l1.y}, point{l2.x_left, l2.y});
+            return distance_(point { l1.x_right, l1.y }, point { l2.x_left, l2.y });
         } else if (l1.x_left > l2.x_right) {
-            return distance_(point{l1.x_left, l1.y}, point{l2.x_right, l2.y});
+            return distance_(point { l1.x_left, l1.y }, point { l2.x_right, l2.y });
         }
         std::unreachable();
     }

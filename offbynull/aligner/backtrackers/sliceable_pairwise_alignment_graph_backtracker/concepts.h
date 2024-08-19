@@ -8,7 +8,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     concept backtrackable_node =
         std::regular<N> &&
         requires(N n) {
-            {n < n} -> std::same_as<bool>;
+            { n < n } -> std::same_as<bool>;
         };
 
     template<typename E>

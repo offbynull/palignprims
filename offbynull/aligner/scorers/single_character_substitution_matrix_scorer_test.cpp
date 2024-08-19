@@ -20,8 +20,8 @@ G  -3 -10   2   8
         char c_ { 'C' };
         char t_ { 'T' };
         char g_ { 'G' };
-        EXPECT_EQ(6, (scorer(std::tuple<>{}, { { a_ } }, { { a_ } })));
-        EXPECT_EQ(-4, (scorer(std::tuple<>{}, { { a_ } }, { { c_ } })));
-        EXPECT_EQ(-10, (scorer(std::tuple<>{}, { { g_ } }, { { t_ } })));
+        EXPECT_EQ(6, (scorer(std::tuple<> {}, { { a_ } }, { { a_ } })));
+        EXPECT_EQ(-4, (scorer(std::tuple<> {}, { { a_ } }, { { c_ } })));
+        EXPECT_EQ(-10, (scorer(std::tuple<> {}, { { g_ } }, { { t_ } })));
     }
 }

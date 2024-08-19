@@ -107,7 +107,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 )
             > _freeride_lookup
         )
-        : g{
+        : g {
             _down_seq,
             _right_seq,
             [_substitution_lookup](
@@ -116,7 +116,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 const std::optional<std::reference_wrapper<const RIGHT_ELEM>> right_elem
             ) {
                return _substitution_lookup(
-                   {edge_type::NORMAL, edge},
+                   { edge_type::NORMAL, edge },
                    down_elem,
                    right_elem
                 );
@@ -127,17 +127,17 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 const std::optional<std::reference_wrapper<const RIGHT_ELEM>> right_elem
             ) {
                 return _gap_lookup(
-                    {edge_type::NORMAL, edge},
+                    { edge_type::NORMAL, edge },
                     down_elem,
                     right_elem
                  );
             }
         }
-        , freeride_lookup{_freeride_lookup}
-        , grid_down_cnt{g.grid_down_cnt}
-        , grid_right_cnt{g.grid_right_cnt}
-        , resident_nodes_capacity{2zu}
-        , path_edge_capacity{g.path_edge_capacity} {}
+        , freeride_lookup { _freeride_lookup }
+        , grid_down_cnt { g.grid_down_cnt }
+        , grid_right_cnt { g.grid_right_cnt }
+        , resident_nodes_capacity { 2zu }
+        , path_edge_capacity { g.path_edge_capacity } {}
 
         ND get_node_data(const N& node) const {
             return g.get_node_data(node);
@@ -158,12 +158,12 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         std::tuple<N, N, ED> get_edge(const E& edge) const {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
             if (edge.type == edge_type::FREE_RIDE) {
                 const auto& [n1, n2] { edge.inner_edge };
-                return std::tuple<N, N, ED> {n1, n2, freeride_lookup(edge, { std::nullopt }, { std::nullopt })};
+                return std::tuple<N, N, ED> { n1, n2, freeride_lookup(edge, { std::nullopt }, { std::nullopt }) };
             } else {
                 return g.get_edge(edge.inner_edge);
             }
@@ -273,7 +273,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     N n1 { std::get<1>(raw_full_edge) };
                     N n2 { std::get<2>(raw_full_edge) };
                     E e { edge_type::NORMAL, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
+                    return std::tuple<E, N, N, ED> { e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
             bool has_freeride_to_leaf { node != get_leaf_node() };
@@ -283,7 +283,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 | std::views::transform([node, this](const N& n2) noexcept {
                     N n1 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
+                    return std::tuple<E, N, N, ED> { e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
             bool has_freeride_from_root { node == get_root_node() };
@@ -299,7 +299,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     N n1 { 0, 0 };
                     N n2 { std::get<0>(n2_coords), std::get<1>(n2_coords) };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
+                    return std::tuple<E, N, N, ED> { e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
             return concat_view {
@@ -318,7 +318,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     N n1 { std::get<1>(raw_full_edge) };
                     N n2 { std::get<2>(raw_full_edge) };
                     E e { edge_type::NORMAL, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
+                    return std::tuple<E, N, N, ED> { e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
             bool has_freeride_to_leaf { node == get_leaf_node() };
@@ -334,7 +334,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     N n1 { std::get<0>(n1_coords), std::get<1>(n1_coords) };
                     N n2 { grid_down_cnt - 1u, grid_right_cnt - 1u };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
+                    return std::tuple<E, N, N, ED> { e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
             bool has_freeride_from_root { node != get_root_node() };
@@ -344,7 +344,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                 | std::views::transform([node, this](const N& n1) {
                     N n2 { node };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
-                    return std::tuple<E, N, N, ED> {e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt })};
+                    return std::tuple<E, N, N, ED> { e, n1, n2, freeride_lookup(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
             return concat_view {
@@ -359,7 +359,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         auto get_outputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return get_outputs_full(node)
@@ -369,7 +369,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         auto get_inputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->get_inputs_full(node)
@@ -379,7 +379,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         bool has_outputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             auto outputs { this->get_outputs(node) };
@@ -389,7 +389,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         bool has_inputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             auto inputs { this->get_inputs(node) };
@@ -399,7 +399,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         std::size_t get_out_degree(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             auto outputs { std::ranges::common_view { this->get_outputs(node) } };
@@ -410,7 +410,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         std::size_t get_in_degree(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             auto inputs { std::ranges::common_view { this->get_inputs(node) } };
@@ -427,9 +427,9 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             if (edge.type == edge_type::FREE_RIDE) {
                 return RET { std::nullopt };  // Returning nullopt directly means a conversion to RET happens behind the scene, and that makes the concept check fail.
             }
-            const auto& [n1, n2] {edge.inner_edge};
-            const auto& [n1_grid_down, n1_grid_right] {n1};
-            const auto& [n2_grid_down, n2_grid_right] {n2};
+            const auto& [n1, n2] { edge.inner_edge };
+            const auto& [n1_grid_down, n1_grid_right] { n1 };
+            const auto& [n2_grid_down, n2_grid_right] { n2 };
             if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
                 return RET { { { n1_grid_down }, { n1_grid_right } } };
             } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {
@@ -453,7 +453,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offsets(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return g.node_to_grid_offsets(node);

@@ -46,18 +46,18 @@ namespace offbynull::aligner::graphs::directed_graph {
         void insert_node(const N& node, ND&& data) {
             if constexpr (debug_mode) {
                 if (has_node(node)) {
-                    throw std::runtime_error {"Node already exists"};
+                    throw std::runtime_error { "Node already exists" };
                 }
             }
-            this->node_outbound.insert({node, {}});
-            this->node_inbound.insert({node, {}});
-            this->node_data.insert({node, std::forward<ND>(data)});
+            this->node_outbound.insert({ node, {} });
+            this->node_inbound.insert({ node, {} });
+            this->node_data.insert({ node, std::forward<ND>(data) });
         }
 
         void delete_node(const N& node) {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             std::set<E> outbound_copy = this->node_outbound.at(node); // done to prevent concurrent modification problems
@@ -82,7 +82,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         void update_node_data(const N& node, ND&& data) {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             this->node_data.at(node) = std::forward<ND>(data);
@@ -91,7 +91,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         const ND& get_node_data(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->node_data.at(node);
@@ -108,16 +108,16 @@ namespace offbynull::aligner::graphs::directed_graph {
         ) {
             if constexpr (debug_mode) {
                 if (has_node(new_node)) {
-                    throw std::runtime_error {"Node already exists"};
+                    throw std::runtime_error { "Node already exists" };
                 }
                 if (!has_edge(existing_edge)) {
-                    throw std::runtime_error {"Existing edge doesn't exist"};
+                    throw std::runtime_error { "Existing edge doesn't exist" };
                 }
                 if (has_edge(from_edge)) {
-                    throw std::runtime_error {"From edge already exists"};
+                    throw std::runtime_error { "From edge already exists" };
                 }
                 if (has_edge(to_edge)) {
-                    throw std::runtime_error {"To edge already exists"};
+                    throw std::runtime_error { "To edge already exists" };
                 }
             }
             const auto& [node_from, node_to, _] = this->get_edge(existing_edge);
@@ -130,16 +130,16 @@ namespace offbynull::aligner::graphs::directed_graph {
         void insert_edge(const E& edge, const N& from_node, const N& to_node, ED&& data) {
             if constexpr (debug_mode) {
                 if (!has_node(from_node)) {
-                    throw std::runtime_error {"From node doesn't exist"};
+                    throw std::runtime_error { "From node doesn't exist" };
                 }
                 if (!has_node(to_node)) {
-                    throw std::runtime_error {"To node doesn't exist"};
+                    throw std::runtime_error { "To node doesn't exist" };
                 }
                 if (has_edge(edge)) {
-                    throw std::runtime_error {"Edge already exists"};
+                    throw std::runtime_error { "Edge already exists" };
                 }
             }
-            this->edges.insert({edge, std::tuple<N, N, ED> {from_node, to_node, std::forward<ED>(data)}});
+            this->edges.insert({ edge, std::tuple<N, N, ED> { from_node, to_node, std::forward<ED>(data) } });
             this->node_inbound.at(to_node).insert(edge);
             this->node_outbound.at(from_node).insert(edge);
         }
@@ -147,16 +147,16 @@ namespace offbynull::aligner::graphs::directed_graph {
         void delete_edge(const E& edge, bool remove_from_if_isolated = false, bool remove_to_if_isolated = false) {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
             auto& [from_node, to_node, _] { this->edges.at(edge) };
             // if constexpr (debug_mode) {
             //     if (!has_node(from_node)) {
-            //         throw std::runtime_error {"This should never happen"};
+            //         throw std::runtime_error { "This should never happen" };
             //     }
             //     if (!has_node(to_node)) {
-            //         throw std::runtime_error {"This should never happen"};
+            //         throw std::runtime_error { "This should never happen" };
             //     }
             // }
             del_set(this->node_outbound.at(from_node), edge);
@@ -185,7 +185,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         void update_edge_data(const E& edge, ED&& data) {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
             std::get<2>(this->edges.at(edge)) = std::forward<ED>(data);
@@ -194,7 +194,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         const ED& get_edge_data(const E& edge) const {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
             return std::get<2>(this->edges.at(edge));
@@ -203,7 +203,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         const N& get_edge_from(const E& edge) const {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
             return std::get<0>(this->edges.at(edge));
@@ -212,7 +212,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         const N& get_edge_to(const E& edge) const {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
             return std::get<1>(this->edges.at(edge));
@@ -221,11 +221,11 @@ namespace offbynull::aligner::graphs::directed_graph {
         std::tuple<const N&, const N&, const ED&> get_edge(const E& edge) const {
             if constexpr (debug_mode) {
                 if (!has_edge(edge)) {
-                    throw std::runtime_error {"Edge doesn't exist"};
+                    throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
             auto& ref = edges.at(edge);
-            return std::tuple<const N&, const N&, const ED&> {std::get<0>(ref), std::get<1>(ref), std::get<2>(ref)};
+            return std::tuple<const N&, const N&, const ED&> { std::get<0>(ref), std::get<1>(ref), std::get<2>(ref) };
         }
 
         auto get_root_nodes() const {
@@ -279,31 +279,31 @@ namespace offbynull::aligner::graphs::directed_graph {
         auto get_outputs_full(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->node_outbound.at(node) | std::views::transform([this](auto& e) noexcept {
                 const auto& [from_node, to_node, edge_data] { this->get_edge(e) };
-                return std::tuple<const E&, const N&, const N&, const ED&> {e, from_node, to_node, edge_data};
+                return std::tuple<const E&, const N&, const N&, const ED&> { e, from_node, to_node, edge_data };
             });
         }
 
         auto get_inputs_full(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->node_inbound.at(node) | std::views::transform([this](auto& e) noexcept {
                 const auto& [from_node, to_node, edge_data] { this->get_edge(e) };
-                return std::tuple<const E&, const N&, const N&, const ED&> {e, from_node, to_node, edge_data};
+                return std::tuple<const E&, const N&, const N&, const ED&> { e, from_node, to_node, edge_data };
             });
         }
 
         auto get_outputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->node_outbound.at(node)
@@ -313,7 +313,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         auto get_inputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->node_inbound.at(node)
@@ -323,7 +323,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         bool has_outputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->get_outputs(node).size() > 0zu;
@@ -332,7 +332,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         bool has_inputs(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->get_inputs(node).size() > 0zu;
@@ -341,7 +341,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         std::size_t get_out_degree(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->node_outbound.at(node).size();
@@ -350,7 +350,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         std::size_t get_in_degree(const N& node) const {
             if constexpr (debug_mode) {
                 if (!has_node(node)) {
-                    throw std::runtime_error {"Node doesn't exist"};
+                    throw std::runtime_error { "Node doesn't exist" };
                 }
             }
             return this->node_inbound.at(node).size();
@@ -361,7 +361,7 @@ namespace offbynull::aligner::graphs::directed_graph {
     template<typename N, typename ND, typename E, typename ED>
     struct std::formatter<directed_graph<N, ND, E, ED>> : std::formatter<std::string> {
         auto format(const directed_graph<N, ND, E, ED>& g, format_context& ctx) const {
-            return format_to(ctx.out(), "{}", g.to_string());  // WONT WORK WITHOUT MAKING to_string() CONST?
+            return format_to(ctx.out(), " {}", g.to_string());  // WONT WORK WITHOUT MAKING to_string() CONST?
         }
     };
     */

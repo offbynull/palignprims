@@ -29,7 +29,7 @@ namespace {
         using E = decltype(g)::E;
         using ED = decltype(g)::ED;
 
-        backtracker<true, decltype(g), ED> _backtracker{};
+        backtracker<true, decltype(g), ED> _backtracker {};
         const auto& [path, weight] {
             _backtracker.find_max_path(
                 g,
@@ -59,24 +59,24 @@ namespace {
         using G = offbynull::aligner::graphs::directed_graph::directed_graph<true, N, ND, E, ED>;
 
         G g {};
-        g.insert_node(std::pair{0zu, 0zu}, {std::nullopt, std::nullopt});
-        g.insert_node(std::pair{0zu, 1zu}, {std::nullopt, std::nullopt});
-        g.insert_node(std::pair{0zu, 2zu}, {std::nullopt, std::nullopt});
-        g.insert_node(std::pair{1zu, 0zu}, {std::nullopt, std::nullopt});
-        g.insert_node(std::pair{1zu, 1zu}, {std::nullopt, std::nullopt});
-        g.insert_node(std::pair{1zu, 2zu}, {std::nullopt, std::nullopt});
-        g.insert_edge(std::pair { std::pair{0zu, 0zu}, std::pair{0zu, 1zu} }, std::pair{0zu, 0zu}, std::pair{0zu, 1zu}, 0.0);
-        g.insert_edge(std::pair { std::pair{0zu, 1zu}, std::pair{0zu, 2zu} }, std::pair{0zu, 1zu}, std::pair{0zu, 2zu}, 0.0);
-        g.insert_edge(std::pair { std::pair{1zu, 0zu}, std::pair{1zu, 1zu} }, std::pair{1zu, 0zu}, std::pair{1zu, 1zu}, 0.0);
-        g.insert_edge(std::pair { std::pair{1zu, 1zu}, std::pair{1zu, 2zu} }, std::pair{1zu, 1zu}, std::pair{1zu, 2zu}, 0.0);
-        g.insert_edge(std::pair { std::pair{0zu, 0zu}, std::pair{1zu, 0zu} }, std::pair{0zu, 0zu}, std::pair{1zu, 0zu}, 0.0);
-        g.insert_edge(std::pair { std::pair{0zu, 1zu}, std::pair{1zu, 1zu} }, std::pair{0zu, 1zu}, std::pair{1zu, 1zu}, 0.0);
-        g.insert_edge(std::pair { std::pair{0zu, 2zu}, std::pair{1zu, 2zu} }, std::pair{0zu, 2zu}, std::pair{1zu, 2zu}, 0.0);
-        g.insert_edge(std::pair { std::pair{0zu, 0zu}, std::pair{1zu, 1zu} }, std::pair{0zu, 0zu}, std::pair{1zu, 1zu}, 0.0);
-        g.insert_edge(std::pair { std::pair{0zu, 1zu}, std::pair{1zu, 2zu} }, std::pair{0zu, 1zu}, std::pair{1zu, 2zu}, 0.0);
-        g.update_edge_data({ {0zu, 0zu}, {0zu, 1zu} }, 1.1);
-        g.update_edge_data({ {1zu, 1zu}, {1zu, 2zu} }, 1.4);
-        backtracker<true, decltype(g), ED> _backtracker{};
+        g.insert_node(std::pair { 0zu, 0zu }, { std::nullopt, std::nullopt });
+        g.insert_node(std::pair { 0zu, 1zu }, { std::nullopt, std::nullopt });
+        g.insert_node(std::pair { 0zu, 2zu }, { std::nullopt, std::nullopt });
+        g.insert_node(std::pair { 1zu, 0zu }, { std::nullopt, std::nullopt });
+        g.insert_node(std::pair { 1zu, 1zu }, { std::nullopt, std::nullopt });
+        g.insert_node(std::pair { 1zu, 2zu }, { std::nullopt, std::nullopt });
+        g.insert_edge(std::pair { std::pair { 0zu, 0zu }, std::pair { 0zu, 1zu } }, std::pair { 0zu, 0zu }, std::pair { 0zu, 1zu }, 0.0);
+        g.insert_edge(std::pair { std::pair { 0zu, 1zu }, std::pair { 0zu, 2zu } }, std::pair { 0zu, 1zu }, std::pair { 0zu, 2zu }, 0.0);
+        g.insert_edge(std::pair { std::pair { 1zu, 0zu }, std::pair { 1zu, 1zu } }, std::pair { 1zu, 0zu }, std::pair { 1zu, 1zu }, 0.0);
+        g.insert_edge(std::pair { std::pair { 1zu, 1zu }, std::pair { 1zu, 2zu } }, std::pair { 1zu, 1zu }, std::pair { 1zu, 2zu }, 0.0);
+        g.insert_edge(std::pair { std::pair { 0zu, 0zu }, std::pair { 1zu, 0zu } }, std::pair { 0zu, 0zu }, std::pair { 1zu, 0zu }, 0.0);
+        g.insert_edge(std::pair { std::pair { 0zu, 1zu }, std::pair { 1zu, 1zu } }, std::pair { 0zu, 1zu }, std::pair { 1zu, 1zu }, 0.0);
+        g.insert_edge(std::pair { std::pair { 0zu, 2zu }, std::pair { 1zu, 2zu } }, std::pair { 0zu, 2zu }, std::pair { 1zu, 2zu }, 0.0);
+        g.insert_edge(std::pair { std::pair { 0zu, 0zu }, std::pair { 1zu, 1zu } }, std::pair { 0zu, 0zu }, std::pair { 1zu, 1zu }, 0.0);
+        g.insert_edge(std::pair { std::pair { 0zu, 1zu }, std::pair { 1zu, 2zu } }, std::pair { 0zu, 1zu }, std::pair { 1zu, 2zu }, 0.0);
+        g.update_edge_data({ { 0zu, 0zu }, { 0zu, 1zu } }, 1.1);
+        g.update_edge_data({ { 1zu, 1zu }, { 1zu, 2zu } }, 1.4);
+        backtracker<true, decltype(g), ED> _backtracker {};
         const auto& [path, weight] {
             _backtracker.find_max_path(
                 g,
@@ -92,9 +92,9 @@ namespace {
         EXPECT_EQ(
             path,
             (std::vector<E> {
-                { std::pair{0zu, 0zu}, std::pair{0zu, 1zu} },
-                { std::pair{0zu, 1zu}, std::pair{1zu, 1zu} },
-                { std::pair{1zu, 1zu}, std::pair{1zu, 2zu} }
+                { std::pair { 0zu, 0zu }, std::pair { 0zu, 1zu } },
+                { std::pair { 0zu, 1zu }, std::pair { 1zu, 1zu } },
+                { std::pair { 1zu, 1zu }, std::pair { 1zu, 2zu } }
             })
         );
         EXPECT_EQ(weight, 2.5);

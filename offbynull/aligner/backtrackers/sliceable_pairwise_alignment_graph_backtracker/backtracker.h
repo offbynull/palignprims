@@ -117,7 +117,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        backtracker_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK=backtracker_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        backtracker_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = backtracker_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -129,9 +129,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        using RESIDENT_SEGMENTER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_segmenter_container_creator_pack());
-        using SLICED_SUBDIVIDER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_sliced_subdivider_container_creator_pack());
-        using PATH_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container());
+        using RESIDENT_SEGMENTER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_segmenter_container_creator_pack());
+        using SLICED_SUBDIVIDER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_sliced_subdivider_container_creator_pack());
+        using PATH_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container());
 
         CONTAINER_CREATOR_PACK container_creator_pack;
 
@@ -139,7 +139,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         backtracker(
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
-        : container_creator_pack{container_creator_pack_} {}
+        : container_creator_pack { container_creator_pack_ } {}
 
         auto find_max_path(
             const G& g,

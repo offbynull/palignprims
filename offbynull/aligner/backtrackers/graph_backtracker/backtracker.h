@@ -109,9 +109,9 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         using N = typename G::N;
         using E = typename G::E;
 
-        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container_container_creator_pack());
-        using READY_QUEUE_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_ready_queue_container_creator_pack());
-        using PATH_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container());
+        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container_container_creator_pack());
+        using READY_QUEUE_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_ready_queue_container_creator_pack());
+        using PATH_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container());
 
         using slot_container_t = slot_container<debug_mode, G, WEIGHT, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
         using ready_queue_t = ready_queue<debug_mode, G, READY_QUEUE_CONTAINER_CREATOR_PACK>;
@@ -121,7 +121,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         backtracker(
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
-        : container_creator_pack{container_creator_pack_} {}
+        : container_creator_pack { container_creator_pack_ } {}
 
         slot_container_t populate_weights_and_backtrack_pointers(
             const G& g,

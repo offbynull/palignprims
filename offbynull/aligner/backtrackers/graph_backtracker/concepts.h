@@ -8,7 +8,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::concepts {
     concept backtrackable_node =
         std::regular<N> &&
         requires(N n) {
-            {n < n} -> std::same_as<bool>;
+            { n < n } -> std::same_as<bool>;
         };
 
     template<typename E>

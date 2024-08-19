@@ -117,7 +117,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         RESIDENT_EDGE_CONTAINER_TYPE create_resident_edge_container(std::size_t resident_nodes_capacity_) const {
             if constexpr (debug_mode) {
                 if (resident_nodes_capacity == resident_nodes_capacity_) {
-                    throw std::runtime_error {"Inconsistent node count"};
+                    throw std::runtime_error { "Inconsistent node count" };
                 }
             }
             return RESIDENT_EDGE_CONTAINER_TYPE {};
@@ -128,7 +128,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         SEGMENT_CONTAINER_TYPE create_segment_container(std::size_t resident_nodes_cnt_) const {
             if constexpr (debug_mode) {
                 if (resident_nodes_cnt_ * 2zu + 1zu <= max_segment_cnt) {
-                    throw std::runtime_error {"Inconsistent node count"};
+                    throw std::runtime_error { "Inconsistent node count" };
                 }
             }
             return SEGMENT_CONTAINER_TYPE {};
@@ -143,7 +143,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        resident_segmenter_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK=resident_segmenter_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        resident_segmenter_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = resident_segmenter_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -155,10 +155,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        using BIDI_WALKER_CONTAINER_CREATOR_PACK=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_bidi_walker_container_creator_pack());
-        using RESIDENT_NODE_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_node_container(std::declval<std::vector<N>>()));
-        using RESIDENT_EDGE_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_edge_container(0zu));
-        using SEGMENT_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_segment_container(0zu));
+        using BIDI_WALKER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_bidi_walker_container_creator_pack());
+        using RESIDENT_NODE_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_node_container(std::declval<std::vector<N>>()));
+        using RESIDENT_EDGE_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_edge_container(0zu));
+        using SEGMENT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_segment_container(0zu));
 
         CONTAINER_CREATOR_PACK container_creator_pack;
 
@@ -166,7 +166,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         resident_segmenter(
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
-        : container_creator_pack{container_creator_pack_} {}
+        : container_creator_pack { container_creator_pack_ } {}
 
         auto backtrack_segmentation_points(const G& g, const ED max_path_weight_comparison_tolerance) {
             ED max_path_weight {

@@ -17,18 +17,18 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         E backtracking_edge;
 
         element()
-        : prev{}
-        , next{}
-        , backtracking_edge{} {}
+        : prev {}
+        , next {}
+        , backtracking_edge {} {}
 
         element(
             element<E>* prev_,
             element<E>* next_,
             E backtracking_edge_
         )
-        : prev{prev_}
-        , next{next_}
-        , backtracking_edge{backtracking_edge_} {}
+        : prev { prev_ }
+        , next { next_ }
+        , backtracking_edge { backtracking_edge_ } {}
 
         bool operator==(const element &) const = default;
     };
@@ -87,15 +87,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             element<E>* head_,
             element<E>* tail_
         )
-        : head{ head_ }
-        , tail{ tail_ } {}
+        : head { head_ }
+        , tail { tail_ } {}
 
         backward_walker_iterator<G> begin() const {
-            return backward_walker_iterator<G>{ tail };
+            return backward_walker_iterator<G> { tail };
         }
 
         backward_walker_iterator<G> end() const {
-            return backward_walker_iterator<G>{ nullptr };
+            return backward_walker_iterator<G> { nullptr };
         }
     };
 
@@ -152,13 +152,13 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        path_container_container_creator_pack<typename G::E> CONTAINER_CREATOR_PACK=path_container_heap_container_creator_pack<debug_mode,typename G::E>
+        path_container_container_creator_pack<typename G::E> CONTAINER_CREATOR_PACK = path_container_heap_container_creator_pack<debug_mode,typename G::E>
     >
     class path_container {
     private:
         using E = typename G::E;
 
-        using ELEMENT_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_element_container(0zu));
+        using ELEMENT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_element_container(0zu));
 
         ELEMENT_CONTAINER element_container;
         element<E>* head;
@@ -170,12 +170,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const G& g,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
-        : element_container{
+        : element_container {
             container_creator_pack.create_element_container(g.path_edge_capacity)
         }
-        , head{nullptr}
-        , tail{nullptr}
-        , next_idx{0zu} {}
+        , head { nullptr }
+        , tail { nullptr }
+        , next_idx { 0zu } {}
 
         element<E>* initialize(const E& backtracking_edge) {
             if constexpr (debug_mode) {

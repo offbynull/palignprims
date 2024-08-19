@@ -33,7 +33,7 @@ namespace offbynull::helpers::simple_value_bidirectional_view {
         : state { state_ } {}
 
         iterator()
-        : state { } {}
+        : state {} {}
 
         iterator<STATE>& operator=(const iterator<STATE>& rhs) = default;
 
@@ -73,7 +73,7 @@ namespace offbynull::helpers::simple_value_bidirectional_view {
     };
 
     template<state STATE>
-    class simple_value_bidirectional_view : public std::ranges::view_interface<simple_value_bidirectional_view<STATE>>{
+    class simple_value_bidirectional_view : public std::ranges::view_interface<simple_value_bidirectional_view<STATE>> {
     private:
         STATE begin_state;
         STATE end_state;
@@ -83,8 +83,8 @@ namespace offbynull::helpers::simple_value_bidirectional_view {
             STATE begin_state_,
             STATE end_state_
         )
-        : begin_state{begin_state_}
-        , end_state{end_state_} { }
+        : begin_state { begin_state_ }
+        , end_state { end_state_ } {}
         simple_value_bidirectional_view(const simple_value_bidirectional_view<STATE> &src) = default;
         simple_value_bidirectional_view(simple_value_bidirectional_view<STATE> &&src) = default;
         simple_value_bidirectional_view<STATE>& operator=(const simple_value_bidirectional_view<STATE>& other) = default;

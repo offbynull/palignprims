@@ -72,10 +72,10 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
                 )
             > _gap_lookup
         )
-        : g{_down_seq, _right_seq, _substitution_lookup, _gap_lookup}
-        , grid_down_cnt{g.grid_down_cnt}
-        , grid_right_cnt{g.grid_right_cnt}
-        , path_edge_capacity{g.path_edge_capacity} {}
+        : g { _down_seq, _right_seq, _substitution_lookup, _gap_lookup }
+        , grid_down_cnt { g.grid_down_cnt }
+        , grid_right_cnt { g.grid_right_cnt }
+        , path_edge_capacity { g.path_edge_capacity } {}
 
         ND get_node_data(const N& node) const {
             return g.get_node_data(node);
@@ -167,9 +167,9 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             using OPT_INDEX = std::optional<INDEX>;
             using RET = std::optional<std::pair<OPT_INDEX, OPT_INDEX>>;
 
-            const auto& [n1, n2] {edge};
-            const auto& [n1_grid_down, n1_grid_right] {n1};
-            const auto& [n2_grid_down, n2_grid_right] {n2};
+            const auto& [n1, n2] { edge };
+            const auto& [n1_grid_down, n1_grid_right] { n1 };
+            const auto& [n2_grid_down, n2_grid_right] { n2 };
             if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
                 return RET { { { n1_grid_down }, { n1_grid_right } } };
             } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {

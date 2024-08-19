@@ -57,14 +57,14 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
     template<
         bool debug_mode,
         sequence SEQ,
-        sliding_window_sequence_container_creator_pack<std::decay_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK=sliding_window_sequence_heap_container_creator_pack<debug_mode, std::decay_t<decltype(std::declval<SEQ>()[0zu])>>
+        sliding_window_sequence_container_creator_pack<std::decay_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK = sliding_window_sequence_heap_container_creator_pack<debug_mode, std::decay_t<decltype(std::declval<SEQ>()[0zu])>>
     >
     class sliding_window_sequence {
     private:
         const SEQ& seq;
         const std::size_t window_length;
 
-        using RESULT_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_result_container(0zu));
+        using RESULT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_result_container(0zu));
 
         CONTAINER_CREATOR_PACK container_creator_pack;
 

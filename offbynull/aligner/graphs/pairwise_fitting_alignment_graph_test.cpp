@@ -60,7 +60,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         auto e = g.get_edges();
-        std::vector<E> actual { }; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+        std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
         for (auto _e : e) {
             actual.push_back(_e);
         }
@@ -218,7 +218,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         {
-            std::vector<E> actual { }; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
             for (auto _e : g.get_outputs(N { 0zu, 0zu } )) {
                 actual.push_back(_e);
             }
@@ -234,18 +234,18 @@ namespace {
             );
         }
         {
-            std::vector<E> actual { }; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
             for (auto _e : g.get_outputs(N { 1zu, 2zu } )) {
                 actual.push_back(_e);
             }
             std::sort(actual.begin(), actual.end());
             EXPECT_EQ(
                 actual,
-                (std::vector<E> { })
+                (std::vector<E> {})
             );
         }
         {
-            std::vector<E> actual { }; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
             for (auto _e : g.get_outputs(N { 0zu, 2zu } )) {
                 actual.push_back(_e);
             }
@@ -259,7 +259,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual { }; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
             for (auto _e : g.get_outputs(N { 1zu, 0zu } )) {
                 actual.push_back(_e);
             }
@@ -288,18 +288,18 @@ namespace {
         using E = typename decltype(g)::E;
 
         {
-            std::vector<E> actual { }; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
             for (auto _e : g.get_inputs(N { 0zu, 0zu })) {
                 actual.push_back(_e);
             }
             std::sort(actual.begin(), actual.end());
             EXPECT_EQ(
                 actual,
-                (std::vector<E> { })
+                (std::vector<E> {})
             );
         }
         {
-            std::vector<E> actual { }; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
             for (auto _e : g.get_inputs(N { 1zu, 2zu })) {
                 actual.push_back(_e);
             }
@@ -315,7 +315,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual { }; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
             for (auto _e : g.get_inputs(N { 0zu, 2zu })) {
                 actual.push_back(_e);
             }
@@ -328,7 +328,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual { }; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
             for (auto _e : g.get_inputs(N { 1zu, 0zu } )) {
                 actual.push_back(_e);
             }
@@ -387,7 +387,7 @@ namespace {
         auto to_vector {
             [](auto &&r) {
                 auto it { r.begin() };
-                std::vector<std::decay_t<decltype(*it)>> ret { };
+                std::vector<std::decay_t<decltype(*it)>> ret {};
                 while (it != r.end()) {
                     ret.push_back(*it);
                     ++it;
@@ -433,7 +433,7 @@ namespace {
 
         EXPECT_EQ(
             to_vector(g.outputs_to_residents(N { 0zu, 0zu })),
-            (std::vector<E> { })
+            (std::vector<E> {})
         );
         EXPECT_EQ(
             to_vector(g.outputs_to_residents(N { 0zu, 1zu })),
@@ -450,7 +450,7 @@ namespace {
         );
         EXPECT_EQ(
             to_vector(g.outputs_to_residents(N { 1zu, 0zu })),
-            (std::vector<E> { })
+            (std::vector<E> {})
         );
         EXPECT_EQ(
             to_vector(g.outputs_to_residents(N { 1zu, 1zu })),
@@ -460,13 +460,13 @@ namespace {
         );
         EXPECT_EQ(
             to_vector(g.outputs_to_residents(N { 1zu, 2zu })),
-            (std::vector<E> { })
+            (std::vector<E> {})
         );
 
 
         EXPECT_EQ(
             to_vector(g.inputs_from_residents(N { 0zu, 0zu })),
-            (std::vector<E> { })
+            (std::vector<E> {})
         );
         EXPECT_EQ(
             to_vector(g.inputs_from_residents(N { 0zu, 1zu })),
@@ -476,7 +476,7 @@ namespace {
         );
         EXPECT_EQ(
             to_vector(g.inputs_from_residents(N { 0zu, 2zu })),
-            (std::vector<E> { })
+            (std::vector<E> {})
         );
         EXPECT_EQ(
             to_vector(g.inputs_from_residents(N { 1zu, 0zu })),
@@ -493,7 +493,7 @@ namespace {
         );
         EXPECT_EQ(
             to_vector(g.inputs_from_residents(N { 1zu, 2zu })),
-            (std::vector<E> { })
+            (std::vector<E> {})
         );
     }
 }

@@ -105,7 +105,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        resident_slot_container_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK=resident_slot_container_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        resident_slot_container_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = resident_slot_container_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
     >
     class resident_slot_container {
     private:
@@ -114,7 +114,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ND = typename G::ND;
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
-        using SLOT_CONTAINER=decltype(
+        using SLOT_CONTAINER = decltype(
             std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(
                 std::declval<std::vector<resident_slot_with_node<N, E, ED>>>()
             )
@@ -125,9 +125,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     public:
         resident_slot_container(
             const G& g,
-            CONTAINER_CREATOR_PACK container_creator_pack={}
+            CONTAINER_CREATOR_PACK container_creator_pack= {}
         )
-        : slots{
+        : slots {
             container_creator_pack.create_slot_container(
                 g.resident_nodes()
                 | std::views::transform([](const N& node) {
@@ -138,7 +138,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 })
             )
         } {
-            std::ranges::sort(slots.begin(), slots.end(), resident_slot_with_node_comparator<N, E, ED>{});
+            std::ranges::sort(slots.begin(), slots.end(), resident_slot_with_node_comparator<N, E, ED> {});
         }
 
         std::optional<std::reference_wrapper<resident_slot<E, ED>>> find(const N& node) {
@@ -147,7 +147,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     slots.begin(),
                     slots.end(),
                     node,
-                    resident_slot_with_node_comparator<N, E, ED>{}
+                    resident_slot_with_node_comparator<N, E, ED> {}
                 )
             };
             if (it != slots.end() && (*it).node == node) {

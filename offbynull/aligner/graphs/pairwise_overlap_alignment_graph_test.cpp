@@ -498,7 +498,7 @@ namespace {
         );
         EXPECT_EQ(
             to_vector(g.inputs_from_residents(N { 1zu, 2zu })),
-            (std::vector<E> {})
+            (std::vector<E> { })
         );
     }
 }

@@ -13,12 +13,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         WEIGHT backtracking_weight;
 
         slot(E backtracking_edge_, WEIGHT backtracking_weight_)
-        : backtracking_edge{backtracking_edge_}
-        , backtracking_weight{backtracking_weight_} {}
+        : backtracking_edge { backtracking_edge_ }
+        , backtracking_weight { backtracking_weight_ } {}
 
         slot()
-        : backtracking_edge{std::nullopt}
-        , backtracking_weight{} {}
+        : backtracking_edge { std::nullopt }
+        , backtracking_weight {} {}
 
         bool operator==(const slot&) const = default;
     };

@@ -46,7 +46,7 @@ namespace {
             bidi_walker<true, decltype(g)> bidi_walker_ { bidi_walker<true, decltype(g)>::create_and_initialize(g, down_offset) };
             for (unsigned int right_offset { 0u }; right_offset < g.grid_right_cnt; right_offset++) {
                 const auto& [weight, forward_walk_edge, backward_walk_edge] {
-                    walk_to_node(bidi_walker_, N {down_offset, right_offset})
+                    walk_to_node(bidi_walker_, N { down_offset, right_offset })
                 };
                 std::cout << down_offset << ',' << right_offset << '=' << weight;
                 if (forward_walk_edge.has_value()) {
@@ -69,7 +69,7 @@ namespace {
         }
 
         bidi_walker<true, decltype(g)> bidi_walker_ { bidi_walker<true, decltype(g)>::create_and_initialize(g, 3u) };
-        const auto& [weight, forward_walk_edge, backward_walk_edge] { walk_to_node(bidi_walker_,  N {3u, 3u}) };
+        const auto& [weight, forward_walk_edge, backward_walk_edge] { walk_to_node(bidi_walker_,  N { 3u, 3u }) };
         std::cout << std::endl;
         std::cout << weight << std::endl;
         EXPECT_EQ(weight, 6u);

@@ -21,16 +21,16 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         WEIGHT backtracking_weight;
 
         slot(N node_, std::size_t unwalked_parent_cnt_)
-        : node{node_}
-        , unwalked_parent_cnt{unwalked_parent_cnt_}
-        , backtracking_edge{}
-        , backtracking_weight{} {}
+        : node { node_ }
+        , unwalked_parent_cnt { unwalked_parent_cnt_ }
+        , backtracking_edge {}
+        , backtracking_weight {} {}
 
         slot()
-        : node{}
-        , unwalked_parent_cnt{}
-        , backtracking_edge{}
-        , backtracking_weight{} {}
+        : node {}
+        , unwalked_parent_cnt {}
+        , backtracking_edge {}
+        , backtracking_weight {} {}
     };
 
     template<
@@ -101,14 +101,14 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         bool debug_mode,
         readable_graph G,
         weight WEIGHT,
-        slot_container_container_creator_pack<typename G::N, typename G::E, WEIGHT> CONTAINER_CREATOR_PACK=slot_container_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, WEIGHT>
+        slot_container_container_creator_pack<typename G::N, typename G::E, WEIGHT> CONTAINER_CREATOR_PACK = slot_container_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, WEIGHT>
     >
     class slot_container {
     private:
         using N = typename G::N;
         using E = typename G::E;
 
-        using SLOT_CONTAINER=decltype(
+        using SLOT_CONTAINER = decltype(
             std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(
                 std::declval<std::vector<slot<N, E, WEIGHT>>>().begin(),
                 std::declval<std::vector<slot<N, E, WEIGHT>>>().end()
@@ -136,17 +136,17 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
             std::ranges::sort(
                 slots.begin(),
                 slots.end(),
-                slots_comparator<N, E, WEIGHT>{}
+                slots_comparator<N, E, WEIGHT> {}
             );
         }
 
-        std::size_t find_idx(const N& node){
-            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT>{}) };
+        std::size_t find_idx(const N& node) {
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT> {}) };
             return it - slots.begin();
         }
 
         slot<N, E, WEIGHT>& find_ref(const N& node) {
-            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT>{}) };
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT> {}) };
             return *it;
         }
 
@@ -155,7 +155,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         }
 
         std::pair<std::size_t, slot<N, E, WEIGHT>&> find(const N& node) {
-            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT>{}) };
+            auto it { std::lower_bound(slots.begin(), slots.end(), node, slots_comparator<N, E, WEIGHT> {}) };
             auto dist_from_beginning { std::ranges::distance(slots.begin(), it) };
             std::size_t idx;
             if constexpr (debug_mode && !widenable_to_size_t<decltype(dist_from_beginning)>) {

@@ -45,11 +45,11 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::ready_queue {
     template<
         bool debug_mode,
         readable_graph G,
-        ready_queue_container_creator_pack CONTAINER_CREATOR_PACK=ready_queue_heap_container_creator_pack<debug_mode>
+        ready_queue_container_creator_pack CONTAINER_CREATOR_PACK = ready_queue_heap_container_creator_pack<debug_mode>
     >
     class ready_queue {
     private:
-        using QUEUE_CONTAINER=decltype(std::declval<CONTAINER_CREATOR_PACK>().create_queue_container());
+        using QUEUE_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_queue_container());
 
         QUEUE_CONTAINER queue;
 
@@ -57,7 +57,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::ready_queue {
         ready_queue(
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
-        : queue{container_creator_pack.create_queue_container()} {}
+        : queue { container_creator_pack.create_queue_container() } {}
 
         bool empty() {
             return queue.empty();
