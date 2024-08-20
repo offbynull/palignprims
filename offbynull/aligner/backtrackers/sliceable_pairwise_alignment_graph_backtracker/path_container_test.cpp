@@ -12,7 +12,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    TEST(PathContainerTest, BasicTest) {
+    TEST(OABSPathContainerTest, BasicTest) {
         // TODO: Fix me.
 
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };

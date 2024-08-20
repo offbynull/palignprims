@@ -132,13 +132,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         std::size_t path_edge_capacity
     >
     struct path_container_stack_container_creator_pack {
-        std::array<element<E>, path_edge_capacity> create_element_container(std::size_t path_edge_capacity_) const {
+        std::array<
+            element<E>,
+            path_edge_capacity
+        > create_element_container(std::size_t path_edge_capacity_) const {
             if constexpr (debug_mode) {
                 if (path_edge_capacity != path_edge_capacity_) {
                     throw std::runtime_error("Bad element count");
                 }
             }
-            return std::array<element<E>, path_edge_capacity> {};
+            return {};
         }
     };
 
@@ -152,7 +155,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        path_container_container_creator_pack<typename G::E> CONTAINER_CREATOR_PACK = path_container_heap_container_creator_pack<debug_mode,typename G::E>
+        path_container_container_creator_pack<
+            typename G::E
+        > CONTAINER_CREATOR_PACK = path_container_heap_container_creator_pack<
+            debug_mode,
+            typename G::E
+        >
     >
     class path_container {
     private:

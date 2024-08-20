@@ -31,6 +31,7 @@ test('test', example)
 #)
 
 
+
 gtest = subproject('gtest')
 gtest_dep = gtest.get_variable('gtest_dep')
 gmock_dep = gtest.get_variable('gmock_dep')
@@ -84,9 +85,17 @@ tests_src = [
         'offbynull/aligner/scorers/qwerty_scorer_test.cpp',
 ##        'offbynull/aligner/aligner_test.cpp'
 ]
+source_check = custom_target(
+        'source-check',
+        command: ['python3', meson.current_source_dir() + '/source_check.py'],
+        output: 'unused',
+        build_by_default: true,
+        build_always_stale: true
+)
 test_exec = executable(
         'gtest-all',
         tests_src,
+        source_check,
         dependencies : [boost_dep, gtest_dep, gmock_dep],
         cpp_args : ['-fconcepts-diagnostics-depth=9999', '-ftemplate-backtrace-limit=0', '-D_GLIBCXX_DEBUG']
 )

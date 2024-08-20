@@ -6,7 +6,7 @@
 namespace {
     using offbynull::aligner::scorers::levenshtein_scorer::levenshtein_scorer;
 
-    TEST(LevenshteinScorerTest, SanityTest) {
+    TEST(OASLevenshteinScorerTest, SanityTest) {
         levenshtein_scorer<true, char, char, int> scorer {};
         char a_ { 'a' };
         char b_ { 'b' };

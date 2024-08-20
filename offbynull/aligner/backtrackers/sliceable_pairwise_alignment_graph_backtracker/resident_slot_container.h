@@ -18,19 +18,30 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::concepts::random_access_range_of_type;
     using offbynull::utils::static_vector_typer;
 
-    template<typename E, weight WEIGHT>
+    template<
+        typename E,
+        weight WEIGHT
+    >
     struct resident_slot {
         bool initialized;
         slot<E, WEIGHT> slot_;
     };
 
-    template<typename N, typename E, weight WEIGHT>
+    template<
+        typename N,
+        typename E,
+        weight WEIGHT
+    >
     struct resident_slot_with_node {
         N node;
         resident_slot<E, WEIGHT> slot_;
     };
 
-    template<typename N, typename E, weight WEIGHT>
+    template<
+        typename N,
+        typename E,
+        weight WEIGHT
+    >
     struct resident_slot_with_node_comparator {
         bool operator()(
             const resident_slot_with_node<N, E, WEIGHT>& lhs,
@@ -80,7 +91,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         weight ED
     >
     struct resident_slot_container_heap_container_creator_pack {
-        std::vector<resident_slot_with_node<N, E, ED>> create_slot_container(range_of_type<resident_slot_with_node<N, E, ED>> auto&& r) const {
+        std::vector<resident_slot_with_node<N, E, ED>> create_slot_container(
+            range_of_type<resident_slot_with_node<N, E, ED>> auto&& r
+        ) const {
             return std::vector<resident_slot_with_node<N, E, ED>>(r.begin(), r.end());
         }
     };
@@ -93,7 +106,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         std::size_t resident_nodes_capacity
     >
     struct resident_slot_container_stack_container_creator_pack {
-        using CONTAINER_TYPE = typename static_vector_typer<resident_slot_with_node<N, E, ED>, resident_nodes_capacity, debug_mode>::type;
+        using CONTAINER_TYPE = typename static_vector_typer<
+            debug_mode,
+            resident_slot_with_node<N, E, ED>,
+            resident_nodes_capacity
+        >::type;
         CONTAINER_TYPE create_slot_container(range_of_type<resident_slot_with_node<N, E, ED>> auto&& r) const  {
             return CONTAINER_TYPE(r.begin(), r.end());
         }
@@ -105,7 +122,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        resident_slot_container_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = resident_slot_container_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        resident_slot_container_container_creator_pack<
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        > CONTAINER_CREATOR_PACK = resident_slot_container_heap_container_creator_pack<
+            debug_mode,
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        >
     >
     class resident_slot_container {
     private:

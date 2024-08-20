@@ -20,7 +20,8 @@ namespace offbynull::concepts {
     template<typename T, typename ... Ts>
     concept one_of = (std::same_as<T, Ts> || ...);
 
-    // Check T can be widened to size_t, but not narrowed (to avoid data loss bugs). Is this a valid test? Things can be padded, meaning the sizeof() test below could be wrong.
+    // Check T can be widened to size_t, but not narrowed (to avoid data loss bugs). Is this a valid test? Things can be padded, meaning
+    // the sizeof() test below could be wrong.
     template<typename T>
     concept widenable_to_size_t = std::unsigned_integral<T> && std::numeric_limits<T>::max() <= std::numeric_limits<std::size_t>::max();
 }

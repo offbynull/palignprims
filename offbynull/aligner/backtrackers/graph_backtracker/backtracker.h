@@ -55,16 +55,23 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         weight WEIGHT
     >
     struct backtracker_heap_container_creator_pack {
-        slot_container_heap_container_creator_pack<debug_mode, N, E, WEIGHT> create_slot_container_container_creator_pack() const {
-            return slot_container_heap_container_creator_pack<debug_mode, N, E, WEIGHT> {};
+        slot_container_heap_container_creator_pack<
+            debug_mode,
+            N,
+            E,
+            WEIGHT
+        > create_slot_container_container_creator_pack() const {
+            return {};
         }
 
-        ready_queue_heap_container_creator_pack<debug_mode> create_ready_queue_container_creator_pack() const {
-            return ready_queue_heap_container_creator_pack<debug_mode> {};
+        ready_queue_heap_container_creator_pack<
+            debug_mode
+        > create_ready_queue_container_creator_pack() const {
+            return {};
         }
 
         std::vector<E> create_path_container() const {
-            return std::vector<E> {};
+            return {};
         }
     };
 
@@ -78,16 +85,28 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         std::size_t path_container_heap_escape_size = 10zu
     >
     struct backtracker_stack_container_creator_pack {
-        slot_container_stack_container_creator_pack<debug_mode, N, E, WEIGHT, slot_container_heap_escape_size> create_slot_container_container_creator_pack() const {
-            return slot_container_stack_container_creator_pack<debug_mode, N, E, WEIGHT, slot_container_heap_escape_size> {};
+        slot_container_stack_container_creator_pack<
+            debug_mode,
+            N,
+            E,
+            WEIGHT,
+            slot_container_heap_escape_size
+        > create_slot_container_container_creator_pack() const {
+            return {};
         }
 
-        ready_queue_stack_container_creator_pack<debug_mode, ready_queue_heap_escape_size> create_ready_queue_container_creator_pack() const {
-            return ready_queue_stack_container_creator_pack<debug_mode, ready_queue_heap_escape_size> {};
+        ready_queue_stack_container_creator_pack<
+            debug_mode,
+            ready_queue_heap_escape_size
+        > create_ready_queue_container_creator_pack() const {
+            return {};
         }
 
-        boost::container::small_vector<E, path_container_heap_escape_size> create_path_container() const {
-            return boost::container::small_vector<E, path_container_heap_escape_size> {};
+        boost::container::small_vector<
+            E,
+            path_container_heap_escape_size
+        > create_path_container() const {
+            return {};
         }
     };
 
@@ -99,8 +118,16 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         bool debug_mode,
         readable_graph G,
         weight WEIGHT,
-        backtracker_container_creator_pack<typename G::N, typename G::E, WEIGHT> CONTAINER_CREATOR_PACK=
-            backtracker_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, WEIGHT>
+        backtracker_container_creator_pack<
+            typename G::N,
+            typename G::E,
+            WEIGHT
+        > CONTAINER_CREATOR_PACK = backtracker_heap_container_creator_pack<
+            debug_mode,
+            typename G::N,
+            typename G::E,
+            WEIGHT
+        >
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -109,8 +136,10 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         using N = typename G::N;
         using E = typename G::E;
 
-        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container_container_creator_pack());
-        using READY_QUEUE_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_ready_queue_container_creator_pack());
+        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container_container_creator_pack());
+        using READY_QUEUE_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_ready_queue_container_creator_pack());
         using PATH_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container());
 
         using slot_container_t = slot_container<debug_mode, G, WEIGHT, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;

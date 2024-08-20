@@ -1,5 +1,5 @@
-#ifndef OFFBYNULL_ALIGNER_SEQUENCES_MIDDLE_SEQUENCE_H
-#define OFFBYNULL_ALIGNER_SEQUENCES_MIDDLE_SEQUENCE_H
+#ifndef OFFBYNULL_ALIGNER_SEQUENCES_SUBSTRING_SEQUENCE_H
+#define OFFBYNULL_ALIGNER_SEQUENCES_SUBSTRING_SEQUENCE_H
 
 #include "offbynull/aligner/sequence/sequence.h"
 #include <cstddef>
@@ -37,4 +37,4 @@ namespace offbynull::aligner::sequences::substring_sequence {
     };
 }
 
-#endif //OFFBYNULL_ALIGNER_SEQUENCES_MIDDLE_SEQUENCE_H
+#endif //OFFBYNULL_ALIGNER_SEQUENCES_SUBSTRING_SEQUENCE_H

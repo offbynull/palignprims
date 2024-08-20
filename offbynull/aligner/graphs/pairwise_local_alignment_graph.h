@@ -425,7 +425,8 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             using RET = std::optional<std::pair<OPT_INDEX, OPT_INDEX>>;
 
             if (edge.type == edge_type::FREE_RIDE) {
-                return RET { std::nullopt };  // Returning nullopt directly means a conversion to RET happens behind the scene, and that makes the concept check fail.
+                // Returning nullopt directly means a conversion to RET happens behind the scene, and that makes the concept check fail.
+                return RET { std::nullopt };
             }
             const auto& [n1, n2] { edge.inner_edge };
             const auto& [n1_grid_down, n1_grid_right] { n1 };
@@ -476,7 +477,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         auto outputs_to_residents(const N& node) const {
-            using CONTAINER = static_vector_typer<E, 2zu, debug_mode>::type;
+            using CONTAINER = static_vector_typer<debug_mode, E, 2zu>::type;
             CONTAINER ret {};
             const N& leaf_node { get_leaf_node() };
             if (node != leaf_node) {
@@ -493,7 +494,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
         }
 
         auto inputs_from_residents(const N& node) const {
-            using CONTAINER = static_vector_typer<E, 2zu, debug_mode>::type;
+            using CONTAINER = static_vector_typer<debug_mode, E, 2zu>::type;
             CONTAINER ret {};
             const N& root_node { get_root_node() };
             if (node != root_node) {

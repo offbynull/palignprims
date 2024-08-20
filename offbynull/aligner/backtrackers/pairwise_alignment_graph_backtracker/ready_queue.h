@@ -26,7 +26,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     >
     struct ready_queue_heap_container_creator_pack {
         std::vector<std::size_t> create_queue_container() const {
-            return std::vector<std::size_t> {};
+            return {};
         }
     };
 
@@ -38,9 +38,9 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     >
     struct ready_queue_stack_container_creator_pack {
         static constexpr std::size_t ELEM_COUNT { grid_down_cnt * grid_right_cnt * grid_depth_cnt };
-        using CONTAINER_TYPE = typename static_vector_typer<std::size_t, ELEM_COUNT, debug_mode>::type;
+        using CONTAINER_TYPE = typename static_vector_typer<debug_mode, std::size_t, ELEM_COUNT>::type;
         CONTAINER_TYPE create_queue_container() const {
-            return CONTAINER_TYPE {};
+            return {};
         }
     };
     

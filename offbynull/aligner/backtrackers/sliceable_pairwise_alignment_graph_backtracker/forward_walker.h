@@ -16,15 +16,23 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::readable_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slot::slot;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container::slice_slot_container;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container::slice_slot_container_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container::slice_slot_container_heap_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container::slice_slot_container_stack_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_with_node;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container
+        ::slice_slot_container_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container
+        ::slice_slot_container_heap_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container
+        ::slice_slot_container_stack_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
+        ::resident_slot_with_node;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_container;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_container_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_container_heap_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_container_stack_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
+        ::resident_slot_container;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
+        ::resident_slot_container_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
+        ::resident_slot_container_heap_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
+        ::resident_slot_container_stack_container_creator_pack;
     using offbynull::aligner::concepts::weight;
     using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
@@ -52,11 +60,20 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         weight ED
     >
     struct forward_walker_heap_container_creator_pack {
-        slice_slot_container_heap_container_creator_pack<debug_mode, E, ED> create_slice_slot_container_container_creator_pack() const {
+        slice_slot_container_heap_container_creator_pack<
+            debug_mode,
+            E,
+            ED
+        > create_slice_slot_container_container_creator_pack() const {
             return {};
         }
 
-        resident_slot_container_heap_container_creator_pack<debug_mode, N, E, ED> create_resident_slot_container_container_creator_pack() const {
+        resident_slot_container_heap_container_creator_pack<
+            debug_mode,
+            N,
+            E,
+            ED
+        > create_resident_slot_container_container_creator_pack() const {
             return {};
         }
     };
@@ -71,11 +88,23 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         std::size_t resident_nodes_capacity
     >
     struct forward_walker_stack_container_creator_pack {
-        slice_slot_container_stack_container_creator_pack<debug_mode, E, ED, grid_right_cnt, grid_depth_cnt> create_slice_slot_container_container_creator_pack() const {
+        slice_slot_container_stack_container_creator_pack<
+            debug_mode,
+            E,
+            ED,
+            grid_right_cnt,
+            grid_depth_cnt
+        > create_slice_slot_container_container_creator_pack() const {
             return {};
         }
 
-        resident_slot_container_stack_container_creator_pack<debug_mode, N, E, ED, resident_nodes_capacity> create_resident_slot_container_container_creator_pack() const {
+        resident_slot_container_stack_container_creator_pack<
+            debug_mode,
+            N,
+            E,
+            ED,
+            resident_nodes_capacity
+        > create_resident_slot_container_container_creator_pack() const {
             return {};
         }
     };
@@ -96,7 +125,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        slice_slot_container_container_creator_pack<typename G::E, typename G::ED> SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK
+        slice_slot_container_container_creator_pack<
+            typename G::E,
+            typename G::ED
+        > SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK
     >
     struct slice_slot_container_pair {
         using N = typename G::N;
@@ -113,7 +145,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
         slice_slot_container_pair(
             const G& g,
-            SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK container_creator_pack= {}
+            SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
         : slots1 { g, container_creator_pack }
         , slots2 { g, container_creator_pack }
@@ -147,7 +179,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        forward_walker_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = forward_walker_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        forward_walker_container_creator_pack<
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        > CONTAINER_CREATOR_PACK = forward_walker_heap_container_creator_pack<
+            debug_mode,
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        >
     >
     class forward_walker {
     private:
@@ -157,8 +198,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        using SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slice_slot_container_container_creator_pack());
-        using RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_slot_container_container_creator_pack());
+        using SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slice_slot_container_container_creator_pack());
+        using RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_slot_container_container_creator_pack());
 
         const G& g;
         resident_slot_container<debug_mode, G, RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> resident_slots;

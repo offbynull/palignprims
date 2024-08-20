@@ -1,5 +1,5 @@
-#ifndef OFFBYNULL_ALIGNER_SEQUENCES_PREFIX_PAD_SEQUENCE_H
-#define OFFBYNULL_ALIGNER_SEQUENCES_PREFIX_PAD_SEQUENCE_H
+#ifndef OFFBYNULL_ALIGNER_SEQUENCES_SUFFIX_PAD_SEQUENCE_H
+#define OFFBYNULL_ALIGNER_SEQUENCES_SUFFIX_PAD_SEQUENCE_H
 
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/utils.h"
@@ -42,4 +42,4 @@ namespace offbynull::aligner::sequences::suffix_pad_sequence {
     };
 }
 
-#endif //OFFBYNULL_ALIGNER_SEQUENCES_PREFIX_PAD_SEQUENCE_H
+#endif //OFFBYNULL_ALIGNER_SEQUENCES_SUFFIX_PAD_SEQUENCE_H

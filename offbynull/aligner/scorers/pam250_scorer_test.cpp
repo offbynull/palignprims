@@ -6,7 +6,7 @@
 namespace {
     using offbynull::aligner::scorers::pam250_scorer::pam250_scorer;
 
-    TEST(Pam250ScorerTest, SanityTest) {
+    TEST(OASPam250ScorerTest, SanityTest) {
         pam250_scorer<true, int> scorer {};
         char a_ { 'A' };
         char c_ { 'C' };

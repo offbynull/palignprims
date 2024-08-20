@@ -56,7 +56,11 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         weight ED
     >
     struct slot_container_heap_container_creator_pack {
-        std::vector<slot<N, E, ED>> create_slot_container(std::size_t grid_down_cnt, std::size_t grid_right_cnt, std::size_t grid_depth_cnt) const {
+        std::vector<slot<N, E, ED>> create_slot_container(
+            std::size_t grid_down_cnt,
+            std::size_t grid_right_cnt,
+            std::size_t grid_depth_cnt
+        ) const {
             std::size_t cnt { (grid_down_cnt * grid_right_cnt) * grid_depth_cnt };
             return std::vector<slot<N, E, ED>>(cnt);
         }
@@ -74,7 +78,11 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     struct slot_container_stack_container_creator_pack {
         static constexpr std::size_t ELEM_COUNT { grid_down_cnt * grid_right_cnt * grid_depth_cnt };
 
-        std::array<slot<N, E, ED>, ELEM_COUNT> create_slot_container(std::size_t grid_down_cnt_, std::size_t grid_right_cnt_, std::size_t grid_depth_cnt_) const {
+        std::array<slot<N, E, ED>, ELEM_COUNT> create_slot_container(
+            std::size_t grid_down_cnt_,
+            std::size_t grid_right_cnt_,
+            std::size_t grid_depth_cnt_
+        ) const {
             if constexpr (debug_mode) {
                 std::size_t cnt { (grid_down_cnt_ * grid_right_cnt_) * grid_depth_cnt_ };
                 if (cnt != ELEM_COUNT) {
@@ -92,7 +100,16 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     template<
         bool debug_mode,
         readable_pairwise_alignment_graph G,
-        slot_container_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = slot_container_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        slot_container_container_creator_pack<
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        > CONTAINER_CREATOR_PACK = slot_container_heap_container_creator_pack<
+            debug_mode,
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        >
     >
     class slot_container {
     private:

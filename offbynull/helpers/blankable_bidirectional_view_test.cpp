@@ -5,7 +5,7 @@
 namespace {
     using offbynull::helpers::blankable_bidirectional_view::blankable_bidirectional_view;
 
-    TEST(BlankableBidirectionalViewTest, PassthroughTest) {
+    TEST(OHBlankableBidirectionalViewTest, PassthroughTest) {
         blankable_bidirectional_view r_ { true, std::views::iota(1, 10) };
         EXPECT_NE(r_.begin(), r_.end());
         for (int n : r_) {
@@ -13,7 +13,7 @@ namespace {
         }
     }
 
-    TEST(BlankableBidirectionalViewTest, BlankTest) {
+    TEST(OHBlankableBidirectionalViewTest, BlankTest) {
         blankable_bidirectional_view r_ { false, std::views::iota(1, 10) };
         EXPECT_EQ(r_.begin(), r_.end());
         for (int n : r_) {

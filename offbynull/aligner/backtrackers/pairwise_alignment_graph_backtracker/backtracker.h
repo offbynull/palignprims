@@ -21,8 +21,10 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container_container_creator_pack;
-    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container_heap_container_creator_pack;
-    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container_stack_container_creator_pack;
+    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container
+        ::slot_container_heap_container_creator_pack;
+    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container
+        ::slot_container_stack_container_creator_pack;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_container_creator_pack;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_heap_container_creator_pack;
@@ -57,15 +59,15 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     >
     struct backtracker_heap_container_creator_pack {
         slot_container_heap_container_creator_pack<debug_mode, N, E, ED> create_slot_container_container_creator_pack() const {
-            return slot_container_heap_container_creator_pack<debug_mode, N, E, ED> {};
+            return {};
         }
 
         ready_queue_heap_container_creator_pack<debug_mode> create_ready_queue_container_creator_pack() const {
-            return ready_queue_heap_container_creator_pack<debug_mode> {};
+            return {};
         }
 
         std::vector<E> create_path_container() const {
-            return std::vector<E> {};
+            return {};
         }
     };
 
@@ -80,17 +82,30 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         std::size_t path_edge_capacity
     >
     struct backtracker_stack_container_creator_pack {
-        slot_container_stack_container_creator_pack<debug_mode, N, E, ED, grid_down_cnt, grid_right_cnt, grid_depth_cnt> create_slot_container_container_creator_pack() const {
-            return slot_container_stack_container_creator_pack<debug_mode, N, E, ED, grid_down_cnt, grid_right_cnt, grid_depth_cnt> {};
+        slot_container_stack_container_creator_pack<
+            debug_mode,
+            N,
+            E,
+            ED,
+            grid_down_cnt,
+            grid_right_cnt,
+            grid_depth_cnt
+        > create_slot_container_container_creator_pack() const {
+            return {};
         }
 
-        ready_queue_stack_container_creator_pack<debug_mode, grid_down_cnt, grid_right_cnt, grid_depth_cnt> create_ready_queue_container_creator_pack() const {
-            return ready_queue_stack_container_creator_pack<debug_mode, grid_down_cnt, grid_right_cnt, grid_depth_cnt> {};
+        ready_queue_stack_container_creator_pack<
+            debug_mode,
+            grid_down_cnt,
+            grid_right_cnt,
+            grid_depth_cnt
+        > create_ready_queue_container_creator_pack() const {
+            return {};
         }
 
-        using PATH_CONTAINER_TYPE = typename static_vector_typer<std::size_t, path_edge_capacity, debug_mode>::type;
+        using PATH_CONTAINER_TYPE = typename static_vector_typer<debug_mode, std::size_t, path_edge_capacity>::type;
         PATH_CONTAINER_TYPE create_path_container() const {
-            return PATH_CONTAINER_TYPE {};
+            return {};
         }
     };
 
@@ -101,7 +116,16 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     template<
         bool debug_mode,
         readable_pairwise_alignment_graph G,
-        backtracker_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = backtracker_heap_container_creator_pack<true, typename G::N, typename G::E, typename G::ED>
+        backtracker_container_creator_pack<
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        > CONTAINER_CREATOR_PACK = backtracker_heap_container_creator_pack<
+            debug_mode,
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        >
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -112,8 +136,10 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container_container_creator_pack());
-        using READY_QUEUE_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_ready_queue_container_creator_pack());
+        using SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container_container_creator_pack());
+        using READY_QUEUE_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_ready_queue_container_creator_pack());
         using PATH_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container());
 
         using slot_container_t = slot_container<debug_mode, G, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;

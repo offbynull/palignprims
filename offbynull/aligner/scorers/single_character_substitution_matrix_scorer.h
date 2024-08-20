@@ -1,5 +1,5 @@
-#ifndef OFFBYNULL_ALIGNER_SCORERS_PRINTABLE_SINGLE_CHARACTER_SUBSTITUTION_MATRIX_SCORER_H
-#define OFFBYNULL_ALIGNER_SCORERS_PRINTABLE_SINGLE_CHARACTER_SUBSTITUTION_MATRIX_SCORER_H
+#ifndef OFFBYNULL_ALIGNER_SCORERS_SINGLE_CHARACTER_SUBSTITUTION_MATRIX_SCORER_H
+#define OFFBYNULL_ALIGNER_SCORERS_SINGLE_CHARACTER_SUBSTITUTION_MATRIX_SCORER_H
 
 #include <optional>
 #include <array>
@@ -32,7 +32,9 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
                 | std::views::reverse
             };
             const char& start_char_ref { *trailing_trimmed.begin() };
-            const char* start_char_ptr { &start_char_ref }; // can't use line.begin() directly because line is an iterator object, not a pointer -- need to first grab the object from the iterator (which is a ref into a element in text) then get the pointer to it
+            const char* start_char_ptr { &start_char_ref }; // can't use line.begin() directly because line is an iterator object, not a
+                                                            // pointer -- need to first grab the object from the iterator (which is a ref
+                                                            // into a element in text) then get the pointer to it
             return std::string_view { start_char_ptr, std::ranges::distance(trailing_trimmed) };
         }
 
@@ -44,9 +46,12 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
             return
                 std::views::split(text_normalized_ends, '\n')
                 | std::views::transform([](const auto& line) {
-                    static_assert(std::is_same_v<decltype(*line.begin()), const char&>); // ensure you're getting back a REFERENCE to the original data when you access
+                    static_assert(std::is_same_v<decltype(*line.begin()), const char&>); // ensure you're getting back a REFERENCE to the
+                                                                                         // original data when you access
                     const char& start_char_ref { *line.begin() };
-                    const char* start_char_ptr { &start_char_ref }; // can't use line.begin() directly because line is an iterator object, not a pointer -- need to first grab the object from the iterator (which is a ref into a element in text) then get the pointer to it
+                    const char* start_char_ptr { &start_char_ref }; // can't use line.begin() directly because line is an iterator object,
+                                                                    // not a pointer -- need to first grab the object from the iterator
+                                                                    // (which is a ref into a element in text) then get the pointer to it
                     return std::string_view { start_char_ptr, std::ranges::distance(line) };
                 })
                 | std::views::transform([](const std::string_view& line) {
@@ -214,4 +219,4 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
     );
 }
 
-#endif //OFFBYNULL_ALIGNER_SCORERS_PRINTABLE_SINGLE_CHARACTER_SUBSTITUTION_MATRIX_SCORER_H
+#endif //OFFBYNULL_ALIGNER_SCORERS_SINGLE_CHARACTER_SUBSTITUTION_MATRIX_SCORER_H

@@ -7,7 +7,7 @@ namespace {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::sequences::prefix_pad_sequence::prefix_pad_sequence;
 
-    TEST(PrefixPadSequenceTest, SanityTest) {
+    TEST(OASPrefixPadSequenceTest, SanityTest) {
         std::string data { "hello!" };
         prefix_pad_sequence<true, std::string> seq { data, 'x', 3zu };
         static_assert(sequence<decltype(seq)>);

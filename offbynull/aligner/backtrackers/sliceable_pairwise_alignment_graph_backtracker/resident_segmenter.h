@@ -21,10 +21,13 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::concepts::backtrackable_edge;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker_heap_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker_stack_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker
+        ::bidi_walker_heap_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker
+        ::bidi_walker_stack_container_creator_pack;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slot::slot;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_with_node;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
+        ::resident_slot_with_node;
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
@@ -73,7 +76,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         typename ED
     >
     struct resident_segmenter_heap_container_creator_pack {
-        bidi_walker_heap_container_creator_pack<debug_mode, N, E, ED> create_bidi_walker_container_creator_pack() const {
+        bidi_walker_heap_container_creator_pack<
+            debug_mode,
+            N,
+            E,
+            ED
+        > create_bidi_walker_container_creator_pack() const {
             return {};
         }
 
@@ -87,7 +95,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             return ret;
         }
 
-        std::vector<std::variant<hop<E>, segment<N>>> create_segment_container(std::size_t resident_nodes_capacity) const {
+        std::vector<
+            std::variant<
+                hop<E>,
+                segment<N>
+            >
+        > create_segment_container(std::size_t resident_nodes_capacity) const {
             std::vector<std::variant<hop<E>, segment<N>>> ret {};
             ret.reserve(resident_nodes_capacity * 2zu + 1zu);
             return ret;
@@ -104,34 +117,49 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         std::size_t resident_nodes_capacity
     >
     struct resident_segmenter_stack_container_creator_pack {
-        bidi_walker_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, resident_nodes_capacity> create_bidi_walker_container_creator_pack() const {
+        bidi_walker_stack_container_creator_pack<
+            debug_mode,
+            N,
+            E,
+            ED,
+            grid_right_cnt,
+            grid_depth_cnt,
+            resident_nodes_capacity
+        > create_bidi_walker_container_creator_pack() const {
             return {};
         }
 
-        using RESIDENT_NODE_CONTAINER_TYPE = typename static_vector_typer<N, resident_nodes_capacity, debug_mode>::type;
+        using RESIDENT_NODE_CONTAINER_TYPE = typename static_vector_typer<debug_mode, N, resident_nodes_capacity>::type;
         RESIDENT_NODE_CONTAINER_TYPE create_resident_node_container(range_of_type<N> auto& resident_nodes) const {
             return RESIDENT_NODE_CONTAINER_TYPE(resident_nodes.begin(), resident_nodes.end());
         }
 
-        using RESIDENT_EDGE_CONTAINER_TYPE = typename static_vector_typer<E, resident_nodes_capacity, debug_mode>::type;
+        using RESIDENT_EDGE_CONTAINER_TYPE = typename static_vector_typer<debug_mode, E, resident_nodes_capacity>::type;
         RESIDENT_EDGE_CONTAINER_TYPE create_resident_edge_container(std::size_t resident_nodes_capacity_) const {
             if constexpr (debug_mode) {
                 if (resident_nodes_capacity == resident_nodes_capacity_) {
                     throw std::runtime_error { "Inconsistent node count" };
                 }
             }
-            return RESIDENT_EDGE_CONTAINER_TYPE {};
+            return {};
         }
 
         static constexpr std::size_t max_segment_cnt { resident_nodes_capacity * 2zu + 1zu };
-        using SEGMENT_CONTAINER_TYPE = typename static_vector_typer<std::variant<hop<E>, segment<N>>, max_segment_cnt, debug_mode>::type;
+        using SEGMENT_CONTAINER_TYPE = typename static_vector_typer<
+            debug_mode,
+            std::variant<
+                hop<E>,
+                segment<N>
+            >,
+            max_segment_cnt
+        >::type;
         SEGMENT_CONTAINER_TYPE create_segment_container(std::size_t resident_nodes_cnt_) const {
             if constexpr (debug_mode) {
                 if (resident_nodes_cnt_ * 2zu + 1zu <= max_segment_cnt) {
                     throw std::runtime_error { "Inconsistent node count" };
                 }
             }
-            return SEGMENT_CONTAINER_TYPE {};
+            return {};
         }
     };
 
@@ -143,7 +171,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        resident_segmenter_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = resident_segmenter_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        resident_segmenter_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK =
+            resident_segmenter_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -155,8 +184,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        using BIDI_WALKER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_bidi_walker_container_creator_pack());
-        using RESIDENT_NODE_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_node_container(std::declval<std::vector<N>>()));
+        using BIDI_WALKER_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_bidi_walker_container_creator_pack());
+        using RESIDENT_NODE_CONTAINER =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_node_container(std::declval<std::vector<N>>()));
         using RESIDENT_EDGE_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_edge_container(0zu));
         using SEGMENT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_segment_container(0zu));
 
@@ -201,12 +232,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     const N& resident_node { *resident_nodes_sorted_it };
                     // Does an optimal path through this resident node? If it doesn't, skip. IS THIS STEP ACTUALLY
                     // NECESSARY?
-                    // TODO: Optimize this so that if multiple resident nodes are on the same slice, you don't have to walk the entire graph for each one
-                    // TODO: If a resident node is on the path, ignore the ones before it? Start from the resident node >=, if it goes through subdivide and do again?
+                    // TODO: Optimize this so that if multiple resident nodes are on the same slice, you don't have to walk the entire graph
+                    //       for each one
+                    // TODO: If a resident node is on the path, ignore the ones before it? Start from the resident node >=, if it goes
+                    //       through subdivide and do again?
                     // TODO: More testing need
                     //
-                    // TODO: Is there a better way to do this? Find first resident, then instead of looping and walking again, you can shift up/down the existing bidiwalker?
-                    // TODO: Is this class even necessary? If you start subdividing from the whole graph, every subdivision should be for a region that the path travels through? IT IS NECESSARY -- THE MIDDLE SLICE OF THE GRAPH MAY BE HOPPED OVER?
+                    // TODO: Is there a better way to do this? Find first resident, then instead of looping and walking again, you can shift
+                    //       up/down the existing bidiwalker?
+                    // TODO: Is this class even necessary? If you start subdividing from the whole graph, every subdivision should be for a
+                    //       region that the path travels through? IT IS NECESSARY -- THE MIDDLE SLICE OF THE GRAPH MAY BE HOPPED OVER?
                     bool on_max_path {
                         bidi_walker<
                             debug_mode,

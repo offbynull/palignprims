@@ -42,13 +42,13 @@ namespace {
         , suffix_g { backing_g, new_root_node } {}
     };
 
-    TEST(SuffixPairwiseAlignmentGraphTest, ConceptCheck) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, ConceptCheck) {
         using G = decltype(graph_bundle { "234567", "2345678", { 5zu, 5zu }  }.suffix_g);
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, ListNodes) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, ListNodes) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
@@ -65,7 +65,7 @@ namespace {
         );
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, ListEdges) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, ListEdges) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
@@ -73,7 +73,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         auto e = g.get_edges();
-        std::multiset<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+        std::multiset<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
         for (auto _e : e) {
             actual.insert(_e);
         }
@@ -106,7 +106,7 @@ namespace {
         );
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, NodesExist) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, NodesExist) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
@@ -127,7 +127,7 @@ namespace {
         EXPECT_FALSE(g.has_node(N { 7zu, 8zu }));
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, RightEdgesExist) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, RightEdgesExist) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
@@ -145,7 +145,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 6zu, 7zu }, { 6zu, 8zu } } }));
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, DownEdgesExist) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, DownEdgesExist) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
@@ -163,7 +163,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 6zu, 7zu }, { 7zu, 7zu } } }));
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, DiagEdgesExist) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, DiagEdgesExist) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
@@ -181,7 +181,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 6zu, 7zu }, { 7zu, 38 } } }));
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, FreeRideEdgesExist) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, FreeRideEdgesExist) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
@@ -204,7 +204,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { edge_type::FREE_RIDE, { { 6zu, 7zu }, { 6zu, 7zu } } }));
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, GetOutputs) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, GetOutputs) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
         
@@ -212,7 +212,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs(N { 5zu, 5zu })) {
                 actual.push_back(_e);
             }
@@ -226,7 +226,7 @@ namespace {
             EXPECT_EQ(actual, expected);
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs(N { 6zu, 7zu })) {
                 actual.push_back(_e);
             }
@@ -237,7 +237,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs(N { 5zu, 6zu })) {
                 actual.push_back(_e);
             }
@@ -254,7 +254,7 @@ namespace {
         }
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, GetInputs) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, GetInputs) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
         
@@ -262,7 +262,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 5zu, 5zu })) {
                 actual.push_back(_e);
             }
@@ -272,7 +272,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 6zu, 7zu })) {
                 actual.push_back(_e);
             }
@@ -292,7 +292,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 5zu, 7zu })) {
                 actual.push_back(_e);
             }
@@ -306,7 +306,7 @@ namespace {
         }
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, GetOutputDegree) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, GetOutputDegree) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
@@ -319,7 +319,7 @@ namespace {
         EXPECT_EQ(g.get_out_degree(N { 6zu, 5zu } ), 2);
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, GetInputDegree) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, GetInputDegree) {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
@@ -332,7 +332,7 @@ namespace {
         EXPECT_EQ(g.get_in_degree(N { 6zu, 5zu } ), 1);
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, SlicedWalk) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, SlicedWalk) {
         auto to_vector {
             [](auto &&r) {
                 auto it { r.begin() };
@@ -441,7 +441,7 @@ namespace {
         );
     }
 
-    TEST(SuffixPairwiseAlignmentGraphTest, PrintBasic) {
+    TEST(OAGSuffixSliceablePairwiseAlignmentGraphTest, PrintBasic) {
         auto to_vector {
             [](auto &&r) {
                 auto it { r.begin() };

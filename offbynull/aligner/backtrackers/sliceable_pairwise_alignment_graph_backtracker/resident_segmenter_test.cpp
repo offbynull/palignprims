@@ -19,7 +19,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_overlap_alignment_graph::pairwise_overlap_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    TEST(ResidentSegmenterTest, SegmentationPointsLocal) {
+    TEST(OABSResidentSegmenterTest, SegmentationPointsLocal) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
@@ -65,7 +65,7 @@ namespace {
         }
     }
 
-    TEST(ResidentSegmenterTest, SegmentationPointsOverlap) {
+    TEST(OABSResidentSegmenterTest, SegmentationPointsOverlap) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
@@ -82,7 +82,10 @@ namespace {
         using E = typename decltype(g)::E;
 
         // // walk
-        // offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<decltype(g), std::size_t> backtracker_ {};
+        // offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<
+        //     decltype(g),
+        //     std::size_t
+        // > backtracker_ {};
         // const auto& [path, weight] { backtracker_.find_max_path(g) };
         // for (const E& e : path) {
         //     const auto& [n1, n2] { e.inner_edge };

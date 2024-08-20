@@ -6,12 +6,15 @@
 
 namespace offbynull::helpers::simple_value_bidirectional_view {
     template<typename T>
+    concept decayable_type = !std::is_void_v<T> && std::is_convertible_v<T, std::decay_t<T>>;
+
+    template<typename T>
     concept state =
         std::semiregular<T>
         && requires(T self, const T const_self) {
             { self.to_prev() } -> std::same_as<void>;
             { self.to_next() } -> std::same_as<void>;
-            { const_self.value() } -> std::convertible_to<auto>;
+            { const_self.value() } -> decayable_type;  // Convertible to non-void type that decays (only needs copy constructor?)
         };
 
     template<state STATE>

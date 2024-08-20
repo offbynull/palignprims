@@ -6,7 +6,7 @@
 namespace {
     using offbynull::aligner::scorers::pam70_scorer::pam70_scorer;
 
-    TEST(Pam70ScorerTest, SanityTest) {
+    TEST(OASPam70ScorerTest, SanityTest) {
         pam70_scorer<true, int> scorer {};
         char a_ { 'A' };
         char c_ { 'C' };

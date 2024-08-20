@@ -31,7 +31,7 @@ namespace {
         return { v_align, w_align };
     }
 
-    TEST(AlignerTest, AlignHeapGlobal) {
+    TEST(OAAlignerTest, AlignHeapGlobal) {
         std::string v { "hello" };
         std::string w { "mellow" };
         auto [elements, weight] {
@@ -44,7 +44,7 @@ namespace {
         const auto& [v_align, w_align] { print(elements) };
     }
 
-    TEST(AlignerTest, AlignHeapLocal) {
+    TEST(OAAlignerTest, AlignHeapLocal) {
         std::string v { "abcdefg hello hijklmnop" };
         std::string w { "zzzzzzzz mellow ffffffffff" };
         auto [elements, weight] {
@@ -57,7 +57,7 @@ namespace {
         const auto& [v_align, w_align] { print(elements) };
     }
 
-    TEST(AlignerTest, AlignHeapFitting) {
+    TEST(OAAlignerTest, AlignHeapFitting) {
         std::string v { "abcdefg hello hijklmnop" };
         std::string w { "mellow" };
         auto [elements, weight] {
@@ -70,7 +70,7 @@ namespace {
         const auto& [v_align, w_align] { print(elements) };
     }
 
-    TEST(AlignerTest, AlignHeapExtendedGap) {
+    TEST(OAAlignerTest, AlignHeapExtendedGap) {
         std::string v { "abcdefg hello hijklmnop" };
         std::string w { "mellow" };
         auto [elements, weight] {

@@ -8,7 +8,7 @@ namespace {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::sequences::mmap_sequence::mmap_sequence;
 
-    TEST(MmapSequenceTest, SanityTest) {
+    TEST(OASMmapSequenceTest, SanityTest) {
         boost::filesystem::path temp_path { boost::filesystem::temp_directory_path() / boost::filesystem::unique_path() };
 
         std::ofstream file { temp_path.string(), std::ios::binary };

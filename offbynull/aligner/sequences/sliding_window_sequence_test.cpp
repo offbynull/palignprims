@@ -10,7 +10,7 @@ namespace {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence;
 
-    TEST(SlidingWindowSequenceTest, RuntimeSanityTest) {
+    TEST(OASSlidingWindowSequenceTest, RuntimeSanityTest) {
         auto to_vector = [](const auto& range) {
             std::vector<char> ret {};
             for (char ch : range) {

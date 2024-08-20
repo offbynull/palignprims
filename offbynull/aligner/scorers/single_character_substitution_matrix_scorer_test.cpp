@@ -6,7 +6,7 @@
 namespace {
     using offbynull::aligner::scorers::single_character_substitution_matrix_scorer::single_character_substitution_matrix_scorer;
 
-    TEST(SingleCharacterSubstitutionMatrixScorerTest, SanityTest) {
+    TEST(OASSingleCharacterSubstitutionMatrixScorerTest, SanityTest) {
         single_character_substitution_matrix_scorer<true, int, 4zu> scorer {
             R"(
     A   T   C   G

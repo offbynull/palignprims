@@ -8,7 +8,7 @@ namespace {
     using offbynull::aligner::sequences::iota_sequence::iota_sequence;
     using offbynull::aligner::sequences::zip_sequence::zip_sequence;
 
-    TEST(ZipSequenceTest, SanityTest) {
+    TEST(OASZipSequenceTest, SanityTest) {
         iota_sequence<true, unsigned int> seq1 { 10u, 15u };
         iota_sequence<true, unsigned int> seq2 { 20u, 24u };
         iota_sequence<true, unsigned int> seq3 { 30u, 36u };

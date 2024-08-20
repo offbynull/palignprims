@@ -6,7 +6,7 @@
 namespace {
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    TEST(SimpleScorerTest, SanityTest) {
+    TEST(OASSimpleScorerTest, SanityTest) {
         simple_scorer<true, char, char, int> scorer { 1, 0, -1, -1, 0 };
         char a_ { 'a' };
         char b_ { 'b' };

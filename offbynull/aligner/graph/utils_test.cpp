@@ -8,7 +8,7 @@
 #include "gtest/gtest.h"
 
 namespace {
-    TEST(UtilsTest, DirectGraphToGraphviz) {
+    TEST(OAGUtilsTest, DirectGraphToGraphviz) {
         using offbynull::aligner::graph::utils::graph_to_graphviz;
         using offbynull::aligner::graphs::directed_graph::directed_graph;
 
@@ -30,7 +30,7 @@ namespace {
         std::cout << graph_to_graphviz(g) << std::endl;
     }
 
-    TEST(UtilsTest, PairwiseGraphToGraphviz) {
+    TEST(OAGUtilsTest, PairwiseGraphToGraphviz) {
         using offbynull::aligner::graph::utils::pairwise_graph_to_graphviz;
         using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::pairwise_extended_gap_alignment_graph;
         using offbynull::aligner::scorers::simple_scorer::simple_scorer;

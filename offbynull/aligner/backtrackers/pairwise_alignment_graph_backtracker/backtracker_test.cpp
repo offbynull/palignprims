@@ -13,7 +13,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    TEST(PairwiseAlignmentGraphBacktrackTest, FindMaxPathOnGridGraph) {
+    TEST(OABPBacktrackerTest, FindMaxPathOnGridGraph) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
 

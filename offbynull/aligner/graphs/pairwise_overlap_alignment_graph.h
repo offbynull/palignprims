@@ -453,7 +453,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         auto outputs_to_residents(const N& node) const {
-            using CONTAINER = static_vector_typer<E, 2zu, debug_mode>::type;
+            using CONTAINER = static_vector_typer<debug_mode, E, 2zu>::type;
             CONTAINER ret {};
             const N& leaf_node { get_leaf_node() };
             const auto& [leaf_grid_down, leaf_grid_right] { leaf_node };
@@ -470,7 +470,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         auto inputs_from_residents(const N& node) const {
-            using CONTAINER = static_vector_typer<E, 2zu, debug_mode>::type;
+            using CONTAINER = static_vector_typer<debug_mode, E, 2zu>::type;
             CONTAINER ret {};
             const N& root_node { get_root_node() };
             const auto& [root_grid_down, root_grid_right] { root_node };
@@ -491,7 +491,10 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
 // Struct must be defined outside of namespace block above, otherwise compiler will treat it as part of that namespace.
 template<offbynull::concepts::widenable_to_size_t INDEX>
 struct std::formatter<offbynull::aligner::graphs::pairwise_overlap_alignment_graph::overlap_edge<INDEX>> : std::formatter<std::string> {
-    auto format(const offbynull::aligner::graphs::pairwise_overlap_alignment_graph::overlap_edge<INDEX>& e, std::format_context& ctx) const {
+    auto format(
+        const offbynull::aligner::graphs::pairwise_overlap_alignment_graph::overlap_edge<INDEX>& e,
+        std::format_context& ctx
+    ) const {
         return std::format_to(
             ctx.out(),
             "{}-{}->{}",

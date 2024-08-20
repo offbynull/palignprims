@@ -12,16 +12,16 @@ namespace offbynull::utils {
     template<typename T>
     struct type_displayer;
 
-    template<typename ELEM, std::size_t cnt, bool error_check>
+    template<bool debug_mode, typename ELEM, std::size_t cnt>
     struct static_vector_typer;
 
     template<typename ELEM, std::size_t cnt>
-    struct static_vector_typer<ELEM, cnt, true> {
+    struct static_vector_typer<true, ELEM, cnt> {
         using type = boost::container::static_vector<ELEM, cnt>;
     };
 
     template<typename ELEM, std::size_t cnt>
-    struct static_vector_typer<ELEM, cnt, false> {
+    struct static_vector_typer<false, ELEM, cnt> {
         using type = boost::container::static_vector<
             ELEM,
             cnt,

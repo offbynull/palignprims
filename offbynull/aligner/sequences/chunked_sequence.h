@@ -46,7 +46,7 @@ namespace offbynull::aligner::sequences::chunked_sequence {
                     throw std::runtime_error("Bad element count");
                 }
             }
-            return std::array<E, chunk_len> {};
+            return {};
         }
     };
 
@@ -57,7 +57,8 @@ namespace offbynull::aligner::sequences::chunked_sequence {
     template<
         bool debug_mode,
         sequence SEQ,
-        chunked_sequence_container_creator_pack<std::decay_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK = chunked_sequence_heap_container_creator_pack<debug_mode, std::decay_t<decltype(std::declval<SEQ>()[0zu])>>
+        chunked_sequence_container_creator_pack<std::decay_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK =
+            chunked_sequence_heap_container_creator_pack<debug_mode, std::decay_t<decltype(std::declval<SEQ>()[0zu])>>
     >
     class chunked_sequence {
     private:

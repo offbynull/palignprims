@@ -15,7 +15,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::pairwise_local_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    TEST(ForwardWalkerTest, ForwardWalkWithoutResidents) {
+    TEST(OABSForwardWalkerTest, ForwardWalkWithoutResidents) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
         std::string seq1 { "abc" };
@@ -114,7 +114,7 @@ namespace {
         }
     }
 
-    TEST(ForwardWalkerTest, ForwardWalkWithResidents) {
+    TEST(OABSForwardWalkerTest, ForwardWalkWithResidents) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };

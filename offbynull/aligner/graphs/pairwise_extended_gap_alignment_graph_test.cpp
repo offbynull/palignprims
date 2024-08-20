@@ -16,13 +16,13 @@ namespace {
     auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
     auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, ConceptCheck) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, ConceptCheck) {
         using G = pairwise_extended_gap_alignment_graph<true, std::string, std::string>;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, ListNodes) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, ListNodes) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -77,7 +77,7 @@ namespace {
         );
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, ListEdges) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, ListEdges) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -157,7 +157,7 @@ namespace {
         );
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, NodesExist) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, NodesExist) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -224,7 +224,7 @@ namespace {
         EXPECT_FALSE(g.has_node(N { node_layer::RIGHT, 3zu, 3zu }));
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, RightEdgesExist) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, RightEdgesExist) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -254,7 +254,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { { node_layer::DIAGONAL, 3zu, 0zu }, { node_layer::RIGHT, 3zu, 1zu } }));
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, DownEdgesExist) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, DownEdgesExist) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -284,7 +284,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { { node_layer::DIAGONAL, 3zu, 0zu }, { node_layer::DOWN, 4zu, 0zu } }));
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, DiagEdgesExist) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, DiagEdgesExist) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -310,7 +310,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { { node_layer::DIAGONAL, 2zu, 0zu }, { node_layer::DIAGONAL, 3zu, 1zu } }));
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, DownFreeRidgeEdgesExist) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, DownFreeRidgeEdgesExist) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -343,7 +343,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { { node_layer::DOWN, 3zu, 3zu }, { node_layer::DIAGONAL, 3zu, 3zu } }));
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, RightFreeRidgeEdgesExist) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, RightFreeRidgeEdgesExist) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -376,7 +376,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { { node_layer::RIGHT, 3zu, 3zu }, { node_layer::DIAGONAL, 3zu, 3zu } }));
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, GetOutputs) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetOutputs) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -663,7 +663,7 @@ namespace {
         );
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, GetInputs) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetInputs) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -950,7 +950,7 @@ namespace {
         );
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, GetOutputDegree) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetOutputDegree) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -1004,7 +1004,7 @@ namespace {
         EXPECT_EQ(1zu, g.get_out_degree(N { node_layer::RIGHT, 2zu, 3zu }));
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, GetInputDegree) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetInputDegree) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -1058,7 +1058,7 @@ namespace {
         EXPECT_EQ(2zu, g.get_in_degree(N { node_layer::RIGHT, 2zu, 3zu }));
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, GetEdgeData) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetEdgeData) {
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -1073,17 +1073,41 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        EXPECT_EQ(1.0f64, g.get_edge_data(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::DIAGONAL, 1zu, 1zu } }));
-        EXPECT_EQ(-1.0f64, g.get_edge_data(E { { node_layer::DIAGONAL, 0zu, 1zu }, { node_layer::DIAGONAL, 1zu, 2zu } }));
-        EXPECT_EQ(0.0f64, g.get_edge_data(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::DOWN, 1zu, 0zu } }));  // from match to extended gap
-        EXPECT_EQ(0.0f64, g.get_edge_data(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::RIGHT, 0zu, 1zu } }));  // from match to extended gap
-        EXPECT_EQ(0.0f64, g.get_edge_data(E { { node_layer::RIGHT, 0zu, 1zu }, { node_layer::DIAGONAL, 0zu, 1zu } }));  // from extended gap to match
-        EXPECT_EQ(0.0f64, g.get_edge_data(E { { node_layer::DOWN, 1zu, 0zu }, { node_layer::DIAGONAL, 1zu, 0zu } }));  // from extended gap to match
-        EXPECT_EQ(0.1f64, g.get_edge_data(E { { node_layer::DOWN, 1zu, 0zu }, { node_layer::DOWN, 2zu, 0zu } }));  // from extended gap to extended gap
-        EXPECT_EQ(0.1f64, g.get_edge_data(E { { node_layer::RIGHT, 0zu, 1zu }, { node_layer::RIGHT, 0zu, 2zu } }));  // from extended gap to extended gap
+        EXPECT_EQ(
+            1.0f64,
+            g.get_edge_data(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::DIAGONAL, 1zu, 1zu } })
+        );
+        EXPECT_EQ(
+            -1.0f64,
+            g.get_edge_data(E { { node_layer::DIAGONAL, 0zu, 1zu }, { node_layer::DIAGONAL, 1zu, 2zu } })
+        );
+        EXPECT_EQ(
+            0.0f64,
+            g.get_edge_data(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::DOWN, 1zu, 0zu } })
+        );  // from match to extended gap
+        EXPECT_EQ(
+            0.0f64,
+            g.get_edge_data(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::RIGHT, 0zu, 1zu } })
+        );  // from match to extended gap
+        EXPECT_EQ(
+            0.0f64,
+            g.get_edge_data(E { { node_layer::RIGHT, 0zu, 1zu }, { node_layer::DIAGONAL, 0zu, 1zu } })
+        );  // from extended gap to match
+        EXPECT_EQ(
+            0.0f64,
+            g.get_edge_data(E { { node_layer::DOWN, 1zu, 0zu }, { node_layer::DIAGONAL, 1zu, 0zu } })
+        );  // from extended gap to match
+        EXPECT_EQ(
+            0.1f64,
+            g.get_edge_data(E { { node_layer::DOWN, 1zu, 0zu }, { node_layer::DOWN, 2zu, 0zu } })
+        );  // from extended gap to extended gap
+        EXPECT_EQ(
+            0.1f64,
+            g.get_edge_data(E { { node_layer::RIGHT, 0zu, 1zu }, { node_layer::RIGHT, 0zu, 2zu } })
+        );  // from extended gap to extended gap
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, SlicedWalk) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, SlicedWalk) {
         auto to_vector {
             [](auto &&r) {
                 auto it { r.begin() };
@@ -1163,7 +1187,7 @@ namespace {
         EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 2zu })), (std::vector<E> { }));
     }
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, SlicedWalkPartial) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, SlicedWalkPartial) {
         auto to_vector {
             [](auto &&r) {
                 auto it { r.begin() };
@@ -1308,7 +1332,7 @@ namespace {
         return false;
     };
 
-    TEST(PairwiseExtendedGapAlignmentGraphTest, IsReachableTest) {
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, IsReachableTest) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
         auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-0.1f64) };
@@ -1329,9 +1353,7 @@ namespace {
 
         for (const N& n1 : g.get_nodes()) {
             for (const N& n2 : g.get_nodes()) {
-                const auto& [n1_layer, n1_down, n1_right] { n1 };
-                const auto& [n2_layer, n2_down, n2_right] { n2 };
-                // std::cout << n1_down << '/' << n1_right << '/' << static_cast<int>(n1_layer) << " to " << n2_down << '/' << n2_right << '/' << static_cast<int>(n2_layer) << ' ' << std::endl;
+                // std::cout << n1 << " to " << n2  << ' ' << std::endl;
                 bool walk_val { walk(g, n1, n2) };
                 bool is_reachable_val { g.is_reachable(n1, n2) };
                 EXPECT_EQ(is_reachable_val, walk_val);

@@ -17,11 +17,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::concepts::backtrackable_node;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::concepts::backtrackable_edge;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker_heap_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker_stack_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker
+        ::forward_walker_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker
+        ::forward_walker_heap_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker
+        ::forward_walker_stack_container_creator_pack;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slot::slot;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_with_node;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
+        ::resident_slot_with_node;
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
@@ -71,11 +75,27 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         std::size_t resident_nodes_capacity
     >
     struct bidi_walker_stack_container_creator_pack {
-        forward_walker_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, resident_nodes_capacity> create_forward_walker_container_creator_pack() {
+        forward_walker_stack_container_creator_pack<
+            debug_mode,
+            N,
+            E,
+            ED,
+            grid_right_cnt,
+            grid_depth_cnt,
+            resident_nodes_capacity
+        > create_forward_walker_container_creator_pack() {
             return {};
         }
 
-        forward_walker_stack_container_creator_pack<debug_mode, N, E, ED, grid_right_cnt, grid_depth_cnt, resident_nodes_capacity> create_backward_walker_container_creator_pack() {
+        forward_walker_stack_container_creator_pack<
+            debug_mode,
+            N,
+            E,
+            ED,
+            grid_right_cnt,
+            grid_depth_cnt,
+             resident_nodes_capacity
+        > create_backward_walker_container_creator_pack() {
             return {};
         }
     };
@@ -86,7 +106,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        bidi_walker_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = bidi_walker_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        bidi_walker_container_creator_pack<
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        > CONTAINER_CREATOR_PACK = bidi_walker_heap_container_creator_pack<
+            debug_mode,
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        >
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -99,8 +128,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using INDEX = typename G::INDEX;
 
     private:
-        using FORWARD_WALKER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_forward_walker_container_creator_pack());
-        using BACKWARD_WALKER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_backward_walker_container_creator_pack());
+        using FORWARD_WALKER_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_forward_walker_container_creator_pack());
+        using BACKWARD_WALKER_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_backward_walker_container_creator_pack());
 
         const G& g;
         const INDEX target_slice;

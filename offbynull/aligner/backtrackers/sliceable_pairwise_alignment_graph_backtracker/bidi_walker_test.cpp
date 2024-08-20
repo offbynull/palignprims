@@ -27,7 +27,7 @@ namespace {
         return std::tuple<ED, std::optional<E>, std::optional<E>> { weight, forward_edge, backward_edge };
     }
 
-    TEST(BidiWalkerTest, WalkGlobal) {
+    TEST(OABSBidiWalkerTest, WalkGlobal) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abcdefg" };
@@ -75,7 +75,7 @@ namespace {
         EXPECT_EQ(weight, 6u);
     }
 
-    TEST(BidiWalkerTest, WalkLocal) {
+    TEST(OABSBidiWalkerTest, WalkLocal) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
@@ -123,7 +123,7 @@ namespace {
         // EXPECT_EQ(weight, 6u);
     }
 
-    TEST(BidiWalkerTest, WalkFitting) {
+    TEST(OABSBidiWalkerTest, WalkFitting) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
@@ -194,7 +194,7 @@ namespace {
         }
     }
 
-    TEST(BidiWalkerTest, WalkOverlap) {
+    TEST(OABSBidiWalkerTest, WalkOverlap) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };

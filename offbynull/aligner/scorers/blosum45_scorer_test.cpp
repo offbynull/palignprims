@@ -6,7 +6,7 @@
 namespace {
     using offbynull::aligner::scorers::blosum45_scorer::blosum45_scorer;
 
-    TEST(Blosum45ScorerTest, SanityTest) {
+    TEST(OASBlosum45ScorerTest, SanityTest) {
         blosum45_scorer<true, int> scorer {};
         char a_ { 'A' };
         char c_ { 'C' };

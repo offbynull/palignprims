@@ -7,7 +7,7 @@ namespace {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::sequences::reversed_sequence::reversed_sequence;
 
-    TEST(ReversedSequenceTest, SanityTest) {
+    TEST(OASReversedSequenceTest, SanityTest) {
         std::string data { "hello!" };
         reversed_sequence<true, std::string> seq { data };
         static_assert(sequence<decltype(seq)>);

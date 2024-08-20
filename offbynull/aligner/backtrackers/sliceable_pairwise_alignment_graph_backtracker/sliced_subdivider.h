@@ -20,18 +20,28 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::slot;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker_heap_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker_stack_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker
+        ::bidi_walker_heap_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker
+        ::bidi_walker_stack_container_creator_pack;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::element;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::path_container;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::path_container_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::path_container_heap_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::path_container_stack_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_with_node;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_container_stack_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container::slice_slot_container_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container::slice_slot_container_heap_container_creator_pack;
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container::slice_slot_container_stack_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container
+        ::path_container_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container
+        ::path_container_heap_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container
+        ::path_container_stack_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
+        ::resident_slot_with_node;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
+        ::resident_slot_container_stack_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container
+        ::slice_slot_container_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container
+        ::slice_slot_container_heap_container_creator_pack;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::slice_slot_container
+        ::slice_slot_container_stack_container_creator_pack;
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
@@ -63,11 +73,18 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         weight ED
     >
     struct sliced_subdivider_heap_container_creator_pack {
-        slice_slot_container_heap_container_creator_pack<debug_mode, E, ED> create_slice_slot_container_container_creator_pack() const {
+        slice_slot_container_heap_container_creator_pack<
+            debug_mode,
+            E,
+            ED
+        > create_slice_slot_container_container_creator_pack() const {
             return {};
         }
 
-        path_container_heap_container_creator_pack<debug_mode, E> create_path_container_container_creator_pack() const {
+        path_container_heap_container_creator_pack<
+            debug_mode,
+            E
+        > create_path_container_container_creator_pack() const {
             return {};
         }
     };
@@ -82,11 +99,21 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         std::size_t path_edge_capacity
     >
     struct sliced_subdivider_stack_container_creator_pack {
-        slice_slot_container_stack_container_creator_pack<debug_mode, E, ED, grid_right_cnt, grid_depth_cnt> create_slice_slot_container_container_creator_pack() const {
+        slice_slot_container_stack_container_creator_pack<
+            debug_mode,
+            E,
+            ED,
+            grid_right_cnt,
+            grid_depth_cnt
+        > create_slice_slot_container_container_creator_pack() const {
             return {};
         }
 
-        path_container_stack_container_creator_pack<debug_mode, E, path_edge_capacity> create_path_container_container_creator_pack() const {
+        path_container_stack_container_creator_pack<
+            debug_mode,
+            E,
+            path_edge_capacity
+        > create_path_container_container_creator_pack() const {
             return {};
         }
     };
@@ -97,7 +124,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        sliced_subdivider_container_creator_pack<typename G::N, typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = sliced_subdivider_heap_container_creator_pack<debug_mode, typename G::N, typename G::E, typename G::ED>
+        sliced_subdivider_container_creator_pack<
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        > CONTAINER_CREATOR_PACK = sliced_subdivider_heap_container_creator_pack<
+            debug_mode,
+            typename G::N,
+            typename G::E,
+            typename G::ED
+        >
     >
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
@@ -109,8 +145,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
-        using SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slice_slot_container_container_creator_pack());
-        using PATH_CONTAINER_CONTAINER_CREATOR_PACK = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container_container_creator_pack());
+        using SLICE_SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slice_slot_container_container_creator_pack());
+        using PATH_CONTAINER_CONTAINER_CREATOR_PACK =
+            decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container_container_creator_pack());
 
         CONTAINER_CREATOR_PACK container_creator_pack;
 
@@ -176,12 +214,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 root_node,
                 leaf_node
             };
-            const auto& [root_down_offset, root_right_offset, root_depth] { whole_graph.node_to_grid_offsets(sub_graph.get_root_node()) };
-            const auto& [leaf_down_offset, leaf_right_offset, leaf_depth] { whole_graph.node_to_grid_offsets(sub_graph.get_leaf_node()) };
             // std::cout
             //         << indent_str
-            //         << "root: [" << root_down_offset << "," << root_right_offset << ',' << root_depth << "]"
-            //         << " leaf: [" << leaf_down_offset << "," << leaf_right_offset << ',' << leaf_depth << "]"
+            //         << "root: " << sub_graph.get_root_node()
+            //         << " leaf: " << sub_graph.get_leaf_node()
             //         << std::endl;
             if constexpr (debug_mode) {
                 if (!whole_graph.is_reachable(root_node, leaf_node)) {
@@ -249,7 +285,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 }
                 for (const N& node : mid_slice) {
                     const auto& [forward_slot, backward_slot] { bidi_walker_.find(node) };
-                    const auto new_potential_path_weight { existing_weight_at_root + forward_slot.backtracking_weight + backward_slot.backtracking_weight + existing_weight_at_leaf };
+                    const auto new_potential_path_weight {
+                        existing_weight_at_root + forward_slot.backtracking_weight + backward_slot.backtracking_weight
+                        + existing_weight_at_leaf
+                    };
                     if (!max_edge_assigned || new_potential_path_weight > max_path_weight) {
                         if (forward_slot.backtracking_edge.has_value()) {
                             max_edge = *forward_slot.backtracking_edge;
@@ -275,13 +314,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 }
             }  // Everything above wrapped in its own scope so that walkers (and their associated containers) are destroyed
 
-            const auto& n1 { whole_graph.get_edge_from(max_edge) };
-            const auto& n2 { whole_graph.get_edge_to(max_edge) };
-            const auto& [n1_down, n1_right, n1_depth] { whole_graph.node_to_grid_offsets(n1) };
-            const auto& [n2_down, n2_right, n2_depth] { whole_graph.node_to_grid_offsets(n2) };
             // std::cout
             //         << indent_str
-            //         << "found: " << n1_down << 'x' << n1_right << 'x' << n1_depth << "->" << n2_down << 'x' << n2_right << 'x' << n2_depth
+            //         << "found: " << max_edge
             //         << " full_weight: " << max_path_weight
             //         << " pre_weight: " << before_max_edge_weight
             //         << " edge_weight: " << max_edge_weight

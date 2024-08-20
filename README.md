@@ -65,11 +65,13 @@ TODO:
 * run profiler and optimize functions (some local alignment functions may be doing a ton of unneeded work -- e.g. get_outputs_full)
 * fix compiler warnings
 * cleanup syntax
-  * 140char lines
+  * ~~140char lines~~
   * ~~spaces between squiggly brackets: {}~~
   * python helper to ensure ...
     * guards are correct
     * #includes are there for all std:: and using offbynull::...
+
+* multithreaded backtracker -- should be easy
 
 * Update get_in_degree() / get_out_degree() functions to calculate directly
 * Add concept checks to autos

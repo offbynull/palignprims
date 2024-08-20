@@ -13,7 +13,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    TEST(GraphBacktrackTest, FindMaxPathOnGridGraph) {
+    TEST(OABGBacktrackerTest, FindMaxPathOnGridGraph) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
 
@@ -51,7 +51,7 @@ namespace {
         EXPECT_EQ(weight, 1.0);
     }
 
-    TEST(GraphBacktrackTest, FindMaxPathOnDirectedGraph) {
+    TEST(OABGBacktrackerTest, FindMaxPathOnDirectedGraph) {
         using N = std::pair<unsigned int, unsigned int>;
         using E = std::pair<N, N>;
         using ND = std::tuple<std::optional<std::float64_t>, std::optional<E>>;

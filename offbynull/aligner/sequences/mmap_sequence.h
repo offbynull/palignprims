@@ -28,8 +28,8 @@ namespace offbynull::aligner::sequences::mmap_sequence {
 
         mmap_sequence(
             const std::string& path,
-            std::function<ELEM(const char*)> transformer_,  // for custom unpacking logic (e.g. if C++ struct is padded but data isn't / endianness between platform and ifle)
-            std::size_t bytes_per_elem_                     // for custom unpacking logic (e.g. if C++ struct is padded but data isn't)
+            std::function<ELEM(const char*)> transformer_,  // logic decoding bytes to elem
+            std::size_t bytes_per_elem_                     // num of bytes per elem
         )
         : file { path, boost::iostreams::mapped_file_base::readonly }
         , transformer { transformer_ }

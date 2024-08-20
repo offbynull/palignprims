@@ -25,7 +25,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::ready_queue {
     >
     struct ready_queue_heap_container_creator_pack {
         std::vector<std::size_t> create_queue_container() const {
-            return std::vector<std::size_t> {};
+            return {};
         }
     };
 
@@ -34,8 +34,11 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::ready_queue {
         std::size_t heap_escape_size = 100zu
     >
     struct ready_queue_stack_container_creator_pack {
-        boost::container::small_vector<std::size_t, heap_escape_size> create_queue_container() const {
-            return boost::container::small_vector<std::size_t, heap_escape_size> {};
+        boost::container::small_vector<
+            std::size_t,
+            heap_escape_size
+        > create_queue_container() const {
+            return {};
         }
     };
 

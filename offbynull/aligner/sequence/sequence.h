@@ -5,9 +5,12 @@
 
 namespace offbynull::aligner::sequence::sequence {
     template<typename T>
+    concept decayable_type = !std::is_void_v<T> && std::is_convertible_v<T, std::decay_t<T>>;
+
+    template<typename T>
     concept sequence =
         requires(T t) {
-            { t[0zu] } -> std::convertible_to<auto>;  // Convertible to non-void type
+            { t[0zu] } -> decayable_type;  // Convertible to non-void type that decays (only needs copy constructor?)
             { t.size() } -> std::same_as<std::size_t>;
         } &&
         std::regular<

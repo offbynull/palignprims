@@ -5,7 +5,7 @@
 namespace {
     using offbynull::helpers::concat_view::concat_view;
 
-    TEST(ConcatViewTest, ForwardTest) {
+    TEST(OHConcatViewTest, ForwardTest) {
         std::vector<int> vec1 { 1, 2 };
         std::vector<int> vec2 { 3, 4 };
         concat_view r { vec1, vec2 };
@@ -18,7 +18,7 @@ namespace {
         }
     }
 
-    TEST(ConcatViewTest, ReverseTest) {
+    TEST(OHConcatViewTest, ReverseTest) {
         std::vector<int> vec1 { 1, 2 };
         std::vector<int> vec2 { 3, 4 };
         concat_view r { vec1, vec2 };
@@ -31,7 +31,7 @@ namespace {
         }
     }
 
-    TEST(ConcatViewTest, ChainTest) {
+    TEST(OHConcatViewTest, ChainTest) {
         std::vector<int> vec1 { 1, 2 };
         std::vector<int> vec2 { 3, 4 };
         std::vector<int> vec3 { 5, 6 };
@@ -48,7 +48,7 @@ namespace {
         }
     }
 
-    TEST(ForwardRangeJoinViewTest, PipeTest) {
+    TEST(OHConcatViewTest, PipeTest) {
         // TODO: FIX CLASS TO SUPPORT PIPE OPERATOR
         // std::vector<std::vector<int>> vec { { 1, 2 }, { 3, 4 }, { 5, 6 } };
         // auto join_range {

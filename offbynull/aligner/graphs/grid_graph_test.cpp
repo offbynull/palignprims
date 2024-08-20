@@ -12,12 +12,12 @@ namespace {
     auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
     auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
 
-    TEST(GridGraphTest, ConceptCheck) {
+    TEST(OAGGridGraphTest, ConceptCheck) {
         using G = grid_graph<true, std::string, std::string>;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
     }
 
-    TEST(GridGraphTest, ListNodes) {
+    TEST(OAGGridGraphTest, ListNodes) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -39,7 +39,7 @@ namespace {
         );
     }
 
-    TEST(GridGraphTest, ListEdges) {
+    TEST(OAGGridGraphTest, ListEdges) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -73,7 +73,7 @@ namespace {
         );
     }
 
-    TEST(GridGraphTest, NodesExist) {
+    TEST(OAGGridGraphTest, NodesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -94,7 +94,7 @@ namespace {
         EXPECT_FALSE(g.has_node({ 2zu, 3zu }));
     }
 
-    TEST(GridGraphTest, RightEdgesExist) {
+    TEST(OAGGridGraphTest, RightEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -112,7 +112,7 @@ namespace {
         EXPECT_FALSE(g.has_edge({ { 1zu, 2zu }, { 1zu, 3zu } }));
     }
 
-    TEST(GridGraphTest, DownEdgesExist) {
+    TEST(OAGGridGraphTest, DownEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -130,7 +130,7 @@ namespace {
         EXPECT_FALSE(g.has_edge({ { 1zu, 2zu }, { 2zu, 2zu } }));
     }
 
-    TEST(GridGraphTest, DiagEdgesExist) {
+    TEST(OAGGridGraphTest, DiagEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -148,7 +148,7 @@ namespace {
         EXPECT_FALSE(g.has_edge({ { 1zu, 2zu }, { 2zu, 3zu } }));
     }
 
-    TEST(GridGraphTest, GetOutputs) {
+    TEST(OAGGridGraphTest, GetOutputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -211,7 +211,7 @@ namespace {
         }
     }
 
-    TEST(GridGraphTest, GetInputs) {
+    TEST(OAGGridGraphTest, GetInputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -274,7 +274,7 @@ namespace {
         }
     }
 
-    TEST(GridGraphTest, GetOutputDegree) {
+    TEST(OAGGridGraphTest, GetOutputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -292,7 +292,7 @@ namespace {
         EXPECT_EQ(g.get_out_degree(N { 1zu, 0zu }), 1);
     }
 
-    TEST(GridGraphTest, GetInputDegree) {
+    TEST(OAGGridGraphTest, GetInputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<true, decltype(seq1), decltype(seq2)> g {

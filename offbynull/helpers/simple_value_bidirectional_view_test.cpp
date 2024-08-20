@@ -6,7 +6,7 @@ namespace {
     using offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view;
     using offbynull::helpers::simple_value_bidirectional_view::iterator;
 
-    TEST(SimpleValueBidirectionalViewTest, SanityTest) {
+    TEST(OHSimpleValueBidirectionalViewTest, SanityTest) {
         struct state {
             int value_;
 

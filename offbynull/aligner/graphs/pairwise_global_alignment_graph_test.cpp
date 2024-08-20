@@ -13,13 +13,13 @@ namespace {
     auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
     auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
 
-    TEST(PairwiseGlobalAlignmentGraphTest, ConceptCheck) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, ConceptCheck) {
         using G = pairwise_global_alignment_graph<true, std::string, std::string>;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, ListNodes) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, ListNodes) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -42,7 +42,7 @@ namespace {
         );
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, ListEdges) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, ListEdges) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -76,7 +76,7 @@ namespace {
         );
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, NodesExist) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, NodesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -97,7 +97,7 @@ namespace {
         EXPECT_FALSE(g.has_node({ 2zu, 3zu }));
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, RightEdgesExist) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, RightEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -115,7 +115,7 @@ namespace {
         EXPECT_FALSE(g.has_edge({ { 1zu, 2zu }, { 1zu, 3zu } }));
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, DownEdgesExist) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, DownEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -133,7 +133,7 @@ namespace {
         EXPECT_FALSE(g.has_edge({ { 1zu, 2zu }, { 2zu, 2zu } }));
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, DiagEdgesExist) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, DiagEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -151,7 +151,7 @@ namespace {
         EXPECT_FALSE(g.has_edge({ { 1zu, 2zu }, { 2zu, 3zu } }));
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, GetOutputs) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, GetOutputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -214,7 +214,7 @@ namespace {
         }
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, GetInputs) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, GetInputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -277,7 +277,7 @@ namespace {
         }
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, GetOutputDegree) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, GetOutputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -295,7 +295,7 @@ namespace {
         EXPECT_EQ(g.get_out_degree(N { 1zu, 0zu } ), 1);
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, GetInputDegree) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, GetInputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -313,7 +313,7 @@ namespace {
         EXPECT_EQ(g.get_in_degree(N { 1zu, 0zu } ), 1);
     }
 
-    TEST(PairwiseGlobalAlignmentGraphTest, SlicedWalk) {
+    TEST(OAGPairwiseGlobalAlignmentGraphTest, SlicedWalk) {
         auto to_vector {
             [](auto &&r) {
                 auto it { r.begin() };

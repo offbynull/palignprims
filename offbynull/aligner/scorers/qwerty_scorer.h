@@ -1,5 +1,5 @@
-#ifndef OFFBYNULL_ALIGNER_SCORERS_PRINTABLE_QWERTY_SCORER_H
-#define OFFBYNULL_ALIGNER_SCORERS_PRINTABLE_QWERTY_SCORER_H
+#ifndef OFFBYNULL_ALIGNER_SCORERS_QWERTY_SCORER_H
+#define OFFBYNULL_ALIGNER_SCORERS_QWERTY_SCORER_H
 
 #include <optional>
 #include <array>
@@ -152,7 +152,8 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
                 auto idx { key1_idx * 95zu + key2_idx };
                 auto dist { distance(key1_pos.position, key2_pos.position) };
                 dist = -dist; // negate because farther away should mean lower score, not higher  (at this point highest score will be 0)
-                dist += dist_offset; // shift up by some offset (e.g. 1.9), meaning super close substitutions increase the score  (at this point highest score will be 0+offset)
+                dist += dist_offset; // shift up by some offset (e.g. 1.9), meaning super close substitutions increase the score  (at this
+                                     // point highest score will be 0+offset)
                 weights_sorted[idx] = static_cast<WEIGHT>(dist);
             }
         }
@@ -188,4 +189,4 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
     );
 }
 
-#endif //OFFBYNULL_ALIGNER_SCORERS_PRINTABLE_QWERTY_SCORER_H
+#endif //OFFBYNULL_ALIGNER_SCORERS_QWERTY_SCORER_H

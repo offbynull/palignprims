@@ -7,7 +7,7 @@ namespace {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::sequences::suffix_pad_sequence::suffix_pad_sequence;
 
-    TEST(SuffixPadSequenceTest, SanityTest) {
+    TEST(OASSuffixPadSequenceTest, SanityTest) {
         std::string data { "hello!" };
         suffix_pad_sequence<true, std::string> seq { data, 'x', 3zu };
         static_assert(sequence<decltype(seq)>);

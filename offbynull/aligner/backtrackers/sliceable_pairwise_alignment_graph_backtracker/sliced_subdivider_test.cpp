@@ -14,7 +14,7 @@ namespace {
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    TEST(SliceablePairwiseAlignmentGraphSubdividerTest, GlobalTest) {
+    TEST(OABSSlicedSubdividerTest, GlobalTest) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abc" };
@@ -56,7 +56,7 @@ namespace {
         EXPECT_TRUE(forward_path == option1 || forward_path == option2);
     }
 
-    TEST(SliceablePairwiseAlignmentGraphSubdividerTest, IsolatedLocalTest) {
+    TEST(OABSSlicedSubdividerTest, IsolatedLocalTest) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
@@ -104,7 +104,7 @@ namespace {
         EXPECT_TRUE(forward_path == option1 || forward_path == option2);
     }
 
-    TEST(SliceablePairwiseAlignmentGraphSubdividerTest, UnisolatedLocalTest) {
+    TEST(OABSSlicedSubdividerTest, UnisolatedLocalTest) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };

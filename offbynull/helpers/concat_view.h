@@ -167,7 +167,8 @@ namespace offbynull::helpers::concat_view {
 
     template<std::ranges::forward_range R1, std::ranges::forward_range R2, typename Adaptor>
     auto operator|(concat_view<R1, R2>&& r, Adaptor adaptor) {
-        return adaptor(std::views::all(std::move(r)));  // doing std::views::all(std::move(r)) causes compile error -- all() doesn't accept rvalue refs?
+        // doing std::views::all(std::move(r)) causes compile error -- all() doesn't accept rvalue refs?
+        return adaptor(std::views::all(std::move(r)));
     }
 }
 

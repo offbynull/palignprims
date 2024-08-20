@@ -5,12 +5,12 @@
 namespace {
     using offbynull::aligner::graphs::directed_graph::directed_graph;
 
-    TEST(DirectedGraphTest, ConceptCheck) {
+    TEST(OAGDirectedGraphTest, ConceptCheck) {
         using G = directed_graph<true, std::string, std::string, std::string, std::string>;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
     }
 
-    TEST(DirectedGraphTest, InsertNodesAndEdges) {
+    TEST(OAGDirectedGraphTest, InsertNodesAndEdges) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
@@ -48,7 +48,7 @@ namespace {
         }
     }
 
-    TEST(DirectedGraphTest, SplitEdge) {
+    TEST(OAGDirectedGraphTest, SplitEdge) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
@@ -88,7 +88,7 @@ namespace {
         }
     }
 
-    TEST(DirectedGraphTest, DeleteNodesAndEdges) {
+    TEST(OAGDirectedGraphTest, DeleteNodesAndEdges) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
@@ -123,7 +123,7 @@ namespace {
         }
     }
 
-    TEST(DirectedGraphTest, UpdateData) {
+    TEST(OAGDirectedGraphTest, UpdateData) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
@@ -181,7 +181,7 @@ namespace {
         }
     }
 
-    TEST(DirectedGraphTest, GetRoots) {
+    TEST(OAGDirectedGraphTest, GetRoots) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
@@ -215,7 +215,7 @@ namespace {
         }
     }
 
-    TEST(DirectedGraphTest, GetLeaves) {
+    TEST(OAGDirectedGraphTest, GetLeaves) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
@@ -247,7 +247,7 @@ namespace {
         }
     }
 
-    TEST(DirectedGraphTest, HasInputsOutputs) {
+    TEST(OAGDirectedGraphTest, HasInputsOutputs) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
@@ -271,7 +271,7 @@ namespace {
         }
     }
 
-    TEST(DirectedGraphTest, GetInputsOutputs) {
+    TEST(OAGDirectedGraphTest, GetInputsOutputs) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
@@ -301,7 +301,7 @@ namespace {
         }
     }
 
-    TEST(DirectedGraphTest, GetFullInputsOutputs) {
+    TEST(OAGDirectedGraphTest, GetFullInputsOutputs) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
@@ -352,7 +352,7 @@ namespace {
         }
     }
 
-    TEST(DirectedGraphTest, InputOutputDegree) {
+    TEST(OAGDirectedGraphTest, InputOutputDegree) {
         directed_graph<true, std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");

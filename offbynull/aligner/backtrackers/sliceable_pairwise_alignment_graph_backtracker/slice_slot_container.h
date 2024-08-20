@@ -59,7 +59,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     throw std::runtime_error("Bad element count");
                 }
             }
-            return std::array<slot<E, ED>, ELEM_COUNT> {};
+            return {};
         }
     };
 
@@ -69,7 +69,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
-        slice_slot_container_container_creator_pack<typename G::E, typename G::ED> CONTAINER_CREATOR_PACK = slice_slot_container_heap_container_creator_pack<debug_mode, typename G::E, typename G::ED>
+        slice_slot_container_container_creator_pack<
+            typename G::E,
+            typename G::ED
+        > CONTAINER_CREATOR_PACK = slice_slot_container_heap_container_creator_pack<
+            debug_mode,
+            typename G::E,
+            typename G::ED
+        >
     >
     class slice_slot_container {
     private:

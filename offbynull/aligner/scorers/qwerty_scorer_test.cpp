@@ -7,7 +7,7 @@
 namespace {
     using offbynull::aligner::scorers::qwerty_scorer::qwerty_scorer;
 
-    TEST(QwertyScorerTest, SanityTest) {
+    TEST(OASQwertyScorerTest, SanityTest) {
         qwerty_scorer<true, float> scorer {};
         {
             char ch1_ { 'A' };

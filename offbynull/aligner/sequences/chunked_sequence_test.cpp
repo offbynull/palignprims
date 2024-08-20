@@ -10,7 +10,7 @@ namespace {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::sequences::chunked_sequence::chunked_sequence;
 
-    TEST(ChunkedSequenceTest, RuntimeSanityTest) {
+    TEST(OASChunkedSequenceTest, RuntimeSanityTest) {
         auto to_vector = [](const auto& range) {
             std::vector<char> ret {};
             for (char ch : range) {

@@ -15,13 +15,13 @@ namespace {
     auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
     auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
 
-    TEST(PairwiseOverlapAlignmentGraph, ConceptCheck) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, ConceptCheck) {
         using G = pairwise_overlap_alignment_graph<true, std::string, std::string>;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, ListNodes) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, ListNodes) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -45,7 +45,7 @@ namespace {
         );
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, ListEdges) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, ListEdges) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -60,7 +60,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         auto e = g.get_edges();
-        std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+        std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
         for (auto _e : e) {
             actual.push_back(_e);
         }
@@ -84,7 +84,7 @@ namespace {
         );
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, NodesExist) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, NodesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -109,7 +109,7 @@ namespace {
         EXPECT_FALSE(g.has_node(N { 2zu, 3zu }));
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, RightEdgesExist) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, RightEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -131,7 +131,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 2zu }, { 1zu, 3zu } } }));
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, DownEdgesExist) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, DownEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -153,7 +153,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 2zu }, { 2zu, 2zu } } }));
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, DiagEdgesExist) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, DiagEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -175,7 +175,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 1zu, 2zu }, { 2zu, 3zu } } }));
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, FreeRideEdgesExist) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, FreeRideEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -204,7 +204,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { edge_type::FREE_RIDE, { { 1zu, 2zu }, { 1zu, 2zu } } }));
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, GetOutputs) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, GetOutputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -219,7 +219,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs( { 0zu, 0zu } )) {
                 actual.push_back(_e);
             }
@@ -235,7 +235,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs( { 1zu, 2zu } )) {
                 actual.push_back(_e);
             }
@@ -246,7 +246,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs( { 0zu, 2zu } )) {
                 actual.push_back(_e);
             }
@@ -259,7 +259,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs( { 1zu, 0zu } )) {
                 actual.push_back(_e);
             }
@@ -274,7 +274,7 @@ namespace {
         }
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, GetInputs) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, GetInputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -289,7 +289,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 0zu, 0zu })) {
                 actual.push_back(_e);
             }
@@ -300,7 +300,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 1zu, 2zu })) {
                 actual.push_back(_e);
             }
@@ -317,7 +317,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 0zu, 2zu })) {
                 actual.push_back(_e);
             }
@@ -330,7 +330,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 1zu, 0zu })) {
                 actual.push_back(_e);
             }
@@ -345,7 +345,7 @@ namespace {
         }
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, GetOutputDegree) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, GetOutputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -365,7 +365,7 @@ namespace {
         EXPECT_EQ(g.get_out_degree(N { 1zu, 0zu }), 2);
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, GetInputDegree) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, GetInputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -385,7 +385,7 @@ namespace {
         EXPECT_EQ(g.get_in_degree(N { 1zu, 0zu }), 2);
     }
 
-    TEST(PairwiseOverlapAlignmentGraph, SlicedWalk) {
+    TEST(OAGPairwiseOverlapAlignmentGraphTest, SlicedWalk) {
         auto to_vector {
             [](auto &&r) {
                 auto it { r.begin() };

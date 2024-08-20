@@ -42,13 +42,13 @@ namespace {
         , middle_g { backing_g, root_node, leaf_node } {}
     };
 
-    TEST(MiddlePairwiseAlignmentGraphTest, ConceptCheck) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, ConceptCheck) {
         using G = decltype(graph_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } }.middle_g);
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
 
-    TEST(MiddlePairwiseAlignmentGraphTest, ListNodes) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, ListNodes) {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
@@ -65,7 +65,7 @@ namespace {
         );
     }
 
-    TEST(MiddlePairwiseAlignmentGraphTest, ListEdges) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, ListEdges) {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
@@ -73,7 +73,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         auto e = g.get_edges();
-        std::multiset<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+        std::multiset<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
         for (auto _e : e) {
             actual.insert(_e);
         }
@@ -89,7 +89,7 @@ namespace {
         );
     }
 
-    TEST(MiddlePairwiseAlignmentGraphTest, NodesExist) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, NodesExist) {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
@@ -114,7 +114,7 @@ namespace {
         EXPECT_FALSE(g.has_node(N { 3zu, 3zu }));
     }
 
-    TEST(MiddlePairwiseAlignmentGraphTest, EdgesExist) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, EdgesExist) {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
@@ -131,7 +131,7 @@ namespace {
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 6zu, 7zu }, { 6zu, 8zu } } }));
     }
 
-    TEST(MiddlePairwiseAlignmentGraphTest, GetOutputs) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, GetOutputs) {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
@@ -139,7 +139,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs(N { 1zu, 1zu })) {
                 actual.push_back(_e);
             }
@@ -152,7 +152,7 @@ namespace {
             EXPECT_EQ(actual, expected);
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs(N { 2zu, 2zu })) {
                 actual.push_back(_e);
             }
@@ -163,7 +163,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_outputs(N { 1zu, 2zu })) {
                 actual.push_back(_e);
             }
@@ -177,7 +177,7 @@ namespace {
         }
     }
 
-    TEST(MiddlePairwiseAlignmentGraphTest, GetInputs) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, GetInputs) {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
@@ -185,7 +185,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 1zu, 1zu })) {
                 actual.push_back(_e);
             }
@@ -195,7 +195,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 2zu, 2zu })) {
                 actual.push_back(_e);
             }
@@ -210,7 +210,7 @@ namespace {
             );
         }
         {
-            std::vector<E> actual {}; // TODO: Can't pass being() and end() to constructor to automate this? Doesn't like end() with sentinel type
+            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
             for (auto _e : g.get_inputs(N { 1zu, 2zu })) {
                 actual.push_back(_e);
             }
@@ -224,7 +224,7 @@ namespace {
         }
     }
 
-    TEST(MiddlePairwiseAlignmentGraphTest, GetOutputDegree) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, GetOutputDegree) {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
@@ -237,7 +237,7 @@ namespace {
         EXPECT_EQ(g.get_out_degree(N { 2zu, 2zu }), 0);
     }
 
-    TEST(MiddlePairwiseAlignmentGraphTest, GetInputDegree) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, GetInputDegree) {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
@@ -250,7 +250,7 @@ namespace {
         EXPECT_EQ(g.get_in_degree(N { 2zu, 2zu }), 3);
     }
 
-    TEST(MiddlePairwiseAlignmentGraphTest, SlicedWalk) {
+    TEST(OAGMiddleSliceablePairwiseAlignmentGraphTest, SlicedWalk) {
         auto to_vector {
             [](auto &&r) {
                 auto it { r.begin() };
