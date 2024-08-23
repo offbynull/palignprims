@@ -126,6 +126,8 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::format': 'format',
     'std::format_to': 'format',
     'std::format_context': 'format',
+    'std::format_parse_context': 'format',
+    'std::format_error': 'format',
     'std::optional': 'optional',
     'std::nullopt': 'optional',
     'std::nullopt_t': 'optional',

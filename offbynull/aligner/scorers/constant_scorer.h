@@ -19,9 +19,9 @@ namespace offbynull::aligner::scorers::constant_scorer {
         : weight { weight_ } {}
 
         WEIGHT operator()(
-            const auto& edge,
-            const auto& down_elem,
-            const auto& right_elem
+            const auto& /*edge*/,
+            const auto& /*down_elem*/,
+            const auto& /*right_elem*/
         ) const {
             return weight;
         }

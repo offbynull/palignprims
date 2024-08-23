@@ -58,7 +58,6 @@ namespace {
         auto g { g_bundle.middle_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         auto n = g.get_nodes();
         EXPECT_EQ(
@@ -74,7 +73,6 @@ namespace {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         auto e = g.get_edges();
@@ -99,7 +97,6 @@ namespace {
         auto g { g_bundle.middle_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         EXPECT_FALSE(g.has_node(N { 0zu, 0zu }));
         EXPECT_FALSE(g.has_node(N { 0zu, 1zu }));
@@ -123,7 +120,6 @@ namespace {
         graph_bundle g_bundle { "abc", "acc", { 1zu, 1zu }, { 2zu, 2zu } };
         auto g { g_bundle.middle_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 0zu, 1zu } } }));
@@ -234,7 +230,6 @@ namespace {
         auto g { g_bundle.middle_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         EXPECT_EQ(g.get_out_degree(N { 1zu, 1zu }), 3);
         EXPECT_EQ(g.get_out_degree(N { 1zu, 2zu }), 1);
@@ -247,7 +242,6 @@ namespace {
         auto g { g_bundle.middle_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         EXPECT_EQ(g.get_in_degree(N { 1zu, 1zu }), 0);
         EXPECT_EQ(g.get_in_degree(N { 1zu, 2zu }), 1);

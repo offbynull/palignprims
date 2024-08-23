@@ -61,6 +61,7 @@ TODO:
 * ~~sliceable_pairwise_alignment_graph_backtracker use bidiwalker instead (make sure to update bidiwalker's logic to what's in backtracker)~~
 * ~~sliceable_pairwise_alignment_graph_backtracker randomized tests against pairwise_alignment_graph_backtracker~~
 * graph constructors take take in scorers using std::function<...> -- uses scorer concept instead? e.g. scorer auto&& indel_scorer, scorer&& substitution scorer, etc... 
+* remove pointers in forward_walker and path_container -- requires custom move/copy constructors + custom assignment operators
 
 * doxygen documentation
 * run profiler and optimize functions (some local alignment functions may be doing a ton of unneeded work -- e.g. get_outputs_full)

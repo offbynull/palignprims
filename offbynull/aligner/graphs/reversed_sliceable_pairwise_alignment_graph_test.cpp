@@ -55,7 +55,6 @@ namespace {
         auto g { g_bundle.reversed_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         auto n = g.get_nodes();
         EXPECT_EQ(
@@ -70,8 +69,7 @@ namespace {
     TEST(OAGReversedSliceablePairwiseAlignmentGraphTest, ListEdges) {
         graph_bundle g_bundle { "a", "ac" };
         auto g { g_bundle.reversed_g };
-        
-        using N = typename decltype(g)::N;
+
         using E = typename decltype(g)::E;
 
         auto e = g.get_edges();
@@ -112,7 +110,6 @@ namespace {
         auto g { g_bundle.reversed_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         EXPECT_TRUE(g.has_node(N { 0zu, 0zu }));
         EXPECT_TRUE(g.has_node(N { 0zu, 1zu }));
@@ -129,7 +126,6 @@ namespace {
         graph_bundle g_bundle { "a", "ac" };
         auto g { g_bundle.reversed_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 0zu, 1zu } } }));
@@ -144,7 +140,6 @@ namespace {
         graph_bundle g_bundle { "a", "ac" };
         auto g { g_bundle.reversed_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 0zu } } }));
@@ -159,7 +154,6 @@ namespace {
         graph_bundle g_bundle { "a", "ac" };
         auto g { g_bundle.reversed_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_TRUE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 1zu } } }));
@@ -174,7 +168,6 @@ namespace {
         graph_bundle g_bundle { "a", "ac" };
         auto g { g_bundle.reversed_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_FALSE(g.has_edge(E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 0zu, 0zu } } }));
@@ -306,7 +299,6 @@ namespace {
         auto g { g_bundle.reversed_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
         
         EXPECT_EQ(g.get_out_degree(N { 0zu, 0zu }), 0);
         EXPECT_EQ(g.get_out_degree(N { 1zu, 2zu }), 8);
@@ -319,7 +311,6 @@ namespace {
         auto g { g_bundle.reversed_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         EXPECT_EQ(g.get_in_degree(N { 0zu, 0zu }), 8);
         EXPECT_EQ(g.get_in_degree(N { 1zu, 2zu }), 0);

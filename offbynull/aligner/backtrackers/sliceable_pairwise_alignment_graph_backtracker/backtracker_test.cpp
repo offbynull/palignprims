@@ -191,7 +191,6 @@ namespace {
             extended_gap_scorer,
             freeride_scorer
         };
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         std::vector<E> expected_path {};
@@ -248,7 +247,6 @@ namespace {
             extended_gap_scorer,
             freeride_scorer
         };
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         // N first_node { *g.slice_nodes(1u).begin() };
@@ -335,7 +333,6 @@ namespace {
             extended_gap_scorer,
             freeride_scorer
         };
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         // using offbynull::aligner::graph::utils::pairwise_graph_to_graphviz;
@@ -426,7 +423,7 @@ namespace {
                 return ret;
             }
         };
-        for (auto i : std::views::iota(0u, 1000u)) {
+        for ([[maybe_unused]] auto _ : std::views::iota(0u, 1000u)) {
             auto substitution_scorer {
                 simple_scorer<true, char, char, std::float64_t>::create_substitution(
                     random_float(-1.0f64, 1.0f64),
@@ -446,7 +443,6 @@ namespace {
                 extended_gap_scorer,
                 freeride_scorer
             };
-            using N = typename decltype(g)::N;
             using E = typename decltype(g)::E;
 
             std::vector<E> expected_path {};

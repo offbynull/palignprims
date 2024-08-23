@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <string>
+#include <string_view>
 #include <ranges>
 #include <tuple>
 #include <stdexcept>
@@ -13,7 +14,6 @@
 #include <type_traits>
 #include <ostream>
 #include <format>
-
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 #include "offbynull/aligner/concepts.h"
@@ -420,11 +420,11 @@ namespace offbynull::aligner::graphs::grid_graph {
             return std::views::empty<N>;
         }
 
-        auto outputs_to_residents(const N& node) const {
+        auto outputs_to_residents(const N& /*node*/) const {
             return std::views::empty<E>;
         }
 
-        auto inputs_from_residents(const N& node) const {
+        auto inputs_from_residents(const N& /*node*/) const {
             return std::views::empty<E>;
         }
     };
@@ -432,9 +432,13 @@ namespace offbynull::aligner::graphs::grid_graph {
 
 
 // Struct must be defined outside of namespace block above, otherwise compiler will treat it as part of that namespace.
+// NOTE: Inheriting from std::formatter<std::string_view> instead of std::formatter<std::string> because -Wabi-tag warning.
 template<offbynull::concepts::widenable_to_size_t INDEX>
-struct std::formatter<offbynull::aligner::graphs::grid_graph::node<INDEX>> : std::formatter<std::string> {
-    auto format(const offbynull::aligner::graphs::grid_graph::node<INDEX>& n, std::format_context& ctx) const {
+struct std::formatter<offbynull::aligner::graphs::grid_graph::node<INDEX>> : std::formatter<std::string_view> {
+    auto format(
+        const offbynull::aligner::graphs::grid_graph::node<INDEX>& n,
+        std::format_context& ctx
+    ) const {
         return std::format_to(ctx.out(), "[{},{}]", n.down, n.right);
     }
 };
@@ -445,9 +449,13 @@ std::ostream& operator<<(std::ostream& os, const offbynull::aligner::graphs::gri
 }
 
 // Struct must be defined outside of namespace block above, otherwise compiler will treat it as part of that namespace.
+// NOTE: Inheriting from std::formatter<std::string_view> instead of std::formatter<std::string> because -Wabi-tag warning.
 template<offbynull::concepts::widenable_to_size_t INDEX>
-struct std::formatter<offbynull::aligner::graphs::grid_graph::edge<INDEX>> : std::formatter<std::string> {
-    auto format(const offbynull::aligner::graphs::grid_graph::edge<INDEX>& e, std::format_context& ctx) const {
+struct std::formatter<offbynull::aligner::graphs::grid_graph::edge<INDEX>> : std::formatter<std::string_view> {
+    auto format(
+        const offbynull::aligner::graphs::grid_graph::edge<INDEX>& e,
+        std::format_context& ctx
+    ) const {
         return std::format_to(ctx.out(), "{}->{}", e.source, e.destination);
     }
 };

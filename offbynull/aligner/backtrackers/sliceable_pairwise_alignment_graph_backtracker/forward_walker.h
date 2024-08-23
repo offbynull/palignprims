@@ -155,6 +155,44 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , current_slots { &slots2 }
         , grid_down_offset { 0u } {}
 
+        // Custom copy/move/copy assignment/move assigned because this class has raw pointer types as members. The default copy/assignment
+        // will do a SHALLOW copy of these pointers, meaning they won't be pointing into the copy'd element_container (they'll instead be
+        // pointing into the original element_container).
+        slice_slot_container_pair(const slice_slot_container_pair& other)
+        : slots1 { other.slots1 }
+        , slots2 { other.slots2 }
+        , previous_slots { other.previous_slots == &other.slots1 ? &slots1 : &slots2 }
+        , current_slots { other.current_slots == &other.slots1 ? &slots1 : &slots2 }
+        , grid_down_offset { other.grid_down_offset } {}
+
+        slice_slot_container_pair(slice_slot_container_pair&& other)
+        : slots1 { std::move(other.slots1) }
+        , slots2 { std::move(other.slots2) }
+        , previous_slots { other.previous_slots == &other.slots1 ? &slots1 : &slots2 }
+        , current_slots { other.current_slots == &other.slots1 ? &slots1 : &slots2 }
+        , grid_down_offset { std::move(other.grid_down_offset) } {}
+
+        slice_slot_container_pair& operator=(const slice_slot_container_pair& other) {
+            if (this != &other) { // guard against self-assignment
+                slots1 = other.slots1;
+                slots2 = other.slots2;
+                previous_slots = other.previous_slots == &other.slots1 ? &slots1 : &slots2;
+                current_slots = other.current_slots == &other.slots1 ? &slots1 : &slots2;
+                grid_down_offset = other.grid_down_offset;
+            }
+            return *this;
+        }
+
+        slice_slot_container_pair& operator=(slice_slot_container_pair&& other) {
+            if (this != &other) { // guard against self-assignment
+                slots1 = std::move(other.slots1);
+                slots2 = std::move(other.slots2);
+                previous_slots = other.previous_slots == &other.slots1 ? &slots1 : &slots2;
+                current_slots = other.current_slots == &other.slots1 ? &slots1 : &slots2;
+                grid_down_offset = std::move(other.grid_down_offset);
+            }
+        }
+
         void move_down() {
             grid_down_offset++;
 
@@ -259,7 +297,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , slice { g.slice_nodes(0u) }
         , slice_it { slice.begin() }
         , slice_entry_ {} {
-            auto&& _resident_slots { g.resident_nodes() };
             slice_entry_.node = *slice_it;
             slice_entry_.slot_ptr = &find(slice_entry_.node); // should be equivalent to g.get_root_node()
         }

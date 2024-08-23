@@ -11,6 +11,7 @@
 #include <functional>
 #include <stdfloat>
 #include <string>
+#include <string_view>
 #include <array>
 #include <ostream>
 #include <format>
@@ -751,20 +752,24 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return std::views::empty<N>;
         }
 
-        auto outputs_to_residents(const N& node) const {
+        auto outputs_to_residents(const N& /*node*/) const {
             return std::views::empty<E>;
         }
 
-        auto inputs_from_residents(const N& node) const {
+        auto inputs_from_residents(const N& /*node*/) const {
             return std::views::empty<E>;
         }
     };
 }
 
 // Struct must be defined outside of namespace block above, otherwise compiler will treat it as part of that namespace.
+// NOTE: Inheriting from std::formatter<std::string_view> instead of std::formatter<std::string> because -Wabi-tag warning.
 template<offbynull::concepts::widenable_to_size_t INDEX>
-struct std::formatter<offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<INDEX>> : std::formatter<std::string> {
-    auto format(const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<INDEX>& n, std::format_context& ctx) const {
+struct std::formatter<offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<INDEX>> : std::formatter<std::string_view> {
+    auto format(
+        const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<INDEX>& n,
+        std::format_context& ctx
+    ) const {
         const char* layer_str;
         switch (n.layer) {
             case offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node_layer::DOWN:
@@ -789,9 +794,13 @@ std::ostream& operator<<(std::ostream& os, const offbynull::aligner::graphs::pai
 }
 
 // Struct must be defined outside of namespace block above, otherwise compiler will treat it as part of that namespace.
+// NOTE: Inheriting from std::formatter<std::string_view> instead of std::formatter<std::string> because -Wabi-tag warning.
 template<offbynull::concepts::widenable_to_size_t INDEX>
-struct std::formatter<offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<INDEX>> : std::formatter<std::string> {
-    auto format(const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<INDEX>& e, std::format_context& ctx) const {
+struct std::formatter<offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<INDEX>> : std::formatter<std::string_view> {
+    auto format(
+        const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<INDEX>& e,
+        std::format_context& ctx
+    ) const {
         return std::format_to(ctx.out(), "{}->{}", e.source, e.destination);
     }
 };

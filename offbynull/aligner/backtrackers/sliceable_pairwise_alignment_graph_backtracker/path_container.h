@@ -20,26 +20,21 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     template<typename E>
     struct element {
-        element<E>* prev;
-        element<E>* next;
-        E backtracking_edge;
+        element<E>* prev {};
+        element<E>* next {};
+        E backtracking_edge {};
 
-        element()
-        : prev {}
-        , next {}
-        , backtracking_edge {} {}
-
-        element(
-            element<E>* prev_,
-            element<E>* next_,
-            E backtracking_edge_
-        )
-        : prev { prev_ }
-        , next { next_ }
-        , backtracking_edge { backtracking_edge_ } {}
+        element() = default;
 
         bool operator==(const element &) const = default;
     };
+
+
+
+
+
+
+
 
     template<readable_sliceable_pairwise_alignment_graph G>
     class backward_walker_iterator {
@@ -192,6 +187,77 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , head { nullptr }
         , tail { nullptr }
         , next_idx { 0zu } {}
+
+        // Custom copy/move/copy assignment/move assigned because this class has raw pointer types as members. The default copy/assignment
+        // will do a SHALLOW copy of these pointers, meaning they won't be pointing into the copy'd element_container (they'll instead be
+        // pointing into the original element_container).
+        path_container(const path_container& other)
+        : element_container { other.element_container }
+        , head { other.head == nullptr ? nullptr : &element_container[other.head - &(other.element_container[0zu])] }
+        , tail { other.tail == nullptr ? nullptr : &element_container[other.tail - &(other.element_container[0zu])] }
+        , next_idx { other.next_idx } {
+            for (std::size_t i { 0zu }; i < other.next_idx; ++i) {
+                element<E>& other_element { element_container[i] };
+                element<E>& this_element { element_container[i] };
+                this_element.backtracking_edge = other_element.backtracking_edge;
+                this_element.prev = &element_container[other_element.prev - &(other.element_container[0zu])];
+                this_element.next = &element_container[other_element.next - &(other.element_container[0zu])];
+            }
+        }
+
+        path_container(path_container&& other)
+        : element_container { other.element_container }
+        , head { other.head == nullptr ? nullptr : &element_container[other.head - &(other.element_container[0zu])] }
+        , tail { other.tail == nullptr ? nullptr : &element_container[other.tail - &(other.element_container[0zu])] }
+        , next_idx { other.next_idx } {
+            for (std::size_t i { 0zu }; i < other.next_idx; ++i) {
+                element<E>& other_element { element_container[i] };
+                element<E>& this_element { element_container[i] };
+                this_element.backtracking_edge = other_element.backtracking_edge;
+                this_element.prev = &element_container[other_element.prev - &(other.element_container[0zu])];
+                this_element.next = &element_container[other_element.next - &(other.element_container[0zu])];
+            }
+            other.head = nullptr;
+            other.tail = nullptr;
+            other.next_idx = 0zu;
+        }
+
+        path_container& operator=(const path_container& other) {
+            if (this != &other) { // guard against self-assignment
+                element_container = other.element_container;
+                head = other.head == nullptr ? nullptr : &element_container[other.head - &(other.element_container[0zu])];
+                tail = other.tail == nullptr ? nullptr : &element_container[other.tail - &(other.element_container[0zu])];
+                next_idx = other.next_idx;
+                for (std::size_t i { 0zu }; i < other.next_idx; ++i) {
+                    element<E>& other_element { element_container[i] };
+                    element<E>& this_element { element_container[i] };
+                    this_element.backtracking_edge = other_element.backtracking_edge;
+                    this_element.prev = &element_container[other_element.prev - &(other.element_container[0zu])];
+                    this_element.next = &element_container[other_element.next - &(other.element_container[0zu])];
+                }
+            }
+            return *this;
+        }
+
+        path_container& operator=(path_container&& other) {
+            if (this != &other) { // guard against self-assignment
+                element_container = other.element_container;
+                head = other.head == nullptr ? nullptr : &element_container[other.head - &(other.element_container[0zu])];
+                tail = other.tail == nullptr ? nullptr : &element_container[other.tail - &(other.element_container[0zu])];
+                next_idx = other.next_idx;
+                for (std::size_t i { 0zu }; i < other.next_idx; ++i) {
+                    element<E>& other_element { element_container[i] };
+                    element<E>& this_element { element_container[i] };
+                    this_element.backtracking_edge = other_element.backtracking_edge;
+                    this_element.prev = &element_container[other_element.prev - &(other.element_container[0zu])];
+                    this_element.next = &element_container[other_element.next - &(other.element_container[0zu])];
+                    other.head = nullptr;
+                    other.tail = nullptr;
+                    other.next_idx = 0zu;
+                }
+            }
+            return *this;
+        }
 
         element<E>* initialize(const E& backtracking_edge) {
             if constexpr (debug_mode) {

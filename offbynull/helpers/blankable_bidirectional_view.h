@@ -14,11 +14,11 @@ namespace offbynull::helpers::blankable_bidirectional_view {
 
     public:
         blankable_bidirectional_view(
-            bool passthrough,
-            R&& range
+            bool passthrough_,
+            R&& range_
         )
-        : passthrough { passthrough }
-        , range { std::forward<R>(range) | std::views::common } {}
+        : passthrough { passthrough_ }
+        , range { std::forward<R>(range_) | std::views::common } {}
         blankable_bidirectional_view(const blankable_bidirectional_view<R> &src) = default;
         blankable_bidirectional_view(blankable_bidirectional_view<R> &&src) = default;
         blankable_bidirectional_view<R>& operator=(const blankable_bidirectional_view<R>& other) = default;

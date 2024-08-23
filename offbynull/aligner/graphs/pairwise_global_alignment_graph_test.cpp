@@ -33,7 +33,6 @@ namespace {
         };
         
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
         
         auto n = g.get_nodes();
         EXPECT_EQ(
@@ -337,8 +336,7 @@ namespace {
             substitution_scorer,
             gap_scorer
         };
-        
-        using G = std::decay_t<decltype(g)>;
+
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 

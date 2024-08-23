@@ -35,7 +35,7 @@ namespace offbynull::aligner::scorers::substitution_map_scorer {
         : data { std::move(data_) } {}
 
         WEIGHT operator()(
-            const auto& edge,
+            const auto& /*edge*/,
             const std::optional<std::reference_wrapper<const DOWN_ELEM>> down_elem,
             const std::optional<std::reference_wrapper<const RIGHT_ELEM>> right_elem
         ) const {

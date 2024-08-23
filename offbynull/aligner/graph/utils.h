@@ -57,8 +57,8 @@ namespace offbynull::aligner::graph::utils {
         for (const auto& n : g.get_nodes()) {
             const auto& [down, right, depth] { g.node_to_grid_offsets(n) };
             std::string name { to_name_func(n) };
-            float draw_y { (down * space_between_grid_offsets) + (depth_offset * depth) };
-            float draw_x { (right * space_between_grid_offsets) + (depth_offset * depth) };
+            float draw_y { (static_cast<float>(down) * space_between_grid_offsets) + (depth_offset * static_cast<float>(depth)) };
+            float draw_x { (static_cast<float>(right) * space_between_grid_offsets) + (depth_offset * static_cast<float>(depth)) };
             out += std::format(
                 "  {} [ label=\"{}\" pos=\"{},{}!\"];\n",
                 escape_identifier_for_graphviz(name),

@@ -8,8 +8,6 @@
 #include <tuple>
 #include <stdexcept>
 #include <utility>
-#include <string>
-#include <format>
 
 namespace offbynull::aligner::graphs::directed_graph {
     template<bool debug_mode, typename N_, typename ND_, typename E_, typename ED_>
@@ -356,14 +354,5 @@ namespace offbynull::aligner::graphs::directed_graph {
             return this->node_inbound.at(node).size();
         }
     };
-
-    /*
-    template<typename N, typename ND, typename E, typename ED>
-    struct std::formatter<directed_graph<N, ND, E, ED>> : std::formatter<std::string> {
-        auto format(const directed_graph<N, ND, E, ED>& g, format_context& ctx) const {
-            return format_to(ctx.out(), " {}", g.to_string());  // WONT WORK WITHOUT MAKING to_string() CONST?
-        }
-    };
-    */
 };
 #endif //OFFBYNULL_ALIGNER_GRAPHS_DIRECTED_GRAPH_H

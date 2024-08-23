@@ -59,7 +59,6 @@ namespace {
         auto g { g_bundle.suffix_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         auto n = g.get_nodes();
         EXPECT_EQ(
@@ -75,7 +74,6 @@ namespace {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         auto e = g.get_edges();
@@ -117,7 +115,6 @@ namespace {
         auto g { g_bundle.suffix_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
         
         EXPECT_FALSE(g.has_node(N { 0zu, 0zu }));
         EXPECT_FALSE(g.has_node(N { 0zu, 1zu }));
@@ -137,7 +134,6 @@ namespace {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
         
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 0zu, 1zu } } }));
@@ -155,7 +151,6 @@ namespace {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
         
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 0zu } } }));
@@ -173,7 +168,6 @@ namespace {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
         
         EXPECT_FALSE(g.has_edge(E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 1zu } } }));
@@ -191,7 +185,6 @@ namespace {
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
         
         EXPECT_FALSE(g.has_edge(E { edge_type::FREE_RIDE, { { 5zu, 5zu }, { 5zu, 5zu } } }));
@@ -317,7 +310,6 @@ namespace {
         auto g { g_bundle.suffix_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
         
         EXPECT_EQ(g.get_out_degree(N { 5zu, 5zu } ), 4);
         EXPECT_EQ(g.get_out_degree(N { 6zu, 7zu } ), 0);
@@ -330,7 +322,6 @@ namespace {
         auto g { g_bundle.suffix_g };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
         
         EXPECT_EQ(g.get_in_degree(N { 5zu, 5zu } ), 0);
         EXPECT_EQ(g.get_in_degree(N { 6zu, 7zu } ), 8);
@@ -462,9 +453,6 @@ namespace {
 
         graph_bundle g_bundle { "234567", "2345678", { 5zu, 5zu }  };
         auto g { g_bundle.suffix_g };
-        
-        using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         std::cout << "res" << std::endl;
         for (auto&& n : g.resident_nodes()) {

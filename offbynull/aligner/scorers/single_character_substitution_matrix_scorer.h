@@ -42,7 +42,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
             const char* start_char_ptr { &start_char_ref }; // can't use line.begin() directly because line is an iterator object, not a
                                                             // pointer -- need to first grab the object from the iterator (which is a ref
                                                             // into a element in text) then get the pointer to it
-            return std::string_view { start_char_ptr, std::ranges::distance(trailing_trimmed) };
+            return std::string_view { start_char_ptr, static_cast<std::size_t>(std::ranges::distance(trailing_trimmed)) };
         }
 
         static auto split_lines_and_words(const auto& text) {
@@ -59,7 +59,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
                     const char* start_char_ptr { &start_char_ref }; // can't use line.begin() directly because line is an iterator object,
                                                                     // not a pointer -- need to first grab the object from the iterator
                                                                     // (which is a ref into a element in text) then get the pointer to it
-                    return std::string_view { start_char_ptr, std::ranges::distance(line) };
+                    return std::string_view { start_char_ptr, static_cast<std::size_t>(std::ranges::distance(line)) };
                 })
                 | std::views::transform([](const std::string_view& line) {
                     return trim_whitespace(line);  // trim whitespace from line
@@ -133,13 +133,13 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
                     throw std::runtime_error("Not found");
                 }
             }
-            std::size_t down_idx { down_it - sorted_alphabet.begin() };
-            std::size_t right_idx { right_it - sorted_alphabet.begin() };
+            std::size_t down_idx { static_cast<std::size_t>(down_it - sorted_alphabet.begin()) };
+            std::size_t right_idx { static_cast<std::size_t>(right_it - sorted_alphabet.begin()) };
             return down_idx * ALPHABET_SIZE + right_idx;
         }
 
         static std::array<WEIGHT, ALPHABET_SIZE * ALPHABET_SIZE> extract_sorted_weights(const std::string_view& text) {
-            const std::array<char, ALPHABET_SIZE> sorted_alphabet { std::move(extract_sorted_alphabet(text)) };
+            const std::array<char, ALPHABET_SIZE> sorted_alphabet { extract_sorted_alphabet(text) };
             // split test line-by-line
             auto lines { split_lines_and_words(text) };
             auto lines_it { lines.begin() };
@@ -199,7 +199,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
         , weights { weights_ } {}
 
         WEIGHT operator()(
-            const auto& edge,
+            const auto& /*edge*/,
             const std::optional<std::reference_wrapper<const char>> down_elem,
             const std::optional<std::reference_wrapper<const char>> right_elem
         ) const {

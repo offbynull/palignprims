@@ -17,11 +17,6 @@ namespace {
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node_layer;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
-    auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-    auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
-    auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
-    auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
-
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, ConceptCheck) {
         using G = pairwise_extended_gap_alignment_graph<true, std::string, std::string>;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
@@ -29,6 +24,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, ListNodes) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -41,7 +40,6 @@ namespace {
         };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         std::set<N> actual {};
         for (const auto &n : g.get_nodes()) {
@@ -84,6 +82,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, ListEdges) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -164,6 +166,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, NodesExist) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -176,7 +182,6 @@ namespace {
         };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         EXPECT_TRUE(g.has_node(N { node_layer::DIAGONAL, 0zu, 0zu }));
         EXPECT_TRUE(g.has_node(N { node_layer::DIAGONAL, 0zu, 1zu }));
@@ -231,6 +236,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, RightEdgesExist) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -242,7 +251,6 @@ namespace {
             freeride_scorer
         };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_TRUE(g.has_edge(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::RIGHT, 0zu, 1zu } }));
@@ -261,6 +269,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, DownEdgesExist) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -272,7 +284,6 @@ namespace {
             freeride_scorer
         };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_TRUE(g.has_edge(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::DOWN, 1zu, 0zu } }));
@@ -291,6 +302,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, DiagEdgesExist) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -302,7 +317,6 @@ namespace {
             freeride_scorer
         };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_TRUE(g.has_edge(E { { node_layer::DIAGONAL, 0zu, 0zu }, { node_layer::DIAGONAL, 1zu, 1zu } }));
@@ -317,6 +331,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, DownFreeRidgeEdgesExist) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -328,7 +346,6 @@ namespace {
             freeride_scorer
         };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_FALSE(g.has_edge(E { { node_layer::DOWN, 0zu, 0zu }, { node_layer::DIAGONAL, 0zu, 0zu } }));
@@ -350,6 +367,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, RightFreeRidgeEdgesExist) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -361,7 +382,6 @@ namespace {
             freeride_scorer
         };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_FALSE(g.has_edge(E { { node_layer::RIGHT, 0zu, 0zu }, { node_layer::DIAGONAL, 0zu, 0zu } }));
@@ -383,6 +403,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetOutputs) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -670,6 +694,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetInputs) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -957,6 +985,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetOutputDegree) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -969,7 +1001,6 @@ namespace {
         };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         // Diagonal 0,0 to 0,3
         EXPECT_EQ(3zu, g.get_out_degree(N { node_layer::DIAGONAL, 0zu, 0zu }));
@@ -1011,6 +1042,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetInputDegree) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -1023,7 +1058,6 @@ namespace {
         };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         // Diagonal 0,0 to 0,3
         EXPECT_EQ(0zu, g.get_in_degree(N { node_layer::DIAGONAL, 0zu, 0zu }));
@@ -1065,6 +1099,10 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, GetEdgeData) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -1076,7 +1114,6 @@ namespace {
             freeride_scorer
         };
 
-        using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
         EXPECT_EQ(
@@ -1126,6 +1163,10 @@ namespace {
             }
         };
 
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -1206,6 +1247,10 @@ namespace {
             }
         };
 
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "accd" };
         std::string seq2 { "accd" };
         pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
@@ -1218,7 +1263,6 @@ namespace {
         };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         EXPECT_EQ(
             (to_vector(g.slice_nodes(0u, N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DIAGONAL, 4zu, 4zu }))),
@@ -1355,7 +1399,6 @@ namespace {
         };
 
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         for (const N& n1 : g.get_nodes()) {
             for (const N& n2 : g.get_nodes()) {

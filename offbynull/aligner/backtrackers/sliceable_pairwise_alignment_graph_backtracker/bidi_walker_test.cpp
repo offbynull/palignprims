@@ -173,7 +173,7 @@ namespace {
 
         // test
         bidi_walker<true, decltype(g)> bidi_walker_ { bidi_walker<true, decltype(g)>::create_and_initialize(g, g.grid_down_cnt - 1u) };
-        const auto& [final_weight, forward_walk_edge, backward_walk_edge] { walk_to_node(bidi_walker_, g.get_leaf_node()) };
+        auto final_weight { std::get<0>(walk_to_node(bidi_walker_, g.get_leaf_node())) };
         std::cout << "final weight: " << final_weight << std::endl;
         for (const auto& node : g.resident_nodes()) {
             const auto& [down_offset, right_offset] { node };
@@ -244,7 +244,7 @@ namespace {
 
         // test
         bidi_walker<true, decltype(g)> bidi_walker_ { bidi_walker<true, decltype(g)>::create_and_initialize(g, g.grid_down_cnt - 1u) };
-        const auto& [final_weight, forward_walk_edge, backward_walk_edge] { walk_to_node(bidi_walker_, g.get_leaf_node()) };
+        auto final_weight { std::get<0>(walk_to_node(bidi_walker_, g.get_leaf_node())) };
         std::cout << "final weight: " << final_weight << std::endl;
         for (const auto& node : g.resident_nodes()) {
             const auto& [down_offset, right_offset] { node };

@@ -27,10 +27,7 @@ namespace {
             gap_scorer
         };
 
-        using ND = typename decltype(g)::ND;
-        using ED = typename decltype(g)::ED;
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         // walk
         {
@@ -128,10 +125,7 @@ namespace {
             freeride_scorer
         };
 
-        using ND = typename decltype(g)::ND;
-        using ED = typename decltype(g)::ED;
         using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
 
         // walk
         {

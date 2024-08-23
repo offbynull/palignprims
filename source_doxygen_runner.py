@@ -12,6 +12,8 @@ if __name__ == '__main__':
     doxygen_config_temp_path = tempfile.NamedTemporaryFile(delete=True)
     shutil.copyfile(doxygen_config_path, doxygen_config_temp_path.name)
     with open(doxygen_config_temp_path.name, 'a') as f:
-        f.write(f'INPUT = {root_path / 'offbynull'}')
+        f.writelines([
+            f'INPUT = {root_path / 'offbynull'}\n'
+        ],)
     result = subprocess.run(['doxygen', doxygen_config_temp_path.name], shell=False, stdout=None, stderr=None)
     exit(result.returncode)

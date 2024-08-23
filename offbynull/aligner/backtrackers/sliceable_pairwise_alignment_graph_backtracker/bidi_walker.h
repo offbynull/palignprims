@@ -211,11 +211,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const auto& [down, right, depth] { g_.node_to_grid_offsets(node) };
 
             bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g_, down) };
-            auto list_entries { bidi_walker_.list() };
-
-            auto first_entry { *list_entries.begin() };
             for (const auto& entry : bidi_walker_.list()) {
-                N node { entry.node };
                 ED node_converged_weight { entry.slots.forward_slot.backtracking_weight + entry.slots.backward_slot.backtracking_weight };
                 if (std::abs(node_converged_weight -  max_path_weight) <= max_path_weight_comparison_tolerance) {
                     return true;

@@ -124,9 +124,6 @@ namespace {
             freeride_scorer
         };
 
-        using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
-
         // walk
         // EXPECT_THROW((sliced_subdivider<true, decltype(g)> { g }), std::runtime_error);
         // THIS WILL NOT THROW, because subdivider accepts it if root and leaf are both resident nodes (segmenter will

@@ -155,9 +155,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using PATH_CONTAINER_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container_container_creator_pack());
 
-        CONTAINER_CREATOR_PACK container_creator_pack;
-
         const G& whole_graph;
+
+        CONTAINER_CREATOR_PACK container_creator_pack;
 
         enum class walk_direction {
             PREFIX,
@@ -187,15 +187,13 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 container_creator_pack.create_path_container_container_creator_pack()
             };
 
-            ED weight {
-                subdivide(
-                    path_container_,
-                    nullptr,
-                    walk_direction::INITIALIZE,
-                    whole_graph.get_root_node(),
-                    whole_graph.get_leaf_node()
-                )
-            };
+            subdivide(
+                path_container_,
+                nullptr,
+                walk_direction::INITIALIZE,
+                whole_graph.get_root_node(),
+                whole_graph.get_leaf_node()
+            );
 
             return path_container_;
         }

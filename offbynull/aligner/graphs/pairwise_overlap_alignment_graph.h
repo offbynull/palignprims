@@ -12,6 +12,7 @@
 #include <functional>
 #include <stdfloat>
 #include <string>
+#include <string_view>
 #include <array>
 #include <format>
 #include <type_traits>
@@ -496,8 +497,10 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
 }
 
 // Struct must be defined outside of namespace block above, otherwise compiler will treat it as part of that namespace.
+// NOTE: Inheriting from std::formatter<std::string_view> instead of std::formatter<std::string> because -Wabi-tag warning.
 template<offbynull::concepts::widenable_to_size_t INDEX>
-struct std::formatter<offbynull::aligner::graphs::pairwise_overlap_alignment_graph::overlap_edge<INDEX>> : std::formatter<std::string> {
+struct std::formatter<offbynull::aligner::graphs::pairwise_overlap_alignment_graph::overlap_edge<INDEX>>
+    : std::formatter<std::string_view> {
     auto format(
         const offbynull::aligner::graphs::pairwise_overlap_alignment_graph::overlap_edge<INDEX>& e,
         std::format_context& ctx
