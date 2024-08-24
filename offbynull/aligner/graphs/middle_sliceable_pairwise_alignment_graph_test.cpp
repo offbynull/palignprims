@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <stdfloat>
 #include <string>
 #include <set>
@@ -26,7 +27,16 @@ namespace {
     struct graph_bundle {
         std::string down_seq;
         std::string right_seq;
-        pairwise_local_alignment_graph<true, std::string, std::string> backing_g;
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            std::string,
+            std::string,
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > backing_g;
         middle_sliceable_pairwise_alignment_graph<true, decltype(backing_g)> middle_g;
 
         graph_bundle(

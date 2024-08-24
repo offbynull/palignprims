@@ -4,6 +4,7 @@
 #include "offbynull/aligner/backtrackers/graph_backtracker/backtracker.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
 #include "gtest/gtest.h"
+#include <cstddef>
 #include <stdfloat>
 #include <string>
 #include <vector>
@@ -24,7 +25,15 @@ namespace {
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,

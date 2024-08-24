@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <string>
 #include <iostream>
 #include <ostream>
@@ -43,7 +44,17 @@ namespace {
 
         std::string seq1 { "hello" };
         std::string seq2 { "mellow" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,

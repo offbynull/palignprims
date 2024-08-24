@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <stdfloat>
 #include <string>
 #include <set>
@@ -18,7 +19,21 @@ namespace {
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, ConceptCheck) {
-        using G = pairwise_extended_gap_alignment_graph<true, std::string, std::string>;
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
+        using G = pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            std::string,
+            std::string,
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        >;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
@@ -30,7 +45,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -88,7 +113,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -172,7 +207,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -242,7 +287,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -275,7 +330,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -308,7 +373,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -337,7 +412,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -373,7 +458,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -409,7 +504,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -700,7 +805,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -991,7 +1106,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -1048,7 +1173,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -1105,7 +1240,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "ac" };
         std::string seq2 { "abc" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -1169,7 +1314,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -1253,7 +1408,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "accd" };
         std::string seq2 { "accd" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -1389,7 +1554,17 @@ namespace {
         auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaalaa" };
         std::string seq2 { "lv" };
-        pairwise_extended_gap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,

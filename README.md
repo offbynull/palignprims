@@ -60,13 +60,17 @@ TODO:
 * ~~subdivider, when finding the node in the slice that's being passed through, should first get the final weight of the graph, then TEST the bidiwalk'd weight at that node to see if it matches the final weight (USER MUST DEFINE TOLERANCE)~~ DONT NEED TO DO THIS the assumption with subdivider is that at least 1 node in each slice goes over max path, so it's fine just pulling out the max weight for a slice
 * ~~sliceable_pairwise_alignment_graph_backtracker use bidiwalker instead (make sure to update bidiwalker's logic to what's in backtracker)~~
 * ~~sliceable_pairwise_alignment_graph_backtracker randomized tests against pairwise_alignment_graph_backtracker~~
-* graph constructors take take in scorers using std::function<...> -- uses scorer concept instead? e.g. scorer auto&& indel_scorer, scorer&& substitution scorer, etc... 
-* remove pointers in forward_walker and path_container -- requires custom move/copy constructors + custom assignment operators
+* ~~graph constructors take in scorers using std::function<...> -- uses scorer concept instead? e.g. scorer auto&& indel_scorer, scorer&& substitution scorer, etc...~~
+* remove all std::function usages
+* move out all "to_vector" functions as utility func
+* concepts should enforce that type being enforced is std::same_as<std::decay_t<T>, T>, meaning no cv and no refs -- maybe use std::remove_cvref instead of std::decay?
+* ~~remove pointers in forward_walker and path_container -- requires custom move/copy constructors + custom assignment operators~~ (leaving this as-is for now, with the custom constructors and assignment op overrides)
 
 * doxygen documentation
 * run profiler and optimize functions (some local alignment functions may be doing a ton of unneeded work -- e.g. get_outputs_full)
-* fix compiler warnings
+* ~~fix compiler warnings~~
 * cleanup syntax
+  * some identifiers starting with _, change so they end with _ 
   * ~~140char lines~~
   * ~~spaces between squiggly brackets: {}~~
   * python helper to ensure ...

@@ -9,8 +9,6 @@
 #include <stdexcept>
 #include <utility>
 #include <optional>
-#include <functional>
-#include <stdfloat>
 #include <type_traits>
 #include <ostream>
 #include <format>
@@ -18,11 +16,13 @@
 #include "offbynull/utils.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/sequence/sequence.h"
+#include "offbynull/aligner/scorer/scorer.h"
 
 namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::sequence::sequence::sequence;
+    using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::static_vector_typer;
 
@@ -44,10 +44,22 @@ namespace offbynull::aligner::graphs::grid_graph {
 
     template<
         bool debug_mode,
+        widenable_to_size_t INDEX_,
+        weight WEIGHT,
         sequence DOWN_SEQ,
         sequence RIGHT_SEQ,
-        widenable_to_size_t INDEX_ = std::size_t,
-        weight WEIGHT = std::float64_t
+        scorer<
+            edge<INDEX_>,
+            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            WEIGHT
+        > SUBSTITUTION_SCORER,
+        scorer<
+            edge<INDEX_>,
+            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            WEIGHT
+        > GAP_SCORER
     >
     class grid_graph {
     public:
@@ -62,20 +74,8 @@ namespace offbynull::aligner::graphs::grid_graph {
     private:
         const DOWN_SEQ& down_seq;
         const RIGHT_SEQ& right_seq;
-        const std::function<
-            WEIGHT(
-                const E&,
-                const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
-                const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
-            )
-        > substitution_lookup;
-        const std::function<
-            WEIGHT(
-                const E&,
-                const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
-                const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
-            )
-        > gap_lookup;
+        const SUBSTITUTION_SCORER substitution_scorer;
+        const GAP_SCORER gap_scorer;
 
         auto construct_full_edge(N n1, N n2) const {
             return std::tuple<E, N, N, ED> {
@@ -101,28 +101,19 @@ namespace offbynull::aligner::graphs::grid_graph {
         static constexpr std::size_t resident_nodes_capacity { 0zu };
         const std::size_t path_edge_capacity;
 
+        // Scorer params are not being made into universal references because there's a high chance of enabling a subtle bug: There's a
+        // non-trivial possibility that the user will submit the same object for both scorers, and so if the universal reference ends up
+        // being an rvalue reference it'll try to move the same object twice.
         grid_graph(
             const DOWN_SEQ& _down_seq,
             const RIGHT_SEQ& _right_seq,
-            const std::function<
-                WEIGHT(
-                    const E&,
-                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
-                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
-                )
-            > _substitution_lookup,
-            const std::function<
-                WEIGHT(
-                    const E&,
-                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
-                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
-                )
-            > _gap_lookup
+            const SUBSTITUTION_SCORER& _substitution_scorer,
+            const GAP_SCORER& _gap_scorer
         )
         : down_seq { _down_seq }
         , right_seq { _right_seq }
-        , substitution_lookup { _substitution_lookup }
-        , gap_lookup { _gap_lookup }
+        , substitution_scorer { _substitution_scorer } // Copying object, not the ref
+        , gap_scorer { _gap_scorer } // Copying object, not the ref
         , grid_down_cnt { _down_seq.size() + 1zu }
         , grid_right_cnt { _right_seq.size() + 1zu }
         , path_edge_capacity { (grid_right_cnt - 1u) + (grid_down_cnt - 1u) } {}
@@ -145,19 +136,19 @@ namespace offbynull::aligner::graphs::grid_graph {
             const N& n1 { edge.source };
             const N& n2 { edge.destination };
             if (n1.down == n2.down && n1.right + 1u == n2.right) {
-                return gap_lookup(
+                return gap_scorer(
                     edge,
                     { std::nullopt },
                     { { right_seq[n1.right] } }
                 );
             } else if (n1.down + 1u == n2.down && n1.right == n2.right) {
-                return gap_lookup(
+                return gap_scorer(
                     edge,
                     { { down_seq[n1.down] } },
                     { std::nullopt }
                 );
             } else if (n1.down + 1u == n2.down && n1.right + 1u == n2.right) {
-                return substitution_lookup(
+                return substitution_scorer(
                     edge,
                     { { down_seq[n1.down] } },
                     { { right_seq[n1.right] } }

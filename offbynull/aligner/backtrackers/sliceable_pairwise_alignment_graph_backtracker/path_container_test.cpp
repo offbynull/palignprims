@@ -2,6 +2,7 @@
 #include "offbynull/aligner/graphs/pairwise_global_alignment_graph.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
 #include "gtest/gtest.h"
+#include <cstddef>
 #include <string>
 #include <stdfloat>
 
@@ -19,7 +20,15 @@ namespace {
         auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abcdefg" };
         std::string seq2 { "abcZefg" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,

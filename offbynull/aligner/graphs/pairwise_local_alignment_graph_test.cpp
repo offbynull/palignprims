@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <stdfloat>
 #include <string>
 #include <set>
@@ -21,7 +22,16 @@ namespace {
     auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
 
     TEST(OAGPairwiseLocalAlignmentGraphTest, ConceptCheck) {
-        using G = pairwise_local_alignment_graph<true, std::string, std::string>;
+        using G = pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            std::string,
+            std::string,
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        >;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
@@ -29,7 +39,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, ListNodes) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -52,7 +71,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, ListEdges) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -98,7 +126,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, NodesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -122,7 +159,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, RightEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -143,7 +189,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, DownEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -164,7 +219,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, DiagEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -185,7 +249,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, FreeRideEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -213,7 +286,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, GetOutputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -273,7 +355,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, GetInputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -333,7 +424,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, GetOutputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -352,7 +452,16 @@ namespace {
     TEST(OAGPairwiseLocalAlignmentGraphTest, GetInputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -383,7 +492,16 @@ namespace {
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_local_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,

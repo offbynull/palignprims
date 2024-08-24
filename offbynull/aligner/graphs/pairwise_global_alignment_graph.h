@@ -6,12 +6,11 @@
 #include <stdexcept>
 #include <optional>
 #include <utility>
-#include <functional>
 #include <type_traits>
-#include <stdfloat>
 #include "offbynull/aligner/graphs/grid_graph.h"
 #include "offbynull/concepts.h"
 #include "offbynull/aligner/sequence/sequence.h"
+#include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/concepts.h"
 
 namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
@@ -21,23 +20,38 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
     using offbynull::aligner::graphs::grid_graph::empty_type;
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::sequence::sequence::sequence;
+    using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::concepts::widenable_to_size_t;
 
     template<
         bool debug_mode,
+        widenable_to_size_t INDEX_,
+        weight WEIGHT,
         sequence DOWN_SEQ,
         sequence RIGHT_SEQ,
-        widenable_to_size_t INDEX_ = std::size_t,
-        weight WEIGHT = std::float64_t
+        scorer<
+            edge<INDEX_>,
+            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            WEIGHT
+        > SUBSTITUTION_SCORER,
+        scorer<
+            edge<INDEX_>,
+            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            WEIGHT
+        > GAP_SCORER
     >
     class pairwise_global_alignment_graph {
     private:
         const grid_graph<
             debug_mode,
+            INDEX_,
+            WEIGHT,
             DOWN_SEQ,
             RIGHT_SEQ,
-            INDEX_,
-            WEIGHT
+            SUBSTITUTION_SCORER,
+            GAP_SCORER
         > g;
 
     public:
@@ -55,25 +69,16 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         static constexpr std::size_t resident_nodes_capacity { decltype(g)::resident_nodes_capacity };  // 0
         const std::size_t path_edge_capacity;
 
+        // Scorer params are not being made into universal references because there's a high chance of enabling a subtle bug: There's a
+        // non-trivial possibility that the user will submit the same object for both scorers, and so if the universal reference ends up
+        // being an rvalue reference it'll try to move the same object twice.
         pairwise_global_alignment_graph(
             const DOWN_SEQ& _down_seq,
             const RIGHT_SEQ& _right_seq,
-            const std::function<
-                WEIGHT(
-                    const E&,
-                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
-                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
-                )
-            > _substitution_lookup,
-            const std::function<
-                WEIGHT(
-                    const E&,
-                    const std::optional<std::reference_wrapper<const DOWN_ELEM>>,
-                    const std::optional<std::reference_wrapper<const RIGHT_ELEM>>
-                )
-            > _gap_lookup
+            const SUBSTITUTION_SCORER& _substitution_scorer,
+            const GAP_SCORER& _gap_scorer
         )
-        : g { _down_seq, _right_seq, _substitution_lookup, _gap_lookup }
+        : g { _down_seq, _right_seq, _substitution_scorer, _gap_scorer }
         , grid_down_cnt { g.grid_down_cnt }
         , grid_right_cnt { g.grid_right_cnt }
         , path_edge_capacity { g.path_edge_capacity } {}

@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <stdfloat>
 #include <string>
 #include <set>
@@ -21,7 +22,16 @@ namespace {
     auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
 
     TEST(OAGPairwiseOverlapAlignmentGraphTest, ConceptCheck) {
-        using G = pairwise_overlap_alignment_graph<true, std::string, std::string>;
+        using G = pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            std::string,
+            std::string,
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        >;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
@@ -29,7 +39,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, ListNodes) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -52,7 +71,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, ListEdges) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -90,7 +118,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, NodesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -114,7 +151,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, RightEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -135,7 +181,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, DownEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -156,7 +211,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, DiagEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -177,7 +241,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, FreeRideEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -205,7 +278,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, GetOutputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -274,7 +356,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, GetInputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -345,7 +436,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, GetOutputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -364,7 +464,16 @@ namespace {
     TEST(OAGPairwiseOverlapAlignmentGraphTest, GetInputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -395,7 +504,16 @@ namespace {
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_overlap_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_overlap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,

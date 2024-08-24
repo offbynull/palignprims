@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <stdfloat>
 #include <string>
 #include <set>
@@ -17,7 +18,15 @@ namespace {
     auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
 
     TEST(OAGPairwiseGlobalAlignmentGraphTest, ConceptCheck) {
-        using G = pairwise_global_alignment_graph<true, std::string, std::string>;
+        using G = pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            std::string,
+            std::string,
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        >;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
         static_assert(offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph<G>);
     }
@@ -25,7 +34,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, ListNodes) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -47,7 +64,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, ListEdges) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -81,7 +106,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, NodesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -102,7 +135,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, RightEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -120,7 +161,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, DownEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -138,7 +187,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, DiagEdgesExist) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -156,7 +213,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, GetOutputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -219,7 +284,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, GetInputs) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -282,7 +355,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, GetOutputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -300,7 +381,15 @@ namespace {
     TEST(OAGPairwiseGlobalAlignmentGraphTest, GetInputDegree) {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
@@ -330,7 +419,15 @@ namespace {
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
-        pairwise_global_alignment_graph<true, decltype(seq1), decltype(seq2)> g {
+        pairwise_global_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g {
             seq1,
             seq2,
             substitution_scorer,
