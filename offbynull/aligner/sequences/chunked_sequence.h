@@ -94,6 +94,26 @@ namespace offbynull::aligner::sequences::chunked_sequence {
             return seq.size() / chunk_length;
         }
     };
+
+    template<bool debug_mode>
+    sequence auto create_heap_chunked_sequence(const sequence auto& backing_sequence_, std::size_t chunk_length) {
+        return
+            chunked_sequence<
+                debug_mode,
+                decltype(backing_sequence_)
+            > { backing_sequence_, chunk_length };
+    }
+
+    template<bool debug_mode, std::size_t chunk_length>
+    sequence auto create_stack_chunked_sequence(const sequence auto& backing_sequence_) {
+        using ELEM = std::decay_t<decltype(backing_sequence_[0zu])>;
+        return
+             chunked_sequence<
+                debug_mode,
+                decltype(backing_sequence_),
+                chunked_sequence_stack_container_creator_pack<debug_mode, ELEM, chunk_length>
+            > { backing_sequence_, chunk_length };
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_CHUNKED_SEQUENCE_H

@@ -2,7 +2,6 @@
 #define OFFBYNULL_ALIGNER_SEQUENCES_MMAP_SEQUENCE_H
 
 #include "offbynull/aligner/sequence/sequence.h"
-#include <functional>
 #include <cstddef>
 #include <stdexcept>
 #include <string>
@@ -12,29 +11,16 @@ namespace offbynull::aligner::sequences::mmap_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
     using boost::iostreams::mapped_file_source;
 
-    template<bool debug_mode, typename ELEM>
+    template<bool debug_mode>
     class mmap_sequence {
     private:
         mapped_file_source file;
-        const std::function<ELEM(const char*)> transformer;
-        const std::size_t bytes_per_elem;
 
     public:
-        mmap_sequence(const std::string& path)
-        : mmap_sequence {
-            path,
-            [](const void* ptr) -> ELEM { return *reinterpret_cast<const ELEM*>(ptr); },
-            sizeof(ELEM)
-        } {}
-
         mmap_sequence(
-            const std::string& path,
-            std::function<ELEM(const char*)> transformer_,  // logic decoding bytes to elem
-            std::size_t bytes_per_elem_                     // num of bytes per elem
+            const std::string& path
         )
-        : file { path, boost::iostreams::mapped_file_base::readonly }
-        , transformer { transformer_ }
-        , bytes_per_elem { bytes_per_elem_ } {
+        : file { path, boost::iostreams::mapped_file_base::readonly } {
             if constexpr (debug_mode) {
                 if (!file.is_open()) {
                     throw std::runtime_error("File not open");
@@ -42,14 +28,13 @@ namespace offbynull::aligner::sequences::mmap_sequence {
             }
         }
 
-        ELEM operator[](std::size_t index) const {
-            const char* ptr { file.data() };
-            ptr += index * bytes_per_elem;
-            return transformer(ptr);
+        char operator[](std::size_t index) const {
+            const char* ptr { file.data() + index };
+            return *ptr;
         }
 
         std::size_t size() const {
-            return file.size() / bytes_per_elem;
+            return file.size();
         }
 
         ~mmap_sequence() {

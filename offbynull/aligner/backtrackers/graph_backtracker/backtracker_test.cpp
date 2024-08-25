@@ -43,11 +43,17 @@ namespace {
         using E = decltype(g)::E;
         using ED = decltype(g)::ED;
 
-        backtracker<true, decltype(g), ED> _backtracker {};
+        auto edge_weight_accessor { [&g](const E& edge) { return g.get_edge_data(edge); } };
+        backtracker<
+            true,
+            decltype(g),
+            ED,
+            decltype(edge_weight_accessor)
+        > _backtracker {};
         const auto& [path, weight] {
             _backtracker.find_max_path(
                 g,
-                [&g](const E& edge) { return g.get_edge_data(edge); }
+                edge_weight_accessor
             )
         };
         for (const E& e : path) {
@@ -90,11 +96,18 @@ namespace {
         g.insert_edge(std::pair { std::pair { 0zu, 1zu }, std::pair { 1zu, 2zu } }, std::pair { 0zu, 1zu }, std::pair { 1zu, 2zu }, 0.0);
         g.update_edge_data({ { 0zu, 0zu }, { 0zu, 1zu } }, 1.1);
         g.update_edge_data({ { 1zu, 1zu }, { 1zu, 2zu } }, 1.4);
-        backtracker<true, decltype(g), ED> _backtracker {};
+
+        auto edge_weight_accessor { [&g](const E& edge) { return g.get_edge_data(edge); } };
+        backtracker<
+            true,
+            decltype(g),
+            ED,
+            decltype(edge_weight_accessor)
+        > _backtracker {};
         const auto& [path, weight] {
             _backtracker.find_max_path(
                 g,
-                [&g](const E& edge) { return g.get_edge_data(edge); }
+                edge_weight_accessor
             )
         };
         for (const E& e : path) {

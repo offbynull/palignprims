@@ -9,6 +9,7 @@
 #include <limits>
 #include <algorithm>
 #include <stdexcept>
+#include <concepts>
 #include <boost/container/small_vector.hpp>
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
@@ -119,10 +120,27 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
 
 
 
+
+    template<
+        typename T,
+        typename E,
+        typename WEIGHT
+    >
+    concept edge_weight_accessor =
+        backtrackable_edge<E>
+        && weight<WEIGHT>
+        && requires(const T t, const E& e) {
+            { t(e) } -> std::same_as<WEIGHT>;
+        };
+
+
+
+
     template<
         bool debug_mode,
         readable_graph G,
         weight WEIGHT,
+        edge_weight_accessor<typename G::E, WEIGHT> EDGE_WEIGHT_ACCESSOR,
         backtracker_container_creator_pack<
             typename G::N,
             typename G::E,
@@ -159,7 +177,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
 
         slot_container_t populate_weights_and_backtrack_pointers(
             const G& g,
-            std::function<WEIGHT(const E&)> edge_weight_accessor
+            const EDGE_WEIGHT_ACCESSOR& edge_weight_accessor
         ) {
             // Create "slots" list
             // -------------------
@@ -294,7 +312,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
 
         auto find_max_path(
                 G& graph,
-                std::function<WEIGHT(const E&)> edge_weight_accessor
+                const EDGE_WEIGHT_ACCESSOR& edge_weight_accessor
         ) {
             auto slots {
                 populate_weights_and_backtrack_pointers(

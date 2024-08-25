@@ -1,16 +1,23 @@
 #include "offbynull/aligner/sequence/sequence.h"
+#include "offbynull/aligner/sequences/iota_sequence.h"
 #include "offbynull/aligner/sequences/transform_sequence.h"
 #include "gtest/gtest.h"
 #include <cstdint>
-#include <cstddef>
 
 namespace {
     using offbynull::aligner::sequence::sequence::sequence;
+    using offbynull::aligner::sequences::iota_sequence::iota_sequence;
     using offbynull::aligner::sequences::transform_sequence::transform_sequence;
+    using offbynull::aligner::sequences::transform_sequence::create_transform_sequence;
 
     TEST(OASTransformSequenceTest, SanityTest) {
-        // u8 literal suffix not enabled unless special flag is present? -fext-numeric-literals
-        transform_sequence<true, std::size_t> seq { 3zu, [](std::size_t idx) { return idx * 2zu; } };
+        iota_sequence<true, unsigned int> backing_seq { 0u, 3u };
+        auto seq {
+            create_transform_sequence<true>(
+                backing_seq,
+                [](unsigned int x) { return x * 2; }
+            )
+        };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(seq[0], static_cast<std::uint8_t>(0));
         EXPECT_EQ(seq[1], static_cast<std::uint8_t>(2));

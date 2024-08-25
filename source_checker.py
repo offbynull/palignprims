@@ -87,6 +87,7 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::is_convertible_v': 'type_traits',
     'std::is_rvalue_reference_v': 'type_traits',
     'std::remove_reference_t': 'type_traits',
+    'std::invoke_result_t': 'type_traits',
     'std::decay_t': 'type_traits',
     'std::numeric_limits': 'limits',
     'std::input_iterator': 'iterator',
