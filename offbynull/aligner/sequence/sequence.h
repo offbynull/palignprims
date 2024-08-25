@@ -5,15 +5,15 @@
 #include <utility>
 #include <cstddef>
 #include <type_traits>
+#include "offbynull/concepts.h"
 
 namespace offbynull::aligner::sequence::sequence {
-    template<typename T>
-    concept decayable_type = !std::is_void_v<T> && std::is_convertible_v<T, std::decay_t<T>>;
+    using offbynull::concepts::convertible_to_unqualified_value_type;
 
     template<typename T>
     concept sequence =
         requires(T t) {
-            { t[0zu] } -> decayable_type;  // Convertible to non-void type that decays (only needs copy constructor?)
+            { t[0zu] } -> convertible_to_unqualified_value_type;  // Returns unqualified value type or convertable to one (copy constructor)
             { t.size() } -> std::same_as<std::size_t>;
         } &&
         std::regular<

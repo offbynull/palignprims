@@ -10,14 +10,12 @@
 namespace offbynull::aligner::sequences::transform_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::widenable_to_size_t;
-
-    template<typename T>
-    concept decayable_type = !std::is_void_v<T> && std::is_convertible_v<T, std::decay_t<T>>;
+    using offbynull::concepts::unqualified_value_type;
 
     template<typename T, typename INPUT>
     concept transformer =
         requires(const T t, INPUT input) {
-            { t(input) } -> decayable_type;
+            { t(input) } -> unqualified_value_type;
         };
 
 

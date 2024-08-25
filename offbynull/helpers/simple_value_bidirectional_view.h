@@ -4,13 +4,12 @@
 #include <cstdint>
 #include <ranges>
 #include <iterator>
-#include <type_traits>
 #include <concepts>
 #include <utility>
+#include "offbynull/concepts.h"
 
 namespace offbynull::helpers::simple_value_bidirectional_view {
-    template<typename T>
-    concept decayable_type = !std::is_void_v<T> && std::is_convertible_v<T, std::decay_t<T>>;
+    using offbynull::concepts::unqualified_value_type;
 
     template<typename T>
     concept state =
@@ -18,7 +17,7 @@ namespace offbynull::helpers::simple_value_bidirectional_view {
         && requires(T self, const T const_self) {
             { self.to_prev() } -> std::same_as<void>;
             { self.to_next() } -> std::same_as<void>;
-            { const_self.value() } -> decayable_type;  // Convertible to non-void type that decays (only needs copy constructor?)
+            { const_self.value() } -> unqualified_value_type;
         };
 
     template<state STATE>

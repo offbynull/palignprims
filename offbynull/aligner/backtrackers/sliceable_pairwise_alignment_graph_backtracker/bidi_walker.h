@@ -185,20 +185,28 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 });
         }
 
-        static find_result converge(
+        // Equivalent to find_result, but slots are NOT REFERENCES into the bidi_walker. That way, if the bidi_walker goes out of scope,
+        // it won't be pointing to released memory.
+        struct find_result_copy {
+            const slot<E, ED> forward_slot;
+            const slot<E, ED> backward_slot;
+        };
+
+        static find_result_copy converge(
             const G& g,
             const N& node
         ) {
             const auto& [down, right, depth] { g.node_to_grid_offsets(node) };
             bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g, down) };
-            return bidi_walker_.find(node);
+            find_result found { bidi_walker_.find(node) };
+            return find_result_copy { found.forward_slot, found.backward_slot };
         }
 
         static ED converge_weight(
             const G& g,
             const N& node
         ) {
-            find_result slots { converge(g, node) };
+            find_result_copy slots { converge(g, node) };
             return slots.forward_slot.backtracking_weight + slots.backward_slot.backtracking_weight;
         }
 
