@@ -5,6 +5,7 @@
 #include <utility>
 #include <ranges>
 #include <cmath>
+#include <type_traits>
 #include <stdexcept>
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/concepts.h"
@@ -14,6 +15,7 @@
 #include "offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/middle_sliceable_pairwise_alignment_graph.h"
+#include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker {
@@ -35,6 +37,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
+    using offbynull::concepts::unqualified_value_type;
     using offbynull::utils::static_vector_typer;
 
 
@@ -47,7 +50,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         typename ED
     >
     concept bidi_walker_container_creator_pack =
-        weight<ED>
+        unqualified_value_type<T>
+        && weight<ED>
         && requires(T t) {
             { t.create_forward_walker_container_creator_pack() } -> forward_walker_container_creator_pack<N, E, ED>;
             { t.create_backward_walker_container_creator_pack() } -> forward_walker_container_creator_pack<N, E, ED>;
@@ -141,7 +145,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         const INDEX target_slice;
         const reversed_sliceable_pairwise_alignment_graph<debug_mode, G> reversed_g;
         forward_walker<debug_mode, G, FORWARD_WALKER_CONTAINER_CREATOR_PACK> forward_walker_;
-        forward_walker<debug_mode, decltype(reversed_g), BACKWARD_WALKER_CONTAINER_CREATOR_PACK> backward_walker;
+        forward_walker<debug_mode, std::remove_const_t<decltype(reversed_g)>, BACKWARD_WALKER_CONTAINER_CREATOR_PACK> backward_walker;
 
     public:
         static bidi_walker create_and_initialize(

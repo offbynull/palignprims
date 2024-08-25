@@ -10,6 +10,7 @@
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue {
     using offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph;
     using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::unqualified_value_type;
     using offbynull::utils::static_vector_typer;
 
 
@@ -19,7 +20,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         typename T
     >
     concept ready_queue_container_creator_pack =
-        requires(const T t) {
+        unqualified_value_type<T>
+        && requires(const T t) {
             { t.create_queue_container() } -> random_access_range_of_type<std::size_t>;
         };
 

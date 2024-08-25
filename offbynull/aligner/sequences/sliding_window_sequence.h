@@ -13,7 +13,7 @@
 namespace offbynull::aligner::sequences::sliding_window_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::random_access_range_of_type;
-
+    using offbynull::concepts::unqualified_value_type;
 
 
 
@@ -22,7 +22,8 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
         typename E
     >
     concept sliding_window_sequence_container_creator_pack =
-        requires(const T t, std::size_t reserve_len) {
+        unqualified_value_type<T>
+        && requires(const T t, std::size_t reserve_len) {
             { t.create_result_container(reserve_len) } -> random_access_range_of_type<E>;
         };
 
@@ -59,8 +60,8 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
     template<
         bool debug_mode,
         sequence SEQ,
-        sliding_window_sequence_container_creator_pack<std::decay_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK =
-            sliding_window_sequence_heap_container_creator_pack<debug_mode, std::decay_t<decltype(std::declval<SEQ>()[0zu])>>
+        sliding_window_sequence_container_creator_pack<std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK =
+            sliding_window_sequence_heap_container_creator_pack<debug_mode, std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>>
     >
     class sliding_window_sequence {
     private:

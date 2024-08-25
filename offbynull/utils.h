@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <concepts>
 #include <vector>
+#include <set>
 #include <ranges>
 #include <type_traits>
 #include <boost/container/static_vector.hpp>
@@ -51,15 +52,33 @@ namespace offbynull::utils {
 
     template<integral_or_floating_point T>
     struct constants {
-        constexpr static T _0 { static_cast<T>(0) };
-        constexpr static T _1 { static_cast<T>(1) };
+        constexpr static T V0 { static_cast<T>(0) };
+        constexpr static T V1 { static_cast<T>(1) };
     };
 
-    auto copy_to_vector(std::ranges::range auto&& range) -> std::vector<std::decay_t<decltype(*range.begin())>> {
-        using ELEM = std::decay_t<decltype(*range.begin())>;
+    auto copy_to_vector(std::ranges::range auto&& range) -> std::vector<std::remove_cvref_t<decltype(*range.begin())>> {
+        using ELEM = std::remove_cvref_t<decltype(*range.begin())>;
         std::vector<ELEM> ret {};
         for (const auto& e : range) {
             ret.push_back(e);
+        }
+        return ret;
+    };
+
+    auto copy_to_set(std::ranges::range auto&& range) -> std::set<std::remove_cvref_t<decltype(*range.begin())>> {
+        using ELEM = std::remove_cvref_t<decltype(*range.begin())>;
+        std::set<ELEM> ret {};
+        for (const auto& e : range) {
+            ret.insert(e);
+        }
+        return ret;
+    };
+
+    auto copy_to_multiset(std::ranges::range auto&& range) -> std::multiset<std::remove_cvref_t<decltype(*range.begin())>> {
+        using ELEM = std::remove_cvref_t<decltype(*range.begin())>;
+        std::multiset<ELEM> ret {};
+        for (const auto& e : range) {
+            ret.insert(e);
         }
         return ret;
     };

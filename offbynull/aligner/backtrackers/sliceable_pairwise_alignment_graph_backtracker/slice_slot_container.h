@@ -19,6 +19,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::readable_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
     using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::unqualified_value_type;
     using offbynull::utils::static_vector_typer;
 
 
@@ -30,7 +31,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         typename ED
     >
     concept slice_slot_container_container_creator_pack =
-        weight<ED>
+        unqualified_value_type<T>
+        && weight<ED>
         && requires(const T t, std::size_t grid_right_cnt, std::size_t grid_depth_cnt) {
             { t.create_slot_container(grid_right_cnt, grid_depth_cnt) } -> random_access_range_of_type<slot<E, ED>>;
         };

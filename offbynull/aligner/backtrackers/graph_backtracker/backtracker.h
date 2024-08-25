@@ -36,6 +36,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
     using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::unqualified_value_type;
 
 
 
@@ -47,7 +48,8 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         typename WEIGHT
     >
     concept backtracker_container_creator_pack =
-        weight<WEIGHT>
+        unqualified_value_type<T>
+        && weight<WEIGHT>
         && requires(const T t) {
             { t.create_slot_container_container_creator_pack() } -> slot_container_container_creator_pack<N, E, WEIGHT>;
             { t.create_ready_queue_container_creator_pack() } -> ready_queue_container_creator_pack<>;
@@ -127,6 +129,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         typename WEIGHT
     >
     concept edge_weight_accessor =
+        // leave out unqualified_value_type<T> because it won't pass if T is a function pointer? or maybe it will?
         backtrackable_edge<E>
         && weight<WEIGHT>
         && requires(const T t, const E& e) {

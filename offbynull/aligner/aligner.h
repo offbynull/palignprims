@@ -55,7 +55,7 @@ namespace offbynull::aligner::aligner {
             !std::is_rvalue_reference_v<decltype(w)>,
             "w cannot be an rvalue ref: Function returns references into w, meaning w should continue to exist once function returns.");
 
-        using G = std::decay_t<decltype(graph)>;
+        using G = std::remove_cvref_t<decltype(graph)>;
         using N = typename G::N;
         using E = typename G::E;
         using COUNT = std::size_t;
@@ -74,8 +74,8 @@ namespace offbynull::aligner::aligner {
                 | std::views::transform([&](const auto& edge) { return graph.edge_to_element_offsets(edge); })
                 | std::views::filter([](const auto& edge_idxes) { return edge_idxes.has_value(); })
                 | std::views::transform([&](const auto& edge_idxes) {
-                    using V_TYPE = std::optional<std::decay_t<decltype(v[0zu])>>; // removes refs - this copies v's elem
-                    using W_TYPE = std::optional<std::decay_t<decltype(w[0zu])>>; // removes refs - this copies v's elem
+                    using V_TYPE = std::optional<std::remove_cvref_t<decltype(v[0zu])>>; // removes refs - this copies v's elem
+                    using W_TYPE = std::optional<std::remove_cvref_t<decltype(w[0zu])>>; // removes refs - this copies v's elem
                     const auto& [v_idx, w_idx] { *edge_idxes };
                     if (v_idx.has_value() && w_idx.has_value()) {
                         return std::pair<V_TYPE, W_TYPE> { { v[*v_idx] }, { w[*w_idx] } };
@@ -350,7 +350,7 @@ namespace offbynull::aligner::aligner {
         }
         constexpr std::size_t v_node_cnt { V_SIZE + 1u };
         constexpr std::size_t w_node_cnt { W_SIZE + 1u };
-        using G = std::decay_t<decltype(graph)>;
+        using G = std::remove_cvref_t<decltype(graph)>;
         using N = typename G::N;
         using E = typename G::E;
         using COUNT = std::size_t;

@@ -10,10 +10,10 @@
 
 namespace offbynull::concepts {
     template<typename T>
-    concept unqualified_value_type = !std::is_void_v<T> && std::is_same_v<T, std::decay_t<T>>;
+    concept unqualified_value_type = !std::is_void_v<T> && std::is_same_v<T, std::remove_cvref_t<T>>;
 
     template<typename T>
-    concept convertible_to_unqualified_value_type= !std::is_void_v<T> && std::is_convertible_v<T, std::decay_t<T>>;
+    concept convertible_to_unqualified_value_type= !std::is_void_v<T> && std::is_convertible_v<T, std::remove_cvref_t<T>>;
 
     template <typename T, typename V>
     concept random_access_range_of_type = std::ranges::random_access_range<T> && std::same_as<std::ranges::range_reference_t<T>, V&>;

@@ -62,33 +62,33 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         sequence RIGHT_SEQ,
         scorer<
             edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > SUBSTITUTION_SCORER,
         scorer<
             edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > INITIAL_GAP_SCORER,
         scorer<
             edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > EXTENDED_GAP_SCORER,
         scorer<
             edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > FREERIDE_SCORER
     >
     class pairwise_extended_gap_alignment_graph {
     public:
-        using DOWN_ELEM = std::decay_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
-        using RIGHT_ELEM = std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
+        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
         using INDEX = INDEX_;
         using N = node<INDEX>;
         using ND = empty_type;
@@ -129,21 +129,21 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         // non-trivial possibility that the user will submit the same object for both scorers, and so if the universal reference ends up
         // being an rvalue reference it'll try to move the same object twice.
         pairwise_extended_gap_alignment_graph(
-            const DOWN_SEQ& _down_seq,
-            const RIGHT_SEQ& _right_seq,
-            const SUBSTITUTION_SCORER& _substitution_scorer,
-            const INITIAL_GAP_SCORER& _initial_gap_scorer,
-            const EXTENDED_GAP_SCORER& _extended_gap_scorer,
-            const FREERIDE_SCORER& _freeride_scorer
+            const DOWN_SEQ& down_seq_,
+            const RIGHT_SEQ& right_seq_,
+            const SUBSTITUTION_SCORER& substitution_scorer_,
+            const INITIAL_GAP_SCORER& initial_gap_scorer_,
+            const EXTENDED_GAP_SCORER& extended_gap_scorer_,
+            const FREERIDE_SCORER& freeride_scorer_
         )
-        : down_seq { _down_seq }
-        , right_seq { _right_seq }
-        , substitution_scorer { _substitution_scorer }
-        , initial_gap_scorer { _initial_gap_scorer }
-        , extended_gap_scorer { _extended_gap_scorer }
-        , freeride_scorer { _freeride_scorer }
-        , grid_down_cnt { _down_seq.size() + 1zu }
-        , grid_right_cnt { _right_seq.size() + 1zu }
+        : down_seq { down_seq_ }
+        , right_seq { right_seq_ }
+        , substitution_scorer { substitution_scorer_ }
+        , initial_gap_scorer { initial_gap_scorer_ }
+        , extended_gap_scorer { extended_gap_scorer_ }
+        , freeride_scorer { freeride_scorer_ }
+        , grid_down_cnt { down_seq.size() + 1zu }
+        , grid_right_cnt { right_seq.size() + 1zu }
         , path_edge_capacity { (grid_right_cnt - 1zu) * 2zu + (grid_down_cnt - 1zu) * 2zu } {}
 
         ND get_node_data(const N& node) const {

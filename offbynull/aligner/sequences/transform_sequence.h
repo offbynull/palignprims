@@ -14,6 +14,7 @@ namespace offbynull::aligner::sequences::transform_sequence {
 
     template<typename T, typename INPUT>
     concept transformer =
+        // leave out unqualified_value_type<T> because it won't pass if T is a function pointer? or maybe it will?
         requires(const T t, INPUT input) {
             { t(input) } -> unqualified_value_type;
         };
@@ -22,14 +23,14 @@ namespace offbynull::aligner::sequences::transform_sequence {
     template<
         bool debug_mode,
         sequence BACKING_SEQUENCE,
-        transformer<std::decay_t<decltype(std::declval<BACKING_SEQUENCE>()[0zu])>> TRANSFORMER
+        transformer<std::remove_cvref_t<decltype(std::declval<BACKING_SEQUENCE>()[0zu])>> TRANSFORMER
     >
     class transform_sequence {
     private:
         const BACKING_SEQUENCE& backing_sequence;
         const TRANSFORMER transformer;
 
-        using INPUT = std::decay_t<decltype(std::declval<BACKING_SEQUENCE>()[0zu])>;
+        using INPUT = std::remove_cvref_t<decltype(std::declval<BACKING_SEQUENCE>()[0zu])>;
         using OUTPUT = std::invoke_result_t<TRANSFORMER, INPUT>;
 
     public:
@@ -54,8 +55,8 @@ namespace offbynull::aligner::sequences::transform_sequence {
     sequence auto create_transform_sequence(const sequence auto& backing_sequence_, const auto& transformer_) {
         return transform_sequence<
                 debug_mode,
-                decltype(backing_sequence_),
-                decltype(transformer_)
+                std::remove_cvref_t<decltype(backing_sequence_)>,
+                std::remove_cvref_t<decltype(transformer_)>
             > { backing_sequence_, transformer_ };
     }
 }

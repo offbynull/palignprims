@@ -54,6 +54,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::concepts::weight;
     using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
+    using offbynull::concepts::unqualified_value_type;
 
 
 
@@ -65,7 +66,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         typename ED
     >
     concept sliced_subdivider_container_creator_pack =
-        weight<ED>
+        unqualified_value_type<T>
+        && weight<ED>
         && requires(T t) {
             { t.create_slice_slot_container_container_creator_pack() } -> slice_slot_container_container_creator_pack<E, ED>;
             { t.create_path_container_container_creator_pack() } -> path_container_container_creator_pack<E>;

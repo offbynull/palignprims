@@ -50,21 +50,21 @@ namespace offbynull::aligner::graphs::grid_graph {
         sequence RIGHT_SEQ,
         scorer<
             edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > SUBSTITUTION_SCORER,
         scorer<
             edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > GAP_SCORER
     >
     class grid_graph {
     public:
-        using DOWN_ELEM = std::decay_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
-        using RIGHT_ELEM = std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
+        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
         using INDEX = INDEX_;
         using N = node<INDEX>;
         using ND = empty_type;
@@ -105,17 +105,17 @@ namespace offbynull::aligner::graphs::grid_graph {
         // non-trivial possibility that the user will submit the same object for both scorers, and so if the universal reference ends up
         // being an rvalue reference it'll try to move the same object twice.
         grid_graph(
-            const DOWN_SEQ& _down_seq,
-            const RIGHT_SEQ& _right_seq,
-            const SUBSTITUTION_SCORER& _substitution_scorer,
-            const GAP_SCORER& _gap_scorer
+            const DOWN_SEQ& down_seq_,
+            const RIGHT_SEQ& right_seq_,
+            const SUBSTITUTION_SCORER& substitution_scorer_,
+            const GAP_SCORER& gap_scorer_
         )
-        : down_seq { _down_seq }
-        , right_seq { _right_seq }
-        , substitution_scorer { _substitution_scorer } // Copying object, not the ref
-        , gap_scorer { _gap_scorer } // Copying object, not the ref
-        , grid_down_cnt { _down_seq.size() + 1zu }
-        , grid_right_cnt { _right_seq.size() + 1zu }
+        : down_seq { down_seq_ }
+        , right_seq { right_seq_ }
+        , substitution_scorer { substitution_scorer_ } // Copying object, not the ref
+        , gap_scorer { gap_scorer_ } // Copying object, not the ref
+        , grid_down_cnt { down_seq_.size() + 1zu }
+        , grid_right_cnt { right_seq_.size() + 1zu }
         , path_edge_capacity { (grid_right_cnt - 1u) + (grid_down_cnt - 1u) } {}
 
         ND get_node_data(const N& node) const {

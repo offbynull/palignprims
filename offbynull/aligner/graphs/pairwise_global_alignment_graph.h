@@ -31,14 +31,14 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         sequence RIGHT_SEQ,
         scorer<
             edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > SUBSTITUTION_SCORER,
         scorer<
             edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > GAP_SCORER
     >
@@ -55,8 +55,8 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         > g;
 
     public:
-        using DOWN_ELEM = std::decay_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
-        using RIGHT_ELEM = std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
+        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
         using INDEX = INDEX_;
         using N = node<INDEX>;
         using E = edge<INDEX>;
@@ -73,12 +73,12 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         // non-trivial possibility that the user will submit the same object for both scorers, and so if the universal reference ends up
         // being an rvalue reference it'll try to move the same object twice.
         pairwise_global_alignment_graph(
-            const DOWN_SEQ& _down_seq,
-            const RIGHT_SEQ& _right_seq,
-            const SUBSTITUTION_SCORER& _substitution_scorer,
-            const GAP_SCORER& _gap_scorer
+            const DOWN_SEQ& down_seq_,
+            const RIGHT_SEQ& right_seq_,
+            const SUBSTITUTION_SCORER& substitution_scorer_,
+            const GAP_SCORER& gap_scorer_
         )
-        : g { _down_seq, _right_seq, _substitution_scorer, _gap_scorer }
+        : g { down_seq_, right_seq_, substitution_scorer_, gap_scorer_ }
         , grid_down_cnt { g.grid_down_cnt }
         , grid_right_cnt { g.grid_right_cnt }
         , path_edge_capacity { g.path_edge_capacity } {}

@@ -14,7 +14,8 @@ namespace {
     using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_vector;
-    
+    using offbynull::utils::copy_to_set;
+
     auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
     auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
 
@@ -83,13 +84,8 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        auto e = g.get_edges();
-        std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-        for (auto _e : e) {
-            actual.insert(_e);
-        }
         EXPECT_EQ(
-            actual,
+            copy_to_set(g.get_edges()),
             (std::set<E> {
                 E { N { 0zu, 0zu }, N { 0zu, 1zu } },
                 E { N { 0zu, 1zu }, N { 0zu, 2zu } },
@@ -232,54 +228,30 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        {
-            std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-            for (auto _e : g.get_outputs( N { 0zu, 0zu } )) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::set<E> {
-                    E { N { 0zu, 0zu }, N { 0zu, 1zu } },
-                    E { N { 0zu, 0zu }, N { 1zu, 0zu } },
-                    E { N { 0zu, 0zu }, N { 1zu, 1zu } }
-                })
-            );
-        }
-        {
-            std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-            for (auto _e : g.get_outputs( N { 1zu, 2zu } )) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::set<E> {})
-            );
-        }
-        {
-            std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-            for (auto _e : g.get_outputs( N { 0zu, 2zu } )) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::set<E> {
-                    E { N { 0zu, 2zu }, N { 1zu, 2zu } }
-                })
-            );
-        }
-        {
-            std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-            for (auto _e : g.get_outputs( N { 1zu, 0zu } )) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::set<E> {
-                    E { N { 1zu, 0zu }, N { 1zu, 1zu } }
-                })
-            );
-        }
+        EXPECT_EQ(
+            copy_to_set(g.get_outputs(N { 0zu, 0zu })),
+            (std::set<E> {
+                E { N { 0zu, 0zu }, N { 0zu, 1zu } },
+                E { N { 0zu, 0zu }, N { 1zu, 0zu } },
+                E { N { 0zu, 0zu }, N { 1zu, 1zu } }
+            })
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_outputs(N { 1zu, 2zu })),
+            (std::set<E> {})
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_outputs(N { 0zu, 2zu })),
+            (std::set<E> {
+                E { N { 0zu, 2zu }, N { 1zu, 2zu } }
+            })
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_outputs(N { 1zu, 0zu })),
+            (std::set<E> {
+                E { N { 1zu, 0zu }, N { 1zu, 1zu } }
+            })
+        );
     }
 
     TEST(OAGPairwiseGlobalAlignmentGraphTest, GetInputs) {
@@ -303,54 +275,30 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        {
-            std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-            for (auto _e : g.get_inputs( N { 0zu, 0zu } )) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::set<E> {})
-            );
-        }
-        {
-            std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-            for (auto _e : g.get_inputs( N { 1zu, 2zu } )) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::set<E> {
-                    E { N { 0zu, 2zu }, N { 1zu, 2zu } },
-                    E { N { 1zu, 1zu }, N { 1zu, 2zu } },
-                    E { N { 0zu, 1zu }, N { 1zu, 2zu } }
-                })
-            );
-        }
-        {
-            std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-            for (auto _e : g.get_inputs( N { 0zu, 2zu } )) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::set<E> {
-                    E { N { 0zu, 1zu }, N { 0zu, 2zu } }
-                })
-            );
-        }
-        {
-            std::set<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-            for (auto _e : g.get_inputs( N { 1zu, 0zu } )) {
-                actual.insert(_e);
-            }
-            EXPECT_EQ(
-                actual,
-                (std::set<E> {
-                    E { N { 0zu, 0zu }, N { 1zu, 0zu } }
-                })
-            );
-        }
+        EXPECT_EQ(
+            copy_to_set(g.get_inputs(N { 0zu, 0zu })),
+            (std::set<E> {})
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_inputs(N { 1zu, 2zu })),
+            (std::set<E> {
+                E { N { 0zu, 2zu }, N { 1zu, 2zu } },
+                E { N { 1zu, 1zu }, N { 1zu, 2zu } },
+                E { N { 0zu, 1zu }, N { 1zu, 2zu } }
+            })
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_inputs(N { 0zu, 2zu })),
+            (std::set<E> {
+                E { N { 0zu, 1zu }, N { 0zu, 2zu } }
+            })
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_inputs(N { 1zu, 0zu })),
+            (std::set<E> {
+                E { N { 0zu, 0zu }, N { 1zu, 0zu } }
+            })
+        );
     }
 
     TEST(OAGPairwiseGlobalAlignmentGraphTest, GetOutputDegree) {

@@ -49,9 +49,9 @@ namespace {
             decltype(g),
             ED,
             decltype(edge_weight_accessor)
-        > _backtracker {};
+        > backtracker_ {};
         const auto& [path, weight] {
-            _backtracker.find_max_path(
+            backtracker_.find_max_path(
                 g,
                 edge_weight_accessor
             )
@@ -103,9 +103,9 @@ namespace {
             decltype(g),
             ED,
             decltype(edge_weight_accessor)
-        > _backtracker {};
+        > backtracker_ {};
         const auto& [path, weight] {
-            _backtracker.find_max_path(
+            backtracker_.find_max_path(
                 g,
                 edge_weight_accessor
             )

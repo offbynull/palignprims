@@ -17,6 +17,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
     using offbynull::aligner::concepts::weight;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::unqualified_value_type;
     using offbynull::aligner::graph::graph::readable_graph;
 
     template<typename N, typename E, weight WEIGHT>
@@ -69,7 +70,8 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         typename WEIGHT
     >
     concept slot_container_container_creator_pack =
-        weight<WEIGHT>
+        unqualified_value_type<T>
+        && weight<WEIGHT>
         && requires(const T t, std::vector<slot<N, E, WEIGHT>> fake_range) {
             { t.create_slot_container(fake_range.begin(), fake_range.end()) } -> random_access_range_of_type<slot<N, E, WEIGHT>>;
         };

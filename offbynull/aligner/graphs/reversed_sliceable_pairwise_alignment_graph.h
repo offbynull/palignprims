@@ -35,8 +35,8 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         const std::size_t resident_nodes_capacity;
         const std::size_t path_edge_capacity;
 
-        reversed_sliceable_pairwise_alignment_graph(const G& _g)
-        : g { _g }
+        reversed_sliceable_pairwise_alignment_graph(const G& g_)
+        : g { g_ }
         , grid_down_cnt { g.grid_down_cnt }
         , grid_right_cnt { g.grid_right_cnt }
         , grid_depth_cnt { g.grid_depth_cnt }

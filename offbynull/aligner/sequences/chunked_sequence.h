@@ -13,7 +13,7 @@
 namespace offbynull::aligner::sequences::chunked_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::random_access_range_of_type;
-
+    using offbynull::concepts::unqualified_value_type;
 
 
 
@@ -22,7 +22,8 @@ namespace offbynull::aligner::sequences::chunked_sequence {
         typename E
     >
     concept chunked_sequence_container_creator_pack =
-        requires(const T t, std::size_t reserve_len) {
+        unqualified_value_type<T>
+        && requires(const T t, std::size_t reserve_len) {
             { t.create_result_container(reserve_len) } -> random_access_range_of_type<E>;
         };
 
@@ -59,8 +60,8 @@ namespace offbynull::aligner::sequences::chunked_sequence {
     template<
         bool debug_mode,
         sequence SEQ,
-        chunked_sequence_container_creator_pack<std::decay_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK =
-            chunked_sequence_heap_container_creator_pack<debug_mode, std::decay_t<decltype(std::declval<SEQ>()[0zu])>>
+        chunked_sequence_container_creator_pack<std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK =
+            chunked_sequence_heap_container_creator_pack<debug_mode, std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>>
     >
     class chunked_sequence {
     private:
@@ -100,17 +101,17 @@ namespace offbynull::aligner::sequences::chunked_sequence {
         return
             chunked_sequence<
                 debug_mode,
-                decltype(backing_sequence_)
+                std::remove_cvref_t<decltype(backing_sequence_)>
             > { backing_sequence_, chunk_length };
     }
 
     template<bool debug_mode, std::size_t chunk_length>
     sequence auto create_stack_chunked_sequence(const sequence auto& backing_sequence_) {
-        using ELEM = std::decay_t<decltype(backing_sequence_[0zu])>;
+        using ELEM = std::remove_cvref_t<decltype(backing_sequence_[0zu])>;
         return
              chunked_sequence<
                 debug_mode,
-                decltype(backing_sequence_),
+                std::remove_cvref_t<decltype(backing_sequence_)>,
                 chunked_sequence_stack_container_creator_pack<debug_mode, ELEM, chunk_length>
             > { backing_sequence_, chunk_length };
     }

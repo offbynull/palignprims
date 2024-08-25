@@ -96,27 +96,27 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
         sequence RIGHT_SEQ,
         scorer<
             fitting_edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > SUBSTITUTION_SCORER,
         scorer<
             fitting_edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > GAP_SCORER,
         scorer<
             fitting_edge<INDEX_>,
-            std::decay_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
-            std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
+            std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > FREERIDE_SCORER
     >
     class pairwise_fitting_alignment_graph {
     public:
-        using DOWN_ELEM = std::decay_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
-        using RIGHT_ELEM = std::decay_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
+        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
         using INDEX = INDEX_;
         using N = node<INDEX>;
         using E = fitting_edge<INDEX>;
@@ -146,19 +146,19 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
         // non-trivial possibility that the user will submit the same object for both scorers, and so if the universal reference ends up
         // being an rvalue reference it'll try to move the same object twice.
         pairwise_fitting_alignment_graph(
-            const DOWN_SEQ& _down_seq,
-            const RIGHT_SEQ& _right_seq,
-            const SUBSTITUTION_SCORER _substitution_scorer,
-            const GAP_SCORER _gap_scorer,
-            const FREERIDE_SCORER _freeride_scorer
+            const DOWN_SEQ& down_seq_,
+            const RIGHT_SEQ& right_seq_,
+            const SUBSTITUTION_SCORER substitution_scorer_,
+            const GAP_SCORER gap_scorer_,
+            const FREERIDE_SCORER freeride_scorer_
         )
         : g {
-            _down_seq,
-            _right_seq,
-            { _substitution_scorer }, /* grid_scorer_to_local_scorer_proxy */
-            { _gap_scorer } /* grid_scorer_to_local_scorer_proxy */
+            down_seq_,
+            right_seq_,
+            { substitution_scorer_ }, /* grid_scorer_to_local_scorer_proxy */
+            { gap_scorer_ } /* grid_scorer_to_local_scorer_proxy */
         }
-        , freeride_scorer { _freeride_scorer }
+        , freeride_scorer { freeride_scorer_ }
         , grid_down_cnt { g.grid_down_cnt }
         , grid_right_cnt { g.grid_right_cnt }
         , resident_nodes_capacity { 2zu }

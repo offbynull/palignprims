@@ -13,7 +13,8 @@ namespace offbynull::helpers::simple_value_bidirectional_view {
 
     template<typename T>
     concept state =
-        std::semiregular<T>
+        unqualified_value_type<T>
+        && std::semiregular<T>
         && requires(T self, const T const_self) {
             { self.to_prev() } -> std::same_as<void>;
             { self.to_next() } -> std::same_as<void>;

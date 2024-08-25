@@ -8,11 +8,13 @@
 
 namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
     using offbynull::concepts::range_of_one_of;
+    using offbynull::concepts::unqualified_value_type;
     using offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph;
 
     template <typename G>
     concept readable_sliceable_pairwise_alignment_graph =
-        readable_pairwise_alignment_graph<G>
+        unqualified_value_type<G>
+        && readable_pairwise_alignment_graph<G>
         && requires(
             G g,
             typename G::N node,

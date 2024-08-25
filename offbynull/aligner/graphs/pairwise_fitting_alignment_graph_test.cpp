@@ -3,7 +3,6 @@
 #include <string>
 #include <set>
 #include <vector>
-#include <algorithm>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_fitting_alignment_graph.h"
@@ -17,6 +16,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_fitting_alignment_graph::edge_type;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_vector;
+    using offbynull::utils::copy_to_set;
 
     auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
     auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
@@ -92,15 +92,9 @@ namespace {
 
         using E = typename decltype(g)::E;
 
-        auto e = g.get_edges();
-        std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
-        for (auto _e : e) {
-            actual.push_back(_e);
-        }
-        std::sort(actual.begin(), actual.end());
         EXPECT_EQ(
-            actual,
-            (std::vector<E> {
+            copy_to_set(g.get_edges()),
+            (std::set<E> {
                 E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 0zu } } },
                 E { edge_type::FREE_RIDE, { { 0zu, 2zu }, { 1zu, 2zu } } },
                 E { edge_type::NORMAL, { { 0zu, 0zu }, { 0zu, 1zu } } },
@@ -300,60 +294,32 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        {
-            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
-            for (auto _e : g.get_outputs(N { 0zu, 0zu } )) {
-                actual.push_back(_e);
-            }
-            std::sort(actual.begin(), actual.end());
-            EXPECT_EQ(
-                actual,
-                (std::vector<E> {
-                    E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 0zu } } },
-                    E { edge_type::NORMAL, { { 0zu, 0zu }, { 0zu, 1zu } } },
-                    E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 0zu } } },
-                    E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 1zu } } }
-                })
-            );
-        }
-        {
-            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
-            for (auto _e : g.get_outputs(N { 1zu, 2zu } )) {
-                actual.push_back(_e);
-            }
-            std::sort(actual.begin(), actual.end());
-            EXPECT_EQ(
-                actual,
-                (std::vector<E> {})
-            );
-        }
-        {
-            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
-            for (auto _e : g.get_outputs(N { 0zu, 2zu } )) {
-                actual.push_back(_e);
-            }
-            std::sort(actual.begin(), actual.end());
-            EXPECT_EQ(
-                actual,
-                (std::vector<E> {
-                    E { edge_type::FREE_RIDE, { { 0zu, 2zu }, { 1zu, 2zu } } },
-                    E { edge_type::NORMAL, { { 0zu, 2zu }, { 1zu, 2zu } } }
-                })
-            );
-        }
-        {
-            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
-            for (auto _e : g.get_outputs(N { 1zu, 0zu } )) {
-                actual.push_back(_e);
-            }
-            std::sort(actual.begin(), actual.end());
-            EXPECT_EQ(
-                actual,
-                (std::vector<E> {
-                    E { edge_type::NORMAL, { { 1zu, 0zu }, { 1zu, 1zu } } },
-                })
-            );
-        }
+        EXPECT_EQ(
+            copy_to_set(g.get_outputs(N { 0zu, 0zu })),
+            (std::set<E> {
+                E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 0zu } } },
+                E { edge_type::NORMAL, { { 0zu, 0zu }, { 0zu, 1zu } } },
+                E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 0zu } } },
+                E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 1zu } } }
+            })
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_outputs(N { 1zu, 2zu })),
+            (std::set<E> {})
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_outputs(N { 0zu, 2zu })),
+            (std::set<E> {
+                E { edge_type::FREE_RIDE, { { 0zu, 2zu }, { 1zu, 2zu } } },
+                E { edge_type::NORMAL, { { 0zu, 2zu }, { 1zu, 2zu } } }
+            })
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_outputs(N { 1zu, 0zu })),
+            (std::set<E> {
+                E { edge_type::NORMAL, { { 1zu, 0zu }, { 1zu, 1zu } } },
+            })
+        );
     }
 
     TEST(OAGPairwiseFittingAlignmentGraphTest, GetInputs) {
@@ -379,60 +345,32 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        {
-            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
-            for (auto _e : g.get_inputs(N { 0zu, 0zu })) {
-                actual.push_back(_e);
-            }
-            std::sort(actual.begin(), actual.end());
-            EXPECT_EQ(
-                actual,
-                (std::vector<E> {})
-            );
-        }
-        {
-            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
-            for (auto _e : g.get_inputs(N { 1zu, 2zu })) {
-                actual.push_back(_e);
-            }
-            std::sort(actual.begin(), actual.end());
-            EXPECT_EQ(
-                actual,
-                (std::vector<E> {
-                    E { edge_type::FREE_RIDE, { { 0zu, 2zu }, { 1zu, 2zu } } },
-                    E { edge_type::NORMAL, { { 0zu, 1zu }, { 1zu, 2zu } } },
-                    E { edge_type::NORMAL, { { 0zu, 2zu }, { 1zu, 2zu } } },
-                    E { edge_type::NORMAL, { { 1zu, 1zu }, { 1zu, 2zu } } }
-                })
-            );
-        }
-        {
-            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
-            for (auto _e : g.get_inputs(N { 0zu, 2zu })) {
-                actual.push_back(_e);
-            }
-            std::sort(actual.begin(), actual.end());
-            EXPECT_EQ(
-                actual,
-                (std::vector<E> {
-                    E { edge_type::NORMAL, { { 0zu, 1zu }, { 0zu, 2zu } } }
-                })
-            );
-        }
-        {
-            std::vector<E> actual {}; // TODO: Can't pass being()/end() to constructor to automate this? Fails when end() is sentinel type
-            for (auto _e : g.get_inputs(N { 1zu, 0zu } )) {
-                actual.push_back(_e);
-            }
-            std::sort(actual.begin(), actual.end());
-            EXPECT_EQ(
-                actual,
-                (std::vector<E> {
-                    E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 0zu } } },
-                    E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 0zu } } }
-                })
-            );
-        }
+        EXPECT_EQ(
+            copy_to_set(g.get_inputs(N { 0zu, 0zu })),
+            (std::set<E> {})
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_inputs(N { 1zu, 2zu })),
+            (std::set<E> {
+                E { edge_type::FREE_RIDE, { { 0zu, 2zu }, { 1zu, 2zu } } },
+                E { edge_type::NORMAL, { { 0zu, 1zu }, { 1zu, 2zu } } },
+                E { edge_type::NORMAL, { { 0zu, 2zu }, { 1zu, 2zu } } },
+                E { edge_type::NORMAL, { { 1zu, 1zu }, { 1zu, 2zu } } }
+            })
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_inputs(N { 0zu, 2zu })),
+            (std::set<E> {
+                E { edge_type::NORMAL, { { 0zu, 1zu }, { 0zu, 2zu } } }
+            })
+        );
+        EXPECT_EQ(
+            copy_to_set(g.get_inputs(N { 1zu, 0zu })),
+            (std::set<E> {
+                E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 0zu } } },
+                E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 0zu } } }
+            })
+        );
     }
 
     TEST(OAGPairwiseFittingAlignmentGraphTest, GetOutputDegree) {

@@ -3,7 +3,6 @@
 #include <string>
 #include <set>
 #include <vector>
-#include <algorithm>
 #include <iostream>
 #include <ostream>
 #include "offbynull/aligner/graph/graph.h"
@@ -18,6 +17,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node_layer;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_vector;
+    using offbynull::utils::copy_to_set;
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, ConceptCheck) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
@@ -67,12 +67,8 @@ namespace {
 
         using N = typename decltype(g)::N;
 
-        std::set<N> actual {};
-        for (const auto &n : g.get_nodes()) {
-            actual.insert(n);
-        }
         EXPECT_EQ(
-            actual,
+            copy_to_set(g.get_nodes()),
             (std::set<N> {
                 N { node_layer::DIAGONAL, 0zu, 0zu },
                 N { node_layer::DIAGONAL, 0zu, 1zu },
@@ -136,68 +132,60 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        auto e = g.get_edges();
-        std::vector<E> actual {}; // TODO: I can't use being() and end() within set's constructor to automate this?
-        for (auto _e : e) {
-            actual.push_back(_e);
-        }
-        std::ranges::sort(actual);
-        std::vector<E> expected {
-            E { N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DIAGONAL, 1zu, 1zu } },
-            E { N { node_layer::DIAGONAL, 0zu, 1zu }, N { node_layer::DIAGONAL, 1zu, 2zu } },
-            E { N { node_layer::DIAGONAL, 0zu, 2zu }, N { node_layer::DIAGONAL, 1zu, 3zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 0zu }, N { node_layer::DIAGONAL, 2zu, 1zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::DIAGONAL, 2zu, 2zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 2zu }, N { node_layer::DIAGONAL, 2zu, 3zu } },
-            E { N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::RIGHT, 0zu, 1zu } },
-            E { N { node_layer::DIAGONAL, 0zu, 1zu }, N { node_layer::RIGHT, 0zu, 2zu } },
-            E { N { node_layer::DIAGONAL, 0zu, 2zu }, N { node_layer::RIGHT, 0zu, 3zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 0zu }, N { node_layer::RIGHT, 1zu, 1zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 1zu, 2zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 2zu }, N { node_layer::RIGHT, 1zu, 3zu } },
-            E { N { node_layer::DIAGONAL, 2zu, 0zu }, N { node_layer::RIGHT, 2zu, 1zu } },
-            E { N { node_layer::DIAGONAL, 2zu, 1zu }, N { node_layer::RIGHT, 2zu, 2zu } },
-            E { N { node_layer::DIAGONAL, 2zu, 2zu }, N { node_layer::RIGHT, 2zu, 3zu } },
-            E { N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DOWN, 1zu, 0zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 0zu }, N { node_layer::DOWN, 2zu, 0zu } },
-            E { N { node_layer::DIAGONAL, 0zu, 1zu }, N { node_layer::DOWN, 1zu, 1zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::DOWN, 2zu, 1zu } },
-            E { N { node_layer::DIAGONAL, 0zu, 2zu }, N { node_layer::DOWN, 1zu, 2zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 2zu }, N { node_layer::DOWN, 2zu, 2zu } },
-            E { N { node_layer::DIAGONAL, 0zu, 3zu }, N { node_layer::DOWN, 1zu, 3zu } },
-            E { N { node_layer::DIAGONAL, 1zu, 3zu }, N { node_layer::DOWN, 2zu, 3zu } },
-            E { N { node_layer::DOWN, 1zu, 0zu }, N { node_layer::DIAGONAL, 1zu, 0zu } },
-            E { N { node_layer::DOWN, 1zu, 1zu }, N { node_layer::DIAGONAL, 1zu, 1zu } },
-            E { N { node_layer::DOWN, 1zu, 2zu }, N { node_layer::DIAGONAL, 1zu, 2zu } },
-            E { N { node_layer::DOWN, 1zu, 3zu }, N { node_layer::DIAGONAL, 1zu, 3zu } },
-            E { N { node_layer::DOWN, 2zu, 0zu }, N { node_layer::DIAGONAL, 2zu, 0zu } },
-            E { N { node_layer::DOWN, 2zu, 1zu }, N { node_layer::DIAGONAL, 2zu, 1zu } },
-            E { N { node_layer::DOWN, 2zu, 2zu }, N { node_layer::DIAGONAL, 2zu, 2zu } },
-            E { N { node_layer::DOWN, 2zu, 3zu }, N { node_layer::DIAGONAL, 2zu, 3zu } },
-            E { N { node_layer::DOWN, 1zu, 0zu }, N { node_layer::DOWN, 2zu, 0zu } },
-            E { N { node_layer::DOWN, 1zu, 1zu }, N { node_layer::DOWN, 2zu, 1zu } },
-            E { N { node_layer::DOWN, 1zu, 2zu }, N { node_layer::DOWN, 2zu, 2zu } },
-            E { N { node_layer::DOWN, 1zu, 3zu }, N { node_layer::DOWN, 2zu, 3zu } },
-            E { N { node_layer::RIGHT, 0zu, 1zu }, N { node_layer::DIAGONAL, 0zu, 1zu } },
-            E { N { node_layer::RIGHT, 0zu, 2zu }, N { node_layer::DIAGONAL, 0zu, 2zu } },
-            E { N { node_layer::RIGHT, 0zu, 3zu }, N { node_layer::DIAGONAL, 0zu, 3zu } },
-            E { N { node_layer::RIGHT, 1zu, 1zu }, N { node_layer::DIAGONAL, 1zu, 1zu } },
-            E { N { node_layer::RIGHT, 1zu, 2zu }, N { node_layer::DIAGONAL, 1zu, 2zu } },
-            E { N { node_layer::RIGHT, 1zu, 3zu }, N { node_layer::DIAGONAL, 1zu, 3zu } },
-            E { N { node_layer::RIGHT, 2zu, 1zu }, N { node_layer::DIAGONAL, 2zu, 1zu } },
-            E { N { node_layer::RIGHT, 2zu, 2zu }, N { node_layer::DIAGONAL, 2zu, 2zu } },
-            E { N { node_layer::RIGHT, 2zu, 3zu }, N { node_layer::DIAGONAL, 2zu, 3zu } },
-            E { N { node_layer::RIGHT, 0zu, 1zu }, N { node_layer::RIGHT, 0zu, 2zu } },
-            E { N { node_layer::RIGHT, 0zu, 2zu }, N { node_layer::RIGHT, 0zu, 3zu } },
-            E { N { node_layer::RIGHT, 1zu, 1zu }, N { node_layer::RIGHT, 1zu, 2zu } },
-            E { N { node_layer::RIGHT, 1zu, 2zu }, N { node_layer::RIGHT, 1zu, 3zu } },
-            E { N { node_layer::RIGHT, 2zu, 1zu }, N { node_layer::RIGHT, 2zu, 2zu } },
-            E { N { node_layer::RIGHT, 2zu, 2zu }, N { node_layer::RIGHT, 2zu, 3zu } }
-        };
-        std::ranges::sort(expected);
         EXPECT_EQ(
-            actual,
-            expected
+            copy_to_set(g.get_edges()),
+            (std::set<E> {
+                E { N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DIAGONAL, 1zu, 1zu } },
+                E { N { node_layer::DIAGONAL, 0zu, 1zu }, N { node_layer::DIAGONAL, 1zu, 2zu } },
+                E { N { node_layer::DIAGONAL, 0zu, 2zu }, N { node_layer::DIAGONAL, 1zu, 3zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 0zu }, N { node_layer::DIAGONAL, 2zu, 1zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::DIAGONAL, 2zu, 2zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 2zu }, N { node_layer::DIAGONAL, 2zu, 3zu } },
+                E { N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::RIGHT, 0zu, 1zu } },
+                E { N { node_layer::DIAGONAL, 0zu, 1zu }, N { node_layer::RIGHT, 0zu, 2zu } },
+                E { N { node_layer::DIAGONAL, 0zu, 2zu }, N { node_layer::RIGHT, 0zu, 3zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 0zu }, N { node_layer::RIGHT, 1zu, 1zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 1zu, 2zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 2zu }, N { node_layer::RIGHT, 1zu, 3zu } },
+                E { N { node_layer::DIAGONAL, 2zu, 0zu }, N { node_layer::RIGHT, 2zu, 1zu } },
+                E { N { node_layer::DIAGONAL, 2zu, 1zu }, N { node_layer::RIGHT, 2zu, 2zu } },
+                E { N { node_layer::DIAGONAL, 2zu, 2zu }, N { node_layer::RIGHT, 2zu, 3zu } },
+                E { N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DOWN, 1zu, 0zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 0zu }, N { node_layer::DOWN, 2zu, 0zu } },
+                E { N { node_layer::DIAGONAL, 0zu, 1zu }, N { node_layer::DOWN, 1zu, 1zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::DOWN, 2zu, 1zu } },
+                E { N { node_layer::DIAGONAL, 0zu, 2zu }, N { node_layer::DOWN, 1zu, 2zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 2zu }, N { node_layer::DOWN, 2zu, 2zu } },
+                E { N { node_layer::DIAGONAL, 0zu, 3zu }, N { node_layer::DOWN, 1zu, 3zu } },
+                E { N { node_layer::DIAGONAL, 1zu, 3zu }, N { node_layer::DOWN, 2zu, 3zu } },
+                E { N { node_layer::DOWN, 1zu, 0zu }, N { node_layer::DIAGONAL, 1zu, 0zu } },
+                E { N { node_layer::DOWN, 1zu, 1zu }, N { node_layer::DIAGONAL, 1zu, 1zu } },
+                E { N { node_layer::DOWN, 1zu, 2zu }, N { node_layer::DIAGONAL, 1zu, 2zu } },
+                E { N { node_layer::DOWN, 1zu, 3zu }, N { node_layer::DIAGONAL, 1zu, 3zu } },
+                E { N { node_layer::DOWN, 2zu, 0zu }, N { node_layer::DIAGONAL, 2zu, 0zu } },
+                E { N { node_layer::DOWN, 2zu, 1zu }, N { node_layer::DIAGONAL, 2zu, 1zu } },
+                E { N { node_layer::DOWN, 2zu, 2zu }, N { node_layer::DIAGONAL, 2zu, 2zu } },
+                E { N { node_layer::DOWN, 2zu, 3zu }, N { node_layer::DIAGONAL, 2zu, 3zu } },
+                E { N { node_layer::DOWN, 1zu, 0zu }, N { node_layer::DOWN, 2zu, 0zu } },
+                E { N { node_layer::DOWN, 1zu, 1zu }, N { node_layer::DOWN, 2zu, 1zu } },
+                E { N { node_layer::DOWN, 1zu, 2zu }, N { node_layer::DOWN, 2zu, 2zu } },
+                E { N { node_layer::DOWN, 1zu, 3zu }, N { node_layer::DOWN, 2zu, 3zu } },
+                E { N { node_layer::RIGHT, 0zu, 1zu }, N { node_layer::DIAGONAL, 0zu, 1zu } },
+                E { N { node_layer::RIGHT, 0zu, 2zu }, N { node_layer::DIAGONAL, 0zu, 2zu } },
+                E { N { node_layer::RIGHT, 0zu, 3zu }, N { node_layer::DIAGONAL, 0zu, 3zu } },
+                E { N { node_layer::RIGHT, 1zu, 1zu }, N { node_layer::DIAGONAL, 1zu, 1zu } },
+                E { N { node_layer::RIGHT, 1zu, 2zu }, N { node_layer::DIAGONAL, 1zu, 2zu } },
+                E { N { node_layer::RIGHT, 1zu, 3zu }, N { node_layer::DIAGONAL, 1zu, 3zu } },
+                E { N { node_layer::RIGHT, 2zu, 1zu }, N { node_layer::DIAGONAL, 2zu, 1zu } },
+                E { N { node_layer::RIGHT, 2zu, 2zu }, N { node_layer::DIAGONAL, 2zu, 2zu } },
+                E { N { node_layer::RIGHT, 2zu, 3zu }, N { node_layer::DIAGONAL, 2zu, 3zu } },
+                E { N { node_layer::RIGHT, 0zu, 1zu }, N { node_layer::RIGHT, 0zu, 2zu } },
+                E { N { node_layer::RIGHT, 0zu, 2zu }, N { node_layer::RIGHT, 0zu, 3zu } },
+                E { N { node_layer::RIGHT, 1zu, 1zu }, N { node_layer::RIGHT, 1zu, 2zu } },
+                E { N { node_layer::RIGHT, 1zu, 2zu }, N { node_layer::RIGHT, 1zu, 3zu } },
+                E { N { node_layer::RIGHT, 2zu, 1zu }, N { node_layer::RIGHT, 2zu, 2zu } },
+                E { N { node_layer::RIGHT, 2zu, 2zu }, N { node_layer::RIGHT, 2zu, 3zu } }
+            })
         );
     }
 

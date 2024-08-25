@@ -39,9 +39,9 @@ namespace {
 
         using E = decltype(g)::E;
 
-        backtracker<true, decltype(g)> _backtracker {};
+        backtracker<true, decltype(g)> backtracker_ {};
         const auto& [path, weight] {
-            _backtracker.find_max_path(g)
+            backtracker_.find_max_path(g)
         };
         for (const E& e : path) {
             std::cout << e << ' ';

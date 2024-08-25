@@ -37,6 +37,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::unqualified_value_type;
     using offbynull::utils::static_vector_typer;
 
 
@@ -49,7 +50,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         typename ED
     >
     concept backtracker_container_creator_pack =
-        weight<ED>
+        unqualified_value_type<T>
+        && weight<ED>
         && requires(const T t) {
             { t.create_slot_container_container_creator_pack() } -> slot_container_container_creator_pack<N, E, ED>;
             { t.create_ready_queue_container_creator_pack() } -> ready_queue_container_creator_pack;

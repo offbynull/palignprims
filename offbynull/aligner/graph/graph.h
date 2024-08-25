@@ -9,16 +9,18 @@
 namespace offbynull::aligner::graph::graph {
     using offbynull::concepts::one_of;
     using offbynull::concepts::range_of_one_of;
+    using offbynull::concepts::unqualified_value_type;
 
     template<typename N>
-    concept node = std::regular<N>;
+    concept node = unqualified_value_type<N> && std::regular<N>;
 
     template<typename E>
-    concept edge = std::regular<E>;
+    concept edge = unqualified_value_type<E> && std::regular<E>;
 
     template <typename G>
     concept readable_graph =
-        requires(G g, typename G::N n, typename G::E e) {
+        unqualified_value_type<G>
+        && requires(G g, typename G::N n, typename G::E e) {
             typename G::N;
             typename G::ND;
             typename G::E;

@@ -483,7 +483,7 @@ namespace {
             [&](std::size_t max_len) {
                 auto len { random_integer(0zu, max_len) };
                 std::string ret {};
-                for (auto _ : std::views::iota(0zu, random_integer(0zu, len))) {
+                for ([[maybe_unused]] auto _ : std::views::iota(0zu, random_integer(0zu, len))) {
                     ret += random_integer('a', 'z');
                 }
                 return ret;

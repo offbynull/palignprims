@@ -16,6 +16,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::readable_sliceable_pairwise_alignment_graph;
     using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::unqualified_value_type;
     using offbynull::utils::static_vector_typer;
 
     template<typename E>
@@ -115,7 +116,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         typename E
     >
     concept path_container_container_creator_pack =
-        requires(const T t, std::size_t path_edge_capacity) {
+        unqualified_value_type<T>
+        && requires(const T t, std::size_t path_edge_capacity) {
             { t.create_element_container(path_edge_capacity) } -> random_access_range_of_type<element<E>>;
         };
 
