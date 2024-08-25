@@ -62,7 +62,7 @@ TODO:
 * ~~sliceable_pairwise_alignment_graph_backtracker randomized tests against pairwise_alignment_graph_backtracker~~
 * ~~graph constructors take in scorers using std::function<...> -- uses scorer concept instead? e.g. scorer auto&& indel_scorer, scorer&& substitution scorer, etc...~~
 * ~~remove all std::function usages~~
-* move out all "to_vector" functions as utility func
+* ~~move out all "to_vector" functions as utility func~~
 * concepts should enforce that type being enforced is std::same_as<std::decay_t<T>, T>, meaning no cv and no refs -- maybe use std::remove_cvref instead of std::decay?
   * template<typename T>
     concept decayable_type = !std::is_void_v<T> && std::is_convertible_v<T, std::decay_t<T>>;

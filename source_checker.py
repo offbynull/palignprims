@@ -90,6 +90,8 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::invoke_result_t': 'type_traits',
     'std::decay_t': 'type_traits',
     'std::numeric_limits': 'limits',
+    'std::begin': 'iterator',
+    'std::end': 'iterator',
     'std::input_iterator': 'iterator',
     'std::input_iterator_tag': 'iterator',
     'std::forward_iterator': 'iterator',

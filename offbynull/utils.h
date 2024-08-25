@@ -3,8 +3,9 @@
 
 #include <cstddef>
 #include <concepts>
-
-#include "utils.h"
+#include <vector>
+#include <ranges>
+#include <type_traits>
 #include <boost/container/static_vector.hpp>
 #include <boost/container/options.hpp>
 
@@ -52,6 +53,15 @@ namespace offbynull::utils {
     struct constants {
         constexpr static T _0 { static_cast<T>(0) };
         constexpr static T _1 { static_cast<T>(1) };
+    };
+
+    auto copy_to_vector(std::ranges::range auto&& range) -> std::vector<std::decay_t<decltype(*range.begin())>> {
+        using ELEM = std::decay_t<decltype(*range.begin())>;
+        std::vector<ELEM> ret {};
+        for (const auto& e : range) {
+            ret.push_back(e);
+        }
+        return ret;
     };
 }
 

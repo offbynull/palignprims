@@ -4,19 +4,20 @@
 #include <set>
 #include <vector>
 #include <algorithm>
-#include <type_traits>
 #include <iostream>
 #include <ostream>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 
 namespace {
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::pairwise_extended_gap_alignment_graph;
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node_layer;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
+    using offbynull::utils::copy_to_vector;
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, ConceptCheck) {
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
@@ -1296,18 +1297,6 @@ namespace {
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, SlicedWalk) {
-        auto to_vector {
-            [](auto &&r) {
-                auto it { r.begin() };
-                std::vector<std::decay_t<decltype(*it)>> ret {};
-                while (it != r.end()) {
-                    ret.push_back(*it);
-                    ++it;
-                }
-                return ret;
-            }
-        };
-
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
         auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
@@ -1337,7 +1326,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(0u))),
+            (copy_to_vector(g.slice_nodes(0u))),
             (std::vector<N> {
                 N { node_layer::DIAGONAL, 0zu, 0zu },
                 N { node_layer::RIGHT, 0zu, 1zu },
@@ -1347,7 +1336,7 @@ namespace {
             })
         );
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(1u))),
+            (copy_to_vector(g.slice_nodes(1u))),
             (std::vector<N> {
                 N { node_layer::DOWN, 1zu, 0zu },
                 N { node_layer::DIAGONAL, 1zu, 0zu },
@@ -1360,48 +1349,36 @@ namespace {
             })
         );
 
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 0zu, 0zu })), (std::vector<E> {}));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 0zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 0zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 0zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 0zu, 2zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 0zu, 2zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 0zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 1zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 1zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DOWN, 1zu, 2zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 1zu, 2zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 0zu, 0zu })), (std::vector<E> {}));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::DOWN, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::DOWN, 0zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 0zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 0zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::DOWN, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::DOWN, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::RIGHT, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.outputs_to_residents(N { node_layer::DIAGONAL, 1zu, 2zu })), (std::vector<E> { }));
 
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 0zu, 0zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 0zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 0zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 0zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 0zu, 2zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 0zu, 2zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 0zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 1zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 1zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 1zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DOWN, 1zu, 2zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 1zu, 2zu })), (std::vector<E> { }));
-        EXPECT_EQ(to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 0zu, 0zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::DOWN, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 0zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::DOWN, 0zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 0zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 0zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::DOWN, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 1zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::DOWN, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::RIGHT, 1zu, 2zu })), (std::vector<E> { }));
+        EXPECT_EQ(copy_to_vector(g.inputs_from_residents(N { node_layer::DIAGONAL, 1zu, 2zu })), (std::vector<E> { }));
     }
 
     TEST(OAGPairwiseExtendedGapAlignmentGraphTest, SlicedWalkPartial) {
-        auto to_vector {
-            [](auto &&r) {
-                auto it { r.begin() };
-                std::vector<std::decay_t<decltype(*it)>> ret { };
-                while (it != r.end()) {
-                    ret.push_back(*it);
-                    ++it;
-                }
-                return ret;
-            }
-        };
-
         auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
         auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.1f64) };
@@ -1430,7 +1407,7 @@ namespace {
         using N = typename decltype(g)::N;
 
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(0u, N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DIAGONAL, 4zu, 4zu }))),
+            (copy_to_vector(g.slice_nodes(0u, N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DIAGONAL, 4zu, 4zu }))),
             (std::vector<N> {
                 N { node_layer::DIAGONAL, 0zu, 0zu },
                 N { node_layer::RIGHT, 0zu, 1zu },
@@ -1444,7 +1421,7 @@ namespace {
             })
         );
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(4u, N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DIAGONAL, 4zu, 4zu }))),
+            (copy_to_vector(g.slice_nodes(4u, N { node_layer::DIAGONAL, 0zu, 0zu }, N { node_layer::DIAGONAL, 4zu, 4zu }))),
             (std::vector<N> {
                 N { node_layer::DOWN, 4zu, 0zu },
                 N { node_layer::DIAGONAL, 4zu, 0zu },
@@ -1464,7 +1441,7 @@ namespace {
         );
 
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(1u, N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 4zu, 4zu }))),
+            (copy_to_vector(g.slice_nodes(1u, N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 4zu, 4zu }))),
             (std::vector<N> {
                 // N { node_layer::DOWN, 1zu, 1zu },
                 // N { node_layer::RIGHT, 1zu, 1zu },
@@ -1481,7 +1458,7 @@ namespace {
             })
         );
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(2u, N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 4zu, 4zu }))),
+            (copy_to_vector(g.slice_nodes(2u, N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 4zu, 4zu }))),
             (std::vector<N> {
                 N { node_layer::DOWN, 2zu, 1zu },
                 N { node_layer::RIGHT, 2zu, 1zu },
@@ -1498,7 +1475,7 @@ namespace {
             })
         );
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(4u, N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 4zu, 4zu }))),
+            (copy_to_vector(g.slice_nodes(4u, N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 4zu, 4zu }))),
             (std::vector<N> {
                 N { node_layer::DOWN, 4zu, 1zu },
                 N { node_layer::RIGHT, 4zu, 1zu },
@@ -1516,7 +1493,7 @@ namespace {
         );
 
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(1u, N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 1zu, 4zu }))),
+            (copy_to_vector(g.slice_nodes(1u, N { node_layer::DIAGONAL, 1zu, 1zu }, N { node_layer::RIGHT, 1zu, 4zu }))),
             (std::vector<N> {
                 // N { node_layer::DOWN, 1zu, 1zu },
                 // N { node_layer::RIGHT, 1zu, 1zu },

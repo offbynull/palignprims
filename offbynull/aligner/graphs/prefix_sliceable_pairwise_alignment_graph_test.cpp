@@ -3,7 +3,6 @@
 #include <string>
 #include <set>
 #include <vector>
-#include <type_traits>
 #include <algorithm>
 #include <stdfloat>
 #include "offbynull/aligner/graph/graph.h"
@@ -11,6 +10,7 @@
 #include "offbynull/aligner/graphs/pairwise_local_alignment_graph.h"
 #include "offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 
 namespace {
@@ -19,6 +19,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type;
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
+    using offbynull::utils::copy_to_vector;
 
     auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
     auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
@@ -317,18 +318,6 @@ namespace {
     }
 
     TEST(OAGPrefixSliceablePairwiseAlignmentGraphTest, SlicedWalk) {
-        auto to_vector {
-            [](auto &&r) {
-                auto it { r.begin() };
-                std::vector<std::decay_t<decltype(*it)>> ret {};
-                while (it != r.end()) {
-                    ret.push_back(*it);
-                    ++it;
-                }
-                return ret;
-            }
-        };
-
         graph_bundle g_bundle { "234567", "2345678", { 1zu, 2zu } };
         auto g { g_bundle.prefix_g };
 
@@ -336,7 +325,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(0u))),
+            (copy_to_vector(g.slice_nodes(0u))),
             (std::vector<N> {
                 N { 0zu, 0zu },
                 N { 0zu, 1zu },
@@ -344,7 +333,7 @@ namespace {
             })
         );
         EXPECT_EQ(
-            (to_vector(g.slice_nodes(1u))),
+            (copy_to_vector(g.slice_nodes(1u))),
             (std::vector<N> {
                 N { 1zu, 0zu },
                 N { 1zu, 1zu },
@@ -361,64 +350,64 @@ namespace {
         EXPECT_EQ(resident_nodes_it, resident_nodes.end());
 
         EXPECT_EQ(
-            to_vector(g.outputs_to_residents(N { 0zu, 0zu })),
+            copy_to_vector(g.outputs_to_residents(N { 0zu, 0zu })),
             (std::vector<E> {})
         );
         EXPECT_EQ(
-            to_vector(g.outputs_to_residents(N { 0zu, 1zu })),
+            copy_to_vector(g.outputs_to_residents(N { 0zu, 1zu })),
             (std::vector<E> {})
         );
         EXPECT_EQ(
-            to_vector(g.outputs_to_residents(N { 0zu, 2zu })),
+            copy_to_vector(g.outputs_to_residents(N { 0zu, 2zu })),
             (std::vector<E> {})
         );
         EXPECT_EQ(
-            to_vector(g.outputs_to_residents(N { 1zu, 0zu })),
+            copy_to_vector(g.outputs_to_residents(N { 1zu, 0zu })),
             (std::vector<E> {})
         );
         EXPECT_EQ(
-            to_vector(g.outputs_to_residents(N { 1zu, 1zu })),
+            copy_to_vector(g.outputs_to_residents(N { 1zu, 1zu })),
             (std::vector<E> {})
         );
         EXPECT_EQ(
-            to_vector(g.outputs_to_residents(N { 1zu, 2zu })),
+            copy_to_vector(g.outputs_to_residents(N { 1zu, 2zu })),
             (std::vector<E> {})
         );
 
 
         EXPECT_EQ(
-            to_vector(g.inputs_from_residents(N { 0zu, 0zu })),
+            copy_to_vector(g.inputs_from_residents(N { 0zu, 0zu })),
             (std::vector<E> {})
         );
         EXPECT_EQ(
-            to_vector(g.inputs_from_residents(N { 0zu, 1zu })),
+            copy_to_vector(g.inputs_from_residents(N { 0zu, 1zu })),
             (std::vector<E> {
                 E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 0zu, 1zu } } },
                 E { edge_type::NORMAL, { { 0zu, 0zu }, { 0zu, 1zu } } }
             })
         );
         EXPECT_EQ(
-            to_vector(g.inputs_from_residents(N { 0zu, 2zu })),
+            copy_to_vector(g.inputs_from_residents(N { 0zu, 2zu })),
             (std::vector<E> {
                 E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 0zu, 2zu } } },
             })
         );
         EXPECT_EQ(
-            to_vector(g.inputs_from_residents(N { 1zu, 0zu })),
+            copy_to_vector(g.inputs_from_residents(N { 1zu, 0zu })),
             (std::vector<E> {
                 E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 0zu } } },
                 E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 0zu } } }
             })
         );
         EXPECT_EQ(
-            to_vector(g.inputs_from_residents(N { 1zu, 1zu })),
+            copy_to_vector(g.inputs_from_residents(N { 1zu, 1zu })),
             (std::vector<E> {
                 E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 1zu } } },
                 E { edge_type::NORMAL, { { 0zu, 0zu }, { 1zu, 1zu } } }
             })
         );
         EXPECT_EQ(
-            to_vector(g.inputs_from_residents(N { 1zu, 2zu })),
+            copy_to_vector(g.inputs_from_residents(N { 1zu, 2zu })),
             (std::vector<E> {
                 E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 2zu } } }
             })
