@@ -8,10 +8,12 @@
 #include <sstream>
 #include <cstdint>
 #include <ios>
+#include <type_traits>
 
 namespace {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::sequences::mmap_sequence::mmap_sequence;
+    using offbynull::aligner::sequences::mmap_sequence::create_mmap_sequence;
     using offbynull::aligner::sequences::transform_sequence::create_transform_sequence;
     using offbynull::aligner::sequences::chunked_sequence::create_stack_chunked_sequence;
 
@@ -23,7 +25,9 @@ namespace {
         file.write(&x, 1zu);
         file.close();
 
-        mmap_sequence<true> seq { temp_path.string() };
+        auto seq { create_mmap_sequence<true>(temp_path.string()) };
+        static_assert(sequence<decltype(seq)>);
+        static_assert(std::is_same_v<decltype(seq), mmap_sequence<true>>);
         EXPECT_EQ(seq[0], 100);
     }
 
@@ -37,7 +41,7 @@ namespace {
         file.write(reinterpret_cast<const char*>(&y), sizeof(y));
         file.close();
 
-        mmap_sequence<true> seq1 { temp_path.string() };
+        auto seq1 { mmap_sequence<true>(temp_path.string()) };
         auto seq2 {
             create_stack_chunked_sequence<true, sizeof(std::int32_t)>(
                 seq1
@@ -54,7 +58,6 @@ namespace {
                 }
             )
         };
-        static_assert(sequence<decltype(seq3)>);
         EXPECT_EQ(seq3[0], 42);
         EXPECT_EQ(seq3[1], 100);
     }

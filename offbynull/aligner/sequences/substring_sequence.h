@@ -4,6 +4,7 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include <cstddef>
 #include <stdexcept>
+#include <type_traits>
 
 namespace offbynull::aligner::sequences::substring_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
@@ -35,6 +36,15 @@ namespace offbynull::aligner::sequences::substring_sequence {
             return length;
         }
     };
+
+    template<bool debug_mode>
+    auto create_substring_sequence(
+        const sequence auto& seq,
+        const std::size_t offset,
+        const std::size_t length
+    ) {
+        return substring_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> { seq, offset, length };
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_SUBSTRING_SEQUENCE_H

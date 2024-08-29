@@ -60,8 +60,12 @@ namespace offbynull::aligner::sequences::chunked_sequence {
     template<
         bool debug_mode,
         sequence SEQ,
-        chunked_sequence_container_creator_pack<std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK =
-            chunked_sequence_heap_container_creator_pack<debug_mode, std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>>
+        chunked_sequence_container_creator_pack<
+            std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>
+        > CONTAINER_CREATOR_PACK = chunked_sequence_heap_container_creator_pack<
+            debug_mode,
+            std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>
+        >
     >
     class chunked_sequence {
     private:
@@ -97,23 +101,23 @@ namespace offbynull::aligner::sequences::chunked_sequence {
     };
 
     template<bool debug_mode>
-    sequence auto create_heap_chunked_sequence(const sequence auto& backing_sequence_, std::size_t chunk_length) {
+    auto create_heap_chunked_sequence(const sequence auto& seq, std::size_t chunk_length) {
         return
             chunked_sequence<
                 debug_mode,
-                std::remove_cvref_t<decltype(backing_sequence_)>
-            > { backing_sequence_, chunk_length };
+                std::remove_cvref_t<decltype(seq)>
+            > { seq, chunk_length };
     }
 
     template<bool debug_mode, std::size_t chunk_length>
-    sequence auto create_stack_chunked_sequence(const sequence auto& backing_sequence_) {
-        using ELEM = std::remove_cvref_t<decltype(backing_sequence_[0zu])>;
+    auto create_stack_chunked_sequence(const sequence auto& seq) {
+        using ELEM = std::remove_cvref_t<decltype(seq[0zu])>;
         return
              chunked_sequence<
                 debug_mode,
-                std::remove_cvref_t<decltype(backing_sequence_)>,
+                std::remove_cvref_t<decltype(seq)>,
                 chunked_sequence_stack_container_creator_pack<debug_mode, ELEM, chunk_length>
-            > { backing_sequence_, chunk_length };
+            > { seq, chunk_length };
     }
 }
 

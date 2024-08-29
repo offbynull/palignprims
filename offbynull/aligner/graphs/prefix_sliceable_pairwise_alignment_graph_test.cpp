@@ -4,6 +4,7 @@
 #include <set>
 #include <vector>
 #include <stdfloat>
+#include <type_traits>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_local_alignment_graph.h"
@@ -17,6 +18,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge;
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type;
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
+    using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::create_prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_vector;
     using offbynull::utils::copy_to_set;
@@ -371,4 +373,20 @@ namespace {
             })
         );
     };
+
+    TEST(OAGPrefixSliceablePairwiseAlignmentGraphTest, CreateViaFactory) {
+        std::string seq1 { "234567" };
+        std::string seq2 { "2345678" };
+
+        graph_bundle g_bundle { seq1, seq2, { 1zu, 2zu } };
+        auto g1 { g_bundle.prefix_g };
+        auto g2 {
+            create_prefix_sliceable_pairwise_alignment_graph<true>(
+                g_bundle.backing_g,
+                { 1zu, 2zu }
+            )
+        };
+
+        EXPECT_TRUE((std::is_same_v<decltype(g1), decltype(g2)>));
+    }
 }

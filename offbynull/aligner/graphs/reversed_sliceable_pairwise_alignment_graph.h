@@ -6,6 +6,7 @@
 #include <tuple>
 #include <optional>
 #include <ranges>
+#include <type_traits>
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 
@@ -183,5 +184,16 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
             return g.outputs_to_residents(node);
         }
     };
+
+
+    template<
+        bool debug_mode
+    >
+    auto create_reversed_sliceable_pairwise_alignment_graph(
+        const readable_sliceable_pairwise_alignment_graph auto& g
+    ) {
+        using G = std::remove_cvref_t<decltype(g)>;
+        return reversed_sliceable_pairwise_alignment_graph<debug_mode, G> { g };
+    }
 }
 #endif //OFFBYNULL_ALIGNER_GRAPHS_REVERSED_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H

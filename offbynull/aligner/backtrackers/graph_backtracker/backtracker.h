@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <concepts>
+#include <type_traits>
 #include <boost/container/small_vector.hpp>
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
@@ -134,6 +135,17 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         && weight<WEIGHT>
         && requires(const T t, const E& e) {
             { t(e) } -> std::same_as<WEIGHT>;
+        };
+
+    template<
+        typename T,
+        typename E
+    >
+    concept edge_weight_accessor_without_explicit_weight =
+        // leave out unqualified_value_type<T> because it won't pass if T is a function pointer? or maybe it will?
+        backtrackable_edge<E>
+        && requires(const T t, const E& e) {
+            { t(e) } -> weight;
         };
 
 
@@ -290,7 +302,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         }
 
         range_of_type<E> auto backtrack(
-                G& g,
+                const G& g,
                 slot_container_t& slots,
                 const N& end_node
         ) {
@@ -314,7 +326,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         }
 
         auto find_max_path(
-                G& graph,
+                const G& graph,
                 const EDGE_WEIGHT_ACCESSOR& edge_weight_accessor
         ) {
             auto slots {
@@ -329,6 +341,52 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
             return std::make_pair(path, weight);
         }
     };
+
+
+
+    template<bool debug_mode>
+    auto heap_find_max_path(
+        const readable_graph auto& g,
+        const edge_weight_accessor_without_explicit_weight<typename std::remove_cvref_t<decltype(g)>::E> auto& edge_weight_accessor_
+    ) {
+        using G = std::remove_cvref_t<decltype(g)>;
+        using E = typename G::E;
+        using WEIGHT = decltype(edge_weight_accessor_(std::declval<E>()));
+        using EDGE_WEIGHT_ACCESSOR = std::remove_cvref_t<decltype(edge_weight_accessor_)>;
+        return backtracker<debug_mode, G, WEIGHT, EDGE_WEIGHT_ACCESSOR> {}.find_max_path(g, edge_weight_accessor_);
+    }
+
+    template<
+        bool debug_mode,
+        std::size_t slot_container_heap_escape_size = 100zu,
+        std::size_t ready_queue_heap_escape_size = 100zu,
+        std::size_t path_container_heap_escape_size = 10zu
+    >
+    auto stack_find_max_path(
+        const readable_graph auto& g,
+        const edge_weight_accessor_without_explicit_weight<typename std::remove_cvref_t<decltype(g)>::E> auto& edge_weight_accessor_
+    ) {
+        using G = std::remove_cvref_t<decltype(g)>;
+        using N = typename G::N;
+        using E = typename G::E;
+        using WEIGHT = decltype(edge_weight_accessor_(std::declval<E>()));
+        using EDGE_WEIGHT_ACCESSOR = std::remove_cvref_t<decltype(edge_weight_accessor_)>;
+        return backtracker<
+            debug_mode,
+            G,
+            WEIGHT,
+            EDGE_WEIGHT_ACCESSOR,
+            backtracker_stack_container_creator_pack<
+                debug_mode,
+                N,
+                E,
+                WEIGHT,
+                slot_container_heap_escape_size,
+                ready_queue_heap_escape_size,
+                path_container_heap_escape_size
+            >
+        > {}.find_max_path(g, edge_weight_accessor_);
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_BACKTRACKERS_GRAPH_BACKTRACKER_BACKTRACKER_H

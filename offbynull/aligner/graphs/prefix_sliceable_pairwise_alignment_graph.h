@@ -7,6 +7,7 @@
 #include <utility>
 #include <optional>
 #include <stdexcept>
+#include <type_traits>
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 
@@ -288,5 +289,17 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 | std::views::filter([&](const E& edge) { return !edge_out_of_bound(edge); });
         }
     };
+
+
+    template<
+        bool debug_mode
+    >
+    auto create_prefix_sliceable_pairwise_alignment_graph(
+        const readable_sliceable_pairwise_alignment_graph auto& g,
+        const typename std::remove_cvref_t<decltype(g)>::N& new_leaf_node
+    ) {
+        using G = std::remove_cvref_t<decltype(g)>;
+        return prefix_sliceable_pairwise_alignment_graph<debug_mode, G> { g, new_leaf_node };
+    }
 }
 #endif //OFFBYNULL_ALIGNER_GRAPHS_PREFIX_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H

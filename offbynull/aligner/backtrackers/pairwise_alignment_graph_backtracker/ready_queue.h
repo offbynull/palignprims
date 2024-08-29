@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <vector>
 #include <utility>
+#include <stdexcept>
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/utils.h"
 
@@ -57,7 +58,16 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     struct ready_queue_stack_container_creator_pack {
         static constexpr std::size_t ELEM_COUNT { grid_down_cnt * grid_right_cnt * grid_depth_cnt };
         using CONTAINER_TYPE = typename static_vector_typer<debug_mode, std::size_t, ELEM_COUNT>::type;
-        CONTAINER_TYPE create_queue_container() const {
+        CONTAINER_TYPE create_queue_container(
+            std::size_t grid_down_cnt_,
+            std::size_t grid_right_cnt_,
+            std::size_t grid_depth_cnt_
+        ) const {
+            if constexpr (debug_mode) {
+                if (grid_down_cnt != grid_down_cnt_ || grid_right_cnt != grid_right_cnt_ || grid_depth_cnt != grid_depth_cnt_) {
+                    throw std::runtime_error { "Count mismatch" };
+                }
+            }
             return {};
         }
     };

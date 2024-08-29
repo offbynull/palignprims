@@ -9,6 +9,7 @@
 #include <functional>
 #include <limits>
 #include <stdexcept>
+#include <type_traits>
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/concepts.h"
@@ -115,7 +116,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             return {};
         }
 
-        using PATH_CONTAINER_TYPE = typename static_vector_typer<debug_mode, std::size_t, path_edge_capacity>::type;
+        using PATH_CONTAINER_TYPE = typename static_vector_typer<debug_mode, E, path_edge_capacity>::type;
         PATH_CONTAINER_TYPE create_path_container(std::size_t path_edge_capacity_) const {
             if constexpr (debug_mode) {
                 if (path_edge_capacity != path_edge_capacity_) {
@@ -171,7 +172,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         : container_creator_pack { container_creator_pack_ } {}
 
         slot_container_t populate_weights_and_backtrack_pointers(
-            G& g
+            const G& g
         ) {
             // Create "slots" list
             // -------------------
@@ -272,7 +273,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         }
 
         range_of_type<E> auto backtrack(
-            G& g,
+            const G& g,
             slot_container_t& slots
         ) {
             auto next_node { g.get_leaf_node() };
@@ -297,7 +298,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         }
 
         auto find_max_path(
-            G& graph
+            const G& graph
         ) {
             auto slots { populate_weights_and_backtrack_pointers(graph) };
             const auto& path { backtrack(graph, slots) };
@@ -306,6 +307,66 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             return std::make_pair(path, weight);
         }
     };
+
+
+    template<
+        bool debug_mode,
+        bool minimize_allocations
+    >
+    auto heap_find_max_path(
+        const readable_pairwise_alignment_graph auto& g
+    ) {
+        using G = std::remove_cvref_t<decltype(g)>;
+        return backtracker<
+            debug_mode,
+            G,
+            backtracker_heap_container_creator_pack<
+                debug_mode,
+                typename G::N,
+                typename G::E,
+                typename G::ED,
+                minimize_allocations
+            >
+        > {}.find_max_path(g);
+    }
+
+    template<
+        bool debug_mode,
+        std::size_t grid_down_cnt,
+        std::size_t grid_right_cnt,
+        std::size_t grid_depth_cnt,
+        std::size_t path_edge_capacity
+    >
+    auto stack_find_max_path(
+        const readable_pairwise_alignment_graph auto& g
+    ) {
+        using G = std::remove_cvref_t<decltype(g)>;
+        using N = typename G::N;
+        using E = typename G::E;
+        using ED = typename G::ED;
+        if constexpr (debug_mode) {
+            if (g.grid_down_cnt != grid_down_cnt
+                || g.grid_right_cnt != grid_right_cnt
+                || g.grid_depth_cnt != grid_depth_cnt
+                || g.path_edge_capacity != path_edge_capacity) {
+                throw std::runtime_error { "Unexpected graph dimensions" };
+            }
+        }
+        return backtracker<
+            debug_mode,
+            G,
+            backtracker_stack_container_creator_pack<
+                debug_mode,
+                N,
+                E,
+                ED,
+                grid_down_cnt,
+                grid_right_cnt,
+                grid_depth_cnt,
+                path_edge_capacity
+            >
+        > {}.find_max_path(g);
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_BACKTRACKERS_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_BACKTRACKER_H

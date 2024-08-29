@@ -3,6 +3,7 @@
 
 #include "offbynull/aligner/sequence/sequence.h"
 #include <cstddef>
+#include <type_traits>
 
 namespace offbynull::aligner::sequences::reversed_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
@@ -24,6 +25,13 @@ namespace offbynull::aligner::sequences::reversed_sequence {
             return seq.size();
         }
     };
+
+    template<bool debug_mode>
+    auto create_reversed_sequence(
+        const sequence auto& seq
+    ) {
+        return reversed_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> { seq };
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_REVERSED_SEQUENCE_H

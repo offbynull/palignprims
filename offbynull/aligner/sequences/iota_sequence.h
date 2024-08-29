@@ -2,11 +2,14 @@
 #define OFFBYNULL_ALIGNER_SEQUENCES_IOTA_SEQUENCE_H
 
 #include "offbynull/concepts.h"
+#include "offbynull/aligner/sequence/sequence.h"
 #include <cstddef>
 #include <stdexcept>
 #include <limits>
+#include <type_traits>
 
 namespace offbynull::aligner::sequences::iota_sequence {
+    using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::widenable_to_size_t;
 
     template<bool debug_mode, widenable_to_size_t I>
@@ -37,6 +40,14 @@ namespace offbynull::aligner::sequences::iota_sequence {
             return bound - offset;
         }
     };
+
+    template<bool debug_mode>
+    auto create_iota_sequence(
+        const widenable_to_size_t auto offset,
+        const std::remove_cvref_t<decltype(offset)> bound
+    ) {
+        return iota_sequence<debug_mode, std::remove_cvref_t<decltype(offset)>> { offset, bound };
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_IOTA_SEQUENCE_H

@@ -3,6 +3,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <type_traits>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_local_alignment_graph.h"
@@ -16,6 +17,7 @@ namespace {
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge;
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type;
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
+    using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::create_reversed_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_vector;
     using offbynull::utils::copy_to_set;
@@ -391,5 +393,16 @@ namespace {
                 E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 2zu } } }
             })
         );
+    }
+
+    TEST(OAGReversedSliceablePairwiseAlignmentGraphTest, CreateViaFactory) {
+        std::string seq1 { "234567" };
+        std::string seq2 { "2345678" };
+
+        graph_bundle g_bundle { seq1, seq2 };
+        auto g1 { g_bundle.reversed_g };
+        auto g2 { create_reversed_sliceable_pairwise_alignment_graph<true>(g_bundle.backing_g) };
+
+        EXPECT_TRUE((std::is_same_v<decltype(g1), decltype(g2)>));
     }
 }

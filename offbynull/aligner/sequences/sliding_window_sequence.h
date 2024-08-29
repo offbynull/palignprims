@@ -60,8 +60,12 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
     template<
         bool debug_mode,
         sequence SEQ,
-        sliding_window_sequence_container_creator_pack<std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>> CONTAINER_CREATOR_PACK =
-            sliding_window_sequence_heap_container_creator_pack<debug_mode, std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>>
+        sliding_window_sequence_container_creator_pack<
+            std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>
+        > CONTAINER_CREATOR_PACK = sliding_window_sequence_heap_container_creator_pack<
+            debug_mode,
+            std::remove_cvref_t<decltype(std::declval<SEQ>()[0zu])>
+        >
     >
     class sliding_window_sequence {
     private:
@@ -100,6 +104,27 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
             return seq.size() - window_length + 1zu;
         }
     };
+
+
+    template<bool debug_mode>
+    auto create_heap_sliding_window_sequence(const sequence auto& seq, std::size_t chunk_length) {
+        return
+            sliding_window_sequence<
+                debug_mode,
+                std::remove_cvref_t<decltype(seq)>
+            > { seq, chunk_length };
+    }
+
+    template<bool debug_mode, std::size_t chunk_length>
+    auto create_stack_sliding_window_sequence(const sequence auto& seq) {
+        using ELEM = std::remove_cvref_t<decltype(seq[0zu])>;
+        return
+             sliding_window_sequence<
+                debug_mode,
+                std::remove_cvref_t<decltype(seq)>,
+                sliding_window_sequence_stack_container_creator_pack<debug_mode, ELEM, chunk_length>
+            > { seq, chunk_length };
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_SLIDING_WINDOW_SEQUENCE_H

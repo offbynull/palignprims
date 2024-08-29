@@ -2,6 +2,7 @@
 #include <stdfloat>
 #include <string>
 #include <set>
+#include <type_traits>
 #include "offbynull/aligner/graphs/grid_graph.h"
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
@@ -10,6 +11,7 @@
 
 namespace {
     using offbynull::aligner::graphs::grid_graph::grid_graph;
+    using offbynull::aligner::graphs::grid_graph::create_grid_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_set;
 
@@ -347,5 +349,26 @@ namespace {
         EXPECT_EQ(g.get_in_degree(N { 1zu, 2zu }), 3);
         EXPECT_EQ(g.get_in_degree(N { 0zu, 2zu }), 1);
         EXPECT_EQ(g.get_in_degree(N { 1zu, 0zu }), 1);
+    }
+
+    TEST(OAGGridGraphTest, CreateViaFactory) {
+        std::string seq1 { "a" };
+        std::string seq2 { "ac" };
+        grid_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer)
+        > g1 {
+            seq1,
+            seq2,
+            substitution_scorer,
+            gap_scorer
+        };
+        auto g2 { create_grid_graph<true, std::size_t>(seq1, seq2, substitution_scorer, gap_scorer) };
+        EXPECT_TRUE((std::is_same_v<decltype(g1), decltype(g2)>));
     }
 }

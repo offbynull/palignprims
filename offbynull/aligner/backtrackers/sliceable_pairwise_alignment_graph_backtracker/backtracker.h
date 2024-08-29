@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <utility>
 #include <variant>
+#include <type_traits>
 #include <stdexcept>
 #include "path_container.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/concepts.h"
@@ -146,7 +147,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             ED,
             grid_right_cnt,
             grid_depth_cnt,
-            resident_nodes_capacity
+            path_edge_capacity
         > create_sliced_subdivider_container_creator_pack() {
             return {};
         }
@@ -257,6 +258,68 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             return std::make_pair(path, final_weight);
         }
     };
+
+
+    template<
+        bool debug_mode,
+        bool minimize_allocations
+    >
+    auto heap_find_max_path(
+        const readable_sliceable_pairwise_alignment_graph auto& g,
+        typename std::remove_cvref_t<decltype(g)>::ED final_weight_comparison_tolerance
+    ) {
+        using G = std::remove_cvref_t<decltype(g)>;
+        return backtracker<
+            debug_mode,
+            G,
+            backtracker_heap_container_creator_pack<
+                debug_mode,
+                typename G::N,
+                typename G::E,
+                typename G::ED,
+                minimize_allocations
+            >
+        > {}.find_max_path(g, final_weight_comparison_tolerance);
+    }
+
+    template<
+        bool debug_mode,
+        std::size_t grid_right_cnt,
+        std::size_t grid_depth_cnt,
+        std::size_t resident_nodes_capacity,
+        std::size_t path_edge_capacity
+    >
+    auto stack_find_max_path(
+        const readable_sliceable_pairwise_alignment_graph auto& g,
+        typename std::remove_cvref_t<decltype(g)>::ED final_weight_comparison_tolerance
+    ) {
+        using G = std::remove_cvref_t<decltype(g)>;
+        using N = typename G::N;
+        using E = typename G::E;
+        using ED = typename G::ED;
+        if constexpr (debug_mode) {
+            if (g.grid_right_cnt != grid_right_cnt
+                || g.grid_depth_cnt != grid_depth_cnt
+                || g.resident_nodes_capacity != resident_nodes_capacity
+                || g.path_edge_capacity != path_edge_capacity) {
+                throw std::runtime_error { "Unexpected graph dimensions" };
+            }
+        }
+        return backtracker<
+            debug_mode,
+            G,
+            backtracker_stack_container_creator_pack<
+                debug_mode,
+                N,
+                E,
+                ED,
+                grid_right_cnt,
+                grid_depth_cnt,
+                resident_nodes_capacity,
+                path_edge_capacity
+            >
+        > {}.find_max_path(g, final_weight_comparison_tolerance);
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_BACKTRACKER_H

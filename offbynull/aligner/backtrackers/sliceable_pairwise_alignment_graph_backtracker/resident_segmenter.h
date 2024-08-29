@@ -160,14 +160,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         }
 
         using RESIDENT_NODE_CONTAINER_TYPE = typename static_vector_typer<debug_mode, N, resident_nodes_capacity>::type;
-        RESIDENT_NODE_CONTAINER_TYPE create_resident_node_container(range_of_type<N> auto& resident_nodes) const {
+        RESIDENT_NODE_CONTAINER_TYPE create_resident_node_container(range_of_type<N> auto&& resident_nodes) const {
             return RESIDENT_NODE_CONTAINER_TYPE(resident_nodes.begin(), resident_nodes.end());
         }
 
         using RESIDENT_EDGE_CONTAINER_TYPE = typename static_vector_typer<debug_mode, E, resident_nodes_capacity>::type;
         RESIDENT_EDGE_CONTAINER_TYPE create_resident_edge_container(std::size_t resident_nodes_capacity_) const {
             if constexpr (debug_mode) {
-                if (resident_nodes_capacity == resident_nodes_capacity_) {
+                if (resident_nodes_capacity != resident_nodes_capacity_) {
                     throw std::runtime_error { "Inconsistent node count" };
                 }
             }
@@ -185,7 +185,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         >::type;
         SEGMENT_CONTAINER_TYPE create_segment_container(std::size_t resident_nodes_cnt_) const {
             if constexpr (debug_mode) {
-                if (resident_nodes_cnt_ * 2zu + 1zu <= max_segment_cnt) {
+                if (resident_nodes_cnt_ * 2zu + 1zu > max_segment_cnt) {
                     throw std::runtime_error { "Inconsistent node count" };
                 }
             }

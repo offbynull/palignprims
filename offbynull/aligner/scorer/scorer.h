@@ -28,6 +28,20 @@ namespace offbynull::aligner::scorer::scorer {
         && std::is_same_v<std::remove_cvref_t<DOWN_ELEM>, DOWN_ELEM>  // make sure no refs / cv-qualifiers
         && std::is_same_v<std::remove_cvref_t<RIGHT_ELEM>, RIGHT_ELEM>  // make sure no refs / cv-qualifiers
         && weight<WEIGHT>;
+
+    template<typename T, typename EDGE, typename DOWN_ELEM, typename RIGHT_ELEM>
+    concept scorer_without_explicit_weight =
+        unqualified_value_type<T>
+        && requires(
+            T t,
+            const EDGE& edge,
+            const std::optional<std::reference_wrapper<const DOWN_ELEM>> down_elem_ref_opt,
+            const std::optional<std::reference_wrapper<const RIGHT_ELEM>> right_elem_ref_opt
+        ) {
+            { t(edge, down_elem_ref_opt, right_elem_ref_opt) } -> weight;
+        }
+        && std::is_same_v<std::remove_cvref_t<DOWN_ELEM>, DOWN_ELEM>  // make sure no refs / cv-qualifiers
+        && std::is_same_v<std::remove_cvref_t<RIGHT_ELEM>, RIGHT_ELEM>;  // make sure no refs / cv-qualifiers
 }
 
 #endif //OFFBYNULL_ALIGNER_SCORER_SCORER_H

@@ -41,6 +41,13 @@ namespace offbynull::aligner::sequences::mmap_sequence {
             file.close();
         }
     };
+
+    template<bool debug_mode>
+    auto create_mmap_sequence(
+        const std::string& path
+    ) {
+        return mmap_sequence<debug_mode> { path };
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_MMAP_SEQUENCE_H

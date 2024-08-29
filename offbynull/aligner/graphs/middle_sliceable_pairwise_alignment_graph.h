@@ -6,6 +6,7 @@
 #include <optional>
 #include <utility>
 #include <stdexcept>
+#include <type_traits>
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h"
@@ -213,5 +214,18 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
             return g.inputs_from_residents(node);
         }
     };
+
+
+    template<
+        bool debug_mode
+    >
+    auto create_middle_sliceable_pairwise_alignment_graph(
+        const readable_sliceable_pairwise_alignment_graph auto& g,
+        const typename std::remove_cvref_t<decltype(g)>::N& new_root_node,
+        const typename std::remove_cvref_t<decltype(g)>::N& new_leaf_node
+    ) {
+        using G = std::remove_cvref_t<decltype(g)>;
+        return middle_sliceable_pairwise_alignment_graph<debug_mode, G> { g, new_root_node, new_leaf_node };
+    }
 }
 #endif //OFFBYNULL_ALIGNER_GRAPHS_MIDDLE_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_H

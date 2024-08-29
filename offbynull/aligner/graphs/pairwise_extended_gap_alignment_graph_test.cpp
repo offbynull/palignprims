@@ -5,6 +5,7 @@
 #include <vector>
 #include <iostream>
 #include <ostream>
+#include <type_traits>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h"
@@ -14,6 +15,7 @@
 
 namespace {
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::pairwise_extended_gap_alignment_graph;
+    using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::create_pairwise_extended_gap_alignment_graph;
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node_layer;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_vector;
@@ -1548,5 +1550,43 @@ namespace {
                 EXPECT_EQ(is_reachable_val, walk_val);
             }
         }
+    }
+
+    TEST(OAGPairwiseExtendedGapAlignmentGraphTest, CreateViaFactory) {
+        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-0.1f64) };
+        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
+        std::string seq1 { "a" };
+        std::string seq2 { "ac" };
+        pairwise_extended_gap_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(initial_gap_scorer),
+            decltype(extended_gap_scorer),
+            decltype(freeride_scorer)
+        > g1 {
+            seq1,
+            seq2,
+            substitution_scorer,
+            initial_gap_scorer,
+            extended_gap_scorer,
+            freeride_scorer
+        };
+        auto g2 {
+            create_pairwise_extended_gap_alignment_graph<true, std::size_t>(
+                seq1,
+                seq2,
+                substitution_scorer,
+                initial_gap_scorer,
+                extended_gap_scorer,
+                freeride_scorer
+            )
+        };
+        EXPECT_TRUE((std::is_same_v<decltype(g1), decltype(g2)>));
     }
 }

@@ -33,6 +33,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::scorer::scorer::scorer;
+    using offbynull::aligner::scorer::scorer::scorer_without_explicit_weight;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::helpers::concat_view::concat_view;
     using offbynull::helpers::blankable_bidirectional_view::blankable_bidirectional_view;
@@ -511,6 +512,74 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
             return ret;
         }
     };
+
+    template<
+        bool debug_mode,
+        widenable_to_size_t INDEX
+    >
+    auto create_pairwise_overlap_alignment_graph(
+        const sequence auto& down_seq,
+        const sequence auto& right_seq,
+        const scorer_without_explicit_weight<
+            overlap_edge<INDEX>,
+            std::remove_cvref_t<decltype(down_seq[0zu])>,
+            std::remove_cvref_t<decltype(right_seq[0zu])>
+        > auto& substitution_scorer,
+        const scorer_without_explicit_weight<
+            overlap_edge<INDEX>,
+            std::remove_cvref_t<decltype(down_seq[0zu])>,
+            std::remove_cvref_t<decltype(right_seq[0zu])>
+        > auto& gap_scorer,
+        const scorer_without_explicit_weight<
+            overlap_edge<INDEX>,
+            std::remove_cvref_t<decltype(down_seq[0zu])>,
+            std::remove_cvref_t<decltype(right_seq[0zu])>
+        > auto& freeride_scorer
+    ) {
+        using DOWN_SEQ = std::remove_cvref_t<decltype(down_seq)>;
+        using DOWN_ELEM = std::remove_cvref_t<decltype(down_seq[0zu])>;
+        using RIGHT_SEQ = std::remove_cvref_t<decltype(down_seq)>;
+        using RIGHT_ELEM = std::remove_cvref_t<decltype(right_seq[0zu])>;
+        using WEIGHT_1 = decltype(
+            substitution_scorer(
+                std::declval<const overlap_edge<INDEX>&>(),
+                std::declval<const std::optional<std::reference_wrapper<const DOWN_ELEM>>>(),
+                std::declval<const std::optional<std::reference_wrapper<const RIGHT_ELEM>>>()
+            )
+        );
+        using WEIGHT_2 = decltype(
+            gap_scorer(
+                std::declval<const overlap_edge<INDEX>&>(),
+                std::declval<const std::optional<std::reference_wrapper<const DOWN_ELEM>>>(),
+                std::declval<const std::optional<std::reference_wrapper<const RIGHT_ELEM>>>()
+            )
+        );
+        using WEIGHT_3 = decltype(
+            freeride_scorer(
+                std::declval<const overlap_edge<INDEX>&>(),
+                std::declval<const std::optional<std::reference_wrapper<const DOWN_ELEM>>>(),
+                std::declval<const std::optional<std::reference_wrapper<const RIGHT_ELEM>>>()
+            )
+        );
+        static_assert(std::is_same_v<WEIGHT_1, WEIGHT_2>, "Scorers must return the same weight type");
+        static_assert(std::is_same_v<WEIGHT_1, WEIGHT_3>, "Scorers must return the same weight type");
+        return pairwise_overlap_alignment_graph<
+            debug_mode,
+            INDEX,
+            WEIGHT_1,
+            DOWN_SEQ,
+            RIGHT_SEQ,
+            std::remove_cvref_t<decltype(substitution_scorer)>,
+            std::remove_cvref_t<decltype(gap_scorer)>,
+            std::remove_cvref_t<decltype(freeride_scorer)>
+        > {
+            down_seq,
+            right_seq,
+            substitution_scorer,
+            gap_scorer,
+            freeride_scorer
+        };
+    }
 }
 
 // Struct must be defined outside of namespace block above, otherwise compiler will treat it as part of that namespace.

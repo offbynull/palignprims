@@ -3,6 +3,7 @@
 #include <string>
 #include <set>
 #include <vector>
+#include <type_traits>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_fitting_alignment_graph.h"
@@ -12,6 +13,7 @@
 
 namespace {
     using offbynull::aligner::graphs::pairwise_fitting_alignment_graph::pairwise_fitting_alignment_graph;
+    using offbynull::aligner::graphs::pairwise_fitting_alignment_graph::create_pairwise_fitting_alignment_graph;
     using offbynull::aligner::graphs::pairwise_fitting_alignment_graph::edge;
     using offbynull::aligner::graphs::pairwise_fitting_alignment_graph::edge_type;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
@@ -538,5 +540,36 @@ namespace {
             copy_to_vector(g.inputs_from_residents(N { 1zu, 2zu })),
             (std::vector<E> {})
         );
+    }
+
+    TEST(OAGPairwiseFittingAlignmentGraphTest, CreateViaFactory) {
+        std::string seq1 { "a" };
+        std::string seq2 { "ac" };
+        pairwise_fitting_alignment_graph<
+            true,
+            std::size_t,
+            std::float64_t,
+            decltype(seq1),
+            decltype(seq2),
+            decltype(substitution_scorer),
+            decltype(gap_scorer),
+            decltype(freeride_scorer)
+        > g1 {
+            seq1,
+            seq2,
+            substitution_scorer,
+            gap_scorer,
+            freeride_scorer
+        };
+        auto g2 {
+            create_pairwise_fitting_alignment_graph<true, std::size_t>(
+                seq1,
+                seq2,
+                substitution_scorer,
+                gap_scorer,
+                freeride_scorer
+            )
+        };
+        EXPECT_TRUE((std::is_same_v<decltype(g1), decltype(g2)>));
     }
 }

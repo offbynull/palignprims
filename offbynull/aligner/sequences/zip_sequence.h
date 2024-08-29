@@ -7,6 +7,8 @@
 #include <functional>
 #include <limits>
 #include <tuple>
+#include <type_traits>
+#include <utility>
 
 namespace offbynull::aligner::sequences::zip_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
@@ -76,6 +78,44 @@ namespace offbynull::aligner::sequences::zip_sequence {
             return size_;
         }
     };
+
+
+
+
+
+    template<typename... T>
+    struct cvref_remover;
+
+    template<typename T>
+    struct cvref_remover<T> {
+        using type = std::tuple<std::remove_cvref_t<T>>;
+    };
+
+    template<typename T, typename... OTHERS>
+    struct cvref_remover<T, OTHERS...> {
+        using type = decltype(
+            std::tuple_cat(
+                std::declval<std::tuple<std::remove_cvref_t<T>>>(),
+                std::declval<typename cvref_remover<OTHERS...>::type>()
+            )
+        );
+    };
+
+    template<bool debug_mode, typename... TYPES>
+    struct zip_sequencer_typer;
+
+    template<bool debug_mode, typename... TYPES>
+    struct zip_sequencer_typer<debug_mode, std::tuple<TYPES ...>> {
+        using type = zip_sequence<debug_mode, TYPES ...>;
+    };
+
+    template<bool debug_mode>
+    auto create_zip_sequence(const sequence auto&... seqs) {
+        using TUPLE_PACKED_SEQ_TYPES = typename cvref_remover<decltype(seqs)...>::type;
+        using ZIP_SEQUENCE_TYPE = typename zip_sequencer_typer<debug_mode, TUPLE_PACKED_SEQ_TYPES>::type;
+
+        return ZIP_SEQUENCE_TYPE { seqs... };
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_ZIP_SEQUENCE_H

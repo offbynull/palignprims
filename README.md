@@ -65,13 +65,18 @@ TODO:
 * ~~move out all "to_vector" functions as utility func~~
 * ~~concepts should enforce that type being enforced is std::same_as<std::decay_t<T>, T>, meaning no cv and no refs~~
   * ~~maybe use std::remove_cvref instead of std::decay?~~
-* create factory functions for everything that has heavy templating
+* ~~create factory functions for everything that has heavy templating~~
+* const correct offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container.h, then make its usages const where appropriate
+* template params typename N/E to use backtracking_node/backtracking_edge constrained types
+* remove INDEX and force set to std::size_t
+  * in backtrackers, automatically pick the right type for INDEX based on graph dimensions 
 * ~~tests that copy to std::vector/set/multiset -- use helper functions instead~~
 * ~~remove pointers in forward_walker and path_container -- requires custom move/copy constructors + custom assignment operators~~ (leaving this as-is for now, with the custom constructors and assignment op overrides)
 * ~~std::optional.value() to using * operator -- no bounds checking done on * operator~~
 
 * doxygen documentation
 * run profiler and optimize functions (some local alignment functions may be doing a ton of unneeded work -- e.g. get_outputs_full)
+  * did this but didn't bother going too deep into the flame graph -- make sure to turn off D_GLIBCXX_DEBUG to get true results
 * ~~fix compiler warnings~~
 * ~~enable sanitizer (e.g. ubsan)~~
 * cleanup syntax

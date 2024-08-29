@@ -41,6 +41,15 @@ namespace offbynull::aligner::sequences::suffix_pad_sequence {
             return seq.size() + pad_count;
         }
     };
+
+    template<bool debug_mode>
+    auto create_suffix_pad_sequence(
+        const sequence auto& seq,
+        const std::remove_cvref_t<decltype(seq[0zu])> pad_value,
+        const std::size_t pad_count
+    ) {
+        return suffix_pad_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> { seq, pad_value, pad_count };
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_SUFFIX_PAD_SEQUENCE_H

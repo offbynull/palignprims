@@ -22,9 +22,9 @@ namespace offbynull::aligner::sequences::prefix_pad_sequence {
 
     public:
         prefix_pad_sequence(
-            SEQ& seq_,
-            SEQ_ELEM pad_value_,
-            std::size_t pad_count_
+            const SEQ& seq_,
+            const SEQ_ELEM pad_value_,
+            const std::size_t pad_count_
         )
         : seq { seq_ }
         , pad_value { pad_value_ }
@@ -41,6 +41,15 @@ namespace offbynull::aligner::sequences::prefix_pad_sequence {
             return seq.size() + pad_count;
         }
     };
+
+    template<bool debug_mode>
+    auto create_prefix_pad_sequence(
+        const sequence auto& seq,
+        const std::remove_cvref_t<decltype(seq[0zu])> pad_value,
+        const std::size_t pad_count
+    ) {
+        return prefix_pad_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> { seq, pad_value, pad_count };
+    }
 }
 
 #endif //OFFBYNULL_ALIGNER_SEQUENCES_PREFIX_PAD_SEQUENCE_H
