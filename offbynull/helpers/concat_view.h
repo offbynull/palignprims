@@ -42,7 +42,7 @@ namespace offbynull::helpers::concat_view {
 
         iterator(const iterator<It1, S1, It2, S2> &src) = default;
 
-        iterator(iterator<It1, S1, It2, S2> &&src) = default;
+        iterator(iterator<It1, S1, It2, S2> &&src) noexcept = default;
 
         iterator()
         : begin1 {}
@@ -136,7 +136,7 @@ namespace offbynull::helpers::concat_view {
         , second_range(std::forward<R2>(second)) {}
 
         concat_view(const concat_view<R1, R2>& other) = default;
-        concat_view(concat_view<R1, R2>&& other) = default;
+        concat_view(concat_view<R1, R2>&& other) noexcept = default;
         concat_view<R1, R2>& operator=(const concat_view<R1, R2>& other) = default;
         concat_view<R1, R2>& operator=(concat_view<R1, R2>&& other) = default;
 

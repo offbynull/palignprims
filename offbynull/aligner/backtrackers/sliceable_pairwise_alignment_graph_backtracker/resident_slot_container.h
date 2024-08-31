@@ -185,7 +185,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     public:
         resident_slot_container(
             const G& g,
-            CONTAINER_CREATOR_PACK container_creator_pack= {}
+            CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
         : slots {
             container_creator_pack.create_slot_container(

@@ -68,8 +68,8 @@ TODO:
 * ~~graph simplified factory functions that choose the best index types~~ didn't do this -- tough to do
 * ~~directive to pack slot structs~~
 * ~~add graph attribute that'll tell you max possible incoming edges to a node, and then test for that to make sure backtracker can run with supplied types~~
-* remove noexcept usages -- DONT, instead do noexcept(!debug_mode)
-* better error messages
+* remove noexcept usages OR apply noexcepts -- didn't do this, just added noexcepts for move constructor and move assignment, because containers change their code if the type they hold has a move assignment/constructor that throws an exception~~
+* better exception messages
 * ~~tests that copy to std::vector/set/multiset -- use helper functions instead~~
 * ~~remove pointers in forward_walker and path_container -- requires custom move/copy constructors + custom assignment operators~~ (leaving this as-is for now, with the custom constructors and assignment op overrides)
 * ~~std::optional.value() to using * operator -- no bounds checking done on * operator~~

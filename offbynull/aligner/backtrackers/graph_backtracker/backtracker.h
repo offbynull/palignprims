@@ -273,7 +273,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
                     std::ranges::max_element(
                         incoming_accumulated.begin(),
                         incoming_accumulated.end(),
-                        [](const std::pair<E, WEIGHT>& a, const std::pair<E, WEIGHT>& b) noexcept {
+                        [](const std::pair<E, WEIGHT>& a, const std::pair<E, WEIGHT>& b) {
                             return a.second < b.second;
                         }
                     )

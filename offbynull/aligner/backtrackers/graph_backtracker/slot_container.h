@@ -52,15 +52,15 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         weight WEIGHT
     >
     struct slots_comparator {
-        bool operator()(const slot<N, E, WEIGHT>& lhs, const slot<N, E, WEIGHT>& rhs) const noexcept {
+        bool operator()(const slot<N, E, WEIGHT>& lhs, const slot<N, E, WEIGHT>& rhs) const {
             return lhs.node < rhs.node;
         }
 
-        bool operator()(const slot<N, E, WEIGHT>& lhs, const N& rhs) const noexcept {
+        bool operator()(const slot<N, E, WEIGHT>& lhs, const N& rhs) const {
             return lhs.node < rhs;
         }
 
-        bool operator()(const N& lhs, const slot<N, E, WEIGHT>& rhs) const noexcept {
+        bool operator()(const N& lhs, const slot<N, E, WEIGHT>& rhs) const {
             return lhs < rhs.node;
         }
     };

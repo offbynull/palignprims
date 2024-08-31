@@ -32,7 +32,7 @@ namespace offbynull::helpers::simple_value_bidirectional_view {
 
         iterator(const iterator<STATE> &src) = default;
 
-        iterator(iterator<STATE> &&src) = default;
+        iterator(iterator<STATE> &&src) noexcept = default;
 
         iterator(
             STATE state_

@@ -204,7 +204,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
             const std::optional<std::reference_wrapper<const char>> right_elem
         ) const {
             if (down_elem.has_value() && right_elem.has_value()) {
-                std::size_t weights_idx { to_weights_idx(alphabet, (*down_elem).get(), (*right_elem).get()) };
+                std::size_t weights_idx { to_weights_idx(alphabet, down_elem->get(), right_elem->get()) };
                 return weights[weights_idx];
             }
             if constexpr (std::numeric_limits<WEIGHT>::has_quiet_NaN) {

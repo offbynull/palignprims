@@ -241,8 +241,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             ED max_edge_weight;
             ED before_max_edge_weight;
             ED after_max_edge_weight;
-            bool max_edge_assigned {};
             {
+                bool max_edge_assigned {};
                 // whole_graph expected to have 2 resident nodes at most (one at root and one at leaf) -- override the
                 // resident_slot_containers being created to be stack-based and maxxed out to 2.
                 using BACKING_SSC_CCP_TYPE = decltype(

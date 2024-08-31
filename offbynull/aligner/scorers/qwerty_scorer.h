@@ -71,7 +71,10 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
             std::unreachable();
         }
 
-        static auto distance(std::variant<point, horizontal_line> item1, std::variant<point, horizontal_line> item2) {
+        static auto distance(
+            const std::variant<point, horizontal_line>& item1,
+            const std::variant<point, horizontal_line>& item2
+        ) {
             if (std::holds_alternative<point>(item1) && std::holds_alternative<point>(item2)) {
                 const auto& p1 { std::get<point>(item1) };
                 const auto& p2 { std::get<point>(item2) };

@@ -213,7 +213,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             }
         }
 
-        path_container(path_container&& other)
+        path_container(path_container&& other) noexcept
         : element_container { other.element_container }
         , head { other.head == nullptr ? nullptr : &element_container[other.head - &(other.element_container[0zu])] }
         , tail { other.tail == nullptr ? nullptr : &element_container[other.tail - &(other.element_container[0zu])] }
@@ -247,7 +247,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             return *this;
         }
 
-        path_container& operator=(path_container&& other) {
+        path_container& operator=(path_container&& other) noexcept {
             if (this != &other) { // guard against self-assignment
                 element_container = other.element_container;
                 head = other.head == nullptr ? nullptr : &element_container[other.head - &(other.element_container[0zu])];

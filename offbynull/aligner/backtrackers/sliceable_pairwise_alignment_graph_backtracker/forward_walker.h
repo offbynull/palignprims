@@ -177,7 +177,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , current_slots { other.current_slots == &other.slots1 ? &slots1 : &slots2 }
         , grid_down_offset { other.grid_down_offset } {}
 
-        slice_slot_container_pair(slice_slot_container_pair&& other)
+        slice_slot_container_pair(slice_slot_container_pair&& other) noexcept
         : slots1 { std::move(other.slots1) }
         , slots2 { std::move(other.slots2) }
         , previous_slots { other.previous_slots == &other.slots1 ? &slots1 : &slots2 }
@@ -195,7 +195,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             return *this;
         }
 
-        slice_slot_container_pair& operator=(slice_slot_container_pair&& other) {
+        slice_slot_container_pair& operator=(slice_slot_container_pair&& other) noexcept {
             if (this != &other) { // guard against self-assignment
                 slots1 = std::move(other.slots1);
                 slots2 = std::move(other.slots2);
@@ -203,10 +203,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 current_slots = other.current_slots == &other.slots1 ? &slots1 : &slots2;
                 grid_down_offset = std::move(other.grid_down_offset);
             }
+            return *this;
         }
 
         void move_down() {
-            grid_down_offset++;
+            ++grid_down_offset;
 
             auto* old_previous_slots { previous_slots };
             previous_slots = current_slots;
