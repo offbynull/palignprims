@@ -189,8 +189,8 @@ test_exec = executable(
                 + ['-DOBN_PACK_STRUCTS'],  # Pack structs -- done to ensure code doesn't crash when structs are packed
         link_args : base_debug_link_args
 )
-test_exec_optimized = executable(
-        'gtest-all_optimized',
+test_exec_release = executable(
+        'gtest-all_release',
         tests_src,
         source_checker,
         doc_generator,
@@ -201,3 +201,66 @@ test_exec_optimized = executable(
         link_args : base_release_link_args
 )
 # test('gtest tests', test_exec)
+
+
+# Benchmarks
+benchmark_tiny_alignment_000 = executable(
+        'benchmark-tiny-alignment_000',
+        ['benchmark-tiny-alignment.cpp'],
+        source_checker,
+        dependencies : [boost_dep],
+        override_options : base_release_override_options,
+        cpp_args : base_release_cpp_args \
+                + ['-DBENCHMARK_HEAP', '-DBENCHMARK_SIZE_T_INDEX'],
+        link_args : base_release_link_args
+)
+benchmark_tiny_alignment_0m00 = executable(
+        'benchmark-tiny-alignment_0m00',
+        ['benchmark-tiny-alignment.cpp'],
+        source_checker,
+        dependencies : [boost_dep],
+        override_options : base_release_override_options,
+        cpp_args : base_release_cpp_args \
+                + ['-DBENCHMARK_HEAP', '-DMINIMIZE_ALLOCS', '-DBENCHMARK_SIZE_T_INDEX'],
+        link_args : base_release_link_args
+)
+benchmark_tiny_alignment_100 = executable(
+        'benchmark-tiny-alignment_100',
+        ['benchmark-tiny-alignment.cpp'],
+        source_checker,
+        dependencies : [boost_dep],
+        override_options : base_release_override_options,
+        cpp_args : base_release_cpp_args \
+                + ['-DBENCHMARK_STACK', '-DBENCHMARK_SIZE_T_INDEX'],
+        link_args : base_release_link_args
+)
+benchmark_tiny_alignment_101 = executable(
+        'benchmark-tiny-alignment_101',
+        ['benchmark-tiny-alignment.cpp'],
+        source_checker,
+        dependencies : [boost_dep],
+        override_options : base_release_override_options,
+        cpp_args : base_release_cpp_args \
+                + ['-DBENCHMARK_STACK', '-DBENCHMARK_SIZE_T_INDEX', '-DOBN_PACK_STRUCTS'],
+        link_args : base_release_link_args
+)
+benchmark_tiny_alignment_110 = executable(
+        'benchmark-tiny-alignment_110',
+        ['benchmark-tiny-alignment.cpp'],
+        source_checker,
+        dependencies : [boost_dep],
+        override_options : base_release_override_options,
+        cpp_args : base_release_cpp_args \
+                + ['-DBENCHMARK_STACK', '-DBENCHMARK_UINT8_INDEX'],
+        link_args : base_release_link_args
+)
+benchmark_tiny_alignment_111 = executable(
+        'benchmark-tiny-alignment_111',
+        ['benchmark-tiny-alignment.cpp'],
+        source_checker,
+        dependencies : [boost_dep],
+        override_options : base_release_override_options,
+        cpp_args : base_release_cpp_args \
+                + ['-DBENCHMARK_STACK', '-DBENCHMARK_UINT8_INDEX', '-DOBN_PACK_STRUCTS'],
+        link_args : base_release_link_args
+)

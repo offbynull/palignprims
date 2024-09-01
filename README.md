@@ -72,15 +72,15 @@ TODO:
   * NOTE: noexcept is a user-level thing? you can write code that does something different if some type is a invokable noexcept vs invokable that does throw an exception
 * better exception messages
 * ~~make meson.build more abstract -- use variables for debug options vs release options, and use those across multiple executables~~
-* make simple test that does all 4char by 4char alignments
-  * in optimized mode using heap
-  * in optimized mode using heap w/ narrowed types
-  * in optimized mode using heap w/ struct packing
-  * in optimized mode using heap w/ struct packing and narrowed types
-  * in optimized mode using stack
-  * in optimized mode using stack w/ narrowed types
-  * in optimized mode using stack w/ struct packing
-  * in optimized mode using stack w/ struct packing and narrowed types
+* ~~make simple test that does all 4char by 4char alignments~~
+  * ~~in optimized mode using heap~~
+  * ~~in optimized mode using heap w/ narrowed types~~
+  * ~~in optimized mode using heap w/ struct packing~~
+  * ~~in optimized mode using heap w/ struct packing and narrowed types~~
+  * ~~in optimized mode using stack~~
+  * ~~in optimized mode using stack w/ narrowed types~~
+  * ~~in optimized mode using stack w/ struct packing~~
+  * ~~in optimized mode using stack w/ struct packing and narrowed types~~
 * ~~tests that copy to std::vector/set/multiset -- use helper functions instead~~
 * ~~remove pointers in forward_walker and path_container -- requires custom move/copy constructors + custom assignment operators~~ (leaving this as-is for now, with the custom constructors and assignment op overrides)
 * ~~std::optional.value() to using * operator -- no bounds checking done on * operator~~

@@ -344,6 +344,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
 
     template<
         bool debug_mode,
+        widenable_to_size_t PARENT_COUNT,
+        widenable_to_size_t SLOT_INDEX,
         bool minimize_allocations
     >
     auto heap_find_max_path(
@@ -353,15 +355,15 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         return backtracker<
             debug_mode,
             G,
-            std::size_t,
-            std::size_t,
+            PARENT_COUNT,
+            SLOT_INDEX,
             backtracker_heap_container_creator_pack<
                 debug_mode,
                 typename G::N,
                 typename G::E,
                 typename G::ED,
-                std::size_t,
-                std::size_t,
+                PARENT_COUNT,
+                SLOT_INDEX,
                 minimize_allocations
             >
         > {}.find_max_path(g);
@@ -369,6 +371,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
 
     template<
         bool debug_mode,
+        widenable_to_size_t PARENT_COUNT,
+        widenable_to_size_t SLOT_INDEX,
         std::size_t grid_down_cnt,
         std::size_t grid_right_cnt,
         std::size_t grid_depth_cnt,
@@ -392,15 +396,15 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         return backtracker<
             debug_mode,
             G,
-            std::size_t,
-            std::size_t,
+            PARENT_COUNT,
+            SLOT_INDEX,
             backtracker_stack_container_creator_pack<
                 debug_mode,
                 N,
                 E,
                 ED,
-                std::size_t,
-                std::size_t,
+                PARENT_COUNT,
+                SLOT_INDEX,
                 grid_down_cnt,
                 grid_right_cnt,
                 grid_depth_cnt,
