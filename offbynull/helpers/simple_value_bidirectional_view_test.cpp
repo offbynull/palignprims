@@ -2,11 +2,13 @@
 #include <iostream>
 #include <ostream>
 #include "offbynull/helpers/simple_value_bidirectional_view.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 
 namespace {
     using offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view;
     using offbynull::helpers::simple_value_bidirectional_view::iterator;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OHSimpleValueBidirectionalViewTest, SanityTest) {
         struct state {

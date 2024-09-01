@@ -1,12 +1,14 @@
 #include "offbynull/aligner/scorers/single_character_substitution_matrix_scorer.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <tuple>
 
 namespace {
     using offbynull::aligner::scorers::single_character_substitution_matrix_scorer::single_character_substitution_matrix_scorer;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OASSingleCharacterSubstitutionMatrixScorerTest, SanityTest) {
-        single_character_substitution_matrix_scorer<true, int, 4zu> scorer {
+        single_character_substitution_matrix_scorer<is_debug_mode(), int, 4zu> scorer {
             R"(
     A   T   C   G
 A   6  -7  -4  -3

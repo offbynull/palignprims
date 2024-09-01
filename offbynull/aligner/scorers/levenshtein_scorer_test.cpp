@@ -1,13 +1,15 @@
 #include "offbynull/aligner/scorers/levenshtein_scorer.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <tuple>
 #include <optional>
 
 namespace {
     using offbynull::aligner::scorers::levenshtein_scorer::levenshtein_scorer;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OASLevenshteinScorerTest, SanityTest) {
-        levenshtein_scorer<true, char, char, int> scorer {};
+        levenshtein_scorer<is_debug_mode(), char, char, int> scorer {};
         char a_ { 'a' };
         char b_ { 'b' };
         EXPECT_EQ(-1, (scorer(std::tuple<> {}, { { a_ } }, { { a_ } })));

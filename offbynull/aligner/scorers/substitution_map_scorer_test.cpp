@@ -1,13 +1,15 @@
 #include "offbynull/aligner/scorers/substitution_map_scorer.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <optional>
 #include <tuple>
 
 namespace {
     using offbynull::aligner::scorers::substitution_map_scorer::substitution_map_scorer;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OASSubstitutionMapScorerTest, SanityTest) {
-        substitution_map_scorer<true, char, char, int> scorer {
+        substitution_map_scorer<is_debug_mode(), char, char, int> scorer {
             {
                 { { 'a', 'a' }, 1 },
                 { { 'a', 'b' }, 0 },

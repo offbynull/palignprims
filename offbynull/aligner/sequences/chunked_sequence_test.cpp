@@ -11,10 +11,11 @@ namespace {
     using offbynull::aligner::sequences::chunked_sequence::create_heap_chunked_sequence;
     using offbynull::aligner::sequences::chunked_sequence::create_stack_chunked_sequence;
     using offbynull::utils::copy_to_vector;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OASChunkedSequenceTest, HeapSanityTest) {
         std::string data { "hello!!" };
-        auto seq { create_heap_chunked_sequence<true>(data, 2zu) };
+        auto seq { create_heap_chunked_sequence<is_debug_mode()>(data, 2zu) };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(copy_to_vector(seq[0]), (std::vector<char> { 'h', 'e' }));
         EXPECT_EQ(copy_to_vector(seq[1]), (std::vector<char> { 'l', 'l' }));
@@ -24,7 +25,7 @@ namespace {
 
     TEST(OASChunkedSequenceTest, StackSanityTest) {
         std::string data { "hello!!" };
-        auto seq { create_stack_chunked_sequence<true, 2zu>(data) };
+        auto seq { create_stack_chunked_sequence<is_debug_mode(), 2zu>(data) };
         static_assert(sequence<decltype(seq)>);
         EXPECT_EQ(copy_to_vector(seq[0]), (std::vector<char> { 'h', 'e' }));
         EXPECT_EQ(copy_to_vector(seq[1]), (std::vector<char> { 'l', 'l' }));

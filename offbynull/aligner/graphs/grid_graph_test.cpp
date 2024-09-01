@@ -14,13 +14,14 @@ namespace {
     using offbynull::aligner::graphs::grid_graph::create_grid_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_set;
+    using offbynull::utils::is_debug_mode;
 
-    auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-    auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+    auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+    auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
     TEST(OAGGridGraphTest, ConceptCheck) {
         using G = grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             std::string,
@@ -35,7 +36,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -65,7 +66,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -102,7 +103,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -131,7 +132,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -157,7 +158,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -183,7 +184,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -209,7 +210,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -256,7 +257,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -303,7 +304,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -329,7 +330,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -355,7 +356,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         grid_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -368,7 +369,7 @@ namespace {
             substitution_scorer,
             gap_scorer
         };
-        auto g2 { create_grid_graph<true, std::size_t>(seq1, seq2, substitution_scorer, gap_scorer) };
+        auto g2 { create_grid_graph<is_debug_mode(), std::size_t>(seq1, seq2, substitution_scorer, gap_scorer) };
         EXPECT_TRUE((std::is_same_v<decltype(g1), decltype(g2)>));
     }
 }

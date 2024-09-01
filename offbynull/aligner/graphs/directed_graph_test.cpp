@@ -4,18 +4,20 @@
 #include <stdexcept>
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graphs/directed_graph.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 
 namespace {
     using offbynull::aligner::graphs::directed_graph::directed_graph;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OAGDirectedGraphTest, ConceptCheck) {
-        using G = directed_graph<true, std::string, std::string, std::string, std::string>;
+        using G = directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string>;
         static_assert(offbynull::aligner::graph::graph::readable_graph<G>);
     }
 
     TEST(OAGDirectedGraphTest, InsertNodesAndEdges) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");
@@ -53,7 +55,7 @@ namespace {
     }
 
     TEST(OAGDirectedGraphTest, SplitEdge) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");
@@ -93,7 +95,7 @@ namespace {
     }
 
     TEST(OAGDirectedGraphTest, DeleteNodesAndEdges) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");
@@ -128,7 +130,7 @@ namespace {
     }
 
     TEST(OAGDirectedGraphTest, UpdateData) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");
@@ -186,7 +188,7 @@ namespace {
     }
 
     TEST(OAGDirectedGraphTest, GetRoots) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");
@@ -220,7 +222,7 @@ namespace {
     }
 
     TEST(OAGDirectedGraphTest, GetLeaves) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");
@@ -252,7 +254,7 @@ namespace {
     }
 
     TEST(OAGDirectedGraphTest, HasInputsOutputs) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");
@@ -276,7 +278,7 @@ namespace {
     }
 
     TEST(OAGDirectedGraphTest, GetInputsOutputs) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");
@@ -306,7 +308,7 @@ namespace {
     }
 
     TEST(OAGDirectedGraphTest, GetFullInputsOutputs) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");
@@ -357,7 +359,7 @@ namespace {
     }
 
     TEST(OAGDirectedGraphTest, InputOutputDegree) {
-        directed_graph<true, std::string, std::string, std::string, std::string> g {};
+        directed_graph<is_debug_mode(), std::string, std::string, std::string, std::string> g {};
 
         g.insert_node("A", "");
         g.insert_node("B", "");

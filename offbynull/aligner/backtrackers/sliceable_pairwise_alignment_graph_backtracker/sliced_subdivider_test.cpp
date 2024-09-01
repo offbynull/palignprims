@@ -3,6 +3,7 @@
 #include "offbynull/aligner/graphs/pairwise_global_alignment_graph.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/sliced_subdivider.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <cstddef>
 #include <stdfloat>
@@ -20,14 +21,15 @@ namespace {
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge_type;
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OABSSlicedSubdividerTest, GlobalTest) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abc" };
         std::string seq2 { "azc" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -45,7 +47,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        sliced_subdivider<true, decltype(g)> subdivider { g };
+        sliced_subdivider<is_debug_mode(), decltype(g)> subdivider { g };
         auto path { subdivider.subdivide() };
         auto backward_path_view { path.walk_path_backward() };
         std::vector<E> forward_path(backward_path_view.begin(), backward_path_view.end());
@@ -72,13 +74,13 @@ namespace {
     }
 
     TEST(OABSSlicedSubdividerTest, IsolatedLocalTest) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "zzzzzlVnzzzzz" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -95,14 +97,14 @@ namespace {
         };
         using N = typename decltype(g_)::N;
         using E = typename decltype(g_)::E;
-        middle_sliceable_pairwise_alignment_graph<true, decltype(g_)> g {
+        middle_sliceable_pairwise_alignment_graph<is_debug_mode(), decltype(g_)> g {
             g_,
             N { 5u, 5u },
             N { 8u, 8u }
         };
 
         // walk
-        sliced_subdivider<true, decltype(g)> subdivider { g };
+        sliced_subdivider<is_debug_mode(), decltype(g)> subdivider { g };
         auto path { subdivider.subdivide() };
         auto backward_path_view { path.walk_path_backward() };
         std::vector<E> forward_path(backward_path_view.begin(), backward_path_view.end());
@@ -129,13 +131,13 @@ namespace {
     }
 
     TEST(OABSSlicedSubdividerTest, UnisolatedLocalTest) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "zzzzzlVnzzzzz" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -152,7 +154,7 @@ namespace {
         };
 
         // walk
-        // EXPECT_THROW((sliced_subdivider<true, decltype(g)> { g }), std::runtime_error);
+        // EXPECT_THROW((sliced_subdivider<is_debug_mode(), decltype(g)> { g }), std::runtime_error);
         // THIS WILL NOT THROW, because subdivider accepts it if root and leaf are both resident nodes (segmenter will
         // segment graph based on resident node edges that get passed through)
     }

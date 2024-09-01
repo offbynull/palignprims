@@ -1,6 +1,7 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/sequences/iota_sequence.h"
 #include "offbynull/aligner/sequences/transform_sequence.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <cstdint>
 
@@ -9,11 +10,12 @@ namespace {
     using offbynull::aligner::sequences::iota_sequence::iota_sequence;
     using offbynull::aligner::sequences::transform_sequence::transform_sequence;
     using offbynull::aligner::sequences::transform_sequence::create_transform_sequence;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OASTransformSequenceTest, SanityTest) {
-        iota_sequence<true, unsigned int> backing_seq { 0u, 3u };
+        iota_sequence<is_debug_mode(), unsigned int> backing_seq { 0u, 3u };
         auto seq {
-            create_transform_sequence<true>(
+            create_transform_sequence<is_debug_mode()>(
                 backing_seq,
                 [](unsigned int x) { return x * 2; }
             )

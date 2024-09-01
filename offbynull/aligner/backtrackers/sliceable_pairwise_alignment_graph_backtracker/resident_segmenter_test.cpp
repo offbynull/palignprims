@@ -6,6 +6,7 @@
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/backtracker.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/resident_segmenter.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <cstddef>
 #include <stdfloat>
@@ -26,15 +27,16 @@ namespace {
     using offbynull::aligner::graphs::pairwise_fitting_alignment_graph::pairwise_fitting_alignment_graph;
     using offbynull::aligner::graphs::pairwise_overlap_alignment_graph::pairwise_overlap_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OABSResidentSegmenterTest, SegmentationPointsLocal) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "zzzzzlVnzzzzz" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -53,7 +55,7 @@ namespace {
         using N = typename decltype(g)::N;
         using E = typename decltype(g)::E;
 
-        resident_segmenter<true, decltype(g)> segmenter {};
+        resident_segmenter<is_debug_mode(), decltype(g)> segmenter {};
         using hop_ = hop<E>;
         using segment_ = segment<N>;
         const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points(g, 0.000001f64) };
@@ -83,13 +85,13 @@ namespace {
     }
 
     TEST(OABSResidentSegmenterTest, SegmentationPointsOverlap) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmn" };
         std::string seq2 { "lmnzzzzz" };
         pairwise_overlap_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -123,7 +125,7 @@ namespace {
         // 0/0->5/0 5/0->6/1 6/1->7/2 7/2->8/3 8/3->8/8
         // 3
 
-        resident_segmenter<true, decltype(g)> segmenter {};
+        resident_segmenter<is_debug_mode(), decltype(g)> segmenter {};
         using hop_ = hop<E>;
         using segment_ = segment<N>;
         const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points(g, 0.000001f64) };

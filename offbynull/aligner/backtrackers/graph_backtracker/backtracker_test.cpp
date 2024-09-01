@@ -21,15 +21,16 @@ namespace {
     using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_vector;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OABGBacktrackerTest, FindMaxPathOnGridGraph) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -48,7 +49,7 @@ namespace {
 
         auto edge_weight_accessor { [&g](const E& edge) { return g.get_edge_data(edge); } };
         backtracker<
-            true,
+            is_debug_mode(),
             decltype(g),
             ED,
             decltype(edge_weight_accessor)
@@ -75,13 +76,13 @@ namespace {
     }
 
     TEST(OABGBacktrackerTest, FindMaxPathOnGridGraphViaHeapHelper) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -98,7 +99,7 @@ namespace {
         using E = decltype(g)::E;
 
         const auto& [path, weight] {
-            heap_find_max_path<true>(
+            heap_find_max_path<is_debug_mode()>(
                 g,
                 [&g](const E& edge) { return g.get_edge_data(edge); }
             )
@@ -120,13 +121,13 @@ namespace {
     }
 
     TEST(OABGBacktrackerTest, FindMaxPathOnGridGraphViaStackHelper) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -143,7 +144,7 @@ namespace {
         using E = decltype(g)::E;
 
         const auto& [path, weight] {
-            stack_find_max_path<true>(
+            stack_find_max_path<is_debug_mode()>(
                 g,
                 [&g](const E& edge) { return g.get_edge_data(edge); }
             )
@@ -183,7 +184,7 @@ namespace {
         using E = edge;
         using ND = std::tuple<std::optional<std::float64_t>, std::optional<E>>;
         using ED = std::float64_t;
-        using G = offbynull::aligner::graphs::directed_graph::directed_graph<true, N, ND, E, ED>;
+        using G = offbynull::aligner::graphs::directed_graph::directed_graph<is_debug_mode(), N, ND, E, ED>;
 
         G g {};
         g.insert_node(N { 0zu, 0zu }, { std::nullopt, std::nullopt });
@@ -206,7 +207,7 @@ namespace {
 
         auto edge_weight_accessor { [&g](const E& edge) { return g.get_edge_data(edge); } };
         backtracker<
-            true,
+            is_debug_mode(),
             decltype(g),
             ED,
             decltype(edge_weight_accessor)

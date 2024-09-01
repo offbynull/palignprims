@@ -141,6 +141,14 @@ namespace offbynull::utils {
         bool operator==(const packable_optional& other) const = default;
     }
     PACK_STRUCT_STOP;
+
+    constexpr bool is_debug_mode() {
+#ifdef NDEBUG
+        return false;
+#else
+        return true;
+#endif
+    }
 }
 
 #endif //OFFBYNULL_UTILS_H

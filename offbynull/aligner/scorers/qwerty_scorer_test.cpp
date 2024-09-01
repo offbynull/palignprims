@@ -1,4 +1,5 @@
 #include "offbynull/aligner/scorers/qwerty_scorer.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <tuple>
 #include <iostream>
@@ -6,9 +7,10 @@
 
 namespace {
     using offbynull::aligner::scorers::qwerty_scorer::qwerty_scorer;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OASQwertyScorerTest, SanityTest) {
-        qwerty_scorer<true, float> scorer {};
+        qwerty_scorer<is_debug_mode(), float> scorer {};
         {
             char ch1_ { 'A' };
             char ch2_ { 'A' };

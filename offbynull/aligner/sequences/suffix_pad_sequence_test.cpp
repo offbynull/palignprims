@@ -1,5 +1,6 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/sequences/suffix_pad_sequence.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <string>
 #include <type_traits>
@@ -8,12 +9,13 @@ namespace {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::sequences::suffix_pad_sequence::create_suffix_pad_sequence;
     using offbynull::aligner::sequences::suffix_pad_sequence::suffix_pad_sequence;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OASSuffixPadSequenceTest, SanityTest) {
         std::string data { "hello!" };
-        auto seq { create_suffix_pad_sequence<true>(data, 'x', 3zu) };
+        auto seq { create_suffix_pad_sequence<is_debug_mode()>(data, 'x', 3zu) };
         static_assert(sequence<decltype(seq)>);
-        static_assert(std::is_same_v<decltype(seq), suffix_pad_sequence<true, std::string>>);
+        static_assert(std::is_same_v<decltype(seq), suffix_pad_sequence<is_debug_mode(), std::string>>);
         EXPECT_EQ(seq[0], 'h');
         EXPECT_EQ(seq[1], 'e');
         EXPECT_EQ(seq[2], 'l');

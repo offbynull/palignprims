@@ -25,16 +25,17 @@ namespace {
     using offbynull::utils::copy_to_multiset;
     using offbynull::utils::copy_to_set;
     using offbynull::utils::copy_to_vector;
+    using offbynull::utils::is_debug_mode;
 
-    auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-    auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
-    auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
+    auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+    auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
+    auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride() };
 
     struct graph_bundle {
         std::string down_seq;
         std::string right_seq;
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             std::string,
@@ -43,7 +44,7 @@ namespace {
             decltype(gap_scorer),
             decltype(freeride_scorer)
         > backing_g;
-        suffix_sliceable_pairwise_alignment_graph<true, decltype(backing_g)> suffix_g;
+        suffix_sliceable_pairwise_alignment_graph<is_debug_mode(), decltype(backing_g)> suffix_g;
 
         graph_bundle(
             std::string down_seq_,
@@ -434,7 +435,7 @@ namespace {
         graph_bundle g_bundle { seq1, seq2, { 1zu, 2zu } };
         auto g1 { g_bundle.suffix_g };
         auto g2 {
-            create_suffix_sliceable_pairwise_alignment_graph<true>(
+            create_suffix_sliceable_pairwise_alignment_graph<is_debug_mode()>(
                 g_bundle.backing_g,
                 { 1zu, 2zu }
             )

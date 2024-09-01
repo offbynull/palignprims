@@ -20,14 +20,15 @@ namespace {
     using offbynull::utils::copy_to_vector;
     using offbynull::utils::copy_to_set;
     using offbynull::utils::copy_to_multiset;
+    using offbynull::utils::is_debug_mode;
 
-    auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-    auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
-    auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride() };
+    auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+    auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
+    auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride() };
 
     TEST(OAGPairwiseLocalAlignmentGraphTest, ConceptCheck) {
         using G = pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             std::string,
@@ -44,7 +45,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -76,7 +77,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -126,7 +127,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -159,7 +160,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -189,7 +190,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -219,7 +220,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -249,7 +250,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -286,7 +287,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -337,7 +338,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -386,7 +387,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -414,7 +415,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -442,7 +443,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -566,7 +567,7 @@ namespace {
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -581,7 +582,18 @@ namespace {
             gap_scorer,
             freeride_scorer
         };
-        auto g2 { create_pairwise_local_alignment_graph<true, std::size_t>(seq1, seq2, substitution_scorer, gap_scorer, freeride_scorer) };
+        auto g2 {
+            create_pairwise_local_alignment_graph<
+                is_debug_mode(),
+                std::size_t
+            >(
+                seq1,
+                seq2,
+                substitution_scorer,
+                gap_scorer,
+                freeride_scorer
+            )
+        };
         EXPECT_TRUE((std::is_same_v<decltype(g1), decltype(g2)>));
     }
 }

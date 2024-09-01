@@ -3,10 +3,12 @@
 #include <iostream>
 #include <utility>
 #include "offbynull/helpers/concat_view.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 
 namespace {
     using offbynull::helpers::concat_view::concat_view;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OHConcatViewTest, ForwardTest) {
         std::vector<int> vec1 { 1, 2 };

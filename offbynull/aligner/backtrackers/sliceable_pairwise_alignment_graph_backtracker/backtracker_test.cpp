@@ -33,14 +33,15 @@ namespace {
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_vector;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OABSBacktrackerTest, GlobalTest) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abc" };
         std::string seq2 { "azc" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -58,7 +59,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        backtracker<true, decltype(g)> backtracker_ {};
+        backtracker<is_debug_mode(), decltype(g)> backtracker_ {};
         const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             std::cout << e << ' ';
@@ -82,13 +83,13 @@ namespace {
     }
 
     TEST(OABSBacktrackerTest, LocalTest) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "zzzzzlmnzzzzz" };
         pairwise_local_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -107,7 +108,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        backtracker<true, decltype(g)> backtracker_ {};
+        backtracker<is_debug_mode(), decltype(g)> backtracker_ {};
         const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             std::cout << e << ' ';
@@ -127,13 +128,13 @@ namespace {
     }
 
     TEST(OABSBacktrackerTest, OverlapTest) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmn" };
         std::string seq2 { "lmnzzzzz" };
         pairwise_overlap_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -152,7 +153,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        backtracker<true, decltype(g)> backtracker_ {};
+        backtracker<is_debug_mode(), decltype(g)> backtracker_ {};
         const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             std::cout << e << ' ';
@@ -172,13 +173,13 @@ namespace {
     }
 
     TEST(OABSBacktrackerTest, FittingTest) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaaaalmnaaaaa" };
         std::string seq2 { "lmn" };
         pairwise_fitting_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -197,7 +198,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        backtracker<true, decltype(g)> backtracker_ {};
+        backtracker<is_debug_mode(), decltype(g)> backtracker_ {};
         const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
         for (const E& e : path) {
             std::cout << e << ' ';
@@ -217,14 +218,14 @@ namespace {
     }
 
     TEST(OABSBacktrackerTest, ExtendedGapTest) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-0.1f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto initial_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto extended_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-0.1f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaalaa" };
         std::string seq2 { "l" };
         pairwise_extended_gap_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -247,7 +248,7 @@ namespace {
         std::float64_t expected_weight {};
         {
             offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<
-                true,
+                is_debug_mode(),
                 decltype(g),
                 std::size_t,
                 std::size_t
@@ -265,7 +266,7 @@ namespace {
         std::vector<E> actual_path {};
         std::float64_t actual_weight {};
         {
-            backtracker<true, decltype(g)> backtracker_ {};
+            backtracker<is_debug_mode(), decltype(g)> backtracker_ {};
             const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
             for (const E& e : path) {
                 std::cout << e << ' ';
@@ -284,15 +285,15 @@ namespace {
         // This specific test case is from the randomized tests in the function below. It was failing and so it was moved here to help
         // debug. Keeping it here just in case the bug comes back
         auto substitution_scorer {
-            simple_scorer<true, char, char, std::float64_t>::create_substitution(0.35204742999374439f64, 0.79108113322398843f64)
+            simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(0.35204742999374439f64, 0.79108113322398843f64)
         };
-        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.93320748544184262f64) };
-        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(-0.17625114138457276f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(-0.55461590857866616f64) };
+        auto initial_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.93320748544184262f64) };
+        auto extended_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-0.17625114138457276f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(-0.55461590857866616f64) };
         std::string seq1 { "bj" };
         std::string seq2 { "ya" };
         pairwise_extended_gap_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -335,7 +336,7 @@ namespace {
         std::float64_t expected_weight {};
         {
             offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<
-                true,
+                is_debug_mode(),
                 decltype(g),
                 std::size_t,
                 std::size_t
@@ -358,7 +359,7 @@ namespace {
         std::vector<E> actual_path {};
         std::float64_t actual_weight {};
         {
-            backtracker<true, decltype(g)> backtracker_ {};
+            backtracker<is_debug_mode(), decltype(g)> backtracker_ {};
             const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
             for (const E& e : path) {
                 std::cout << e << ' ';
@@ -382,15 +383,18 @@ namespace {
         // This specific test case is from the randomized tests in the function below. It was failing and so it was moved here to help
         // debug. Keeping it here just in case the bug comes back
         auto substitution_scorer {
-            simple_scorer<true, char, char, std::float64_t>::create_substitution(0.55939218269393787f64, -0.0048009351678480749f64)
+            simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(
+                0.55939218269393787f64,
+                -0.0048009351678480749f64
+            )
         };
-        auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.082629150808506191f64) };
-        auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.71003697638657703f64) };
-        auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(-0.68120966590317833f64) };
+        auto initial_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.082629150808506191f64) };
+        auto extended_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.71003697638657703f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(-0.68120966590317833f64) };
         std::string seq1 { "rczs" };
         std::string seq2 { "r" };
         pairwise_extended_gap_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -442,7 +446,7 @@ namespace {
         std::float64_t expected_weight {};
         {
             offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<
-                true,
+                is_debug_mode(),
                 decltype(g),
                 std::size_t,
                 std::size_t
@@ -465,7 +469,7 @@ namespace {
         std::vector<E> actual_path {};
         std::float64_t actual_weight {};
         {
-            backtracker<true, decltype(g)> backtracker_ {};
+            backtracker<is_debug_mode(), decltype(g)> backtracker_ {};
             const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
             for (const E& e : path) {
                 std::cout << e << ' ';
@@ -501,18 +505,30 @@ namespace {
         };
         for ([[maybe_unused]] auto _ : std::views::iota(0u, 1000u)) {
             auto substitution_scorer {
-                simple_scorer<true, char, char, std::float64_t>::create_substitution(
+                simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(
                     random_float(-1.0f64, 1.0f64),
                     random_float(-1.0f64, 1.0f64)
                 )
             };
-            auto initial_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(random_float(-1.0f64, 1.0f64)) };
-            auto extended_gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(random_float(-1.0f64, 1.0f64)) };
-            auto freeride_scorer { simple_scorer<true, char, char, std::float64_t>::create_freeride(random_float(-1.0f64, 1.0f64)) };
+            auto initial_gap_scorer {
+                simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(
+                    random_float(-1.0f64, 1.0f64)
+                )
+            };
+            auto extended_gap_scorer {
+                simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(
+                    random_float(-1.0f64, 1.0f64)
+                )
+            };
+            auto freeride_scorer {
+                simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(
+                    random_float(-1.0f64, 1.0f64)
+                )
+            };
             std::string seq1 { random_string(5zu) };
             std::string seq2 { random_string(5zu) };
             pairwise_extended_gap_alignment_graph<
-                true,
+                is_debug_mode(),
                 std::size_t,
                 std::float64_t,
                 decltype(seq1),
@@ -535,7 +551,7 @@ namespace {
             std::float64_t expected_weight {};
             {
                 offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker<
-                    true,
+                    is_debug_mode(),
                     decltype(g),
                     std::size_t,
                     std::size_t
@@ -551,7 +567,7 @@ namespace {
             std::vector<E> actual_path {};
             std::float64_t actual_weight {};
             {
-                backtracker<true, decltype(g)> backtracker_ {};
+                backtracker<is_debug_mode(), decltype(g)> backtracker_ {};
                 const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
                 actual_path = path;
                 // actual_weight = weight;  // don't use weight -- instead manually tally up the weight from the edges (just to be sure)
@@ -570,13 +586,13 @@ namespace {
     }
 
     TEST(OABSBacktrackerTest, FindMaxPathOnGridGraphViaHeapHelper) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -593,7 +609,7 @@ namespace {
         using E = decltype(g)::E;
 
         const auto& [path, weight] {
-            heap_find_max_path<true, false>(g, 0.0001f64)
+            heap_find_max_path<is_debug_mode(), false>(g, 0.0001f64)
         };
 
         for (const E& e : path) {
@@ -612,13 +628,13 @@ namespace {
     }
 
     TEST(OABSBacktrackerTest, FindMaxPathOnGridGraphViaHeapHelperMinimizeAllocations) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -635,7 +651,7 @@ namespace {
         using E = decltype(g)::E;
 
         const auto& [path, weight] {
-            heap_find_max_path<true, true>(g, 0.0001f64)
+            heap_find_max_path<is_debug_mode(), true>(g, 0.0001f64)
         };
 
         for (const E& e : path) {
@@ -654,13 +670,13 @@ namespace {
     }
 
     TEST(OABSBacktrackerTest, FindMaxPathOnGridGraphViaStackHelper) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -678,7 +694,7 @@ namespace {
 
         const auto& [path, weight] {
             stack_find_max_path<
-                true,
+                is_debug_mode(),
                 3zu /*grid_right_cnt*/,
                 1zu /*grid_depth_cnt*/,
                 0zu /*resident_nodes_capacity*/,

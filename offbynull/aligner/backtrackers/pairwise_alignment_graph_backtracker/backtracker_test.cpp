@@ -19,15 +19,16 @@ namespace {
     using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::utils::copy_to_vector;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OABPBacktrackerTest, FindMaxPathOnGridGraph) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -43,7 +44,7 @@ namespace {
 
         using E = decltype(g)::E;
 
-        backtracker<true, decltype(g), std::size_t, std::size_t> backtracker_ {};
+        backtracker<is_debug_mode(), decltype(g), std::size_t, std::size_t> backtracker_ {};
         const auto& [path, weight] {
             backtracker_.find_max_path(g)
         };
@@ -63,13 +64,13 @@ namespace {
     }
 
     TEST(OABPBacktrackerTest, FindMaxPathOnGridGraphViaHeapHelper) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -86,7 +87,7 @@ namespace {
         using E = decltype(g)::E;
 
         const auto& [path, weight] {
-            heap_find_max_path<true, false>(g)
+            heap_find_max_path<is_debug_mode(), false>(g)
         };
 
         for (const E& e : path) {
@@ -105,13 +106,13 @@ namespace {
     }
 
     TEST(OABPBacktrackerTest, FindMaxPathOnGridGraphViaHeapHelperMinimizeAllocations) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -128,7 +129,7 @@ namespace {
         using E = decltype(g)::E;
 
         const auto& [path, weight] {
-            heap_find_max_path<true, true>(g)
+            heap_find_max_path<is_debug_mode(), true>(g)
         };
 
         for (const E& e : path) {
@@ -147,13 +148,13 @@ namespace {
     }
 
     TEST(OABPBacktrackerTest, FindMaxPathOnGridGraphViaStackHelper) {
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -171,7 +172,7 @@ namespace {
 
         const auto& [path, weight] {
             stack_find_max_path<
-                true,
+                is_debug_mode(),
                 2zu /*grid_down_cnt*/,
                 3zu /*grid_right_cnt*/,
                 1zu /*grid_depth_cnt*/,

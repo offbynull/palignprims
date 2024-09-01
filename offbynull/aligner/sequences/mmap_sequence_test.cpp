@@ -2,6 +2,7 @@
 #include "offbynull/aligner/sequences/mmap_sequence.h"
 #include "offbynull/aligner/sequences/transform_sequence.h"
 #include "offbynull/aligner/sequences/chunked_sequence.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <boost/filesystem.hpp>
 #include <fstream>
@@ -16,6 +17,7 @@ namespace {
     using offbynull::aligner::sequences::mmap_sequence::create_mmap_sequence;
     using offbynull::aligner::sequences::transform_sequence::create_transform_sequence;
     using offbynull::aligner::sequences::chunked_sequence::create_stack_chunked_sequence;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OASMmapSequenceTest, SanityTest1) {
         boost::filesystem::path temp_path { boost::filesystem::temp_directory_path() / boost::filesystem::unique_path() };
@@ -25,9 +27,9 @@ namespace {
         file.write(&x, 1zu);
         file.close();
 
-        auto seq { create_mmap_sequence<true>(temp_path.string()) };
+        auto seq { create_mmap_sequence<is_debug_mode()>(temp_path.string()) };
         static_assert(sequence<decltype(seq)>);
-        static_assert(std::is_same_v<decltype(seq), mmap_sequence<true>>);
+        static_assert(std::is_same_v<decltype(seq), mmap_sequence<is_debug_mode()>>);
         EXPECT_EQ(seq[0], 100);
     }
 
@@ -41,14 +43,14 @@ namespace {
         file.write(reinterpret_cast<const char*>(&y), sizeof(y));
         file.close();
 
-        auto seq1 { mmap_sequence<true>(temp_path.string()) };
+        auto seq1 { mmap_sequence<is_debug_mode()>(temp_path.string()) };
         auto seq2 {
-            create_stack_chunked_sequence<true, sizeof(std::int32_t)>(
+            create_stack_chunked_sequence<is_debug_mode(), sizeof(std::int32_t)>(
                 seq1
             )
         };
         auto seq3 {
-            create_transform_sequence<true>(
+            create_transform_sequence<is_debug_mode()>(
                 seq2,
                 [](const auto& chunk) {
                     std::istringstream buffer_stream { chunk.data() };

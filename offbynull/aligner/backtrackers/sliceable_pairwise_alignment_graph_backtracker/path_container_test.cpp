@@ -1,6 +1,7 @@
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container.h"
 #include "offbynull/aligner/graphs/pairwise_global_alignment_graph.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
+#include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <cstddef>
 #include <string>
@@ -12,16 +13,17 @@ namespace {
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::slot;
     using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
+    using offbynull::utils::is_debug_mode;
 
     TEST(OABSPathContainerTest, BasicTest) {
         // TODO: Fix me.
 
-        auto substitution_scorer { simple_scorer<true, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<true, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
+        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abcdefg" };
         std::string seq2 { "abcZefg" };
         pairwise_global_alignment_graph<
-            true,
+            is_debug_mode(),
             std::size_t,
             std::float64_t,
             decltype(seq1),
@@ -35,7 +37,7 @@ namespace {
             gap_scorer
         };
 
-        path_container<true, decltype(g)> container { g };
+        path_container<is_debug_mode(), decltype(g)> container { g };
         // auto e_ptr { container.initialize(-4) };
         // {
         //     auto r { container.to_range() };
