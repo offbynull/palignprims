@@ -141,8 +141,13 @@ if cc.get_id() == 'gcc' or cc.get_id() == 'clang'
         # be packed, even if packing does nothing. In the future, should such a struct ever change such that members are no longer aligned,
         # the packing will ensure padding stays out.
         test_exec_cpp_args += ['-Wno-packed']
+        # No -Wsuggest-attribute=pure
+        # ---------------------------
+        # This is warning about applying an extension specific to g++. It doesn't apply to portable C++ code. As such, don't care about it.
+        test_exec_cpp_args += ['-Wno-suggest-attribute=pure']
         # Google saniitzers
         # -----------------
+        # DON'T USE THIS? MESON HAS b_sanitize OPTION?
         # san_args = ['-fsanitize=undefined', '-fsanitize=thread']
         # if cc.get_id() == 'clang'
         #         # Only available in clang -- doesn't really matter because I use valgrind for these.
@@ -182,7 +187,7 @@ test_exec_optimized = executable(
         source_checker,
         doc_generator,
         dependencies : [boost_dep, gtest_dep, gmock_dep],
-        override_options : ['optimization=3', 'buildtype=release', 'b_lto=true'],
+        override_options : ['optimization=3', 'buildtype=release', 'b_lto=true', 'b_ndebug=true', 'debug=false', 'cpp_debugstl=false'],
         cpp_args : test_exec_optimized_cpp_args,
         link_args : test_exec_link_args
 )
