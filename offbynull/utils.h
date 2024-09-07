@@ -9,6 +9,8 @@
 #include <type_traits>
 #include <optional>
 #include <utility>
+#include <random>
+#include <string>
 #include <boost/container/static_vector.hpp>
 #include <boost/container/options.hpp>
 #include "offbynull/concepts.h"
@@ -148,6 +150,25 @@ namespace offbynull::utils {
 #else
         return true;
 #endif
+    }
+
+    template<std::integral T>
+    T random_integer(std::mt19937_64& rand, T a, T b) {
+        return std::uniform_int_distribution<decltype(a)>(a,b)(rand);
+    }
+
+    template<std::floating_point T>
+    T random_float(std::mt19937_64& rand, T a, T b) {
+        return std::uniform_real_distribution<decltype(a)>(a,b)(rand);
+    }
+
+    inline std::string random_printable_ascii(std::mt19937_64& rand, std::size_t len) {
+        std::string ret {};
+        ret.reserve(len);
+        for (std::size_t i { 0zu }; i < len; ++i) {
+            ret += random_integer<char>(rand, static_cast<char>(32), static_cast<char>(126));
+        }
+        return ret;
     }
 }
 

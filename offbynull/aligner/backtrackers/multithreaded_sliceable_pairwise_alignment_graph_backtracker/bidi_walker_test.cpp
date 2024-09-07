@@ -3,8 +3,9 @@
 #include "offbynull/aligner/graphs/pairwise_fitting_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_overlap_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_global_alignment_graph.h"
-#include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/bidi_walker.h"
+#include "offbynull/aligner/backtrackers/multithreaded_sliceable_pairwise_alignment_graph_backtracker/bidi_walker.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
+#include "offbynull/helpers/forkable_thread_pool.h"
 #include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <cstddef>
@@ -13,16 +14,18 @@
 #include <string>
 #include <iostream>
 #include <ostream>
+#include <any>
 #include <type_traits>
 #include <random>
 
 namespace {
-    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker;
+    using offbynull::aligner::backtrackers::multithreaded_sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker;
     using offbynull::aligner::graphs::pairwise_global_alignment_graph::pairwise_global_alignment_graph;
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::pairwise_local_alignment_graph;
     using offbynull::aligner::graphs::pairwise_fitting_alignment_graph::pairwise_fitting_alignment_graph;
     using offbynull::aligner::graphs::pairwise_overlap_alignment_graph::pairwise_overlap_alignment_graph;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
+    using offbynull::helpers::forkable_thread_pool::forkable_thread_pool;
     using offbynull::utils::packable_optional;
     using offbynull::utils::random_printable_ascii;
     using offbynull::utils::is_debug_mode;
@@ -38,7 +41,7 @@ namespace {
         return std::tuple<ED, packable_optional<E>, packable_optional<E>> { weight, forward_edge, backward_edge };
     }
 
-    TEST(OABSBidiWalkerTest, LargeWalk) {
+    TEST(OABMBidiWalkerTest, LargeWalk) {
         auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
         std::mt19937_64 rand { 12345 };
@@ -61,11 +64,12 @@ namespace {
 
 
         // walk
-        std::float64_t weight { bidi_walker<is_debug_mode(), decltype(g)>::converge_weight(g, { 2500zu, 2500zu }) };
+        forkable_thread_pool<is_debug_mode(), std::any> f_pool {};
+        std::float64_t weight { bidi_walker<is_debug_mode(), decltype(g)>::converge_weight(f_pool, g, { 2500zu, 2500zu }) };
         std::cout << weight << std::endl;
     }
 
-    TEST(OABSBidiWalkerTest, WalkGlobal) {
+    TEST(OABMBidiWalkerTest, WalkGlobal) {
         auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abcdefg" };
@@ -88,9 +92,10 @@ namespace {
         using N = decltype(g)::N;
 
         // walk
+        forkable_thread_pool<is_debug_mode(), std::any> f_pool {};
         for (unsigned int down_offset { 0u }; down_offset < g.grid_down_cnt; down_offset++) {
             bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset)
+                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(f_pool, g, down_offset)
             };
             for (unsigned int right_offset { 0u }; right_offset < g.grid_right_cnt; right_offset++) {
                 const auto& [weight, forward_walk_edge, backward_walk_edge] {
@@ -117,7 +122,7 @@ namespace {
         }
 
         bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, 3u)
+            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(f_pool, g, 3u)
         };
         const auto& [weight, forward_walk_edge, backward_walk_edge] { walk_to_node(bidi_walker_,  N { 3u, 3u }) };
         std::cout << std::endl;
@@ -125,7 +130,7 @@ namespace {
         EXPECT_EQ(weight, 6u);
     }
 
-    TEST(OABSBidiWalkerTest, WalkLocal) {
+    TEST(OABMBidiWalkerTest, WalkLocal) {
         auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
         auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
@@ -151,9 +156,10 @@ namespace {
         using N = decltype(g)::N;
 
         // walk
+        forkable_thread_pool<is_debug_mode(), std::any> f_pool {};
         for (unsigned int down_offset { 0u }; down_offset < g.grid_down_cnt; down_offset++) {
             bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset)
+                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(f_pool, g, down_offset)
             };
             for (unsigned int right_offset { 0u }; right_offset < g.grid_right_cnt; right_offset++) {
                 const auto& [weight, forward_walk_edge, backward_walk_edge] {
@@ -184,7 +190,7 @@ namespace {
         // EXPECT_EQ(weight, 6u);
     }
 
-    TEST(OABSBidiWalkerTest, WalkFitting) {
+    TEST(OABMBidiWalkerTest, WalkFitting) {
         auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
         auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
@@ -210,9 +216,10 @@ namespace {
         using N = decltype(g)::N;
 
         // walk
+        forkable_thread_pool<is_debug_mode(), std::any> f_pool {};
         for (unsigned int down_offset { 0u }; down_offset < g.grid_down_cnt; down_offset++) {
             bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset)
+                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(f_pool, g, down_offset)
             };
             for (unsigned int right_offset { 0u }; right_offset < g.grid_right_cnt; right_offset++) {
                 const auto& [weight, forward_walk_edge, backward_walk_edge] {
@@ -240,7 +247,7 @@ namespace {
 
         // test
         bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, g.grid_down_cnt - 1u)
+            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(f_pool, g, g.grid_down_cnt - 1u)
         };
         auto final_weight { std::get<0>(walk_to_node(bidi_walker_, g.get_leaf_node())) };
         std::cout << "final weight: " << final_weight << std::endl;
@@ -268,7 +275,7 @@ namespace {
         }
     }
 
-    TEST(OABSBidiWalkerTest, WalkOverlap) {
+    TEST(OABMBidiWalkerTest, WalkOverlap) {
         auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
         auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
         auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
@@ -294,9 +301,10 @@ namespace {
         using N = decltype(g)::N;
 
         // walk
+        forkable_thread_pool<is_debug_mode(), std::any> f_pool {};
         for (unsigned int down_offset { 0u }; down_offset < g.grid_down_cnt; down_offset++) {
             bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset)
+                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(f_pool, g, down_offset)
             };
             for (unsigned int right_offset { 0u }; right_offset < g.grid_right_cnt; right_offset++) {
                 const auto& [weight, forward_walk_edge, backward_walk_edge] {
@@ -324,7 +332,7 @@ namespace {
 
         // test
         bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, g.grid_down_cnt - 1u)
+            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(f_pool, g, g.grid_down_cnt - 1u)
         };
         auto final_weight { std::get<0>(walk_to_node(bidi_walker_, g.get_leaf_node())) };
         std::cout << "final weight: " << final_weight << std::endl;

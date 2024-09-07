@@ -12,7 +12,7 @@ namespace {
     TEST(OHForkableThreadPoolTest, ForkJoinTest) {
         struct reducer {
             const std::int64_t num {};
-            std::int64_t operator()(forkable_thread_pool<true, std::int64_t>& owner) const {
+            std::int64_t operator()(forkable_thread_pool<is_debug_mode(), std::int64_t>& owner) const {
                 // std::cout << num << std::endl;
                 if (num == 1) {
                     return 1;
@@ -23,7 +23,7 @@ namespace {
             }
         };
 
-        forkable_thread_pool<true, std::int64_t> pool { 4zu };
+        forkable_thread_pool<is_debug_mode(), std::int64_t> pool { 4zu };
         std::int64_t final_num { (*pool.queue(reducer {10})).get() };
         std::cout << final_num << std::endl;
         pool.close();
