@@ -14,43 +14,53 @@
 #include <random>
 #include <concepts>
 #include <exception>
+#include <stdexcept>
 #include "offbynull/concepts.h"
 
 namespace offbynull::helpers::unordered_thread_pool {
-    template<typename TASK_RESULT>
+    template<bool debug_mode, typename TASK_RESULT>
     class unordered_thread_pool;
 
-    template<typename TASK_RESULT>
+    template<bool debug_mode, typename TASK_RESULT>
     class worker;
 
-    template<typename TASK_RESULT>
+    template<bool debug_mode, typename TASK_RESULT>
     struct concurrency_block {
         std::mutex mutex;
         std::condition_variable signal;
-        std::deque<std::packaged_task<TASK_RESULT(unordered_thread_pool<TASK_RESULT>&)>> queue;
+        std::deque<std::packaged_task<TASK_RESULT(unordered_thread_pool<debug_mode, TASK_RESULT>&)>> queue;
         std::jthread thread;
 
-        concurrency_block(unordered_thread_pool<TASK_RESULT>& owner)
+        concurrency_block(unordered_thread_pool<debug_mode, TASK_RESULT>& owner)
         : mutex {}
         , signal {}
         , queue {}
-        , thread { worker<TASK_RESULT> { owner, *this } } {}
+        , thread { worker<debug_mode, TASK_RESULT> { owner, *this } } {}
     };
 
-    template<typename TASK_RESULT>
+    template<bool debug_mode, typename TASK_RESULT>
     class unordered_thread_pool {
     private:
         const std::size_t concurrency;
-        std::unordered_map<std::size_t, concurrency_block<TASK_RESULT>> blocks;  // can't use vector - block not copyable/movable (mutex/cv)
+        std::unordered_map<std::size_t, concurrency_block<debug_mode, TASK_RESULT>> blocks;  // can't use vector - block class not
+                                                                                             // copyable/movable (due to mutex/cv)
         std::atomic_flag closed;
 
         static thread_local std::mt19937_64 rand;
 
     public:
+        unordered_thread_pool()
+        : unordered_thread_pool { std::thread::hardware_concurrency() } {}
+
         unordered_thread_pool(std::size_t concurrency_)
         : concurrency { concurrency_ }
         , blocks {}
         , closed { false } {
+            if constexpr (debug_mode) {
+                if (concurrency == 0zu) {
+                    throw std::runtime_error { "Concurrency must be > 0" };
+                }
+            }
             for (std::size_t i { 0zu }; i < concurrency; ++i) {
                 blocks.emplace(i, *this);
             }
@@ -66,7 +76,7 @@ namespace offbynull::helpers::unordered_thread_pool {
         }
 
         template<typename TASK>
-        requires requires(TASK t, unordered_thread_pool<TASK_RESULT>& owner) {
+        requires requires(TASK t, unordered_thread_pool<debug_mode, TASK_RESULT>& owner) {
             { t(owner) } -> std::convertible_to<TASK_RESULT>;
         }
         std::optional<std::future<TASK_RESULT>> queue(TASK&& task) {
@@ -78,7 +88,7 @@ namespace offbynull::helpers::unordered_thread_pool {
             std::future<TASK_RESULT> packaged_task_future { packaged_task.get_future() };
 
             std::size_t idx { std::uniform_int_distribution<std::size_t> { 0zu, concurrency - 1zu } (rand) };
-            concurrency_block<TASK_RESULT>& block { (*blocks.find(idx)).second };
+            concurrency_block<debug_mode, TASK_RESULT>& block { (*blocks.find(idx)).second };
             {
                 std::unique_lock lock { block.mutex };
                 block.queue.push_back(std::move(packaged_task));
@@ -119,26 +129,28 @@ namespace offbynull::helpers::unordered_thread_pool {
         }
     };
 
-    template<typename TASK_RESULT>
-    thread_local std::mt19937_64 unordered_thread_pool<TASK_RESULT>::rand { std::hash<std::thread::id>{} (std::this_thread::get_id()) };
+    template<bool debug_mode, typename TASK_RESULT>
+    thread_local std::mt19937_64 unordered_thread_pool<debug_mode, TASK_RESULT>::rand {
+        std::hash<std::thread::id>{} (std::this_thread::get_id())
+    };
 
-    template<typename TASK_RESULT>
+    template<bool debug_mode, typename TASK_RESULT>
     class worker {
     private:
-        unordered_thread_pool<TASK_RESULT>& owner;
-        concurrency_block<TASK_RESULT>& block;
+        unordered_thread_pool<debug_mode, TASK_RESULT>& owner;
+        concurrency_block<debug_mode, TASK_RESULT>& block;
 
     public:
         worker(
-            unordered_thread_pool<TASK_RESULT>& owner_,
-            concurrency_block<TASK_RESULT>& block_
+            unordered_thread_pool<debug_mode, TASK_RESULT>& owner_,
+            concurrency_block<debug_mode, TASK_RESULT>& block_
         )
         : owner { owner_ }
         , block { block_ } {}
 
         void operator()() const {
             while (true) {
-                std::packaged_task<TASK_RESULT(unordered_thread_pool<TASK_RESULT>&)> task;
+                std::packaged_task<TASK_RESULT(unordered_thread_pool<debug_mode, TASK_RESULT>&)> task;
                 {
                     std::unique_lock lock { block.mutex };
                     block.signal.wait(lock, [&]{ return !block.queue.empty() || owner.is_closed(); }); // wait until something in queue

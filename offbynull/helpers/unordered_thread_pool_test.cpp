@@ -17,13 +17,13 @@ namespace {
     TEST(OHUnorderedThreadPoolTest, SanityTest) {
         std::atomic_int64_t cntr {};
         auto task {
-            [&cntr](unordered_thread_pool<std::int64_t>& /*owner*/) -> std::int64_t {
+            [&cntr](unordered_thread_pool<true, std::int64_t>& /*owner*/) -> std::int64_t {
                 std::cout << std::this_thread::get_id() << "_t" << std::endl;
                 return ++cntr;
             }
         };
 
-        unordered_thread_pool<std::int64_t> pool { 4zu };
+        unordered_thread_pool<true, std::int64_t> pool { 4zu };
         std::vector<std::future<std::int64_t>> futures;
         for (std::size_t i { 0zu }; i < 100zu; ++i) {
             futures.push_back(

@@ -17,23 +17,23 @@
 #include <chrono>
 
 namespace offbynull::helpers::forkable_thread_pool {
-    template<typename TASK_RESULT>
-    class forkable_thread_pool;
-
-    template<typename TASK_RESULT>
+    template<bool debug_mode, typename TASK_RESULT>
     class worker;
 
-    template<typename TASK_RESULT>
+    template<bool debug_mode, typename TASK_RESULT>
     class forkable_thread_pool {
     private:
         const std::size_t concurrency;
         std::mutex mutex;
         std::condition_variable signal;
-        std::deque<std::packaged_task<TASK_RESULT(forkable_thread_pool<TASK_RESULT>&)>> queue_;
+        std::deque<std::packaged_task<TASK_RESULT(forkable_thread_pool<debug_mode, TASK_RESULT>&)>> queue_;
         std::vector<std::jthread> threads;
         std::atomic_flag closed;
 
     public:
+        forkable_thread_pool()
+        : forkable_thread_pool { std::thread::hardware_concurrency() } {}
+
         forkable_thread_pool(std::size_t concurrency_)
         : concurrency { concurrency_ }
         , mutex {}
@@ -41,8 +41,13 @@ namespace offbynull::helpers::forkable_thread_pool {
         , queue_ {}
         , threads {}
         , closed { false } {
+            if constexpr (debug_mode) {
+                if (concurrency == 0zu) {
+                    throw std::runtime_error { "Concurrency must be > 0" };
+                }
+            }
             for (std::size_t i { 0zu }; i < concurrency; ++i) {
-                threads.emplace_back(worker<TASK_RESULT> { *this });
+                threads.emplace_back(worker<debug_mode, TASK_RESULT> { *this });
             }
         }
 
@@ -56,7 +61,7 @@ namespace offbynull::helpers::forkable_thread_pool {
         }
 
         template<typename TASK>
-        requires requires(TASK t, forkable_thread_pool<TASK_RESULT>& owner) {
+        requires requires(TASK t, forkable_thread_pool<debug_mode, TASK_RESULT>& owner) {
             { t(owner) } -> std::convertible_to<TASK_RESULT>;
         }
         std::optional<std::future<TASK_RESULT>> queue(TASK&& task) {
@@ -107,7 +112,7 @@ namespace offbynull::helpers::forkable_thread_pool {
                     throw std::runtime_error { "Unexpected future state" };
                 }
 
-                std::packaged_task<TASK_RESULT(forkable_thread_pool<TASK_RESULT>&)> task;
+                std::packaged_task<TASK_RESULT(forkable_thread_pool<debug_mode, TASK_RESULT>&)> task;
                 {
                     std::unique_lock lock { mutex };
                     signal.wait(lock, [&]{ return !queue_.empty() || future.wait_for(0s) == std::future_status::ready || is_closed(); });
@@ -139,23 +144,23 @@ namespace offbynull::helpers::forkable_thread_pool {
             signal.notify_all();
         }
 
-        friend class worker<TASK_RESULT>;
+        friend class worker<debug_mode, TASK_RESULT>;
     };
 
-    template<typename TASK_RESULT>
+    template<bool debug_mode, typename TASK_RESULT>
     class worker {
     private:
-        forkable_thread_pool<TASK_RESULT>& owner;
+        forkable_thread_pool<debug_mode, TASK_RESULT>& owner;
 
     public:
         worker(
-            forkable_thread_pool<TASK_RESULT>& owner_
+            forkable_thread_pool<debug_mode, TASK_RESULT>& owner_
         )
         : owner { owner_ } {}
 
         void operator()() {
             while (true) {
-                std::packaged_task<TASK_RESULT(forkable_thread_pool<TASK_RESULT>&)> task;
+                std::packaged_task<TASK_RESULT(forkable_thread_pool<debug_mode, TASK_RESULT>&)> task;
                 {
                     std::unique_lock lock { owner.mutex };
                     owner.signal.wait(lock, [&]{ return !owner.queue_.empty() || owner.is_closed(); }); // wait until something in queue
