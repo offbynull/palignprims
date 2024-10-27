@@ -105,6 +105,9 @@ TODO:
   * option 2: singlethreaded sliceable_pairwise_alignment_graph_backtracker finds points in the graph at regular intervals, then multithreaded pairwise_alignment_graph_backtracker fills in between those intervals
   * ~~generic_row_nodes()~~
   * generic_diagonal_nodes_segmented() CONTINUE TESTING
+  * UPDATE GRAPH IMPLEMENTATIONS:
+    * row_nodes() grid_down param should be relative to root_node parameter, not graph's actual root node
+    * segmented_diagonal_node's grid_axis_position parma should be relative to root_node parameter, not graph's actual root node 
   * CONTINUE IMPLEMENTING DIAGONAL_FORWARDWALKER ONCE generic_diagonal_nodes_segmented() READY
 
 * Update get_in_degree() / get_out_degree() functions to calculate directly
@@ -112,6 +115,7 @@ TODO:
 * ~~Add random access container wrapper that mmap (it's in boost)~~
 * ~~Add random access container wrapper that decompresses as you read~~
 * ~~Add divide-and-conquer aligner interface methods and algorithm~~
+* 
 
 * Integer promotion rules hit when you use types smaller than int:
   * e.g. subtracting two chars results in an int, meaning if you have char x = c1 - c2, you'll get "warning: conversion from ‘int’ to ‘unsigned char’ may change value [-Warith-conversion]"
