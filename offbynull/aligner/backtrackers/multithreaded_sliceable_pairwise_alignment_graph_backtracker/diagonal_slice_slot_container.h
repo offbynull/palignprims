@@ -198,7 +198,17 @@ namespace offbynull::aligner::backtrackers::multithreaded_sliceable_pairwise_ali
 
 
 FIND SHOULD TAKE IN WHICH WORKER IS ACCESSING, SO IT CAN RETURN LOCK (IF NESECCARY)
-        std::optional<std::reference_wrapper<slot<E, ED>>> find(const N& node) {
+* LOCK SHOULD ONLY BE RETURNED IF ACCESSING last item IN previous SEGMENT (in relation to worker_segment_idx)
+* LOCK SHOULD ONLY BE RETURNED IF ACCESSING last item IN current SEGMENT (in relation to worker_segment_idx)
+* EVERYTHING ELSE BEING ACCESSED SHOULD BE non-last item IN current SEGMENT (in relation to worker_segment_idx)
+the above is wrong? beginning diagonal slices wont fill each segment entirely ... imagine the following segments ...
+   a a a _ _   b b b _ _   c c _ _ _ _
+the last item in each segment is non-existant -- as such, its best to lock all access on the segment
+
+        std::optional<std::pair<std::mutex, std::reference_wrapper<slot<E, ED>>>> find(const N& node) {
+            TODO: FIX TO USE NEW PARAMS AND NEW RETURN TYPE!!
+            TODO: FIX TO USE NEW PARAMS AND NEW RETURN TYPE!!
+            TODO: FIX TO USE NEW PARAMS AND NEW RETURN TYPE!!
             /*
                               1
                               2 2
