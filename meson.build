@@ -68,7 +68,7 @@ gtest_dep = gtest.get_variable('gtest_dep')
 gmock_dep = gtest.get_variable('gmock_dep')
 tests_src = [
         'gtest-all.cpp',
-#        'offbynull/helpers/unordered_thread_pool_test.cpp',
+        'offbynull/helpers/unordered_thread_pool_test.cpp',
 #        'offbynull/helpers/forkable_thread_pool_test.cpp',
 #        'offbynull/helpers/blankable_bidirectional_view_test.cpp',
 #        'offbynull/helpers/join_bidirectional_view_test.cpp',

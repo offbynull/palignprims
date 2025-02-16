@@ -17,6 +17,9 @@
 #include <stdexcept>
 #include "offbynull/concepts.h"
 
+/**
+ * Unordered thread pool.
+ */
 namespace offbynull::helpers::unordered_thread_pool {
     template<bool debug_mode, typename TASK_RESULT>
     class unordered_thread_pool;
@@ -24,13 +27,28 @@ namespace offbynull::helpers::unordered_thread_pool {
     template<bool debug_mode, typename TASK_RESULT>
     class worker;
 
+    /**
+     * Variables for a single thread within @ref offbynull::helpers::unordered_thread_pool::unordered_thread_pool instance.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam TASK_RESULT Return type of tasks processed by this thread.
+     */
     template<bool debug_mode, typename TASK_RESULT>
     struct concurrency_block {
+        /** Mutex used to synchronize access to concurrently accessed objects. */
         std::mutex mutex;
+        /** Signal used to wake `thread`. */
         std::condition_variable signal;
+        /** Queue of tasks to be run by `thread`. */
         std::deque<std::packaged_task<TASK_RESULT(unordered_thread_pool<debug_mode, TASK_RESULT>&)>> queue;
+        /** Thread. */
         std::jthread thread;
 
+        /**
+         * Construct an @ref offbynull::helpers::unordered_thread_pool::concurrency_block instance.
+         *
+         * @param owner Thread pool that spawned / owns this object.
+         */
         concurrency_block(unordered_thread_pool<debug_mode, TASK_RESULT>& owner)
         : mutex {}
         , signal {}
@@ -38,20 +56,35 @@ namespace offbynull::helpers::unordered_thread_pool {
         , thread { worker<debug_mode, TASK_RESULT> { owner, *this } } {}
     };
 
+    /**
+     * Thread pool where tasks potentially start out-of-order (when compared to the order that those tasks were submitted).
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam TASK_RESULT Return type of tasks processed by this thread pool.
+     */
     template<bool debug_mode, typename TASK_RESULT>
     class unordered_thread_pool {
     private:
         const std::size_t concurrency;
-        std::unordered_map<std::size_t, concurrency_block<debug_mode, TASK_RESULT>> blocks;  // can't use vector - block class not
+        std::unordered_map<std::size_t, concurrency_block<debug_mode, TASK_RESULT>> blocks;  // Can't use vector - block class not
                                                                                              // copyable/movable (due to mutex/cv)
         std::atomic_flag closed;
 
         static thread_local std::mt19937_64 rand;
 
     public:
+        /**
+         * Equivalent to invoking `unordered_thread_pool { std::thread::hardware_concurrency() }`.
+         */
         unordered_thread_pool()
         : unordered_thread_pool { std::thread::hardware_concurrency() } {}
 
+        /**
+         * Construct an @ref offbynull::helpers::unordered_thread_pool::unordered_thread_pool instance.
+         *
+         * @param concurrency_ Number of threads to launch.
+         * @throws std::runtime_error If `debug_mode == true && concurrency_ == 0zu`.
+         */
         unordered_thread_pool(std::size_t concurrency_)
         : concurrency { concurrency_ }
         , blocks {}
@@ -66,6 +99,7 @@ namespace offbynull::helpers::unordered_thread_pool {
             }
         }
 
+        // Deletions required because concurrency_block isn't copyable/moveable (due to mutex/cv)?
         unordered_thread_pool(const unordered_thread_pool&) = delete;
         unordered_thread_pool(unordered_thread_pool&&) = delete;
         unordered_thread_pool& operator=(const unordered_thread_pool&) = delete;
@@ -75,6 +109,14 @@ namespace offbynull::helpers::unordered_thread_pool {
             close();
         }
 
+        /**
+         * Queue task to be executed by this thread pool.
+         *
+         * @tparam TASK Type of task to be executed.
+         * @param task Task to be executed.
+         * @return An optional holding an `std::future<TASK_RESULT>` which will contain the `task`'s result once it executes, or
+         * `std::nullopt` if this thread pool has closed.
+         */
         template<typename TASK>
         requires requires(TASK t, unordered_thread_pool<debug_mode, TASK_RESULT>& owner) {
             { t(owner) } -> std::convertible_to<TASK_RESULT>;
@@ -117,10 +159,21 @@ namespace offbynull::helpers::unordered_thread_pool {
             return { std::move(packaged_task_future) };
         }
 
+        /**
+         * Test if this thread pool has closed.
+         *
+         * @return `true` if this thread pool is closed, `false` otherwise.
+         */
         bool is_closed() const {
             return closed.test(std::memory_order_acquire);
         }
 
+        /**
+         * Close this thread pool. Each thread within this pool is signalled such that it shuts down once the task it's currently running,
+         * if any, is finished. Any remaining queued tasks are silently discarded.
+         *
+         * This function doesn't wait for threads to shut down before returning.
+         */
         void close() {
             closed.test_and_set(std::memory_order_release);
             for (auto& [_, block] : blocks) {
@@ -134,6 +187,12 @@ namespace offbynull::helpers::unordered_thread_pool {
         std::hash<std::thread::id>{} (std::this_thread::get_id())
     };
 
+    /**
+     * Thread pool worker.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam TASK_RESULT Return type of tasks processed by this thread pool / worker.
+     */
     template<bool debug_mode, typename TASK_RESULT>
     class worker {
     private:
@@ -141,6 +200,12 @@ namespace offbynull::helpers::unordered_thread_pool {
         concurrency_block<debug_mode, TASK_RESULT>& block;
 
     public:
+        /**
+         * Construct an @ref offbynull::helpers::unordered_thread_pool::worker instance.
+         *
+         * @param owner_ Owning thread pool.
+         * @param block_ `owner_`'s concurrency block for this worker.
+         */
         worker(
             unordered_thread_pool<debug_mode, TASK_RESULT>& owner_,
             concurrency_block<debug_mode, TASK_RESULT>& block_
@@ -148,6 +213,9 @@ namespace offbynull::helpers::unordered_thread_pool {
         : owner { owner_ }
         , block { block_ } {}
 
+        /**
+         * Worker loop. Loop picks out tasks from the concurrency block's queue and executes it until the owning thread pool is closed.
+         */
         void operator()() const {
             while (true) {
                 std::packaged_task<TASK_RESULT(unordered_thread_pool<debug_mode, TASK_RESULT>&)> task;
