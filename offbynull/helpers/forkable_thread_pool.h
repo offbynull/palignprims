@@ -16,10 +16,22 @@
 #include <stdexcept>
 #include <chrono>
 
+/**
+ * Forkable thread pool, similar to Java's
+ * [ForkJoinPool](https://docs.oracle.com/en/java/javase/21/docs/api///java.base/java/util/concurrent/ForkJoinPool.html).
+ *
+ * @author Kasra Faghihi
+ */
 namespace offbynull::helpers::forkable_thread_pool {
     template<bool debug_mode, typename TASK_RESULT>
     class worker;
 
+    /**
+     * Forkable thread pool, where tasks fork off other tasks for parallel execution.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam TASK_RESULT Return type of tasks processed by this thread pool.
+     */
     template<bool debug_mode, typename TASK_RESULT>
     class forkable_thread_pool {
     private:
@@ -31,9 +43,18 @@ namespace offbynull::helpers::forkable_thread_pool {
         std::atomic_flag closed;
 
     public:
+        /**
+         * Equivalent to invoking `forkable_thread_pool { std::thread::hardware_concurrency() }`.
+         */
         forkable_thread_pool()
         : forkable_thread_pool { std::thread::hardware_concurrency() } {}
 
+        /**
+         * Construct an @ref offbynull::helpers::forkable_thread_pool::forkable_thread_pool instance.
+         *
+         * @param concurrency_ Number of threads to launch.
+         * @throws std::runtime_error If `debug_mode == true && concurrency_ == 0zu`.
+         */
         forkable_thread_pool(std::size_t concurrency_)
         : concurrency { concurrency_ }
         , mutex {}
@@ -51,6 +72,7 @@ namespace offbynull::helpers::forkable_thread_pool {
             }
         }
 
+        // Deletions required because concurrency_block isn't copyable/moveable (due to mutex/cv)?
         forkable_thread_pool(const forkable_thread_pool&) = delete;
         forkable_thread_pool(forkable_thread_pool&&) = delete;
         forkable_thread_pool& operator=(const forkable_thread_pool&) = delete;
@@ -60,6 +82,14 @@ namespace offbynull::helpers::forkable_thread_pool {
             close();
         }
 
+        /**
+         * Queue task to be executed by this thread pool.
+         *
+         * @tparam TASK Type of task to be executed.
+         * @param task Task to be executed.
+         * @return An optional holding an `std::future<TASK_RESULT>` which will contain the `task`'s result once it executes, or
+         * @ref std::nullopt if this thread pool has closed.
+         */
         template<typename TASK>
         requires requires(TASK t, forkable_thread_pool<debug_mode, TASK_RESULT>& owner) {
             { t(owner) } -> std::convertible_to<TASK_RESULT>;
@@ -100,6 +130,17 @@ namespace offbynull::helpers::forkable_thread_pool {
             return { std::move(packaged_task_future) };
         }
 
+        /**
+         * Wait for queued task to complete.
+         *
+         * This function must only be invoked from a thread within this thread pool. The intent is to allow a task to queue a subtask (by
+         * invoking `queue()`) and wait for its completion by invoking this function.
+         *
+         * If invoked from a thread outside of this thread pool, the behavior of this function is undefined.
+         *
+         * @param future Future returned by `queue()`.
+         * @return `future`.
+         */
         std::future<TASK_RESULT>& join(std::future<TASK_RESULT>& future) {
             using namespace std::chrono_literals;
             while (true) {
@@ -109,7 +150,9 @@ namespace offbynull::helpers::forkable_thread_pool {
                 } else if (status == std::future_status::timeout) {
                     // do nothing
                 } else {
-                    throw std::runtime_error { "Unexpected future state" };
+                    if constexpr (debug_mode) {
+                        throw std::runtime_error { "Unexpected future state" };
+                    }
                 }
 
                 std::packaged_task<TASK_RESULT(forkable_thread_pool<debug_mode, TASK_RESULT>&)> task;
@@ -135,10 +178,21 @@ namespace offbynull::helpers::forkable_thread_pool {
             }
         }
 
+        /**
+         * Test if this thread pool has closed.
+         *
+         * @return `true` if this thread pool is closed, `false` otherwise.
+         */
         bool is_closed() const {
             return closed.test(std::memory_order_acquire);
         }
 
+        /**
+         * Close this thread pool. Each thread within this pool is signalled such that it shuts down once the task it's currently running,
+         * if any, is finished. Any remaining queued tasks are silently discarded.
+         *
+         * This function doesn't wait for threads to shut down before returning.
+         */
         void close() {
             closed.test_and_set(std::memory_order_release);
             signal.notify_all();
@@ -147,17 +201,31 @@ namespace offbynull::helpers::forkable_thread_pool {
         friend class worker<debug_mode, TASK_RESULT>;
     };
 
+    /**
+     * Thread pool worker.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam TASK_RESULT Return type of tasks processed by this thread pool / worker.
+     */
     template<bool debug_mode, typename TASK_RESULT>
     class worker {
     private:
         forkable_thread_pool<debug_mode, TASK_RESULT>& owner;
 
     public:
+        /**
+         * Construct an @ref offbynull::helpers::forkable_thread_pool::worker instance.
+         *
+         * @param owner_ Owning thread pool.
+         */
         worker(
             forkable_thread_pool<debug_mode, TASK_RESULT>& owner_
         )
         : owner { owner_ } {}
 
+        /**
+         * Worker loop. Loop picks out tasks from the concurrency block's queue and executes it until the owning thread pool is closed.
+         */
         void operator()() {
             while (true) {
                 std::packaged_task<TASK_RESULT(forkable_thread_pool<debug_mode, TASK_RESULT>&)> task;

@@ -151,7 +151,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container {
         // Concepts for params have been commented out because THEY FAIL when you pass in a std::views::common(...)'s
         // iterator. Apparently the iterator doesn't contain ::value_type? Or the iterator that's passed in isn't
         // default constructible (there doesn't seem to be any requirement that an iterator be default constructible,
-        // but the iterator is a concat_view which is being wrapped in a std::views::common() and there's some weird
+        // but the iterator is a concat_bidirectional_view which is being wrapped in a std::views::common() and there's some weird
         // concepts checking to make sure things are default constructible / ::value_type isn't making it through?
         //
         // https://www.reddit.com/r/cpp_questions/comments/1d5z7sh/bizarre_requirement_of_stdinput_iterator/

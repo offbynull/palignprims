@@ -23,7 +23,7 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/concepts.h"
-#include "offbynull/helpers/concat_view.h"
+#include "offbynull/helpers/concat_bidirectional_view.h"
 #include "offbynull/helpers/blankable_bidirectional_view.h"
 #include "offbynull/utils.h"
 
@@ -38,7 +38,7 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::aligner::scorer::scorer::scorer_without_explicit_weight;
     using offbynull::concepts::widenable_to_size_t;
-    using offbynull::helpers::concat_view::concat_view;
+    using offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view;
     using offbynull::helpers::blankable_bidirectional_view::blankable_bidirectional_view;
     using offbynull::utils::static_vector_typer;
 
@@ -257,11 +257,11 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
             };
             // This should be using std::views::concat, but it wasn't included in this version of the C++ standard
             // library. The concat implementation below lacks several features (e.g. doesn't support the pipe operator)
-            // and forcefully returns copies (concat_view::iterator::value_type ==
-            // concat_view::iterator::reference_type).
-            return concat_view {
+            // and forcefully returns copies (concat_bidirectional_view::iterator::value_type ==
+            // concat_bidirectional_view::iterator::reference_type).
+            return concat_bidirectional_view {
                 std::move(real_range),
-                concat_view {
+                concat_bidirectional_view {
                     std::move(from_src_range),
                     std::move(to_sink_range)
                 }
@@ -337,9 +337,9 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     return std::tuple<E, N, N, ED> { e, n1, n2, freeride_scorer(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
-            return concat_view {
+            return concat_bidirectional_view {
                 std::move(standard_outputs),
-                concat_view {
+                concat_bidirectional_view {
                     std::move(freeride_set_1),
                     std::move(freeride_set_2)
                 }
@@ -382,9 +382,9 @@ namespace offbynull::aligner::graphs::pairwise_local_alignment_graph {
                     return std::tuple<E, N, N, ED> { e, n1, n2, freeride_scorer(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
-            return concat_view {
+            return concat_bidirectional_view {
                 std::move(standard_inputs),
-                concat_view {
+                concat_bidirectional_view {
                     std::move(freeride_set_1),
                     std::move(freeride_set_2)
                 }

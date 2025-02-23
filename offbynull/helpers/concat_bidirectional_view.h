@@ -1,5 +1,5 @@
-#ifndef OFFBYNULL_HELPERS_CONCAT_VIEW_H
-#define OFFBYNULL_HELPERS_CONCAT_VIEW_H
+#ifndef OFFBYNULL_HELPERS_CONCAT_BIDIRECTIONAL_VIEW_H
+#define OFFBYNULL_HELPERS_CONCAT_BIDIRECTIONAL_VIEW_H
 
 #include <ranges>
 #include <iterator>
@@ -8,7 +8,13 @@
 #include <cstdint>
 #include "offbynull/utils.h"
 
-namespace offbynull::helpers::concat_view {
+/**
+ * View that concatenates two bidirectional ranges together, similar to `std::views::concat` but works with C++20 (`std::views::concat` is
+ * only available in C++26 onward.
+ *
+ * @author Kasra Faghihi
+ */
+namespace offbynull::helpers::concat_bidirectional_view {
     class sentinel {
     public:
         // need to provide sentinel == iterator separately
@@ -122,23 +128,23 @@ namespace offbynull::helpers::concat_view {
 
     // This should be using std::views::concat, but it wasn't included in this version of the C++ standard
     // library. The concat implementation below lacks several features (e.g. doesn't support the pipe operator)
-    // and forcefully returns copies (concat_view::iterator::value_type ==
-    // concat_view::iterator::reference_type).
-    template <std::ranges::forward_range R1, std::ranges::forward_range R2>
-    class concat_view : public std::ranges::view_interface<concat_view<R1, R2>> {
+    // and forcefully returns copies (concat_bidirectional_view::iterator::value_type ==
+    // concat_bidirectional_view::iterator::reference_type).
+    template <std::ranges::bidirectional_range R1, std::ranges::bidirectional_range R2>
+    class concat_bidirectional_view : public std::ranges::view_interface<concat_bidirectional_view<R1, R2>> {
     private:
         R1 first_range;
         R2 second_range;
 
     public:
-        concat_view(R1&& first, R2&& second)
+        concat_bidirectional_view(R1&& first, R2&& second)
         : first_range(std::forward<R1>(first))
         , second_range(std::forward<R2>(second)) {}
 
-        concat_view(const concat_view<R1, R2>& other) = default;
-        concat_view(concat_view<R1, R2>&& other) noexcept = default;
-        concat_view<R1, R2>& operator=(const concat_view<R1, R2>& other) = default;
-        concat_view<R1, R2>& operator=(concat_view<R1, R2>&& other) = default;
+        concat_bidirectional_view(const concat_bidirectional_view<R1, R2>& other) = default;
+        concat_bidirectional_view(concat_bidirectional_view<R1, R2>&& other) noexcept = default;
+        concat_bidirectional_view<R1, R2>& operator=(const concat_bidirectional_view<R1, R2>& other) = default;
+        concat_bidirectional_view<R1, R2>& operator=(concat_bidirectional_view<R1, R2>&& other) = default;
 
         std::bidirectional_iterator auto begin() {
             return iterator(
@@ -152,27 +158,46 @@ namespace offbynull::helpers::concat_view {
         sentinel end() noexcept { return {}; }
     };
 
-    // Proper placement of the deduction guide
-    template <std::ranges::forward_range R1, std::ranges::forward_range R2>
-    concat_view(R1&&, R2&&) -> concat_view<R1, R2>;
+    /**
+     * @ref offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view template deduction guide.
+     *
+     * @tparam R1 First range type backing @ref offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view.
+     * @tparam R2 Second range type backing @ref offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view.
+     * @return No return (this is a template deduction guide).
+     */
+    template<std::ranges::bidirectional_range R1, std::ranges::bidirectional_range R2>
+    concat_bidirectional_view(R1&&, R2&&) -> concat_bidirectional_view<R1, R2>;
 
-    struct concat_range_adaptor {
-        template<std::ranges::forward_range R1, std::ranges::forward_range R2>
-        constexpr auto operator() (R1&& r1, R2&& r2) const {
-            return concat_view<R1, R2>(std::forward<R1>(r1), std::forward<R2>(r2));
-        }
-    };
-
-    template<std::ranges::forward_range R1, std::ranges::forward_range R2, typename Adaptor>
-    auto operator|(const concat_view<R1, R2>& r, Adaptor adaptor) {
+    /**
+     * `const` @ref offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view range pipe operator, enabling the view to be
+     * fed into another range adaptor.
+     *
+     * @tparam R1 First range type backing @ref offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view.
+     * @tparam R2 Second range type backing @ref offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view.
+     * @param r Range to pipe from.
+     * @param adaptor Range adaptor to pipe into.
+     * @return `r` piped into `adaptor`.
+     */
+    template<std::ranges::bidirectional_range R1, std::ranges::bidirectional_range R2, typename Adaptor>
+    auto operator|(const concat_bidirectional_view<R1, R2>& r, Adaptor adaptor) {
         return adaptor(std::views::all(r));
     }
 
-    template<std::ranges::forward_range R1, std::ranges::forward_range R2, typename Adaptor>
-    auto operator|(concat_view<R1, R2>&& r, Adaptor adaptor) {
+    /**
+     * @ref offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view range pipe operator, enabling the view to be fed into
+     * another range adaptor (via move).
+     *
+     * @tparam R1 First range type backing @ref offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view.
+     * @tparam R2 Second range type backing @ref offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view.
+     * @param r Range to pipe from.
+     * @param adaptor Range adaptor to pipe into.
+     * @return `r` piped into `adaptor`.
+     */
+    template<std::ranges::bidirectional_range R1, std::ranges::bidirectional_range R2, typename Adaptor>
+    auto operator|(concat_bidirectional_view<R1, R2>&& r, Adaptor adaptor) {
         // doing std::views::all(std::move(r)) causes compile error -- all() doesn't accept rvalue refs?
         return adaptor(std::views::all(std::move(r)));
     }
 }
 
-#endif //OFFBYNULL_HELPERS_CONCAT_VIEW_H
+#endif //OFFBYNULL_HELPERS_CONCAT_BIDIRECTIONAL_VIEW_H

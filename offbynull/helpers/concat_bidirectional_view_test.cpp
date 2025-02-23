@@ -2,18 +2,18 @@
 #include <vector>
 #include <iostream>
 #include <utility>
-#include "offbynull/helpers/concat_view.h"
+#include "offbynull/helpers/concat_bidirectional_view.h"
 #include "offbynull/utils.h"
 #include "gtest/gtest.h"
 
 namespace {
-    using offbynull::helpers::concat_view::concat_view;
+    using offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view;
     using offbynull::utils::is_debug_mode;
 
-    TEST(OHConcatViewTest, ForwardTest) {
+    TEST(OHConcatBidirectionalViewTest, ForwardTest) {
         std::vector<int> vec1 { 1, 2 };
         std::vector<int> vec2 { 3, 4 };
-        concat_view r { vec1, vec2 };
+        concat_bidirectional_view r { vec1, vec2 };
         static_assert(std::ranges::forward_range<decltype(r)>);
         for (int n : r) {
             std::cout << n << ' ';
@@ -23,10 +23,10 @@ namespace {
         }
     }
 
-    TEST(OHConcatViewTest, ReverseTest) {
+    TEST(OHConcatBidirectionalViewTest, ReverseTest) {
         std::vector<int> vec1 { 1, 2 };
         std::vector<int> vec2 { 3, 4 };
-        concat_view r { vec1, vec2 };
+        concat_bidirectional_view r { vec1, vec2 };
         static_assert(std::ranges::forward_range<decltype(r)>);
         for (int n : r | std::views::reverse) {
             std::cout << n << ' ';
@@ -36,13 +36,13 @@ namespace {
         }
     }
 
-    TEST(OHConcatViewTest, ChainTest) {
+    TEST(OHConcatBidirectionalViewTest, ChainTest) {
         std::vector<int> vec1 { 1, 2 };
         std::vector<int> vec2 { 3, 4 };
         std::vector<int> vec3 { 5, 6 };
-        concat_view r {
+        concat_bidirectional_view r {
             vec1,
-            concat_view { vec2, vec3 }
+            concat_bidirectional_view { vec2, vec3 }
         };
         static_assert(std::ranges::forward_range<decltype(r)>);
         for (int n : r) {
@@ -53,7 +53,7 @@ namespace {
         }
     }
 
-    TEST(OHConcatViewTest, PipeTest) {
+    TEST(OHConcatBidirectionalViewTest, PipeTest) {
         // TODO: FIX CLASS TO SUPPORT PIPE OPERATOR
         // std::vector<std::vector<int>> vec { { 1, 2 }, { 3, 4 }, { 5, 6 } };
         // auto join_range {

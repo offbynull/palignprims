@@ -8,8 +8,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
-#include <algorithm>
 #include <shared_mutex>
+#include <mutex>
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 #include "offbynull/aligner/concepts.h"

@@ -20,7 +20,7 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/concepts.h"
-#include "offbynull/helpers/concat_view.h"
+#include "offbynull/helpers/concat_bidirectional_view.h"
 #include "offbynull/utils.h"
 #include "offbynull/helpers/simple_value_bidirectional_view.h"
 
@@ -32,7 +32,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::aligner::scorer::scorer::scorer_without_explicit_weight;
     using offbynull::concepts::widenable_to_size_t;
-    using offbynull::helpers::concat_view::concat_view;
+    using offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view;
     using offbynull::utils::static_vector_typer;
     using offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view;
 
@@ -299,9 +299,9 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     return N { node_layer::RIGHT, grid_down, grid_right };
                 })
             };
-            return concat_view(
+            return concat_bidirectional_view(
                 std::move(diagonal_layer_nodes),
-                concat_view(
+                concat_bidirectional_view(
                     std::move(down_layer_nodes),
                     std::move(right_layer_nodes)
                 )
@@ -374,9 +374,9 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 })
             };
             static_assert(std::ranges::bidirectional_range<decltype(right_layer_edges)>);
-            return concat_view(
+            return concat_bidirectional_view(
                 std::move(diagonal_layer_edges),
-                concat_view(
+                concat_bidirectional_view(
                     std::move(down_layer_edges),
                     std::move(right_layer_edges)
                 )
