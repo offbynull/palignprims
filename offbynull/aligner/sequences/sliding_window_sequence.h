@@ -10,13 +10,24 @@
 #include <type_traits>
 #include <stdexcept>
 
+/**
+ * Sliding window @ref offbynull::aligner::sequence::sequence::sequence.
+ *
+ * @author Kasra Faghihi
+ */
 namespace offbynull::aligner::sequences::sliding_window_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
 
 
-
+    /**
+     * Concept that's satisfied if `T` has the traits for creating the containers required by
+     * @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence, referred to as a container creator pack.
+     *
+     * @tparam T Type to check.
+     * @tparam E Type of element within sequence.
+     */
     template<
         typename T,
         typename E
@@ -27,6 +38,12 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
             { t.create_result_container(reserve_len) } -> random_access_range_of_type<E>;
         };
 
+    /**
+     * Container creator pack that allocates containers on the heap.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam E Type of element within sequence.
+     */
     template<
         bool debug_mode,
         typename E
@@ -37,6 +54,13 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
         }
     };
 
+    /**
+     * Container creator pack that allocates containers on the stack.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam E Type of element within sequence.
+     * @tparam chunk_len Number of elements in each chunk.
+     */
     template<
         bool debug_mode,
         typename E,
@@ -56,7 +80,14 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
 
 
 
-
+    /**
+     * An @ref offbynull::aligner::sequence::sequence::sequence that wraps an underlying
+     * @ref offbynull::aligner::sequence::sequence::sequence, returning its elements as sliding window chunks of size `window_length`.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam SEQ Type of underlying @ref offbynull::aligner::sequence::sequence::sequence.
+     * @tparam CONTAINER_CREATOR_PACK Type of container creator pack.
+     */
     template<
         bool debug_mode,
         sequence SEQ,
@@ -77,6 +108,13 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
         CONTAINER_CREATOR_PACK container_creator_pack;
 
     public:
+        /**
+         * Construct an @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence instance.
+         *
+         * @param seq_ Underlying sequence.
+         * @param window_length_ Number of elements per sliding window chunk.
+         * @param container_creator_pack_ Container creator pack.
+         */
         sliding_window_sequence(
             const SEQ& seq_,
             std::size_t window_length_,
@@ -92,6 +130,12 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
             }
         }
 
+        /**
+         * Get element (chunk) at index `index`.
+         *
+         * @param index Index of chunk.
+         * @return Chunk at `index`.
+         */
         RESULT_CONTAINER operator[](std::size_t index) const {
             RESULT_CONTAINER ret { container_creator_pack.create_result_container(window_length) };
             for (std::size_t i { 0zu }; i < window_length; i++) {
@@ -100,12 +144,26 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
             return ret;
         }
 
+        /**
+         * Get number of elements (chunks).
+         *
+         * @return Number of chunks.
+         */
         std::size_t size() const {
             return seq.size() - window_length + 1zu;
         }
     };
 
 
+    /**
+     * Convenience function to create an @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence instance using
+     * an @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence_heap_container_creator_pack.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @param seq Underlying sequence.
+     * @param chunk_length Number of elements per chunk.
+     * @return Newly created @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence instance.
+     */
     template<bool debug_mode>
     auto create_heap_sliding_window_sequence(const sequence auto& seq, std::size_t chunk_length) {
         return
@@ -115,6 +173,15 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
             > { seq, chunk_length };
     }
 
+    /**
+     * Convenience function to create an @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence instance using
+     * an @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence_stack_container_creator_pack.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam chunk_length Number of elements per chunk.
+     * @param seq Underlying sequence.
+     * @return Newly created @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence instance.
+     */
     template<bool debug_mode, std::size_t chunk_length>
     auto create_stack_sliding_window_sequence(const sequence auto& seq) {
         using ELEM = std::remove_cvref_t<decltype(seq[0zu])>;

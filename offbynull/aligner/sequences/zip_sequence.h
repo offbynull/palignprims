@@ -4,20 +4,19 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/concepts.h"
 #include <cstddef>
-#include <functional>
 #include <limits>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
+/**
+ * Zip @ref offbynull::aligner::sequence::sequence::sequence.
+ *
+ * @author Kasra Faghihi
+ */
 namespace offbynull::aligner::sequences::zip_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::concepts::widenable_to_size_t;
-
-    template<typename... Args>
-    auto make_ref_tuple(Args&... args) {
-        return std::make_tuple(std::ref(args)...);
-    }
 
     template<sequence T>
     static std::size_t min_size(std::size_t current_min, const T& first) {
@@ -50,17 +49,35 @@ namespace offbynull::aligner::sequences::zip_sequence {
         );
     }
 
-    template<bool debug_mode, sequence... SEQUENCES>
+    /**
+     * An @ref offbynull::aligner::sequence::sequence::sequence that combines many underlying
+     * @ref offbynull::aligner::sequence::sequence::sequence objects together by zipping their elements (similar to Python's `zip()`).
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam SEQS List of underlying @ref offbynull::aligner::sequence::sequence::sequence types being zipped.
+     */
+    template<bool debug_mode, sequence... SEQS>
     class zip_sequence {
     private:
-        const std::tuple<const SEQUENCES&...> seqs;
+        const std::tuple<const SEQS&...> seqs;
         const std::size_t size_;
 
     public:
-        zip_sequence(const SEQUENCES&... seqs_)
+        /**
+         * Construct an @ref offbynull::aligner::sequences::zip_sequence::zip_sequence instance.
+         *
+         * @param seqs_ Underlying sequences.
+         */
+        zip_sequence(const SEQS&... seqs_)
         : seqs { std::tie(seqs_...) }
         , size_ { min_size(std::numeric_limits<std::size_t>::max(), seqs_...) } {}
 
+        /**
+         * Get element at index `index`. Each element is a tuple containing the elements within the underlying sequences at `index`.
+         *
+         * @param index Index of element.
+         * @return Element at `index`.
+         */
         auto operator[](std::size_t index) const {
             auto params {
                 std::tuple_cat(
@@ -69,11 +86,16 @@ namespace offbynull::aligner::sequences::zip_sequence {
                 )
             };
             //offbynull::utils::type_displayer<decltype(params)> x {};
-            auto ret { std::apply(access<SEQUENCES...>, params) };
+            auto ret { std::apply(access<SEQS...>, params) };
             //offbynull::utils::type_displayer<decltype(ret)> y {};
             return ret;
         }
 
+        /**
+         * Get number of elements, which is the minimum `size()` across all underlying sequences.
+         *
+         * @return Number of elements.
+         */
         std::size_t size() const {
             return size_;
         }
@@ -109,6 +131,13 @@ namespace offbynull::aligner::sequences::zip_sequence {
         using type = zip_sequence<debug_mode, TYPES ...>;
     };
 
+    /**
+     * Convenience function to create an @ref offbynull::aligner::sequences::zip_sequence::zip_sequence instance.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @param seqs Underlying sequences.
+     * @return Newly created @ref offbynull::aligner::sequences::zip_sequence::zip_sequence instance.
+     */
     template<bool debug_mode>
     auto create_zip_sequence(const sequence auto&... seqs) {
         using TUPLE_PACKED_SEQ_TYPES = typename cvref_remover<decltype(seqs)...>::type;

@@ -1,7 +1,7 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/sequences/mmap_sequence.h"
 #include "offbynull/aligner/sequences/transform_sequence.h"
-#include "offbynull/aligner/sequences/chunked_sequence.h"
+#include "offbynull/aligner/sequences/chunk_sequence.h"
 #include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <boost/filesystem.hpp>
@@ -16,7 +16,7 @@ namespace {
     using offbynull::aligner::sequences::mmap_sequence::mmap_sequence;
     using offbynull::aligner::sequences::mmap_sequence::create_mmap_sequence;
     using offbynull::aligner::sequences::transform_sequence::create_transform_sequence;
-    using offbynull::aligner::sequences::chunked_sequence::create_stack_chunked_sequence;
+    using offbynull::aligner::sequences::chunk_sequence::create_stack_chunk_sequence;
     using offbynull::utils::is_debug_mode;
 
     TEST(OASMmapSequenceTest, SanityTest1) {
@@ -45,7 +45,7 @@ namespace {
 
         auto seq1 { mmap_sequence<is_debug_mode()>(temp_path.string()) };
         auto seq2 {
-            create_stack_chunked_sequence<is_debug_mode(), sizeof(std::int32_t)>(
+            create_stack_chunk_sequence<is_debug_mode(), sizeof(std::int32_t)>(
                 seq1
             )
         };

@@ -5,6 +5,8 @@
 #include <utility>
 #include <cstddef>
 #include <type_traits>
+#include <vector>
+#include <string>
 #include "offbynull/concepts.h"
 
 /**
