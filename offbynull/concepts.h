@@ -21,6 +21,8 @@ namespace offbynull::concepts {
      */
     template<typename T>
     concept unqualified_object_type = !std::is_void_v<T> && std::is_same_v<T, std::remove_cvref_t<T>>;
+    // TODO: Use std::is_object_v instead of !std::is_void_v? That way, you don't have to check for ref as well (a ref doesn't qualify as
+    //       an object type) - you can just remove CV.
 
     /**
      * Concept that's satisfied if `T` is implicitly convertible to an @ref offbynull::concepts::unqualified_object_type.
@@ -74,6 +76,48 @@ namespace offbynull::concepts {
      */
     template<typename T, typename... Vs>
     concept range_of_range_of_one_of = std::ranges::range<T> && std::ranges::range<std::ranges::range_value_t<T>>
+        && (std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<T>>, Vs> || ...);
+
+    /**
+     * Concept that's satisfied if `T` satisfies `std::ranges::forward_range` and `T`'s element type matches `V`.
+     *
+     * @tparam T Type to check.
+     * @tparam V Type allowed for `T`'s element type.
+     */
+    template<typename T, typename V>
+    concept forward_range_of_type = std::ranges::forward_range<T> && std::same_as<std::ranges::range_value_t<T>, V>;
+
+    /**
+     * Concept that's satisfied if `T` satisfies `std::ranges::forward_range` and `T`'s element type matches one of the types within
+     * `Vs`.
+     *
+     * @tparam T Type to check.
+     * @tparam Vs Types allowed for `T`'s element type.
+     */
+    template<typename T, typename... Vs>
+    concept forward_range_of_one_of = std::ranges::forward_range<T>
+        && (std::same_as<std::ranges::range_value_t<T>, Vs> || ...);
+
+    /**
+     * Concept that's satisfied if `T` satisfies `std::ranges::forward_range` and `T`'s element type satisfies
+     * `std::ranges::forward_range`.
+     *
+     * @tparam T Type to check.
+     */
+    template<typename T>
+    concept forward_range_of_forward_range = std::ranges::forward_range<T>
+        && std::ranges::forward_range<std::ranges::range_value_t<T>>;
+
+    /**
+     * Concept that's satisfied if `T` satisfies `std::ranges::forward_range` and `T`'s element type satisfies
+     * `forward_range_of_one_of<..., Vs>`.
+     *
+     * @tparam T Type to check.
+     * @tparam Vs Types allowed for `T`'s element type's element type.
+     */
+    template<typename T, typename... Vs>
+    concept forward_range_of_forward_range_of_one_of = std::ranges::forward_range<T>
+        && std::ranges::forward_range<std::ranges::range_value_t<T>>
         && (std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<T>>, Vs> || ...);
 
     /**

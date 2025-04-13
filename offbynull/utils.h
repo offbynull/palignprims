@@ -308,6 +308,28 @@ namespace offbynull::utils {
         }
         return ret;
     }
+
+    // A variant of the below struct was recommended by ChatGPT after asking how to enforce that member variables are available at
+    // compile-time. It had originally recommended std::integral_constant for integers, but I wanted something that'd work for more than
+    // just integers.
+    /**
+     * Wraps a compile-time value. Useful for use within concepts as a roundabout way of enforcing constexpr member variables. For example,
+     * the following concept ensures that the member variable \c var is a constexpr:
+     *
+     * @code
+     * template<typename T>
+     * requires requires (T t) {
+     *     compile_time_constant<t.var> {};
+     * }
+     * @endcode
+     *
+     * @tparam V Value.
+     */
+    template<auto V>
+    struct compile_time_constant {
+        using value_type = decltype(V);
+        static constexpr value_type value { V };  // Can this be removed? Only having the line above should be good enough?
+    };
 }
 
 #endif //OFFBYNULL_UTILS_H

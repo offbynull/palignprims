@@ -66,8 +66,8 @@ namespace offbynull::aligner::graph::utils {
      * \c spacing and offset by \c depth*depth_offset. For example, given an invocation with \c scaling=10 and \c depth_offset=2, the node
      * at ...
      *
-     *  * grid offset \code (1, 6) and depth of \c 0 would show up in the GraphViz script at \code (10*1+0*2, 10*6+0*2).
-     *  * grid offset \code (1, 6) and depth of \c 1 would show up in the GraphViz script at \code (10*1+1*2, 10*6+1*2).
+     *  * grid offset \code (1, 6) \endcode and depth of \c 0 would show up in the GraphViz script at \code (10*1+0*2, 10*6+0*2) \endcode .
+     *  * grid offset \code (1, 6) \endcode and depth of \c 1 would show up in the GraphViz script at \code (10*1+1*2, 10*6+1*2) \endcode .
      *  * ...
      *
      * @tparam G Graph type.
@@ -126,8 +126,8 @@ namespace offbynull::aligner::graph::utils {
      * \c spacing and offset by \c depth*depth_offset. For example, given an invocation with \c scaling=10 and \c depth_offset=2, the node
      * at ...
      *
-     *  * grid offset \code (1, 6) and depth of \c 0 would show up in the GraphViz script at \code (10*1+0*2, 10*6+0*2).
-     *  * grid offset \code (1, 6) and depth of \c 1 would show up in the GraphViz script at \code (10*1+1*2, 10*6+1*2).
+     *  * grid offset \code (1, 6) \endcode and depth of \c 0 would show up in the GraphViz script at \code (10*1+0*2, 10*6+0*2) \endcode.
+     *  * grid offset \code (1, 6) \endcode and depth of \c 1 would show up in the GraphViz script at \code (10*1+1*2, 10*6+1*2) \endcode.
      *  * ...
      *
      * @tparam G Graph type.
@@ -160,7 +160,7 @@ namespace offbynull::aligner::graph::utils {
     }
 
     /**
-     * Convert an @ref offbynull::aligner::graph::readable_graph::readable_graph to a GraphViz script. Each node is converted to a
+     * Convert an @ref offbynull::aligner::graph::graph::readable_graph to a GraphViz script. Each node is converted to a
      * string via \c n_encoder and placed into the GraphViz script at whatever position the dot layout engine deems best.
      *
      * @tparam G Graph type.
@@ -205,7 +205,7 @@ namespace offbynull::aligner::graph::utils {
     }
 
     /**
-     * Convert an @ref offbynull::aligner::graph::readable_graph::readable_graph to a GraphViz script. Each node is converted to a
+     * Convert an @ref offbynull::aligner::graph::graph::readable_graph to a GraphViz script. Each node is converted to a
      * string via \c std::format and placed into the GraphViz script at whatever position the dot layout engine deems best.
      *
      * @tparam G Graph type.
