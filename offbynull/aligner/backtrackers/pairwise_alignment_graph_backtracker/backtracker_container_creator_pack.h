@@ -21,6 +21,21 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
 
+    /**
+     * Concept that's satisfied if `T` has the traits for creating the containers required by
+     * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker, referred to as a container
+     * creator pack.
+     *
+     * @tparam T Type to check.
+     * @tparam N Graph node type.
+     * @tparam E Graph edge type.
+     * @tparam ED Graph edge data type (edge weight).
+     * @tparam PARENT_COUNT Graph node incoming edge counter type. Must be wide enough to hold the maximum number of incoming edges across
+     *     all nodes in the underlying pairwise alignment graph instance (e.g., across all nodes in any global pairwise alignment graph, a
+     *     node can have at most 3 incoming edges).
+     * @tparam SLOT_INDEX Slot indexer type. Must be wide enough to hold the value `grid_down_cnt * grid_right_cnt * grid_depth_cnt`
+     *     (variables being multiplied are the dimensions of the underlying graph).
+     */
     template<
         typename T,
         typename N,

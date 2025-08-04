@@ -4,11 +4,24 @@
 #include <cstddef>
 #include <stdexcept>
 #include "offbynull/utils.h"
+#include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/ready_queue/ready_queue_container_creator_pack.h"
+#include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/ready_queue/unimplemented_ready_queue_container_creator_pack.h"
 
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_stack_container_creator_pack {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::static_vector_typer;
 
+    /**
+     * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_container_creator_pack::ready_queue_container_creator_pack
+     * that allocates its containers on the stack.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam SLOT_INDEX Slot indexer type. Must be wide enough to hold the value `grid_down_cnt * grid_right_cnt * grid_depth_cnt`
+     *     (variables being multiplied are the dimensions of the underlying pairwise alignment graph instance).
+     * @tparam grid_down_cnt Expected down dimension of the underlying pairwise alignment graph instance.
+     * @tparam grid_right_cnt Expected right dimension of the underlying pairwise alignment graph instance.
+     * @tparam grid_depth_cnt Expected depth dimension of the underlying pairwise alignment graph instance.
+     */
     template<
         bool debug_mode,
         widenable_to_size_t SLOT_INDEX,
@@ -17,8 +30,14 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         std::size_t grid_depth_cnt
     >
     struct ready_queue_stack_container_creator_pack {
+    private:
         static constexpr std::size_t ELEM_COUNT { grid_down_cnt * grid_right_cnt * grid_depth_cnt };
         using CONTAINER_TYPE = typename static_vector_typer<debug_mode, SLOT_INDEX, ELEM_COUNT>::type;
+
+    public:
+        /**
+         * @copydoc offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::unimplemented_ready_queue_container_creator_pack::unimplemented_ready_queue_container_creator_pack::create_queue_container
+         */
         CONTAINER_TYPE create_queue_container(
             std::size_t grid_down_cnt_,
             std::size_t grid_right_cnt_,

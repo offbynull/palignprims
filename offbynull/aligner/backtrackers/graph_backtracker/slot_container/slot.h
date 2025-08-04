@@ -18,9 +18,11 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
     PACK_STRUCT_START
     /**
      * Element within @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container::slot_container. Each slot is
-     * for a single node in the graph, tracking the backtracking algorithm's status for that node: Either the backtracking algorithm has
-     * parent nodes that need to be processed before it can process this node, or the backtracking algorithm has processed all parent nodes
-     * and this node as well (holding on to the incoming edge with the highest weight).
+     * for a single node in the graph, tracking the
+     * @link offbynull::aligner:backtrackers::graph_backtracker::backtracker::backtracker backtracking algorithm's @endlink status for that
+     * node: Either the backtracking algorithm has parent nodes that need to be processed before it can process this node, or the
+     * backtracking algorithm has processed all parent nodes and this node as well (holding on to the incoming edge with the highest
+     * weight).
      *
      * Struct is packed when `OBN_PACK_STRUCTS` macro is defined (and platform supports struct packing).
      *
@@ -47,7 +49,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
          * @param unwalked_parent_cnt_ `node_`'s incoming edge count, assumed to all be unprocessed by the owning backtracker at time of
          *     creation.
          */
-        slot(N node_, std::size_t unwalked_parent_cnt_)
+        slot(N node_, std::size_t unwalked_parent_cnt_)  // TODO: Should this change to const N& node_
         : node { node_ }
         , unwalked_parent_cnt { unwalked_parent_cnt_ }
         , backtracking_edge {}

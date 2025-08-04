@@ -2,6 +2,7 @@
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_BACKTRACKER_H
 
 #include <cstddef>
+#include <cstdint>
 #include <ranges>
 #include <algorithm>
 #include <utility>
@@ -36,6 +37,33 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
 
+    /**
+     * Backtracker for @ref offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph implementations. A
+     * backtracker's purpose is to find the maximally weighted path (path with the highest sum of edge weights) between some directed
+     * graph's root node and leaf node, picking an arbitrary one if there are multiple such paths. For a detailed explanation of the
+     * backtracking algorithm, see
+     * https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Backtrack%20Algorithm.
+     *
+     * Note that @ref offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph implementations are expected to
+     * restrict their structure (structure of directed graph). Specifically, the structure is expected ...
+     *
+     *  * to be acyclic.
+     *  * to be not empty.
+     *  * to have exactly one root node.
+     *  * to have exactly one leaf node.
+     *  * to be **grid-based** - nodes are positioned on a grid, where each node has a coordinate/position (X, Y, Z).
+     *
+     * This backtracker implementation assumes that the directed graph it's operating on meets the above expectations.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam G Graph type.
+     * @tparam PARENT_COUNT Graph node incoming edge counter type. Must be wide enough to hold the maximum number of incoming edges across
+     *      all nodes in the underlying pairwise alignment graph instance (e.g., across all nodes in any global pairwise alignment graph, a
+     *      node can have at most 3 incoming edges).
+     * @tparam SLOT_INDEX Slot indexer type. Must be wide enough to hold the value `grid_down_cnt * grid_right_cnt * grid_depth_cnt`
+     *     (variables being multiplied are the dimensions of the `G` instance).
+     * @tparam CONTAINER_CREATOR_PACK Container factory type.
+     */
     template<
         bool debug_mode,
         readable_pairwise_alignment_graph G,
@@ -61,33 +89,81 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         backtrackable_edge<typename G::E>
     class backtracker {
     public:
+        /** `G`'s node type. */
         using N = typename G::N;
+        /** `G`'s edge type. */
         using E = typename G::E;
+        /** `G`'s edge data type. */
         using ED = typename G::ED;
+        /** `G`'s grid coordinate type. For example, `std::uint8_t` will allow up to 255 nodes on both the down and right axis. */
         using INDEX = typename G::INDEX;
 
+        /**
+         * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container::slot_container
+         * container factory type used by this backtracker implementation.
+         */
         using SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container_container_creator_pack());
+        /**
+         * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container::slot_container type
+         * used by this backtracker implementation.
+         */
+        using SLOT_CONTAINER = slot_container<debug_mode, G, PARENT_COUNT, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
+        /**
+         * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue::ready_queue container
+         * factory type used by this backtracker implementation.
+         */
         using READY_QUEUE_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_ready_queue_container_creator_pack());
+        /**
+         * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue::ready_queue type used by
+         * this backtracker implementation.
+         */
+        using READY_QUEUE = ready_queue<debug_mode, G, SLOT_INDEX, READY_QUEUE_CONTAINER_CREATOR_PACK>;
+        /**
+         * Path container type used by this backtracker implementation.
+         */
         using PATH_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container(0zu));
 
-        using SLOT_CONTAINER = slot_container<debug_mode, G, PARENT_COUNT, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
-        using READY_QUEUE = ready_queue<debug_mode, G, SLOT_INDEX, READY_QUEUE_CONTAINER_CREATOR_PACK>;
-
+        /**
+         * Container factory.
+         */
         CONTAINER_CREATOR_PACK container_creator_pack;
 
+        /**
+         * Construct an @ref offbynull::aligner::pairwise_alignment_backtrackers::graph_backtracker::backtracker::backtracker instance.
+         *
+         * @param container_creator_pack_ Container factory.
+         */
         backtracker(
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
         : container_creator_pack { container_creator_pack_ } {}
 
+        /**
+         * Determine the maximally weighted path (path with the highest sum of edge weights) connecting a directed graph's root node and
+         * leaf node.
+         *
+         * Note that @ref offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph implementations are
+         * expected to restrict their structure (structure of directed graph). Specifically, the structure is expected ...
+         *
+         *  * to be acyclic.
+         *  * to be not empty.
+         *  * to have exactly one root node.
+         *  * to have exactly one leaf node.
+         *  * to be **grid-based** - nodes are positioned on a grid, where each node has a coordinate/position (X, Y, Z).
+         *
+         * The behavior of this function is undefined if `g` does not meet the above expectations.
+         *
+         * @param g Directed graph.
+         * @return Maximally weighted path from `g`'s root node to `g`'s leaf node.
+         */
         auto find_max_path(
-            const G& graph
+            const G& g
         ) {
-            auto slots { populate_weights_and_backtrack_pointers(graph) };
-            const auto& path { backtrack(graph, slots) };
-            const auto& leaf_node { graph.get_leaf_node() };
+            auto slots { populate_weights_and_backtrack_pointers(g) };
+            const auto& path { backtrack(g, slots) };
+            const auto& leaf_node { g.get_leaf_node() };
             const auto& weight { slots.find_ref(leaf_node).backtracking_weight };
             return std::make_pair(path, weight);
         }
@@ -226,6 +302,26 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     };
 
 
+    // TODO: Move these helper/factory functions to backtracker_utils.h and nest them inside a class?
+
+    /**
+     * Helper function that constructs an
+     * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker instance utilizing the heap for
+     * storage / computations and invokes `find_max_path(g)` on it.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam PARENT_COUNT Graph node incoming edge counter type. Must be wide enough to hold the maximum number of incoming edges across
+     *      all nodes in the underlying pairwise alignment graph instance (e.g., across all nodes in any global pairwise alignment graph, a
+     *      node can have at most 3 incoming edges).
+     * @tparam SLOT_INDEX Slot indexer type. Must be wide enough to hold the value `grid_down_cnt * grid_right_cnt * grid_depth_cnt`
+     *     (variables being multiplied are the dimensions of `g`).
+     * @tparam minimize_allocations `true` to force underlying
+     *     @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue::ready_queue` to prime with
+     *     `grid_down_cnt * grid_right_cnt * grid_depth_cnt` reserved elements (variables being multiplied are the dimensions of `g`),
+     *     thereby removing/reducing the need for adhoc reallocations.
+     * @param g Directed graph.
+     * @return `find_max_path(g)` result.
+     */
     template<
         bool debug_mode,
         widenable_to_size_t PARENT_COUNT,
@@ -253,6 +349,24 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         > {}.find_max_path(g);
     }
 
+    /**
+     * Helper function that constructs an
+     * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker instance utilizing the stack
+     * for storage / computations and invokes `find_max_path(g)` on it.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam PARENT_COUNT Graph node incoming edge counter type. Must be wide enough to hold the maximum number of incoming edges across
+     *      all nodes in the underlying pairwise alignment graph instance (e.g., across all nodes in any global pairwise alignment graph, a
+     *      node can have at most 3 incoming edges).
+     * @tparam SLOT_INDEX Slot indexer type. Must be wide enough to hold the value `grid_down_cnt * grid_right_cnt * grid_depth_cnt`
+     *     (variables being multiplied are the dimensions of `g`).
+     * @tparam grid_down_cnt `g`'s down dimension of the underlying pairwise alignment graph instance.
+     * @tparam grid_right_cnt `g`'s right dimension of the underlying pairwise alignment graph instance.
+     * @tparam grid_depth_cnt `g'`s depth dimension of the underlying pairwise alignment graph instance.
+     * @tparam path_edge_capacity Of all paths between root and leaf within `g`, the maximum number of edges.
+     * @param g Directed graph.
+     * @return `find_max_path(g)` result.
+     */
     template<
         bool debug_mode,
         widenable_to_size_t PARENT_COUNT,

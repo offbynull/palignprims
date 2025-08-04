@@ -271,9 +271,9 @@ def check_line_length(path: Path, content: str):
                 or line.startswith('#define '):
             continue
         if len(line) > 140:
-            if line.strip().startswith('/** @copydoc') or line.strip().startswith('* @copydoc') or line.strip().startswith('* @ref'):
+            if line.strip().startswith('/** @') or line.strip().startswith('* @'):  # @ref, @link, @copydoc, ...
                 continue
-            print(f'{path}: line exceeds 140 chars')
+            print(f'{path}: line exceeds 140 chars\n  > {line}')
             result = CheckResult.FAIL
     return result
 

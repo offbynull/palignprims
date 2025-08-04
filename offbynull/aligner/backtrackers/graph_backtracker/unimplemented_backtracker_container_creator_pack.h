@@ -12,16 +12,14 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::unimplemented_bac
      */
     struct unimplemented_backtracker_container_creator_pack {
         /**
-         * Create @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container container creator pack used by
-         * the backtracking algorithm.
+         * Create @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container container creator pack.
          *
          * @return @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container container creator pack.
          */
         auto create_slot_container_container_creator_pack() const;
 
         /**
-         * Create @ref offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue container creator pack used by the
-         * backtracking algorithm.
+         * Create @ref offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue container creator pack.
          *
          * @return @ref offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue container creator pack.
          */

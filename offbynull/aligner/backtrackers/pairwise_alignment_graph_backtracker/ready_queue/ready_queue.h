@@ -2,85 +2,42 @@
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_READY_QUEUE_READY_QUEUE_H
 
 #include <cstddef>
-#include <vector>
 #include <utility>
 #include <limits>
 #include <stdexcept>
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
+#include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/ready_queue/ready_queue_container_creator_pack.h"
+#include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/ready_queue/ready_queue_heap_container_creator_pack.h"
+#include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/ready_queue/ready_queue_stack_container_creator_pack.h"
 #include "offbynull/utils.h"
 
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue {
     using offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph;
+    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_container_creator_pack
+        ::ready_queue_container_creator_pack;
+    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_heap_container_creator_pack
+        ::ready_queue_heap_container_creator_pack;
+    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_stack_container_creator_pack
+        ::ready_queue_stack_container_creator_pack;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::utils::static_vector_typer;
 
-
-
-
-    template<
-        typename T,
-        typename SLOT_INDEX
-    >
-    concept ready_queue_container_creator_pack =
-        unqualified_object_type<T>
-        && widenable_to_size_t<SLOT_INDEX>
-        && requires(
-            const T t,
-            std::size_t grid_down_cnt,
-            std::size_t grid_right_cnt,
-            std::size_t grid_depth_cnt
-        ) {
-            { t.create_queue_container(grid_down_cnt, grid_right_cnt, grid_depth_cnt) } -> random_access_range_of_type<SLOT_INDEX>;
-        };
-
-    template<
-        bool debug_mode,
-        widenable_to_size_t SLOT_INDEX,
-        bool minimize_allocations
-    >
-    struct ready_queue_heap_container_creator_pack {
-        std::vector<SLOT_INDEX> create_queue_container(
-            std::size_t grid_down_cnt,
-            std::size_t grid_right_cnt,
-            std::size_t grid_depth_cnt
-        ) const {
-            std::vector<SLOT_INDEX> ret {};
-            if constexpr (minimize_allocations) {
-                ret.reserve(grid_down_cnt * grid_right_cnt * grid_depth_cnt);
-            }
-            return ret;
-        }
-    };
-
-    template<
-        bool debug_mode,
-        widenable_to_size_t SLOT_INDEX,
-        std::size_t grid_down_cnt,
-        std::size_t grid_right_cnt,
-        std::size_t grid_depth_cnt
-    >
-    struct ready_queue_stack_container_creator_pack {
-        static constexpr std::size_t ELEM_COUNT { grid_down_cnt * grid_right_cnt * grid_depth_cnt };
-        using CONTAINER_TYPE = typename static_vector_typer<debug_mode, SLOT_INDEX, ELEM_COUNT>::type;
-        CONTAINER_TYPE create_queue_container(
-            std::size_t grid_down_cnt_,
-            std::size_t grid_right_cnt_,
-            std::size_t grid_depth_cnt_
-        ) const {
-            if constexpr (debug_mode) {
-                if (grid_down_cnt != grid_down_cnt_ || grid_right_cnt != grid_right_cnt_ || grid_depth_cnt != grid_depth_cnt_) {
-                    throw std::runtime_error { "Count mismatch" };
-                }
-            }
-            return {};
-        }
-    };
-    
-    
-    
-    
+    /**
+     * Queue of node positions within an
+     * @ref offbynull::aligner::graph::pairwise_alignment_graph::readable_pairwise_alignment_graph::readable_pairwise_alignment_graph,
+     * referred to as a "ready queue" because it's used by the
+     * @link offbynull::aligner:backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker backtracking algorithm @endlink
+     * to track which nodes withing a graph are ready for processing (a node is ready for processing once all of its parents have been
+     * processed).
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam G Graph type.
+     * @tparam SLOT_INDEX Slot indexer type. Must be wide enough to hold the value `grid_down_cnt * grid_right_cnt * grid_depth_cnt`
+     *     (variables being multiplied are the dimensions of the `G` instance).
+     * @tparam CONTAINER_CREATOR_PACK Container factory type.
+     */
     template<
         bool debug_mode,
         readable_pairwise_alignment_graph G,
@@ -100,6 +57,13 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         QUEUE_CONTAINER queue;
 
     public:
+        /**
+         * Construct an @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue::ready_queue
+         * instance.
+         *
+         * @param g Pairwise alignment graph whose nodes are to be tracked.
+         * @param container_creator_pack Container factory.
+         */
         ready_queue(
             const G& g,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
@@ -113,14 +77,30 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             }
         }
 
+        /**
+         * Test if this queue is empty.
+         *
+         * @return `true` if empty, `false` otherwise.
+         */
         bool empty() const {
             return queue.empty();
         }
 
+        /**
+         * Push node index (index that node resides in within the backtracker's container). A node should only be pushed once it's ready for
+         * processing (once all its parents have been processed).
+         *
+         * @param idx Node index.
+         */
         void push(SLOT_INDEX idx) {
             queue.push_back(idx);
         }
 
+        /**
+         * Pop node index. If this queue is empty, this function's behavior is undefined.
+         *
+         * @return Node index.
+         */
         SLOT_INDEX pop() {
             auto ret { queue.back() };
             queue.pop_back();

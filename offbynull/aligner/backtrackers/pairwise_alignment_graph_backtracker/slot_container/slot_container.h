@@ -6,6 +6,7 @@
 #include <utility>
 #include <limits>
 #include <stdexcept>
+#include <ranges>
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container/slot.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container/slot_container_container_creator_pack.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container/slot_container_heap_container_creator_pack.h"
@@ -29,6 +30,15 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_node::backtrackable_node;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
 
+    /**
+     * Container of @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot "slots", used by
+     * @link offbynull::aligner:backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker @endlink to track the
+     * backtracking state of each node within a graph.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam G Graph type.
+     * @tparam CONTAINER_CREATOR_PACK Container factory type.
+     */
     template<
         bool debug_mode,
         readable_pairwise_alignment_graph G,
@@ -60,6 +70,31 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         SLOT_CONTAINER slots;
 
     public:
+        // Concepts for params have been commented out because THEY FAIL when you pass in a std::views::common(...)'s
+        // iterator. Apparently the iterator doesn't contain ::value_type? Or the iterator that's passed in isn't
+        // default constructible (there doesn't seem to be any requirement that an iterator be default constructible,
+        // but the iterator is a concat_bidirectional_view which is being wrapped in a std::views::common() and there's some weird
+        // concepts checking to make sure things are default constructible / ::value_type isn't making it through?
+        //
+        // https://www.reddit.com/r/cpp_questions/comments/1d5z7sh/bizarre_requirement_of_stdinput_iterator/
+        /**
+         * Construct an
+         * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container::slot_container
+         * instance.
+         *
+         * The behavior of this function is undefined if any of the following conditions are met:
+         *
+         *  * `begin` and `end` aren't from the same owner.
+         *  * `begin > end`.
+         *  * slots returned by `begin` / `end` point to nodes in some graph other than `g_`.
+         *
+         * @param g_ Graph.
+         * @param begin Start iterator containing slots for `g_` (elements must be initialized to each node within `g_`, where no node's
+         *     parents have been walked yet).
+         * @param end End iterator containing slots for `g_` (elements must be initialized to each node within `g_`, where no node's parents
+         *     have been walked yet).
+         * @param container_creator_pack Container factory.
+         */
         slot_container(
             const G& g_,
             /*input_iterator_of_type<slot<N, E, WEIGHT>>*/ auto begin,
@@ -89,37 +124,93 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             }
         }
 
+        /**
+         * Get index of slot assigned to some node.
+         *
+         * If no slot exists for `node`, the behavior of this function is undefined.
+         *
+         * @param node Node to find.
+         * @return Index of slot assigned to `node`.
+         */
         std::size_t find_idx(const N& node) const {
             const auto& [down_offset, right_offset, depth] { g.node_to_grid_offset(node) };
             return (g.grid_depth_cnt * ((down_offset * g.grid_right_cnt) + right_offset)) + depth;
         }
 
+        /**
+         * Get reference to slot assigned to some node.
+         *
+         * If no slot exists for `node`, the behavior of this function is undefined.
+         *
+         * @param node Node to find.
+         * @return Reference to slot assigned to `node`.
+         */
         slot<N, E, ED, PARENT_COUNT>& find_ref(const N& node) {
             std::size_t idx { find_idx(node) };
             slot<N, E, ED, PARENT_COUNT>& slot { slots[idx] };
             return slot;
         }
 
+        /**
+         * Get reference to slot assigned to some node.
+         *
+         * If no slot exists for `node`, the behavior of this function is undefined.
+         *
+         * @param node Node to find.
+         * @return Reference to slot assigned to `node`.
+         */
         const slot<N, E, ED, PARENT_COUNT>& find_ref(const N& node) const {
             std::size_t idx { find_idx(node) };
             const slot<N, E, ED, PARENT_COUNT>& slot { slots[idx] };
             return slot;
         }
 
+        /**
+         * Get reference to slot at some index.
+         *
+         * If `idx`, the behaviour of this function undefined.
+         *
+         * @param idx Index of slot
+         * @return Reference to slot at `idx`.
+         */
         slot<N, E, ED, PARENT_COUNT>& at_idx(const std::size_t idx) {
             return slots[idx];
         }
 
+        /**
+         * Get reference to slot at some index.
+         *
+         * If `idx`, the behaviour of this function undefined.
+         *
+         * @param idx Index of slot
+         * @return Reference to slot at `idx`.
+         */
         const slot<N, E, ED, PARENT_COUNT>& at_idx(const std::size_t idx) const {
             return slots[idx];
         }
 
+        /**
+         * Get index of and reference to slot assigned to some node.
+         *
+         * If no slot exists for `node`, the behavior of this function is undefined.
+         *
+         * @param node Node to find.
+         * @return Index of and reference to slot assigned to `node`.
+         */
         std::pair<std::size_t, slot<N, E, ED, PARENT_COUNT>&> find(const N& node) {
             std::size_t idx { find_idx(node) };
             slot<N, E, ED, PARENT_COUNT>& slot { slots[idx] };
             return { idx, slot };
         }
 
+        /**
+         * Get index of and reference to slot assigned to some node.
+         *
+         * If no slot exists for `node`, the behavior of this function is undefined.
+         *
+         * @param node Node to find.
+         * @return Index of and reference to slot assigned to `node`.
+         */
         std::pair<std::size_t, const slot<N, E, ED, PARENT_COUNT>&> find(const N& node) const {
             std::size_t idx { find_idx(node) };
             const slot<N, E, ED, PARENT_COUNT>& slot { slots[idx] };

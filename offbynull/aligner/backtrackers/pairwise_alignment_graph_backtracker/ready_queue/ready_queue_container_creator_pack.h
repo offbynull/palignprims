@@ -9,6 +9,15 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
 
+    /**
+     * Concept that's satisfied if `T` has the traits for creating the containers required by
+     * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue::ready_queue, referred to as a
+     * container creator pack.
+     *
+     * @tparam T Type to check.
+     * @tparam SLOT_INDEX Slot indexer type. Must be wide enough to hold the value `grid_down_cnt * grid_right_cnt * grid_depth_cnt`
+     *     (variables being multiplied are the dimensions of the underlying pairwise alignment graph instance).
+     */
     template<
         typename T,
         typename SLOT_INDEX

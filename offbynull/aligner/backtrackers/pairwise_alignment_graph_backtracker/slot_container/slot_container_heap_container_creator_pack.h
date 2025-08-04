@@ -6,6 +6,7 @@
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/backtrackable_node.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/backtrackable_edge.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container/slot.h"
+#include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container/unimplemented_slot_container_container_creator_pack.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/concepts.h"
 
@@ -17,6 +18,18 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot;
 
+    /**
+     * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container_container_creator_pack::slot_container_container_creator_pack
+     * that allocates its containers on the heap.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam N Graph node type.
+     * @tparam E Graph edge type.
+     * @tparam ED Graph edge data type (edge weight).
+     * @tparam PARENT_COUNT Graph node incoming edge counter type. Must be wide enough to hold the maximum number of incoming edges across
+     *      all nodes in the underlying pairwise alignment graph instance (e.g., across all nodes in any global pairwise alignment graph, a
+     *      node can have at most 3 incoming edges).
+     */
     template<
         bool debug_mode,
         backtrackable_node N,
@@ -25,6 +38,9 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         widenable_to_size_t PARENT_COUNT
     >
     struct slot_container_heap_container_creator_pack {
+        /**
+         * @copydoc offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::unimplemented_slot_container_container_creator_pack::unimplemented_slot_container_container_creator_pack::create_slot_container
+         */
         std::vector<slot<N, E, ED, PARENT_COUNT>> create_slot_container(
             std::size_t grid_down_cnt,
             std::size_t grid_right_cnt,

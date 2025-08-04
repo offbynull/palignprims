@@ -33,7 +33,9 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
         ::slot_container_heap_container_creator_pack;
 
     /**
-     * Container that tracks the backtracking algorithm's status for each node within a graph.
+     * Container of @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot::slot "slots", used by
+     * @link offbynull::aligner:backtrackers::graph_backtracker::backtracker::backtracker @endlink to track the backtracking state of each
+     * node within a graph.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
      * @tparam G Graph type.

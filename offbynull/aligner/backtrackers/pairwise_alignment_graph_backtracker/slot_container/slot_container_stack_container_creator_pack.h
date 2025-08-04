@@ -18,6 +18,21 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot;
 
+    /**
+     * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container_container_creator_pack::slot_container_container_creator_pack
+     * that allocates its containers on the stack.
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam N Graph node type.
+     * @tparam E Graph edge type.
+     * @tparam ED Graph edge data type (edge weight).
+     * @tparam PARENT_COUNT Graph node incoming edge counter type. Must be wide enough to hold the maximum number of incoming edges across
+     *      all nodes in the underlying pairwise alignment graph instance (e.g., across all nodes in any global pairwise alignment graph, a
+     *      node can have at most 3 incoming edges).
+     * @tparam grid_down_cnt Expected down dimension of the underlying pairwise alignment graph instance.
+     * @tparam grid_right_cnt Expected right dimension of the underlying pairwise alignment graph instance.
+     * @tparam grid_depth_cnt Expected depth dimension of the underlying pairwise alignment graph instance.
+     */
     template<
         bool debug_mode,
         backtrackable_node N,
@@ -29,8 +44,13 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         std::size_t grid_depth_cnt
     >
     struct slot_container_stack_container_creator_pack {
+    private:
         static constexpr std::size_t ELEM_COUNT { grid_down_cnt * grid_right_cnt * grid_depth_cnt };
 
+    public:
+        /**
+         * @copydoc offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::unimplemented_slot_container_container_creator_pack::unimplemented_slot_container_container_creator_pack::create_slot_container
+         */
         std::array<slot<N, E, ED, PARENT_COUNT>, ELEM_COUNT> create_slot_container(
             std::size_t grid_down_cnt_,
             std::size_t grid_right_cnt_,
