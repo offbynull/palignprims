@@ -238,9 +238,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * @param max_path_weight Weight of the maximally-weighted path between `g`'s root node and leaf node. If there are multiple, they
          *     all should be the ame weight.
          * @param max_path_weight_comparison_tolerance Tolerance used when testing for weight for equality. This may need to be non-zero
-         *     when the type used for edge weights is a floating point type. It helps mitigate floating point rounding when `g` is large /
-         *     has large magnitude differences across `g`'s edge weights. The value this should be set to depends on multiple factors (e.g.,
-         *     which floating point type is used, expected graph size, expected magnitudes, etc..).
+         *     when the type used for edge weights is a floating point type. It helps mitigate floating point rounding errors when `g` is
+         *     large / has large magnitude differences across `g`'s edge weights. The value this should be set to depends on multiple
+         *     factors (e.g., which floating point type is used, expected graph size, expected magnitudes, etc..).
          * @return `true` if `node` sits on any of the maximally-weighted path between `g`'s root node and leaf node, `false` otherwise.
          */
         static bool is_node_on_max_path(

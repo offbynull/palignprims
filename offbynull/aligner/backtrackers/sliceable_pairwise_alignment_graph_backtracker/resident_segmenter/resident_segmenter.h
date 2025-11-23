@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <utility>
+#include <variant>
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/backtrackable_node.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/backtrackable_edge.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/resident_segmenter/hop.h"
@@ -55,6 +56,63 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::concepts::unqualified_object_type;
     using offbynull::utils::static_vector_typer;
 
+    /**
+     * Splits an @ref offbynull::aligner::graph::sliceable_pairwise_alignment_graph::readable_sliceable_pairwise_alignment_graph into
+     * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::segment::segment "segments"
+     * and @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::hop::hop "hops". A ...
+     *
+     *  * segment is a contiguous parts of the graph that's uninterrupted by connections from / to resident nodes.
+     *  * hop is an edge connecting two segments, where one or both ends of the edge are resident nodes.
+     *
+     * A maximally-weighted path through the
+     * @ref offbynull::aligner::graph::sliceable_pairwise_alignment_graph::readable_sliceable_pairwise_alignment_graph is guaranteed to
+     * travel through the combination of segments and hops found by this class.
+     *
+     * ```
+     *           segment
+     *  *---->*---->*---->*---->*
+     *  |'.   |'.   |'.   |'.   |
+     *  |  '. |  '. |  '. |  '. |
+     *  v    vv    vv    vv    vv
+     *  *---->*---->*---->*---->*
+     *  |'.   |'.   |'.   |'.   |
+     *  |  '. |  '. |  '. |  '. |
+     *  v    vv    vv    vv    vv
+     *  *---->*---->*---->*---->*
+     *  |'.   |'.   |'.   |'.   |
+     *  |  '. |  '. |  '. |  '. |
+     *  v    vv    vv    vv    vv
+     *  *---->*---->*---->*---->*
+     *                           \
+     *                            \
+     *                             \ hop
+     *                              \
+     *                               \
+     *                                v     segment
+     *                                *---->*---->*---->*
+     *                                |'.   |'.   |'.   |
+     *                                |  '. |  '. |  '. |
+     *                                v    vv    vv    vv
+     *                                *---->*---->*---->*
+     *                                |'.   |'.   |'.   |
+     *                                |  '. |  '. |  '. |
+     *                                v    vv    vv    vv
+     *                                *---->*---->*---->*
+     *                                                  '.
+     *                                                    '.  hop
+     *                                                      '.
+     *                                                        v        segment
+     *                                                        *---->*---->*---->*---->*
+     *                                                        |'.   |'.   |'.   |'.   |
+     *                                                        |  '. |  '. |  '. |  '. |
+     *                                                        v    vv    vv    vv    vv
+     *                                                        *---->*---->*---->*---->*
+     * ```
+     *
+     * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @tparam G Graph type.
+     * @tparam CONTAINER_CREATOR_PACK Container factory type.
+     */
     template<
         bool debug_mode,
         readable_sliceable_pairwise_alignment_graph G,
@@ -77,7 +135,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using N = typename G::N;
         using E = typename G::E;
         using ND = typename G::ND;
-        using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
         using BIDI_WALKER_CONTAINER_CREATOR_PACK =
@@ -85,17 +142,46 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using RESIDENT_NODE_CONTAINER =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_node_container(std::declval<std::vector<N>>()));
         using RESIDENT_EDGE_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_resident_edge_container(0zu));
-        using SEGMENT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_segment_container(0zu));
 
         CONTAINER_CREATOR_PACK container_creator_pack;
 
     public:
+        /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::ED */
+        using ED = typename G::ED;
+        /** Type of container used to hold segment-hop chain. Each element is an `std::variant` set to either an
+         * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::segment::segment instance
+         * or an
+         * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::hop::hop instance.
+         */
+        using SEGMENT_HOP_CHAIN_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_segment_hop_chain_container(0zu));
+
+        /**
+         * Construct an
+         * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::resident_segmenter::resident_segmenter
+         * instance.
+         *
+         * @param container_creator_pack_ Container factory.
+         */
         resident_segmenter(
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
         : container_creator_pack { container_creator_pack_ } {}
 
-        auto backtrack_segmentation_points(const G& g, const ED max_path_weight_comparison_tolerance) {
+        /**
+         * Find a segment-hop chain within `g` for which a maximally-weighted path travels through.
+         *
+         * @param g Graph.
+         * @param max_path_weight_comparison_tolerance Tolerance used when testing for weight for equality. This may need to be non-zero
+         *     when the type used for edge weights is a floating point type. It helps mitigate floating point rounding errors when `g` is
+         *     large / has large magnitude differences across `g`'s edge weights. The value this should be set to depends on multiple
+         *     factors (e.g., which floating point type is used, expected graph size, expected magnitudes, etc..).
+         * @return A pair where the first element is a container holding the segment-hop chain and the second element is the weight of the
+         *     maximally-weighted path identified.
+         */
+        std::pair<SEGMENT_HOP_CHAIN_CONTAINER, ED> backtrack_segmentation_points(
+            const G& g,
+            const ED max_path_weight_comparison_tolerance
+        ) {
             ED max_path_weight {
                 bidi_walker<
                     debug_mode,
@@ -192,8 +278,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 }
             }
 
-            SEGMENT_CONTAINER parts {
-                container_creator_pack.create_segment_container(
+            SEGMENT_HOP_CHAIN_CONTAINER parts {
+                container_creator_pack.create_segment_hop_chain_container(
                     resident_edges.size() // * 2zu + 1zu
                 )
             };
@@ -203,18 +289,18 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     N from_node { g.get_edge_from(resident_edge) };
                     N to_node { g.get_edge_to(resident_edge) };
                     if (last_to_node != from_node) {
-                        parts.push_back({ segment { last_to_node, from_node } });
+                        parts.push_back({ segment<N> { last_to_node, from_node } });
                     }
                     parts.push_back({ hop { resident_edge } });
                     last_to_node = to_node;
                 }
                 N final_to_node { g.get_leaf_node() };
                 if (last_to_node != final_to_node) {
-                    parts.push_back({ segment { last_to_node, final_to_node } });
+                    parts.push_back({ segment<N> { last_to_node, final_to_node } });
                 }
             }
 
-            // container will contain the nodes at which you should cut the graph for divide-and-conquer algorihtm.
+            // container will contain the nodes at which you should cut the graph for divide-and-conquer algorithm.
             // These are points in that graph where you KNOW resident nodes won't be involved. You can walk using slices
             // only.
 

@@ -24,6 +24,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
 
+    /**
+     * Concept that's satisfied if `T` has the traits for creating the containers required by
+     * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::resident_segmenter::resident_segmenter,
+     * referred to as a container creator pack.
+     *
+     * @tparam T Type to check.
+     * @tparam N Graph node type.
+     * @tparam E Graph edge type.
+     * @tparam ED Graph edge data type (edge weight).
+     */
     template<
         typename T,
         typename N,
@@ -39,7 +49,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             { t.create_bidi_walker_container_creator_pack() } -> bidi_walker_container_creator_pack<N, E, ED>;
             { t.create_resident_node_container(resident_nodes) } -> random_access_range_of_type<N>;
             { t.create_resident_edge_container(resident_nodes_capacity) } -> random_access_range_of_type<E>;
-            { t.create_segment_container(resident_nodes_capacity) } -> random_access_range_of_type<std::variant<hop<E>, segment<N>>>;
+            { t.create_segment_hop_chain_container(resident_nodes_capacity) }
+                -> random_access_range_of_type<std::variant<hop<E>, segment<N>>>;
         };
 }
 

@@ -134,7 +134,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                         path.end()
                     );
                 } else {
-                    throw std::runtime_error { "This should never hapen" };
+                    throw std::runtime_error { "This should never happen" };
                 }
             }
             return std::make_pair(path, final_weight);

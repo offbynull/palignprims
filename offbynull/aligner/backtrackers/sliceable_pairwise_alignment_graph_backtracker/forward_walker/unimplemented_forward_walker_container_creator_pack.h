@@ -16,7 +16,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * container creator pack.
          *
          * @return @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::row_slot_container::row_slot_container
-         * container creator pack.
+         *     container creator pack.
          */
         auto create_row_slot_container_container_creator_pack() const;
 
@@ -26,7 +26,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * container creator pack.
          *
          * @return @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_container::resident_slot_container
-         * container creator pack.
+         *     container creator pack.
          */
         auto create_resident_slot_container_container_creator_pack() const;
     };
