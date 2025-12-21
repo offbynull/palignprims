@@ -12,7 +12,6 @@
 #include "offbynull/aligner/concepts.h"
 
 namespace offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph {
-    using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::axis;
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::sliceable_pairwise_alignment_graph;
@@ -241,20 +240,6 @@ namespace offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
         auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
             return g.row_nodes(grid_down, root_node, leaf_node);
-        }
-
-        auto segmented_diagonal_nodes(axis grid_axis, INDEX grid_axis_position, std::size_t max_segment_cnt) const {
-            return g.segmented_diagonal_nodes(grid_axis, grid_axis_position, max_segment_cnt);
-        }
-
-        auto segmented_diagonal_nodes(
-            axis grid_axis,
-            INDEX grid_axis_position,
-            const N& root_node,
-            const N& leaf_node,
-            std::size_t max_segment_cnt
-        ) const {
-            return g.segmented_diagonal_nodes(grid_axis, grid_axis_position, root_node, leaf_node, max_segment_cnt);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::is_reachable */

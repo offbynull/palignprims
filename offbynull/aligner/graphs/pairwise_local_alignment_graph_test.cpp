@@ -5,7 +5,6 @@
 #include <vector>
 #include <type_traits>
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
-#include "offbynull/aligner/graph/multithreaded_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/pairwise_local_alignment_graph.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
@@ -13,7 +12,6 @@
 #include "gtest/gtest.h"
 
 namespace {
-    using offbynull::aligner::graph::multithreaded_sliceable_pairwise_alignment_graph::axis;
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::pairwise_local_alignment_graph;
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::create_pairwise_local_alignment_graph;
     using offbynull::aligner::graphs::pairwise_local_alignment_graph::edge;
@@ -561,181 +559,6 @@ namespace {
             copy_to_vector(g.inputs_from_residents(N { 1zu, 2zu })),
             (std::vector<E> {
                 E { edge_type::FREE_RIDE, { { 0zu, 0zu }, { 1zu, 2zu } } }
-            })
-        );
-    }
-
-    TEST(OAGPairwiseLocalAlignmentGraphTest, DiagionalWalk1) {
-        std::string seq1 { "a" };
-        std::string seq2 { "ac" };
-        pairwise_local_alignment_graph<
-            is_debug_mode(),
-            std::size_t,
-            std::float64_t,
-            decltype(seq1),
-            decltype(seq2),
-            decltype(substitution_scorer),
-            decltype(gap_scorer),
-            decltype(freeride_scorer)
-        > g {
-            seq1,
-            seq2,
-            substitution_scorer,
-            gap_scorer,
-            freeride_scorer
-        };
-
-        using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
-
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::DOWN_FROM_TOP_LEFT, 0u, 1u))),
-            (std::vector<N> {
-                N { 0zu, 0zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::DOWN_FROM_TOP_LEFT, 1u, 1u))),
-            (std::vector<N> {
-                N { 1zu, 0zu },
-                N { 0zu, 1zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::RIGHT_FROM_BOTTOM_LEFT, 0u, 1u))),
-            (std::vector<N> {
-                N { 1zu, 0zu },
-                N { 0zu, 1zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::RIGHT_FROM_BOTTOM_LEFT, 1u, 1u))),
-            (std::vector<N> {
-                N { 1zu, 1zu },
-                N { 0zu, 2zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::RIGHT_FROM_BOTTOM_LEFT, 2u, 1u))),
-            (std::vector<N> {
-                N { 1zu, 2zu }
-            })
-        );
-    }
-
-    TEST(OAGPairwiseLocalAlignmentGraphTest, DiagionalWalk2) {
-        std::string seq1 { "ac" };
-        std::string seq2 { "a" };
-        pairwise_local_alignment_graph<
-            is_debug_mode(),
-            std::size_t,
-            std::float64_t,
-            decltype(seq1),
-            decltype(seq2),
-            decltype(substitution_scorer),
-            decltype(gap_scorer),
-            decltype(freeride_scorer)
-        > g {
-            seq1,
-            seq2,
-            substitution_scorer,
-            gap_scorer,
-            freeride_scorer
-        };
-
-        using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
-
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::DOWN_FROM_TOP_LEFT, 0u, 1u))),
-            (std::vector<N> {
-                N { 0zu, 0zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::DOWN_FROM_TOP_LEFT, 1u, 1u))),
-            (std::vector<N> {
-                N { 1zu, 0zu },
-                N { 0zu, 1zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::DOWN_FROM_TOP_LEFT, 2u, 1u))),
-            (std::vector<N> {
-                N { 2zu, 0zu },
-                N { 1zu, 1zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::RIGHT_FROM_BOTTOM_LEFT, 0u, 1u))),
-            (std::vector<N> {
-                N { 2zu, 0zu },
-                N { 1zu, 1zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::RIGHT_FROM_BOTTOM_LEFT, 1u, 1u))),
-            (std::vector<N> {
-                N { 2zu, 1zu }
-            })
-        );
-    }
-
-
-    TEST(OAGPairwiseLocalAlignmentGraphTest, DiagionalWalk3) {
-        std::string seq1 { "abcd" };
-        std::string seq2 { "wxyz" };
-        pairwise_local_alignment_graph<
-            is_debug_mode(),
-            std::size_t,
-            std::float64_t,
-            decltype(seq1),
-            decltype(seq2),
-            decltype(substitution_scorer),
-            decltype(gap_scorer),
-            decltype(freeride_scorer)
-        > g {
-            seq1,
-            seq2,
-            substitution_scorer,
-            gap_scorer,
-            freeride_scorer
-        };
-
-        using N = typename decltype(g)::N;
-        using E = typename decltype(g)::E;
-
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::DOWN_FROM_TOP_LEFT, 1u, N { 1u, 1u}, N { 3u, 2u }, 1u))),
-            (std::vector<N> {
-                N { 1zu, 1zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::DOWN_FROM_TOP_LEFT, 2u, N { 1u, 1u}, N { 3u, 2u }, 1u))),
-            (std::vector<N> {
-                N { 2zu, 1zu },
-                N { 1zu, 2zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::DOWN_FROM_TOP_LEFT, 3u, N { 1u, 1u}, N { 3u, 2u }, 1u))),
-            (std::vector<N> {
-                N { 3zu, 1zu },
-                N { 2zu, 2zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::RIGHT_FROM_BOTTOM_LEFT, 1u, N { 1u, 1u}, N { 3u, 2u }, 1u))),
-            (std::vector<N> {
-                N { 3zu, 1zu },
-                N { 2zu, 2zu },
-            })
-        );
-        EXPECT_EQ(
-            (copy_to_vector(g.segmented_diagonal_nodes(axis::RIGHT_FROM_BOTTOM_LEFT, 2u, N { 1u, 1u}, N { 3u, 2u }, 1u))),
-            (std::vector<N> {
-                N { 3zu, 2zu }
             })
         );
     }

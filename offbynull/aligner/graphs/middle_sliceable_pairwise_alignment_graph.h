@@ -7,7 +7,6 @@
 #include <utility>
 #include <stdexcept>
 #include <type_traits>
-#include "offbynull/aligner/graph/multithreaded_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h"
@@ -17,7 +16,6 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
     using offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph::prefix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::sliceable_pairwise_alignment_graph;
-    using offbynull::aligner::graph::multithreaded_sliceable_pairwise_alignment_graph::axis;
     using offbynull::aligner::concepts::weight;
 
     /**
@@ -239,20 +237,6 @@ namespace offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
         auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
             return g.row_nodes(grid_down, root_node, leaf_node);
-        }
-
-        auto segmented_diagonal_nodes(axis grid_axis, INDEX grid_axis_position, std::size_t max_segment_cnt) const {
-            return g.segmented_diagonal_nodes(grid_axis, grid_axis_position, max_segment_cnt);
-        }
-
-        auto segmented_diagonal_nodes(
-            axis grid_axis,
-            INDEX grid_axis_position,
-            const N& root_node,
-            const N& leaf_node,
-            std::size_t max_segment_cnt
-        ) const {
-            return g.segmented_diagonal_nodes(grid_axis, grid_axis_position, root_node, leaf_node, max_segment_cnt);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::is_reachable */

@@ -13,18 +13,16 @@
 #include <functional>
 #include <ostream>
 #include <format>
-#include <algorithm>
+#include <limits>
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 #include "offbynull/aligner/concepts.h"
-#include "offbynull/aligner/graph/multithreaded_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/scorer/scorer.h"
 
 namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::aligner::concepts::weight;
-    using offbynull::aligner::graph::multithreaded_sliceable_pairwise_alignment_graph::axis;
     using offbynull::aligner::sequence::sequence::sequence;
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::aligner::scorer::scorer::scorer_without_explicit_weight;
@@ -170,6 +168,9 @@ namespace offbynull::aligner::graphs::grid_graph {
         /**
          * Construct an @ref offbynull::aligner::graphs::grid_graph::grid_graph instance.
          *
+         * The behavior of this function / class is undefined if `down_seq_` or `right_seq_` has more elements than `INDEX_`'s maximum
+         * possible value.
+         *
          * @param down_seq_ Downward sequence.
          * @param right_seq_ Rightward sequence.
          * @param substitution_scorer_ Scorer for sequence alignment substitutions.
@@ -189,7 +190,14 @@ namespace offbynull::aligner::graphs::grid_graph {
         , grid_right_cnt { right_seq_.size() + 1zu }
         , path_edge_capacity { (grid_right_cnt - 1u) + (grid_down_cnt - 1u) }
         , node_incoming_edge_capacity { grid_down_cnt == 1zu || grid_right_cnt == 1zu ? 1zu : 3zu }
-        , node_outgoing_edge_capacity { grid_down_cnt == 1zu || grid_right_cnt == 1zu ? 1zu : 3zu } {}
+        , node_outgoing_edge_capacity { grid_down_cnt == 1zu || grid_right_cnt == 1zu ? 1zu : 3zu } {
+            if constexpr (debug_mode) {
+                if (down_seq_.size() + 1zu >= std::numeric_limits<INDEX>::max()
+                        || right_seq_.size() + 1zu  >= std::numeric_limits<INDEX>::max()) {
+                    throw std::runtime_error { "Sequence too large for index type" };
+                }
+            }
+        }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_node_data */
         ND get_node_data(const N& n) const {
@@ -503,69 +511,6 @@ namespace offbynull::aligner::graphs::grid_graph {
             }
             return std::views::iota(root_node.right, leaf_node.right + 1u)
                 | std::views::transform([grid_down](const auto& grid_right) { return N { grid_down, grid_right }; });
-        }
-
-        auto segmented_diagonal_nodes(axis grid_axis, INDEX grid_axis_position, std::size_t max_segment_cnt) const {
-            return segmented_diagonal_nodes(grid_axis, grid_axis_position, get_root_node(), get_leaf_node(), max_segment_cnt);
-        }
-
-        auto segmented_diagonal_nodes(
-            axis grid_axis,
-            INDEX grid_axis_position,
-            const N& root_node,
-            const N& leaf_node,
-            [[maybe_unused]] std::size_t max_segment_cnt
-        ) const {
-            if constexpr (debug_mode) {
-                if (!has_node(root_node) || !has_node(leaf_node)) {
-                    throw std::runtime_error { "Bad node" };
-                }
-                if (!(root_node <= leaf_node)) {
-                    throw std::runtime_error { "Bad node" };
-                }
-                switch (grid_axis) {
-                    case axis::DOWN_FROM_TOP_LEFT:
-                        if (!(grid_axis_position >= root_node.down && grid_axis_position <= leaf_node.down)) {
-                            throw std::runtime_error { "Bad node" };
-                        }
-                        break;
-                    case axis::RIGHT_FROM_BOTTOM_LEFT:
-                        if (!(grid_axis_position >= root_node.right && grid_axis_position <= leaf_node.right)) {
-                            throw std::runtime_error { "Bad node" };
-                        }
-                        break;
-                    [[unlikely]] default:
-                        throw std::runtime_error { "This should never happen" };
-                }
-            }
-            N start_node;
-            N end_node;
-            switch (grid_axis) {
-                case axis::DOWN_FROM_TOP_LEFT: {
-                    INDEX max_offset { std::min(grid_axis_position, leaf_node.right) };
-                    start_node = N { grid_axis_position, root_node.down };
-                    end_node = N { grid_axis_position - max_offset, max_offset };
-                    break;
-                }
-                case axis::RIGHT_FROM_BOTTOM_LEFT: {
-                    INDEX max_offset { std::min(leaf_node.right - grid_axis_position, leaf_node.down) };
-                    start_node = N { leaf_node.down, grid_axis_position };
-                    end_node = N { leaf_node.down - max_offset, grid_axis_position + max_offset };
-                    break;
-                }
-                [[unlikely]] default:
-                    std::unreachable();
-            }
-            INDEX cnt {
-                std::min(
-                    end_node.down - start_node.down,
-                    end_node.right - start_node.right
-                )
-            };
-            return std::views::iota(0u, cnt + 1u)
-                | std::views::transform([start_node](const auto& offset) {
-                    return N { start_node.down - offset, start_node.right + offset };
-                });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::is_reachable */

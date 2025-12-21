@@ -14,7 +14,6 @@
 #include "gtest/gtest.h"
 
 namespace {
-    using offbynull::aligner::graph::multithreaded_sliceable_pairwise_alignment_graph::axis;
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::pairwise_extended_gap_alignment_graph;
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::create_pairwise_extended_gap_alignment_graph;
     using offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node_layer;

@@ -140,13 +140,11 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
         using INDEX = INDEX_;
 
         /**
-         * Number of rows within the grid, which maps to sequence 1's length + 1. Sequence 1 is often referred to as "down" sequence or
-         * "downward" sequence because it maps to the grid's downward-dimension.
+         * Number of rows within the grid, which maps to downward sequence's length + 1.
          */
         const INDEX grid_down_cnt;
         /**
-         * Number of columns within the grid, which maps to sequence 2's length + 1. Sequence 2 is often referred to as "right" sequence or
-         * "rightward" sequence because it maps to the grid's rightward-dimension.
+         * Number of columns within the grid, which maps to rightward sequence's length + 1.
          */
         const INDEX grid_right_cnt;
         /**
@@ -197,21 +195,23 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
         auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const;
 
         /**
-         * Get index within sequence 1 (downward sequence) and sequence 2 (rightward sequence) associated with `e`. When `e` is associated
-         * with ...
+         * Get index within downward sequence and rightward sequence associated with `e`. When `e` is associated with ...
          *
-         *  * an index in sequence 1 but not in sequence 2 (e.g. indel), `std::optional { std::pair { idx1, std::nullopt } }` is returned.
-         *  * an index in sequence 2 but not in sequence 1 (e.g. indel), `std::optional { std::pair { std::nullopt, idx2 } }` is returned.
-         *  * an index in sequence 1 and in sequence 2 (e.g. swap), `std::optional { std::pair { idx1, idx2 } }` is returned.
-         *  * neither an index in sequence 1 nor an index in sequence 2 (e.g. freeride), `std::nullopt` is returned.
+         *  * an index in downward sequence but not in rightward sequence (e.g. indel),
+         *    `std::optional { std::pair { d_idx, std::nullopt } }` is returned.
+         *  * an index not in downward sequence but in rightward sequence (e.g. indel),
+         *    `std::optional { std::pair { std::nullopt, r_idx } }` is returned.
+         *  * an index in downward sequence and in rightward sequence (e.g. swap),
+         *    `std::optional { std::pair { d_idx, r_idx } }` is returned.
+         *  * neither an index in downward sequence nor an index in rightward sequence (e.g. freeride), `std::nullopt` is returned.
          *
          * `std::optional { std::pair { std::nullopt, std::nullopt } }` will never be returned.
          *
          * If `e` doesn't exist within this graph, the behavior of this function is undefined.
          *
          * @param e Edge ID.
-         * @return Index within sequence 1 (downward sequence) and sequence 2 (rightward sequence) associated with `e`, both of which are
-         *     optional. See function body documentation above for full breakdown of expectations.
+         * @return Index within downward sequence and rightward sequence associated with `e`, both of which are optional. See function body
+         *     documentation above for full breakdown of expectations.
          */
         auto edge_to_element_offsets(const typename unimplemented_graph<N_, ND_, E_, ED_>::E& e) const;
     };

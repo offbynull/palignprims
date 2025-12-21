@@ -15,7 +15,6 @@
 #include <format>
 #include <type_traits>
 #include <functional>
-#include "offbynull/aligner/graph/multithreaded_sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/scorer/scorer.h"
@@ -27,8 +26,6 @@
 namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::sequence::sequence::sequence;
-    using offbynull::aligner::graph::multithreaded_sliceable_pairwise_alignment_graph::axis;
-    using offbynull::aligner::graph::multithreaded_sliceable_pairwise_alignment_graph::generic_segmented_diagonal_nodes;
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::aligner::scorer::scorer::scorer_without_explicit_weight;
     using offbynull::concepts::widenable_to_size_t;
@@ -857,24 +854,6 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 state { begin_node },
                 state { end_node }
             };
-        }
-
-        auto segmented_diagonal_nodes(
-            axis axis_,
-            INDEX axis_position,
-            std::size_t max_segments
-        ) {
-            return generic_segmented_diagonal_nodes<debug_mode>(*this, axis_, axis_position, max_segments);
-        }
-
-        auto segmented_diagonal_nodes(
-            axis axis_,
-            INDEX axis_position,
-            const N& root_node,
-            const N& leaf_node,
-            std::size_t max_segments
-        ) {
-            return generic_segmented_diagonal_nodes<debug_mode>(*this, axis_, axis_position, root_node, leaf_node, max_segments);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::is_reachable */
