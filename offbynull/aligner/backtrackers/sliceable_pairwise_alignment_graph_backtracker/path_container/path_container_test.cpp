@@ -20,8 +20,10 @@ namespace {
     TEST(OABSPPathContainerTest, BasicTest) {
         // TODO: Fix me.
 
-        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer {
+            simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64)
+        };
+        auto gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(0.0f64) };
         std::string seq1 { "abcdefg" };
         std::string seq2 { "abcZefg" };
         pairwise_global_alignment_graph<

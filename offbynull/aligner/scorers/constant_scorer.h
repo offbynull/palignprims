@@ -2,24 +2,28 @@
 #define OFFBYNULL_ALIGNER_SCORERS_CONSTANT_SCORER_H
 
 #include <utility>
+#include <cstddef>
 #include <optional>
 #include <functional>
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/concepts.h"
+#include "offbynull/concepts.h"
 
 namespace offbynull::aligner::scorers::constant_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
+    using offbynull::concepts::widenable_to_size_t;
 
     /**
      * Constant @ref offbynull::aligner::scorer::scorer::scorer, returning the same score regardless of edge.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam DOWN_ELEM Type of alignment graph's downward elements.
-     * @tparam RIGHT_ELEM Type of alignment graph's rightward elements.
-     * @tparam WEIGHT Type of alignment graph's edge weights.
+     * @tparam SEQ_INDEX Sequence indexer type.
+     * @tparam DOWN_ELEM Alignment graph's downward sequence element type.
+     * @tparam RIGHT_ELEM Alignment graph's rightward sequence element type.
+     * @tparam WEIGHT Alignment graph's edge weight type.
      */
-    template<bool debug_mode, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
+    template<bool debug_mode, widenable_to_size_t SEQ_INDEX, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
     class constant_scorer {
     private:
         const WEIGHT weight;
@@ -40,8 +44,18 @@ namespace offbynull::aligner::scorers::constant_scorer {
          */
         WEIGHT operator()(
             [[maybe_unused]] const auto& edge,
-            [[maybe_unused]] const std::optional<std::reference_wrapper<const DOWN_ELEM>> down_elem,
-            [[maybe_unused]] const std::optional<std::reference_wrapper<const RIGHT_ELEM>> right_elem
+            [[maybe_unused]] const std::optional<
+                std::pair<
+                    SEQ_INDEX,
+                    std::reference_wrapper<const char>
+                >
+            > down_elem,
+            [[maybe_unused]] const std::optional<
+                std::pair<
+                    SEQ_INDEX,
+                    std::reference_wrapper<const char>
+                >
+            > right_elem
         ) const {
             return weight;
         }
@@ -49,8 +63,9 @@ namespace offbynull::aligner::scorers::constant_scorer {
 
     static_assert(
         scorer<
-            constant_scorer<true, char, char, float>,
+            constant_scorer<true, std::size_t, char, char, float>,
             std::pair<int, int>,
+            std::size_t,
             char,
             char,
             float

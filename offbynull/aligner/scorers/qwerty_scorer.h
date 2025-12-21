@@ -11,11 +11,13 @@
 #include <cmath>
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/scorers/single_character_substitution_matrix_scorer.h"
+#include "offbynull/concepts.h"
 
 namespace offbynull::aligner::scorers::qwerty_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::aligner::scorers::single_character_substitution_matrix_scorer::single_character_substitution_matrix_scorer;
+    using offbynull::concepts::widenable_to_size_t;
 
     /** 2D point. */
     struct point {
@@ -35,10 +37,11 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
      * typical QWERTY-layout keyboard.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam WEIGHT Type of alignment graph's edge weights.
+     * @tparam SEQ_INDEX Sequence indexer type.
+     * @tparam WEIGHT Alignment graph's edge weight type.
      */
-    template<bool debug_mode, weight WEIGHT>
-    class qwerty_scorer : public single_character_substitution_matrix_scorer<debug_mode, WEIGHT, 95zu> {
+    template<bool debug_mode, widenable_to_size_t SEQ_INDEX, weight WEIGHT>
+    class qwerty_scorer : public single_character_substitution_matrix_scorer<debug_mode, 95zu, SEQ_INDEX, WEIGHT> {
     public:
         /**
          * Construct an @ref offbynull::aligner::scorers::qwerty_scorer::qwerty_scorer instance.
@@ -56,7 +59,7 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
 
     private:
         qwerty_scorer(const std::pair<std::array<char, 95zu>, std::array<WEIGHT, 95zu*95zu>>& sorted_alphabet_and_weights)
-        : single_character_substitution_matrix_scorer<debug_mode, WEIGHT, 95zu> {
+        : single_character_substitution_matrix_scorer<debug_mode, 95zu, SEQ_INDEX, WEIGHT> {
             std::get<0>(sorted_alphabet_and_weights),
             std::get<1>(sorted_alphabet_and_weights)
         } {}
@@ -204,8 +207,9 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
 
     static_assert(
         scorer<
-            qwerty_scorer<true, float>,
+            qwerty_scorer<true, std::size_t, float>,
             std::pair<int, int>,
+            std::size_t,
             char,
             char,
             float

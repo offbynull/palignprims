@@ -2,6 +2,7 @@
 #define OFFBYNULL_ALIGNER_SCORERS_SINGLE_CHARACTER_SUBSTITUTION_MATRIX_SCORER_H
 
 #include <cstddef>
+#include <tuple>
 #include <ranges>
 #include <optional>
 #include <array>
@@ -16,20 +17,23 @@
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/utils.h"
+#include "offbynull/concepts.h"
 
 namespace offbynull::aligner::scorers::single_character_substitution_matrix_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::utils::type_displayer;
+    using offbynull::concepts::widenable_to_size_t;
 
     /**
      * @ref offbynull::aligner::scorer::scorer::scorer which scores single character elements based on a space-delimited ASCII table.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam WEIGHT Type of alignment graph's edge weights.
      * @tparam alphabet_size Number of characters (must be <= 255).
+     * @tparam SEQ_INDEX Sequence indexer type.
+     * @tparam WEIGHT Alignment graph's edge weight type.
      */
-    template<bool debug_mode, weight WEIGHT, std::size_t alphabet_size>
+    template<bool debug_mode, std::size_t alphabet_size, widenable_to_size_t SEQ_INDEX, weight WEIGHT>
     class single_character_substitution_matrix_scorer {
     private:
         static_assert(alphabet_size <= 255zu, "Alphabet greater than 255 symbols");
@@ -245,11 +249,27 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
          */
         WEIGHT operator()(
             [[maybe_unused]] const auto& edge,
-            const std::optional<std::reference_wrapper<const char>> down_elem,
-            const std::optional<std::reference_wrapper<const char>> right_elem
+            const std::optional<
+                std::pair<
+                    SEQ_INDEX,
+                    std::reference_wrapper<const char>
+                >
+            > down_elem,
+            const std::optional<
+                std::pair<
+                    SEQ_INDEX,
+                    std::reference_wrapper<const char>
+                >
+            > right_elem
         ) const {
             if (down_elem.has_value() && right_elem.has_value()) {
-                std::size_t weights_idx { to_weights_idx(alphabet, down_elem->get(), right_elem->get()) };
+                std::size_t weights_idx {
+                    to_weights_idx(
+                        alphabet,
+                        std::get<1>(*down_elem).get(),
+                        std::get<1>(*right_elem).get()
+                    )
+                };
                 return weights[weights_idx];
             }
             if constexpr (std::numeric_limits<WEIGHT>::has_quiet_NaN) {
@@ -262,8 +282,9 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
 
     static_assert(
         scorer<
-            single_character_substitution_matrix_scorer<true, float, 95zu>,
+            single_character_substitution_matrix_scorer<true, 95zu, std::size_t, float>,
             std::pair<int, int>,
+            std::size_t,
             char,
             char,
             float

@@ -24,8 +24,10 @@ namespace {
     using offbynull::utils::is_debug_mode;
 
     TEST(OABGBacktrackerTest, FindMaxPathOnGridGraph) {
-        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer {
+            simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64)
+        };
+        auto gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
@@ -76,8 +78,10 @@ namespace {
     }
 
     TEST(OABGBacktrackerTest, FindMaxPathOnGridGraphViaHeapHelper) {
-        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer {
+            simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64)
+        };
+        auto gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
@@ -121,8 +125,10 @@ namespace {
     }
 
     TEST(OABGBacktrackerTest, FindMaxPathOnGridGraphViaStackHelper) {
-        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
+        auto substitution_scorer {
+            simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64)
+        };
+        auto gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(0.0f64) };
 
         std::string seq1 { "a" };
         std::string seq2 { "ac" };

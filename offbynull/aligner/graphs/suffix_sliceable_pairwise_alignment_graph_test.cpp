@@ -27,9 +27,11 @@ namespace {
     using offbynull::utils::copy_to_vector;
     using offbynull::utils::is_debug_mode;
 
-    auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-    auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
-    auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride() };
+    auto substitution_scorer {
+        simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64)
+    };
+    auto gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(0.0f64) };
+    auto freeride_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_freeride() };
 
     struct graph_bundle {
         std::string down_seq;

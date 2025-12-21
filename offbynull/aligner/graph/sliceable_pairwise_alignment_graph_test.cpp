@@ -17,10 +17,12 @@ namespace {
     using offbynull::utils::is_debug_mode;
 
     TEST(OAGSliceablePairwiseAlignmentGraphTest, RowWalk) {
-        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto initial_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
-        auto extended_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.1f64) };
-        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride() };
+        auto substitution_scorer {
+            simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64)
+        };
+        auto initial_gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "a" };
         std::string seq2 { "ac" };
         pairwise_extended_gap_alignment_graph<
@@ -70,10 +72,12 @@ namespace {
     }
 
     TEST(OAGSliceablePairwiseAlignmentGraphTest, RowWalkPartial) {
-        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto initial_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.0f64) };
-        auto extended_gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(0.1f64) };
-        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride() };
+        auto substitution_scorer {
+            simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64)
+        };
+        auto initial_gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(0.0f64) };
+        auto extended_gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(0.1f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_freeride() };
         std::string seq1 { "accd" };
         std::string seq2 { "accd" };
         pairwise_extended_gap_alignment_graph<

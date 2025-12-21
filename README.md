@@ -15,8 +15,6 @@ TODO:
   * make it so backward_walker can move backward, so if you're at slice n, you can subtract your way back to slice n+1
   * make it so bidiwalker can move at will (making use of both points above)
 
-* Add element index to scorer invocation (edge data should not be just weight? you can make it so the graph's edge data is elements + indicies + score?)
-
 * run profiler and optimize functions (some local alignment functions may be doing a ton of unneeded work -- e.g. get_outputs_full)
   * did this but didn't bother going too deep into the flame graph -- make sure to turn off D_GLIBCXX_DEBUG to get true results
 

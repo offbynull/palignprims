@@ -6,22 +6,27 @@
 #include <map>
 #include <utility>
 #include <functional>
+#include <cstddef>
+#include <tuple>
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/concepts.h"
+#include "offbynull/concepts.h"
 
 namespace offbynull::aligner::scorers::substitution_map_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
+    using offbynull::concepts::widenable_to_size_t;
 
     /**
      * @ref offbynull::aligner::scorer::scorer::scorer which scores elements using a `std::map`.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam DOWN_ELEM Type of alignment graph's downward elements.
-     * @tparam RIGHT_ELEM Type of alignment graph's rightward elements.
-     * @tparam WEIGHT Type of alignment graph's edge weights.
+     * @tparam SEQ_INDEX Sequence indexer type.
+     * @tparam DOWN_ELEM Alignment graph's downward sequence element type.
+     * @tparam RIGHT_ELEM Alignment graph's rightward sequence element type.
+     * @tparam WEIGHT Alignment graph's edge weight type.
      */
-    template<bool debug_mode, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
+    template<bool debug_mode, widenable_to_size_t SEQ_INDEX, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
     requires requires (const DOWN_ELEM down_elem, const RIGHT_ELEM right_elem) {
         { down_elem < down_elem } -> std::same_as<bool>;
         { right_elem < right_elem } -> std::same_as<bool>;
@@ -58,25 +63,35 @@ namespace offbynull::aligner::scorers::substitution_map_scorer {
          */
         WEIGHT operator()(
             [[maybe_unused]] const auto& edge,
-            const std::optional<std::reference_wrapper<const DOWN_ELEM>> down_elem,
-            const std::optional<std::reference_wrapper<const RIGHT_ELEM>> right_elem
+            const std::optional<
+                std::pair<
+                    SEQ_INDEX,
+                    std::reference_wrapper<const char>
+                >
+            > down_elem,
+            const std::optional<
+                std::pair<
+                    SEQ_INDEX,
+                    std::reference_wrapper<const char>
+                >
+            > right_elem
         ) const {
             if (down_elem.has_value() && right_elem.has_value()) {
                 std::pair<std::optional<DOWN_ELEM>, std::optional<RIGHT_ELEM>> lookup {
-                    { (*down_elem).get() },
-                    { (*right_elem).get() }
+                    { std::get<1>(*down_elem).get() },
+                    { std::get<1>(*right_elem).get() }
                 };
                 return data.at(lookup);
             } else if (down_elem.has_value()) {
                 std::pair<std::optional<DOWN_ELEM>, std::optional<RIGHT_ELEM>> lookup {
-                    { (*down_elem).get() },
+                    { std::get<1>(*down_elem).get() },
                     { std::nullopt }
                 };
                 return data.at(lookup);
             } else if (right_elem.has_value()) {
                 std::pair<std::optional<DOWN_ELEM>, std::optional<RIGHT_ELEM>> lookup {
                     { std::nullopt },
-                    { (*right_elem).get() }
+                    { std::get<1>(*right_elem).get() }
                 };
                 return data.at(lookup);
             } else {
@@ -91,8 +106,9 @@ namespace offbynull::aligner::scorers::substitution_map_scorer {
 
     static_assert(
         scorer<
-            substitution_map_scorer<true, char, char, float>,
+            substitution_map_scorer<true, std::size_t, char, char, float>,
             std::pair<int, int>,
+            std::size_t,
             char,
             char,
             float

@@ -6,23 +6,28 @@
 #include <limits>
 #include <functional>
 #include <utility>
+#include <cstddef>
+#include <tuple>
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/concepts.h"
+#include "offbynull/concepts.h"
 
 namespace offbynull::aligner::scorers::simple_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
+    using offbynull::concepts::widenable_to_size_t;
 
     /**
      * @ref offbynull::aligner::scorer::scorer::scorer which returns a score depending on the presence of an edge's elements and whether
      * those elements match (does not factor in the content of the elements).
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam DOWN_ELEM Type of alignment graph's downward elements.
-     * @tparam RIGHT_ELEM Type of alignment graph's rightward elements.
-     * @tparam WEIGHT Type of alignment graph's edge weights.
+     * @tparam SEQ_INDEX Sequence indexer type.
+     * @tparam DOWN_ELEM Alignment graph's downward sequence element type.
+     * @tparam RIGHT_ELEM Alignment graph's rightward sequence element type.
+     * @tparam WEIGHT Alignment graph's edge weight type.
      */
-    template<bool debug_mode, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
+    template<bool debug_mode, widenable_to_size_t SEQ_INDEX, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
     requires requires (const DOWN_ELEM down_elem, const RIGHT_ELEM right_elem) {
         { down_elem == right_elem } -> std::same_as<bool>;
     }
@@ -65,7 +70,7 @@ namespace offbynull::aligner::scorers::simple_scorer {
          * @param mismatch_weight_ Score to return when elements don't match.
          * @return New @ref offbynull::aligner::scorers::simple_scorer::simple_scorer instance.
          */
-        static simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_substitution(
+        static simple_scorer<debug_mode, SEQ_INDEX, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_substitution(
             WEIGHT match_weight_,
             WEIGHT mismatch_weight_
         ) {
@@ -87,7 +92,7 @@ namespace offbynull::aligner::scorers::simple_scorer {
          * @param gap_weight_ Score to return when either down or right element is missing.
          * @return New @ref offbynull::aligner::scorers::simple_scorer::simple_scorer instance.
          */
-        static simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap(
+        static simple_scorer<debug_mode, SEQ_INDEX, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap(
             WEIGHT gap_weight_
         ) {
             constexpr bool nan_available { std::numeric_limits<WEIGHT>::has_quiet_NaN };
@@ -109,7 +114,7 @@ namespace offbynull::aligner::scorers::simple_scorer {
          * @param right_gap_weight_ Score to return when right element is missing.
          * @return New @ref offbynull::aligner::scorers::simple_scorer::simple_scorer instance.
          */
-        static simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap_asymmetric(
+        static simple_scorer<debug_mode, SEQ_INDEX, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_gap_asymmetric(
             WEIGHT down_gap_weight_,
             WEIGHT right_gap_weight_
         ) {
@@ -131,7 +136,7 @@ namespace offbynull::aligner::scorers::simple_scorer {
          * @param freeride_weight_ Score to return when both elements are missing.
          * @return New @ref offbynull::aligner::scorers::simple_scorer::simple_scorer::simple_scorer instance.
          */
-        static simple_scorer<debug_mode, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_freeride(
+        static simple_scorer<debug_mode, SEQ_INDEX, DOWN_ELEM, RIGHT_ELEM, WEIGHT> create_freeride(
             WEIGHT freeride_weight_ = {}
         ) {
             constexpr bool nan_available { std::numeric_limits<WEIGHT>::has_quiet_NaN };
@@ -152,11 +157,21 @@ namespace offbynull::aligner::scorers::simple_scorer {
          */
         WEIGHT operator()(
             [[maybe_unused]] const auto& edge,
-            const std::optional<std::reference_wrapper<const DOWN_ELEM>> down_elem,
-            const std::optional<std::reference_wrapper<const RIGHT_ELEM>> right_elem
+            const std::optional<
+                std::pair<
+                    SEQ_INDEX,
+                    std::reference_wrapper<const char>
+                >
+            > down_elem,
+            const std::optional<
+                std::pair<
+                    SEQ_INDEX,
+                    std::reference_wrapper<const char>
+                >
+            > right_elem
         ) const {
             if (down_elem.has_value() && right_elem.has_value()) {
-                if ((*down_elem).get() == (*right_elem).get()) {
+                if (std::get<1>(*down_elem).get() == std::get<1>(*right_elem).get()) {
                     return match_weight;
                 } else {
                     return mismatch_weight;
@@ -173,8 +188,9 @@ namespace offbynull::aligner::scorers::simple_scorer {
 
     static_assert(
         scorer<
-            simple_scorer<true, char, char, float>,
+            simple_scorer<true, std::size_t, char, char, float>,
             std::pair<int, int>,
+            std::size_t,
             char,
             char,
             float

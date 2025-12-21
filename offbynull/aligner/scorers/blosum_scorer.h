@@ -3,15 +3,18 @@
 
 #include <utility>
 #include <stdexcept>
+#include <cstddef>
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/scorers/single_character_substitution_matrix_scorer.h"
 #include "offbynull/aligner/concepts.h"
+#include "offbynull/concepts.h"
 
 
 namespace offbynull::aligner::scorers::blosum_scorer {
     using offbynull::aligner::concepts::weight;
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::aligner::scorers::single_character_substitution_matrix_scorer::single_character_substitution_matrix_scorer;
+    using offbynull::concepts::widenable_to_size_t;
 
     /**
      * BLOSUM thresholds.
@@ -204,16 +207,17 @@ X -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -6
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
      * @tparam threshold_ BLOSUM threshold.
-     * @tparam WEIGHT Type of alignment graph's edge weights.
+     * @tparam SEQ_INDEX Sequence indexer type.
+     * @tparam WEIGHT Alignment graph's edge weight type.
      */
-    template<bool debug_mode, threshold threshold_, weight WEIGHT>
-    class blosum_scorer : public single_character_substitution_matrix_scorer<debug_mode, WEIGHT, 25zu> {
+    template<bool debug_mode, threshold threshold_, widenable_to_size_t SEQ_INDEX, weight WEIGHT>
+    class blosum_scorer : public single_character_substitution_matrix_scorer<debug_mode, 25zu, SEQ_INDEX, WEIGHT> {
     public:
         /**
          * Construct an @ref offbynull::aligner::scorers::blosum_scorer::blosum_scorer::blosum_scorer instance.
          */
         blosum_scorer()
-        : single_character_substitution_matrix_scorer<debug_mode, WEIGHT, 25zu> { pick_text_table() } {}
+        : single_character_substitution_matrix_scorer<debug_mode, 25zu, SEQ_INDEX, WEIGHT> { pick_text_table() } {}
     private:
         static consteval auto pick_text_table() {
             switch (threshold_) {
@@ -238,8 +242,9 @@ X -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -6
 
     static_assert(
         scorer<
-            blosum_scorer<true, threshold::_45, float>,
+            blosum_scorer<true, threshold::_45, std::size_t, float>,
             std::pair<int, int>,
+            std::size_t,
             char,
             char,
             float

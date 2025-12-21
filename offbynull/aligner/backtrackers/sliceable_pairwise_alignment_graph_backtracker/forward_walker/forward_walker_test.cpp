@@ -20,8 +20,10 @@ namespace {
     using offbynull::utils::is_debug_mode;
 
     TEST(OABSFForwardWalkerTest, ForwardWalkWithoutResidents) {
-        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto substitution_scorer {
+            simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64)
+        };
+        auto gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(-1.0f64) };
         std::string seq1 { "abc" };
         std::string seq2 { "azc" };
         pairwise_global_alignment_graph<
@@ -142,9 +144,11 @@ namespace {
     }
 
     TEST(OABSFForwardWalkerTest, ForwardWalkWithResidents) {
-        auto substitution_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64) };
-        auto gap_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_gap(-1.0f64) };
-        auto freeride_scorer { simple_scorer<is_debug_mode(), char, char, std::float64_t>::create_freeride(0.0f64) };
+        auto substitution_scorer {
+            simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_substitution(1.0f64, -1.0f64)
+        };
+        auto gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_gap(-1.0f64) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, std::float64_t>::create_freeride(0.0f64) };
         std::string seq1 { "aaa" };
         std::string seq2 { "zaz" };
         pairwise_local_alignment_graph<

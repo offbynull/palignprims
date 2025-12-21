@@ -3,13 +3,14 @@
 #include "gtest/gtest.h"
 #include <optional>
 #include <tuple>
+#include <cstddef>
 
 namespace {
     using offbynull::aligner::scorers::substitution_map_scorer::substitution_map_scorer;
     using offbynull::utils::is_debug_mode;
 
     TEST(OASSubstitutionMapScorerTest, SanityTest) {
-        substitution_map_scorer<is_debug_mode(), char, char, int> scorer {
+        substitution_map_scorer<is_debug_mode(), std::size_t, char, char, int> scorer {
             {
                 { { 'a', 'a' }, 1 },
                 { { 'a', 'b' }, 0 },
@@ -24,10 +25,10 @@ namespace {
         };
         char a_ { 'a' };
         char b_ { 'b' };
-        EXPECT_EQ(1, (scorer(std::tuple<> {}, { { a_ } }, { { a_ } })));
-        EXPECT_EQ(0, (scorer(std::tuple<> {}, { { a_ } }, { { b_ } })));
-        EXPECT_EQ(-1, (scorer(std::tuple<> {}, { { a_ } }, { std::nullopt })));
-        EXPECT_EQ(-1, (scorer(std::tuple<> {}, { std::nullopt }, { { b_ } })));
+        EXPECT_EQ(1, (scorer(std::tuple<> {}, { { 0zu, { a_ } } }, { { 0zu, { a_ } } })));
+        EXPECT_EQ(0, (scorer(std::tuple<> {}, { { 0zu, { a_ } } }, { { 0zu, { b_ } } })));
+        EXPECT_EQ(-1, (scorer(std::tuple<> {}, { { 0zu, { a_ } } }, { std::nullopt })));
+        EXPECT_EQ(-1, (scorer(std::tuple<> {}, { std::nullopt }, { { 0zu, { b_ } } })));
         EXPECT_EQ(0, (scorer(std::tuple<> {}, { std::nullopt }, { std::nullopt })));
     }
 }
