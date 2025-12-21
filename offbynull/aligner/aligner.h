@@ -103,8 +103,8 @@ namespace offbynull::aligner::aligner {
         std::ranges::random_access_range auto&& w,
         std::function<
             WEIGHT(
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0zu])>>>&,
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0zu])>>>&
             )
         > weight_lookup
     ) {
@@ -154,8 +154,8 @@ namespace offbynull::aligner::aligner {
         std::ranges::random_access_range auto&& w,
         std::function<
             WEIGHT(
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0zu])>>>&,
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0zu])>>>&
             )
         > weight_lookup,
         WEIGHT freeride_weight = {}
@@ -206,8 +206,8 @@ namespace offbynull::aligner::aligner {
         std::ranges::random_access_range auto&& w,
         std::function<
             WEIGHT(
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0zu])>>>&,
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0zu])>>>&
             )
         > weight_lookup,
         WEIGHT freeride_weight = {}
@@ -260,8 +260,8 @@ namespace offbynull::aligner::aligner {
         std::ranges::random_access_range auto&& w,
         std::function<
             WEIGHT(
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0zu])>>>&,
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0zu])>>>&
             )
         > weight_lookup,
         WEIGHT gap_weight = {},
@@ -348,8 +348,8 @@ namespace offbynull::aligner::aligner {
                 throw std::runtime_error { "Size mismatch" };
             }
         }
-        constexpr std::size_t v_node_cnt { V_SIZE + 1u };
-        constexpr std::size_t w_node_cnt { W_SIZE + 1u };
+        constexpr std::size_t v_node_cnt { V_SIZE + 1zu };
+        constexpr std::size_t w_node_cnt { W_SIZE + 1zu };
         using G = std::remove_cvref_t<decltype(graph)>;
         using N = typename G::N;
         using E = typename G::E;
@@ -386,8 +386,8 @@ namespace offbynull::aligner::aligner {
         std::ranges::random_access_range auto&& w,
         std::function<
             WEIGHT(
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0zu])>>>&,
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0zu])>>>&
             )
         > weight_lookup
     ) {
@@ -444,8 +444,8 @@ namespace offbynull::aligner::aligner {
         std::ranges::random_access_range auto&& w,
         std::function<
             WEIGHT(
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0zu])>>>&,
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0zu])>>>&
             )
         > weight_lookup,
         WEIGHT freeride_weight = {}
@@ -503,8 +503,8 @@ namespace offbynull::aligner::aligner {
         std::ranges::random_access_range auto&& w,
         std::function<
             WEIGHT(
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0zu])>>>&,
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0zu])>>>&
             )
         > weight_lookup,
         WEIGHT freeride_weight = {}
@@ -563,8 +563,8 @@ namespace offbynull::aligner::aligner {
         std::ranges::random_access_range auto&& w,
         std::function<
             WEIGHT(
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0u])>>>&,
-                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0u])>>>&
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(v[0zu])>>>&,
+                const std::optional<std::reference_wrapper<const std::remove_reference_t<decltype(w[0zu])>>>&
             )
         > weight_lookup,
         WEIGHT gap_weight = {},

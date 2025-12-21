@@ -107,9 +107,9 @@ namespace offbynull::aligner::graphs::grid_graph {
     class grid_graph {
     public:
         /** Element object type of downward sequence (CV-qualification and references removed). */
-        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>;
         /** Element object type of rightward sequence (CV-qualification and references removed). */
-        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::INDEX */
         using INDEX = INDEX_;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N */
@@ -130,6 +130,10 @@ namespace offbynull::aligner::graphs::grid_graph {
         const SUBSTITUTION_SCORER substitution_scorer;
         /** Scorer used tos score sequence alignment gaps (indels). */
         const GAP_SCORER gap_scorer;
+
+        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+        static constexpr INDEX I2 { static_cast<INDEX>(2zu) };
 
         auto construct_full_edge(N n1, N n2) const {
             return std::tuple<E, N, N, ED> {
@@ -154,7 +158,7 @@ namespace offbynull::aligner::graphs::grid_graph {
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_right_cnt */
         const INDEX grid_right_cnt;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_depth_cnt */
-        static constexpr INDEX grid_depth_cnt { 1u };
+        static constexpr INDEX grid_depth_cnt { I1 };
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes_capacity */
         static constexpr std::size_t resident_nodes_capacity { 0zu };
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::path_edge_capacity */
@@ -188,9 +192,9 @@ namespace offbynull::aligner::graphs::grid_graph {
         , right_seq { right_seq_ }
         , substitution_scorer { substitution_scorer_ } // Copying object, not the ref
         , gap_scorer { gap_scorer_ } // Copying object, not the ref
-        , grid_down_cnt { down_seq_.size() + 1zu }
-        , grid_right_cnt { right_seq_.size() + 1zu }
-        , path_edge_capacity { (grid_right_cnt - 1u) + (grid_down_cnt - 1u) }
+        , grid_down_cnt { down_seq_.size() + I1 }
+        , grid_right_cnt { right_seq_.size() + I1 }
+        , path_edge_capacity { (grid_right_cnt - 1zu ) + (grid_down_cnt - 1zu ) }
         , node_incoming_edge_capacity { grid_down_cnt == 1zu || grid_right_cnt == 1zu ? 1zu : 3zu }
         , node_outgoing_edge_capacity { grid_down_cnt == 1zu || grid_right_cnt == 1zu ? 1zu : 3zu } {
             if constexpr (debug_mode) {
@@ -220,19 +224,19 @@ namespace offbynull::aligner::graphs::grid_graph {
             }
             const N& n1 { e.source };
             const N& n2 { e.destination };
-            if (n1.down == n2.down && n1.right + 1u == n2.right) {
+            if (n1.down == n2.down && n1.right + I1 == n2.right) {
                 return gap_scorer(
                     e,
                     { std::nullopt },
                     { { n1.right, { right_seq[n1.right] } } }
                 );
-            } else if (n1.down + 1u == n2.down && n1.right == n2.right) {
+            } else if (n1.down + I1 == n2.down && n1.right == n2.right) {
                 return gap_scorer(
                     e,
                     { { n1.down, { down_seq[n1.down] } } },
                     { std::nullopt }
                 );
-            } else if (n1.down + 1u == n2.down && n1.right + 1u == n2.right) {
+            } else if (n1.down + I1 == n2.down && n1.right + I1 == n2.right) {
                 return substitution_scorer(
                     e,
                     { { n1.down, { down_seq[n1.down] } } },
@@ -277,33 +281,33 @@ namespace offbynull::aligner::graphs::grid_graph {
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_root_nodes */
         auto get_root_nodes() const {
-            return std::ranges::single_view { N { 0u, 0u } };
+            return std::ranges::single_view { N { I0, I0 } };
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_root_node */
         N get_root_node() const {
-            return N { 0u, 0u };
+            return N { I0, I0 };
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_leaf_nodes */
         auto get_leaf_nodes() const {
-            return std::ranges::single_view { N { grid_down_cnt - 1u, grid_right_cnt - 1u } };
+            return std::ranges::single_view { N { grid_down_cnt - I1, grid_right_cnt - I1 } };
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_leaf_node */
         N get_leaf_node() const {
-            return N { grid_down_cnt - 1u, grid_right_cnt - 1u };
+            return N { grid_down_cnt - I1, grid_right_cnt - I1 };
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_nodes */
         auto get_nodes() const {
             return
                 std::views::cartesian_product(
-                    std::views::iota(0u, grid_down_cnt),
-                    std::views::iota(0u, grid_right_cnt)
+                    std::views::iota(I0, grid_down_cnt),
+                    std::views::iota(I0, grid_right_cnt)
                 )
                 | std::views::transform([](const auto & p) {
-                    return N { std::get<0>(p), std::get<1>(p) };
+                    return N { std::get<0zu>(p), std::get<1zu>(p) };
                 });
         }
 
@@ -311,14 +315,14 @@ namespace offbynull::aligner::graphs::grid_graph {
         std::ranges::bidirectional_range auto get_edges() const {
             return
                 std::views::cartesian_product(
-                    std::views::iota(0u, grid_down_cnt),
-                    std::views::iota(0u, grid_right_cnt),
-                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2)),
-                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2))
+                    std::views::iota(I0, grid_down_cnt),
+                    std::views::iota(I0, grid_right_cnt),
+                    std::views::iota(I0, I2),
+                    std::views::iota(I0, I2)
                 )
                 | std::views::filter([](const auto& tuple) {
                     const auto& [grid_down_idx, grid_right_idx, down_offset, right_offset] { tuple };
-                    return !(down_offset == 0u && right_offset == 0u);
+                    return !(down_offset == I0 && right_offset == I0);
                 })
                 | std::views::transform([](const auto& tuple) {
                     const auto& [grid_down_idx, grid_right_idx, down_offset, right_offset] { tuple };
@@ -334,16 +338,16 @@ namespace offbynull::aligner::graphs::grid_graph {
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::has_node */
         bool has_node(const N& n) const {
-            return n.down < grid_down_cnt && n.down >= 0u && n.right < grid_right_cnt && n.right >= 0u;
+            return n.down < grid_down_cnt && n.down >= I0 && n.right < grid_right_cnt && n.right >= I0;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::has_edge */
         bool has_edge(const E& e) const {
             const N& n1 { e.source };
             const N& n2 { e.destination };
-            return (n1.down == n2.down && n1.right + 1u == n2.right && n2.right < grid_right_cnt)
-                || (n1.down + 1u == n2.down && n1.right == n2.right && n2.down < grid_down_cnt)
-                || (n1.down + 1u == n2.down && n1.right + 1u == n2.right && n2.down < grid_down_cnt && n2.right < grid_right_cnt);
+            return (n1.down == n2.down && n1.right + I1 == n2.right && n2.right < grid_right_cnt)
+                || (n1.down + I1 == n2.down && n1.right == n2.right && n2.down < grid_down_cnt)
+                || (n1.down + I1 == n2.down && n1.right + I1 == n2.right && n2.down < grid_down_cnt && n2.right < grid_right_cnt);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_outputs_full */
@@ -356,17 +360,17 @@ namespace offbynull::aligner::graphs::grid_graph {
             // Cartesian product has some issues with bloat, so not using it here:
             return
                 std::views::cartesian_product(
-                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2)),
-                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2))
+                    std::views::iota(I0, I2),
+                    std::views::iota(I0, I2)
                 )
-                | std::views::drop(1)
+                | std::views::drop(1zu)
                 | std::views::filter([node = n, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [grid_down, grid_right] { node };
-                    if (down_offset == 1u && grid_down == grid_down_cnt - 1u) {
+                    if (down_offset == I1 && grid_down == grid_down_cnt - I1) {
                         return false;
                     }
-                    if (right_offset == 1u && grid_right == grid_right_cnt - 1u) {
+                    if (right_offset == I1 && grid_right == grid_right_cnt - I1) {
                         return false;
                     }
                     return true;
@@ -388,17 +392,17 @@ namespace offbynull::aligner::graphs::grid_graph {
             }
             return
                 std::views::cartesian_product(
-                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2)),
-                    std::views::iota(static_cast<INDEX>(0), static_cast<INDEX>(2))
+                    std::views::iota(I0, I2),
+                    std::views::iota(I0, I2)
                 )
-                | std::views::drop(1)
+                | std::views::drop(1zu)
                 | std::views::filter([node = n, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [grid_down, grid_right] { node };
-                    if (down_offset == 1u && grid_down == 0u) {
+                    if (down_offset == I1 && grid_down == I0) {
                         return false;
                     }
-                    if (right_offset == 1u && grid_right == 0u) {
+                    if (right_offset == I1 && grid_right == I0) {
                         return false;
                     }
                     return true;
@@ -419,7 +423,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                 }
             }
             return this->get_outputs_full(n)
-                | std::views::transform([](const auto& v) -> E { return std::get<0>(v); });
+                | std::views::transform([](const auto& v) -> E { return std::get<0zu>(v); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs */
@@ -430,7 +434,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                 }
             }
             return this->get_inputs_full(n)
-                | std::views::transform([](const auto& v) -> E { return std::get<0>(v); });
+                | std::views::transform([](const auto& v) -> E { return std::get<0zu>(v); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::has_outputs */
@@ -511,7 +515,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                     throw std::runtime_error { "Bad node" };
                 }
             }
-            return std::views::iota(root_node.right, leaf_node.right + 1u)
+            return std::views::iota(root_node.right, leaf_node.right + I1)
                 | std::views::transform([grid_down](const auto& grid_right) { return N { grid_down, grid_right }; });
         }
 

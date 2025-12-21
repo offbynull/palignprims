@@ -11,8 +11,13 @@
 #include <utility>
 #include <random>
 #include <string>
+#include <array>
+#include <stdexcept>
+#include <limits>
+#include <iterator>
 #include <boost/container/static_vector.hpp>
 #include <boost/container/options.hpp>
+#include <boost/safe_numerics/checked_default.hpp>
 #include "offbynull/concepts.h"
 
 // Adapted from https://stackoverflow.com/a/3312896
@@ -38,6 +43,7 @@ static_assert(false, "Struct packing not supported by compiler. Turn off OBN_PAC
  */
 namespace offbynull::utils {
     using offbynull::concepts::unqualified_object_type;
+    using offbynull::concepts::widenable_to_size_t;
 
     /**
      * Unimplemented class template used as a hack to determine what some unknown type `T` is. Because this class template remains
@@ -99,7 +105,7 @@ namespace offbynull::utils {
             cnt,
             boost::container::static_vector_options<
                 boost::container::throw_on_overflow<false>,
-                boost::container::inplace_alignment<0u>
+                boost::container::inplace_alignment<0zu>
             >::type
         >;
     };
@@ -125,23 +131,69 @@ namespace offbynull::utils {
         constexpr static T V1 { static_cast<T>(1) };
     };
 
+    // NOTE: The following copy functions exist because, when _GLIBCXX_DEBUG, the standard library fails to create common containers (e.g.,
+    //       std::set or std::vector) when copying from some newer types of ranges and iterators (e.g., range consisting of
+    //       cartesian_product_view -> transform_view). I don't know the full story behind why this is. It may just be that some parts of
+    //       the standard library haven't been fully implemented yet with my version of g++/libstdc++ (g++ version 14.2).
+    //
+    //       If this weren't an issue, instead of copy_to_vector(r), you could do directly do std::vector(r).
+
     /**
-     * Copy range into `std::vector`, where each element of the vector is a copy of each element in the range.
+     * Copy / move range into `std::vector`, where each element of the vector is a copy of each element in the range.
      *
      * @param range Range to copy from.
      * @return `std::vector` containing copies of the elements in `range`.
      */
     auto copy_to_vector(std::ranges::range auto&& range) -> std::vector<std::remove_cvref_t<decltype(*range.begin())>> {
         using ELEM = std::remove_cvref_t<decltype(*range.begin())>;
-        std::vector<ELEM> ret {};
-        for (const auto& e : range) {
-            ret.push_back(e);
+        std::vector<ELEM> ret(0zu);
+        if constexpr (std::ranges::sized_range<decltype(range)>) {
+            ret.reserve(std::ranges::size(range));
+        }
+        for (auto&& e : range) {
+            ret.emplace_back(std::forward<decltype(e)>(e));
         }
         return ret;
     }
 
     /**
-     * Copy range into `std::set`, where each element of the set is a copy of each element in the range.
+     * Copy / move range into `std::vector`, where each element of the vector is a copy of each element in the range.
+     *
+     * If `begin` and `end` aren't for the same range, the behavior of this function is undefined.
+     *
+     * @param begin Starting iterator to copy / move from.
+     * @param end Ending iterator to copy / move from.
+     * @return `std::vector` containing copies of the elements in `begin` to `end`.
+     */
+    auto copy_to_vector(
+        std::input_iterator auto begin,
+        std::sentinel_for<decltype(begin)> auto end
+        // NOTE: Do not use (std::input_iterator auto&& begin, std::sentinel_for<decltype(begin)> auto&& end). It won't work because these
+        //       concepts require std::movable, which require that they be object types (not references)? Copies should be cheap and each
+        //       time you pass an iterator around it should be a copy (so that if it gets mutated it doesn't destroy the original)?
+        //
+        //       If you want to support &&, do ...
+        //
+        //               template<typename I, typename S>
+        //               requires std::input_iterator<std::remove_reference_t<I>>
+        //                   && std::sentinel_for<std::remove_reference_t<S>, std::remove_reference_t<I>>
+        //               auto copy_to_vector(I&& begin, S&& end) { ... }
+    ) -> std::vector<std::remove_cvref_t<decltype(*begin)>> {
+        using ELEM = std::remove_cvref_t<decltype(*begin)>;
+        std::vector<ELEM> ret(0zu);
+        if constexpr (std::sized_sentinel_for<decltype(begin), decltype(end)>) {
+            auto dist { end - begin };
+            ret.reserve(static_cast<std::size_t>(dist));
+        }
+        while (begin != end) {
+            ret.emplace_back(*begin);
+            ++begin;
+        }
+        return ret;
+    }
+
+    /**
+     * Copy / move range into `std::set`, where each element of the set is a copy of each element in the range.
      *
      * @param range Range to copy from.
      * @return `std::set` containing copies of the elements in `range`.
@@ -156,7 +208,7 @@ namespace offbynull::utils {
     }
 
     /**
-     * Copy range into `std::multiset`, where each element of the multiset is a copy of each element in the range.
+     * Copy / move range into `std::multiset`, where each element of the multiset is a copy of each element in the range.
      *
      * @param range Range to copy from.
      * @return `std::multiset` containing copies of the elements in `range`.
@@ -331,6 +383,32 @@ namespace offbynull::utils {
         using value_type = decltype(V);
         static constexpr value_type value { V };  // Can this be removed? Only having the line above should be good enough?
     };
+
+    /**
+     * Throw exception if a multiplication chain will result in an overflow. The widest possible type is assumed to be std::size_t.
+     *
+     * @tparam R Result type (must be wide enough to hold the multiplication's output).
+     * @tparam A0 First operands type.
+     * @tparam As Remaining operands types (must all be the same as `A0`).
+     * @param rest Operands.
+     * @throws std::runtime_error If `operands` multiply to a type that's too wide to be held in `R`.
+     */
+    template<widenable_to_size_t R, widenable_to_size_t A0, widenable_to_size_t... As>
+        requires (std::is_same_v<As, A0> && ...)
+    constexpr void check_multiplication_nonoverflow(const A0 first, const As... rest) {
+        std::size_t max_size { first };
+        std::array<A0, sizeof...(rest)> operands_ { rest... };
+        for (const auto op : operands_) {
+            auto res { boost::safe_numerics::checked::multiply<std::size_t>(max_size, op) };
+            if (res.exception()) {
+                throw std::runtime_error { "Type not wide enough" };
+            }
+            max_size = static_cast<std::size_t>(res);
+        }
+        if (std::numeric_limits<R>::max() <= max_size) {
+            throw std::runtime_error { "Type not wide enough" };
+        }
+    }
 }
 
 #endif //OFFBYNULL_UTILS_H

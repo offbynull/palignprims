@@ -266,8 +266,8 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
                 std::size_t weights_idx {
                     to_weights_idx(
                         alphabet,
-                        std::get<1>(*down_elem).get(),
-                        std::get<1>(*right_elem).get()
+                        std::get<1zu>(*down_elem).get(),
+                        std::get<1zu>(*right_elem).get()
                     )
                 };
                 return weights[weights_idx];

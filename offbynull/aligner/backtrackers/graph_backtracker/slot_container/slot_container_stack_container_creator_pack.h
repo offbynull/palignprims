@@ -2,6 +2,7 @@
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_GRAPH_BACKTRACKER_SLOT_CONTAINER_SLOT_CONTAINER_STACK_CONTAINER_CREATOR_PACK_H
 
 #include <cstddef>
+#include <iterator>
 #include "offbynull/aligner/backtrackers/graph_backtracker/backtrackable_node.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/backtrackable_edge.h"
 #include "offbynull/aligner/concepts.h"
@@ -9,6 +10,7 @@
 #include "offbynull/aligner/backtrackers/graph_backtracker/slot_container/slot_container_container_creator_pack.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/slot_container/unimplemented_slot_container_container_creator_pack.h"
 #include "offbynull/utils.h"
+#include "offbynull/concepts.h"
 
 namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container_stack_container_creator_pack {
     using offbynull::aligner::concepts::weight;
@@ -18,6 +20,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
     using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container_container_creator_pack
         ::slot_container_container_creator_pack;
     using offbynull::utils::static_vector_typer;
+    using offbynull::concepts::input_iterator_of_type;
 
     /**
      * @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container_container_creator_pack::slot_container_container_creator_pack
@@ -47,7 +50,10 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
         /**
          * @copydoc offbynull::aligner::backtrackers::graph_backtracker::slot_container::unimplemented_slot_container_container_creator_pack::unimplemented_slot_container_container_creator_pack::create_slot_container
          */
-        SLOT_CONTAINER_TYPE create_slot_container(auto begin, auto end) const {
+        SLOT_CONTAINER_TYPE create_slot_container(
+            input_iterator_of_type<slot<N, E, WEIGHT>> auto begin,
+            std::sentinel_for<decltype(begin)> auto end
+        ) const {
             return SLOT_CONTAINER_TYPE(begin, end);
         }
     };

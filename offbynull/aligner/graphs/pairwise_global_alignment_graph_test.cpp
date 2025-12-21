@@ -60,7 +60,7 @@ namespace {
         
         auto n = g.get_nodes();
         EXPECT_EQ(
-            std::set(n.begin(), n.end()),
+            copy_to_set(n),
             (std::set {
                 N { 0zu, 0zu }, N { 0zu, 1zu }, N { 0zu, 2zu },
                 N { 1zu, 0zu }, N { 1zu, 1zu }, N { 1zu, 2zu }

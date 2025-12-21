@@ -104,7 +104,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         > create_segment_hop_chain_container(std::size_t resident_nodes_capacity) const {
             std::vector<std::variant<hop<E>, segment<N>>> ret {};
             if constexpr (minimize_allocations) {
-                ret.reserve(resident_nodes_capacity * 2zu + 1zu);
+                ret.reserve(resident_nodes_capacity * 2zu + 1zu);  // TODO: Use check_multiplication_nonoverflow to verify when debug_mode
             }
             return ret;
         }

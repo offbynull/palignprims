@@ -191,9 +191,9 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
     class pairwise_fitting_alignment_graph {
     public:
         /** Element object type of downward sequence (CV-qualification and references removed). */
-        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>;
         /** Element object type of rightward sequence (CV-qualification and references removed). */
-        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::INDEX */
         using INDEX = INDEX_;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N */
@@ -206,6 +206,10 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
         using ED = WEIGHT;  // Differs from backing grid_graph because these values are derived at time of access
 
     private:
+        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+        static constexpr INDEX I2 { static_cast<INDEX>(2zu) };
+
         const grid_graph<
             debug_mode,
             INDEX_,
@@ -273,17 +277,17 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_edge_data */
         ED get_edge_data(const E& e) const {
-            return std::get<2>(get_edge(e));
+            return std::get<2zu>(get_edge(e));
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_edge_from */
         N get_edge_from(const E& e) const {
-            return std::get<0>(get_edge(e));
+            return std::get<0zu>(get_edge(e));
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_edge_to */
         N get_edge_to(const E& e) const {
-            return std::get<1>(get_edge(e));
+            return std::get<1zu>(get_edge(e));
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_edge */
@@ -329,20 +333,20 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_edges */
         auto get_edges() const {
             auto from_src_range {
-                std::views::iota(0u, g.grid_down_cnt)
-                | std::views::drop(1) // drop 0
+                std::views::iota(I0, g.grid_down_cnt)
+                | std::views::drop(1zu) // drop 0
                 | std::views::transform([&](const auto & grid_down) {
-                    N n1 { 0u, 0u };
-                    N n2 { grid_down, 0u };
+                    N n1 { I0, I0 };
+                    N n2 { grid_down, I0 };
                     return E { edge_type::FREE_RIDE, { n1, n2 } };
                 })
             };
             auto to_sink_range {
-                std::views::iota(0u, g.grid_down_cnt)
-                | ( std::views::reverse | std::views::drop(1) | std::views::reverse ) // drop last
+                std::views::iota(I0, g.grid_down_cnt)
+                | ( std::views::reverse | std::views::drop(1zu) | std::views::reverse ) // drop last
                 | std::views::transform([&](const auto & grid_down) {
-                    N n1 { grid_down, g.grid_right_cnt - 1u };
-                    N n2 { g.grid_down_cnt - 1u, g.grid_right_cnt - 1u };
+                    N n1 { grid_down, g.grid_right_cnt - I1 };
+                    N n2 { g.grid_down_cnt - I1, g.grid_right_cnt - I1 };
                     return E { edge_type::FREE_RIDE, { n1, n2 } };
                 })
             };
@@ -374,18 +378,18 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 const auto & [n1, n2] { e.inner_edge };
                 const auto & [n1_grid_down, n1_grid_right] { n1 };
                 const auto & [n2_grid_down, n2_grid_right] { n2 };
-                if (n1_grid_down == 0u && n1_grid_right == 0u) {
-                    if (n2_grid_down == 0u && n2_grid_right == 0u) {
+                if (n1_grid_down == I0 && n1_grid_right == I0) {
+                    if (n2_grid_down == I0 && n2_grid_right == I0) {
                         return false;
-                    } else if (n2_grid_down <= g.grid_down_cnt - 1u && n2_grid_right == 0u) {
+                    } else if (n2_grid_down <= g.grid_down_cnt - I1 && n2_grid_right == I0) {
                         return true;
                     } else {
                         return false;
                     }
-                } else if (n2_grid_down == g.grid_down_cnt - 1u && n2_grid_right == g.grid_right_cnt - 1u) {
-                    if (n1_grid_down == g.grid_down_cnt - 1u && n1_grid_right == g.grid_right_cnt - 1u) {
+                } else if (n2_grid_down == g.grid_down_cnt - I1 && n2_grid_right == g.grid_right_cnt - I1) {
+                    if (n1_grid_down == g.grid_down_cnt - I1 && n1_grid_right == g.grid_right_cnt - I1) {
                         return false;
-                    } else if (n1_grid_down <= g.grid_down_cnt - 1u && n1_grid_right == g.grid_right_cnt - 1u) {
+                    } else if (n1_grid_down <= g.grid_down_cnt - I1 && n1_grid_right == g.grid_right_cnt - I1) {
                         return true;
                     } else {
                         return false;
@@ -401,13 +405,13 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             auto standard_outputs {
                 g.get_outputs_full(n)
                 | std::views::transform([this](const auto& raw_full_edge) {
-                    N n1 { std::get<1>(raw_full_edge) };
-                    N n2 { std::get<2>(raw_full_edge) };
+                    N n1 { std::get<1zu>(raw_full_edge) };
+                    N n2 { std::get<2zu>(raw_full_edge) };
                     E e { edge_type::NORMAL, { n1, n2 } };
                     return std::tuple<E, N, N, ED> { e, n1, n2, freeride_scorer(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
-            bool has_freeride_to_leaf { n.down < grid_down_cnt - 1u && n.right == grid_right_cnt - 1u };
+            bool has_freeride_to_leaf { n.down < grid_down_cnt - I1 && n.right == grid_right_cnt - I1 };
             blankable_bidirectional_view freeride_set_1 {
                 has_freeride_to_leaf,  // passthru if condition is met, otherwise blank
                 std::views::single(get_leaf_node())
@@ -420,12 +424,12 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             bool has_freeride_from_root { n == get_root_node() };
             blankable_bidirectional_view freeride_set_2 {
                 has_freeride_from_root,  // passthru if condition is met, otherwise blank
-                std::views::iota(1u, grid_down_cnt)
+                std::views::iota(I1, grid_down_cnt)
                 | std::views::transform([this](const INDEX& grid_down) {
-                    return N { grid_down, 0u };
+                    return N { grid_down, I0 };
                 })
                 | std::views::transform([this](const N& n2) {
-                    N n1 { 0, 0 };
+                    N n1 { I0, I0 };
                     E e { edge_type::FREE_RIDE, { n1, n2 } };
                     return std::tuple<E, N, N, ED> { e, n1, n2, freeride_scorer(e, { std::nullopt }, { std::nullopt }) };
                 })
@@ -444,8 +448,8 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             auto standard_inputs {
                 g.get_inputs_full(n)
                 | std::views::transform([this](const auto& raw_full_edge) {
-                    N n1 { std::get<1>(raw_full_edge) };
-                    N n2 { std::get<2>(raw_full_edge) };
+                    N n1 { std::get<1zu>(raw_full_edge) };
+                    N n2 { std::get<2zu>(raw_full_edge) };
                     E e { edge_type::NORMAL, { n1, n2 } };
                     return std::tuple<E, N, N, ED> { e, n1, n2, freeride_scorer(e, { std::nullopt }, { std::nullopt }) };
                 })
@@ -453,9 +457,9 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             bool has_freeride_to_leaf { n == get_leaf_node() };
             blankable_bidirectional_view freeride_set_1 {
                 has_freeride_to_leaf,  // passthru if condition is met, otherwise blank
-                std::views::iota(0u, grid_down_cnt - 1u)
+                std::views::iota(I0, grid_down_cnt - I1)
                 | std::views::transform([this](const INDEX& grid_down) {
-                    return N { grid_down, grid_right_cnt - 1u };
+                    return N { grid_down, grid_right_cnt - I1 };
                 })
                 | std::views::transform([this](const N& n1) {
                     N n2 { get_leaf_node() };
@@ -463,7 +467,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     return std::tuple<E, N, N, ED> { e, n1, n2, freeride_scorer(e, { std::nullopt }, { std::nullopt }) };
                 })
             };
-            bool has_freeride_from_root { n.down > 0u && n.right == 0u };
+            bool has_freeride_from_root { n.down > I0 && n.right == I0 };
             blankable_bidirectional_view freeride_set_2 {
                 has_freeride_from_root,  // passthru if condition is met, otherwise blank
                 std::views::single(get_root_node())
@@ -490,7 +494,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 }
             }
             return get_outputs_full(n)
-                | std::views::transform([this](auto v) -> E { return std::get<0>(v); });
+                | std::views::transform([this](auto v) -> E { return std::get<0zu>(v); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs */
@@ -501,7 +505,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                 }
             }
             return this->get_inputs_full(n)
-                | std::views::transform([this](auto v) -> E { return std::get<0>(v); });
+                | std::views::transform([this](auto v) -> E { return std::get<0zu>(v); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::has_outputs */
@@ -568,11 +572,11 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             const auto& [n1, n2] { e.inner_edge };
             const auto& [n1_grid_down, n1_grid_right] { n1 };
             const auto& [n2_grid_down, n2_grid_right] { n2 };
-            if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+            if (n1_grid_down + I1 == n2_grid_down && n1_grid_right + I1 == n2_grid_right) {
                 return RET { { { n1_grid_down }, { n1_grid_right } } };
-            } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {
+            } else if (n1_grid_down + I1 == n2_grid_down && n1_grid_right == n2_grid_right) {
                 return RET { { { n1_grid_down }, std::nullopt } };
-            } else if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+            } else if (n1_grid_down == n2_grid_down && n1_grid_right + I1 == n2_grid_right) {
                 return RET { { std::nullopt, { n1_grid_right } } };
             }
             if constexpr (debug_mode) {
@@ -613,7 +617,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes */
         auto resident_nodes() const {
-            return std::array<N, 2u> { g.get_root_node(), g.get_leaf_node() };
+            return std::array<N, 2zu> { g.get_root_node(), g.get_leaf_node() };
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::outputs_to_residents */
@@ -626,9 +630,9 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             if (grid_down < leaf_grid_down && grid_right == leaf_grid_right) {
                 ret.push_back(E { edge_type::FREE_RIDE, { n, leaf_node } });
             }
-            if ((grid_down + 1u == leaf_grid_down && grid_right + 1u == leaf_grid_right)
-                    || (grid_down == leaf_grid_down && grid_right + 1u == leaf_grid_right)
-                    || (grid_down + 1u == leaf_grid_down && grid_right == leaf_grid_right)) {
+            if ((grid_down + I1 == leaf_grid_down && grid_right + I1 == leaf_grid_right)
+                    || (grid_down == leaf_grid_down && grid_right + I1 == leaf_grid_right)
+                    || (grid_down + I1 == leaf_grid_down && grid_right == leaf_grid_right)) {
                 ret.push_back(E { edge_type::NORMAL, { n, leaf_node } });
             }
             return ret;
@@ -644,9 +648,9 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
             if (grid_down > root_grid_down && grid_right == root_grid_right) {
                 ret.push_back(E { edge_type::FREE_RIDE, { root_node, n } });
             }
-            if ((grid_down - 1u == root_grid_down && grid_right - 1u == root_grid_right)
-                    || (grid_down - 1u == root_grid_down && grid_right == root_grid_right)
-                    || (grid_down == root_grid_down && grid_right - 1u == root_grid_right)) {
+            if ((grid_down - I1 == root_grid_down && grid_right - I1 == root_grid_right)
+                    || (grid_down - I1 == root_grid_down && grid_right == root_grid_right)
+                    || (grid_down == root_grid_down && grid_right - I1 == root_grid_right)) {
                 ret.push_back(E { edge_type::NORMAL, { root_node, n } });
             }
             return ret;

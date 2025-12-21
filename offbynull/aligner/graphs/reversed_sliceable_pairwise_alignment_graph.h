@@ -41,6 +41,10 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         using ND = typename G::ND;
 
     private:
+        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+        static constexpr INDEX I2 { static_cast<INDEX>(2zu) };
+
         const G& g;
 
     public:
@@ -200,10 +204,10 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
             }
             auto [v_idx, w_idx] { *offset };
             if (v_idx.has_value()) {
-                *v_idx = g.grid_down_cnt - *v_idx - 1u;
+                *v_idx = g.grid_down_cnt - *v_idx - I1;
             }
             if (w_idx.has_value()) {
-                *w_idx = g.grid_right_cnt - *w_idx - 1u;
+                *w_idx = g.grid_right_cnt - *w_idx - I1;
             }
             return offset;
         }
@@ -211,7 +215,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::node_to_grid_offset */
         std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offset(const N& n) const {
             const auto& [grid_down, grid_right, depth] { g.node_to_grid_offset(n) };
-            return { grid_down_cnt - grid_down - 1u, grid_right_cnt - grid_right - 1u, depth };
+            return { grid_down_cnt - grid_down - I1, grid_right_cnt - grid_right - I1, depth };
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_offset_to_nodes */
@@ -221,17 +225,17 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
                     throw std::runtime_error { "Out of bounds" };
                 }
             }
-            return g.grid_offset_to_nodes(grid_down_cnt - grid_down - 1u, grid_right_cnt - grid_right - 1u);
+            return g.grid_offset_to_nodes(grid_down_cnt - grid_down - I1, grid_right_cnt - grid_right - I1);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
         auto row_nodes(INDEX grid_down) const {
-            return g.row_nodes(grid_down_cnt - grid_down - 1u) | std::views::reverse;
+            return g.row_nodes(grid_down_cnt - grid_down - I1) | std::views::reverse;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
         auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
-            return g.row_nodes(grid_down_cnt - grid_down - 1u, leaf_node, root_node) | std::views::reverse;
+            return g.row_nodes(grid_down_cnt - grid_down - I1, leaf_node, root_node) | std::views::reverse;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::is_reachable */

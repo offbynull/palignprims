@@ -94,6 +94,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
+        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+
         using ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_row_slot_container_container_creator_pack());
         using RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
@@ -102,7 +105,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         const G& g;
         resident_slot_container<debug_mode, G, RESIDENT_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> resident_slots;
         row_slot_container_pair<debug_mode, G, ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> row_slots;
-        decltype(g.row_nodes(0u)) row;
+        decltype(g.row_nodes(0zu)) row;
         decltype(row.begin()) row_it;
         row_entry<N, E, ED> row_entry_;
 
@@ -176,7 +179,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         : g { g_ }
         , resident_slots { g, container_creator_pack_.create_resident_slot_container_container_creator_pack() }
         , row_slots { g, container_creator_pack_.create_row_slot_container_container_creator_pack() }
-        , row { g.row_nodes(0u) }
+        , row { g.row_nodes(I0) }
         , row_it { row.begin() }
         , row_entry_ {} {
             row_entry_.node = *row_it;
@@ -188,7 +191,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 row_entry_.node = *row_it;
                 row_entry_.slot_ptr = &find(row_entry_.node);
             } else {
-                if (row_slots.down_offset() == g.grid_down_cnt - 1u) {
+                if (row_slots.down_offset() == g.grid_down_cnt - I1) {
                     return;
                 }
                 row_slots.move_down();

@@ -72,6 +72,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using BACKWARD_WALKER_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_backward_walker_container_creator_pack());
 
+        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+
         const G& g;
         const INDEX target_row;
         const reversed_sliceable_pairwise_alignment_graph<debug_mode, G> reversed_g;
@@ -294,7 +297,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , backward_walker {
             decltype(backward_walker)::create_and_initialize(
                 reversed_g,
-                g.grid_down_cnt - 1u - target_row,
+                g.grid_down_cnt - I1 - target_row,
                 container_creator_pack_.create_backward_walker_container_creator_pack()
             )
         } {}

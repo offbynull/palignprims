@@ -125,6 +125,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
+        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+        static constexpr INDEX I2 { static_cast<INDEX>(2zu) };
+
         using ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_row_slot_container_container_creator_pack());
         using PATH_CONTAINER_CONTAINER_CREATOR_PACK =
@@ -225,10 +229,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     throw std::runtime_error { "Root doesn't reach leaf" };
                 }
             }
-            INDEX mid_down_offset { (sub_graph.grid_down_cnt - 1u) / 2u };
+            INDEX mid_down_offset {
+                (sub_graph.grid_down_cnt - I1) / I2
+            };
 
             if (root_node == leaf_node) {
-                return 0.0;
+                return ED { 0zu };
             }
             ED max_path_weight;
             E max_edge;

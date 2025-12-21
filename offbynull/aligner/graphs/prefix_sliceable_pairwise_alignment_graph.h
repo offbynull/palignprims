@@ -41,6 +41,10 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         using ND = typename G::ND;
 
     private:
+        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+        static constexpr INDEX I2 { static_cast<INDEX>(2zu) };
+
         const G& g;
         const N new_leaf_node;
 
@@ -48,7 +52,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             const auto& [down_offset, right_offset, _] { g.node_to_grid_offset(node) };
             if (down_offset >= grid_down_cnt || right_offset >= grid_right_cnt) {
                 return true;
-            } else if (down_offset == grid_down_cnt - 1u || right_offset == grid_right_cnt - 1u) {
+            } else if (down_offset == grid_down_cnt - I1 || right_offset == grid_right_cnt - I1) {
                 // In the same grid position as leaf node (but potentially at different depths). Can this node reach the
                 // leaf node? If yes, it's not out-of-bound.
                 return !g.is_reachable(node, new_leaf_node);
@@ -89,8 +93,8 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         )
         : g { g_ }
         , new_leaf_node { new_leaf_node_ }
-        , grid_down_cnt { std::get<0>(g.node_to_grid_offset(new_leaf_node)) + 1u }
-        , grid_right_cnt { std::get<1>(g.node_to_grid_offset(new_leaf_node)) + 1u }
+        , grid_down_cnt { std::get<0zu>(g.node_to_grid_offset(new_leaf_node)) + I1 }
+        , grid_right_cnt { std::get<1zu>(g.node_to_grid_offset(new_leaf_node)) + I1 }
         , resident_nodes_capacity { g.resident_nodes_capacity }
         , path_edge_capacity { g.path_edge_capacity }
         , node_incoming_edge_capacity { g.node_incoming_edge_capacity }
@@ -212,7 +216,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             return g.get_outputs_full(n)
-                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<0>(vals)); });
+                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<0zu>(vals)); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs_full */
@@ -223,7 +227,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             return g.get_inputs_full(n)
-                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<0>(vals)); });
+                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<0zu>(vals)); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_outputs */
@@ -255,7 +259,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                     throw std::runtime_error { "Node doesn't exist" };
                 }
             }
-            return get_out_degree(n) > 0zu;
+            return get_out_degree(n) > I0;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::has_inputs */
@@ -265,7 +269,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                     throw std::runtime_error { "Node doesn't exist" };
                 }
             }
-            return get_in_degree(n) > 0zu;
+            return get_in_degree(n) > I0;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_out_degree */

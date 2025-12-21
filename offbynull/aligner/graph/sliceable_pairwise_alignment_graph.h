@@ -227,16 +227,19 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
         using INDEX = typename G::INDEX;
         using N = typename G::N;
 
+        constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+
         if constexpr (debug_mode) {
             if (!g.has_node(root_node) || !g.has_node(leaf_node)) {
                 throw std::runtime_error { "Bad root / leaf node " };
             }
         }
 
-        INDEX right_first { std::get<1>(g.node_to_grid_offset(root_node)) };
-        INDEX right_last { std::get<1>(g.node_to_grid_offset(leaf_node)) };
+        INDEX right_first { std::get<1zu>(g.node_to_grid_offset(root_node)) };
+        INDEX right_last { std::get<1zu>(g.node_to_grid_offset(leaf_node)) };
         return
-            std::views::iota(right_first, right_last + 1u)
+            std::views::iota(right_first, right_last + I1)
             | std::views::transform([&g, grid_down](const auto& grid_right) {
                 return g.grid_offset_to_nodes(grid_down, grid_right);
             })

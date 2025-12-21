@@ -60,8 +60,8 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
     private:
         qwerty_scorer(const std::pair<std::array<char, 95zu>, std::array<WEIGHT, 95zu*95zu>>& sorted_alphabet_and_weights)
         : single_character_substitution_matrix_scorer<debug_mode, 95zu, SEQ_INDEX, WEIGHT> {
-            std::get<0>(sorted_alphabet_and_weights),
-            std::get<1>(sorted_alphabet_and_weights)
+            std::get<0zu>(sorted_alphabet_and_weights),
+            std::get<1zu>(sorted_alphabet_and_weights)
         } {}
 
         static constexpr auto distance_(const point& p1, const point& p2) {

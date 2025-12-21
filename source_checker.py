@@ -107,6 +107,7 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::begin': 'iterator',
     'std::end': 'iterator',
     'std::advance': 'iterator',
+    'std::input_or_output_iterator': 'iterator',
     'std::input_iterator': 'iterator',
     'std::input_iterator_tag': 'iterator',
     'std::forward_iterator': 'iterator',
@@ -115,6 +116,7 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::bidirectional_iterator_tag': 'iterator',
     'std::sentinel_for': 'iterator',
     'std::back_inserter': 'iterator',
+    'std::sized_sentinel_for': 'iterator',
     'std::lower_bound': 'algorithm',
     'std::reverse': 'algorithm',
     'std::sort': 'algorithm',
@@ -225,6 +227,7 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'boost::iostreams::mapped_file_source': 'boost/iostreams/device/mapped_file.hpp',
     'boost::iostreams::mapped_file_base::readonly': 'boost/iostreams/device/mapped_file.hpp',
     'boost::safe_numerics': 'boost/safe_numerics/safe_integer.hpp',
+    'boost::safe_numerics::checked::multiply': 'boost/safe_numerics/checked_default.hpp',
     'boost::safe_numerics::safe_numerics_error': 'boost/safe_numerics/safe_integer.hpp',
 }
 

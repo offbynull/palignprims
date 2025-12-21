@@ -49,6 +49,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ED = typename G::ED;
         using INDEX = typename G::INDEX;
 
+        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+
         row_slot_container<debug_mode, G, ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slots1;
         row_slot_container<debug_mode, G, ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slots2;
         row_slot_container<debug_mode, G, ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK>* previous_slots;  // row above current row
@@ -76,7 +78,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , slots2 { g, row_slot_container_creator_pack }
         , previous_slots { &slots1 }
         , current_slots { &slots2 }
-        , grid_down_offset { 0u } {}
+        , grid_down_offset { I0 } {}
 
         // Custom copy/move/copy assignment/move assigned because this class has raw pointer types as members. The default copy/assignment
         // will do a SHALLOW copy of these pointers, meaning they won't be pointing into the copy'd element_container (they'll instead be

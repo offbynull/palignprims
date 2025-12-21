@@ -2,12 +2,15 @@
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_GRAPH_BACKTRACKER_SLOT_CONTAINER_SLOT_CONTAINER_HEAP_CONTAINER_CREATOR_PACK_H
 
 #include <vector>
+#include <iterator>
 #include "offbynull/aligner/backtrackers/graph_backtracker/backtrackable_node.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/backtrackable_edge.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/slot_container/slot.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/slot_container/slot_container_container_creator_pack.h"
 #include "offbynull/aligner/backtrackers/graph_backtracker/slot_container/unimplemented_slot_container_container_creator_pack.h"
+#include "offbynull/utils.h"
+#include "offbynull/concepts.h"
 
 namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container_heap_container_creator_pack {
     using offbynull::aligner::concepts::weight;
@@ -16,6 +19,8 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
     using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot::slot;
     using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container_container_creator_pack
         ::slot_container_container_creator_pack;
+    using offbynull::utils::copy_to_vector;
+    using offbynull::concepts::input_iterator_of_type;
 
     /**
      * @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container_container_creator_pack::slot_container_container_creator_pack
@@ -38,8 +43,11 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
          */
         std::vector<
             slot<N, E, WEIGHT>
-        > create_slot_container(auto begin, auto end) const {
-            return std::vector<slot<N, E, WEIGHT>>(begin, end);
+        > create_slot_container(
+            input_iterator_of_type<slot<N, E, WEIGHT>> auto begin,
+            std::sentinel_for<decltype(begin)> auto end
+        ) const {
+            return copy_to_vector(begin, end);
         }
     };
 

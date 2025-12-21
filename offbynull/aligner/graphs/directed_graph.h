@@ -265,15 +265,15 @@ namespace offbynull::aligner::graphs::directed_graph {
             bool removed_from { false };
             //bool removed_to { false };
             if (remove_from_if_isolated
-                    && this->node_inbound.at(from_node).size() == 0
-                    && this->node_outbound.at(from_node).size() == 0) {
+                    && this->node_inbound.at(from_node).size() == 0zu
+                    && this->node_outbound.at(from_node).size() == 0zu) {
                 this->delete_node(from_node);
                 removed_from = true;
             }
             if (remove_to_if_isolated
                     && (not dealing_with_same_node or (dealing_with_same_node and not removed_from))
-                    && this->node_inbound.at(to_node).size() == 0
-                    && this->node_outbound.at(to_node).size() == 0) {
+                    && this->node_inbound.at(to_node).size() == 0zu
+                    && this->node_outbound.at(to_node).size() == 0zu) {
                 this->delete_node(to_node);
                 //removed_to = true;
             }
@@ -294,7 +294,7 @@ namespace offbynull::aligner::graphs::directed_graph {
                     throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
-            std::get<2>(this->edges.at(e)) = std::forward<ED>(data);
+            std::get<2zu>(this->edges.at(e)) = std::forward<ED>(data);
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_edge_data */
@@ -304,7 +304,7 @@ namespace offbynull::aligner::graphs::directed_graph {
                     throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
-            return std::get<2>(this->edges.at(e));
+            return std::get<2zu>(this->edges.at(e));
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_edge_from */
@@ -314,7 +314,7 @@ namespace offbynull::aligner::graphs::directed_graph {
                     throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
-            return std::get<0>(this->edges.at(e));
+            return std::get<0zu>(this->edges.at(e));
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_edge_to */
@@ -324,7 +324,7 @@ namespace offbynull::aligner::graphs::directed_graph {
                     throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
-            return std::get<1>(this->edges.at(e));
+            return std::get<1zu>(this->edges.at(e));
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_edge */
@@ -335,7 +335,7 @@ namespace offbynull::aligner::graphs::directed_graph {
                 }
             }
             auto& ref { edges.at(e) };
-            return std::tuple<const N&, const N&, const ED&> { std::get<0>(ref), std::get<1>(ref), std::get<2>(ref) };
+            return std::tuple<const N&, const N&, const ED&> { std::get<0zu>(ref), std::get<1zu>(ref), std::get<2zu>(ref) };
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_root_nodes */

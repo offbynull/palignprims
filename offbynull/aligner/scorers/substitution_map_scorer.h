@@ -78,20 +78,20 @@ namespace offbynull::aligner::scorers::substitution_map_scorer {
         ) const {
             if (down_elem.has_value() && right_elem.has_value()) {
                 std::pair<std::optional<DOWN_ELEM>, std::optional<RIGHT_ELEM>> lookup {
-                    { std::get<1>(*down_elem).get() },
-                    { std::get<1>(*right_elem).get() }
+                    { std::get<1zu>(*down_elem).get() },
+                    { std::get<1zu>(*right_elem).get() }
                 };
                 return data.at(lookup);
             } else if (down_elem.has_value()) {
                 std::pair<std::optional<DOWN_ELEM>, std::optional<RIGHT_ELEM>> lookup {
-                    { std::get<1>(*down_elem).get() },
+                    { std::get<1zu>(*down_elem).get() },
                     { std::nullopt }
                 };
                 return data.at(lookup);
             } else if (right_elem.has_value()) {
                 std::pair<std::optional<DOWN_ELEM>, std::optional<RIGHT_ELEM>> lookup {
                     { std::nullopt },
-                    { std::get<1>(*right_elem).get() }
+                    { std::get<1zu>(*right_elem).get() }
                 };
                 return data.at(lookup);
             } else {

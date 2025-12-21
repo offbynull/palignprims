@@ -213,7 +213,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
                         // COUNT in_degree_narrowed { static_cast<COUNT>(in_degree) };
                         // if constexpr (debug_mode) {
                         //     if (in_degree_narrowed != in_degree) {
-                        //         throw std::runtime_error { "Input count narroweing led to information loss" };
+                        //         throw std::runtime_error { "Input count narrowing led to information loss" };
                         //     }
                         // }
                         return { n, in_degree };
@@ -239,7 +239,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
             const auto& [root_slot_idx, root_slot] { slots.find(root_node) };
             ready_idxes.push(root_slot_idx);
             // static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 required"); // Require for inf and nan?
-            root_slot.backtracking_weight = 0.0;
+            root_slot.backtracking_weight = ED { 0zu };
             // Find max path within graph
             // --------------------------
             // Using the backtracking algorithm, find the path within graph that has the maximum weight. If more than one such
@@ -255,7 +255,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
                 auto& current_slot { slots.at_idx(idx) };
                 for (const auto& edge : g.get_inputs(current_slot.node)) {
                     const auto& src_node { g.get_edge_from(edge) };
-                    if (slots.find_ref(src_node).unwalked_parent_cnt != 0) {
+                    if (slots.find_ref(src_node).unwalked_parent_cnt != 0zu) {
                         goto top;
                     }
                 }
@@ -297,7 +297,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
                             throw std::runtime_error { "Invalid number of unprocessed parents" };
                         }
                     }
-                    dst_slot.unwalked_parent_cnt = static_cast<std::size_t>(dst_slot.unwalked_parent_cnt - 1zu);
+                    dst_slot.unwalked_parent_cnt = dst_slot.unwalked_parent_cnt - 1zu;
                     if (dst_slot.unwalked_parent_cnt == 0zu) {
                         ready_idxes.push(dst_slot_idx);
                     }

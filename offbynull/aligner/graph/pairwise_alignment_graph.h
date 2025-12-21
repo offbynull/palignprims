@@ -139,6 +139,11 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
          * support sequences of lengths up to 255-1. */
         using INDEX = INDEX_;
 
+    private:
+        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+
+    public:
         /**
          * Number of rows within the grid, which maps to downward sequence's length + 1.
          */
@@ -153,9 +158,9 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
          *
          * *Note that this is expected to be a compile-time constant (`constexpr`).*
          */
-        static constexpr INDEX grid_depth_cnt { 0u };
+        static constexpr INDEX grid_depth_cnt { I0 };
         /** Maximum number of resident nodes. */
-        static constexpr std::size_t resident_nodes_capacity { 0u };
+        static constexpr std::size_t resident_nodes_capacity { 0zu };
         /** Of all paths between root and leaf, the maximum number of edges. */
         const std::size_t path_edge_capacity;
         /** Of all nodes, the maximum in-degree. */

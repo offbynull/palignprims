@@ -9,6 +9,7 @@
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container/unimplemented_slot_container_container_creator_pack.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/concepts.h"
+#include "offbynull/utils.h"
 
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container
         ::slot_container_heap_container_creator_pack {
@@ -17,6 +18,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_node::backtrackable_node;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot;
+    using offbynull::utils::check_multiplication_nonoverflow;
 
     /**
      * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container_container_creator_pack::slot_container_container_creator_pack
@@ -46,6 +48,9 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             std::size_t grid_right_cnt,
             std::size_t grid_depth_cnt
         ) const {
+            if constexpr (debug_mode) {
+                check_multiplication_nonoverflow<std::size_t>(grid_down_cnt, grid_right_cnt, grid_depth_cnt);
+            }
             std::size_t cnt { (grid_down_cnt * grid_right_cnt) * grid_depth_cnt };
             return std::vector<slot<N, E, ED, PARENT_COUNT>>(cnt);
         }

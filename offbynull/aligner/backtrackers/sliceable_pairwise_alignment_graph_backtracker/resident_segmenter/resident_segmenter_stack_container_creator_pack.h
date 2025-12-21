@@ -88,6 +88,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             return {};
         }
 
+        // TODO: Use check_multiplication_nonoverflow to verify when debug_mode
         static constexpr std::size_t max_segment_cnt { resident_nodes_capacity * 2zu + 1zu };
 
         /** `create_segment_hop_chain_container()` return type. */

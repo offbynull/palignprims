@@ -87,6 +87,9 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         /** `G`'s grid coordinate type. For example, `std::uint8_t` will allow up to 255 nodes on both the down and right axis. */
         using INDEX = typename G::INDEX;
 
+        static constexpr PARENT_COUNT PC0 { static_cast<PARENT_COUNT>(0zu) };
+        static constexpr PARENT_COUNT PC1 { static_cast<PARENT_COUNT>(1zu) };
+
         /**
          * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container::slot_container
          * container factory type used by this backtracker implementation.
@@ -189,7 +192,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             const auto& [root_slot_idx, root_slot] { slots.find(root_node) };
             ready_idxes.push(root_slot_idx);
             // static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 required"); // Require for inf and nan?
-            root_slot.backtracking_weight = 0.0;
+            root_slot.backtracking_weight = ED { 0zu };
             // Find max path within graph
             // --------------------------
             // Using the backtracking algorithm, find the path within graph that has the maximum weight. If more than one such
@@ -205,7 +208,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
                 auto& current_slot { slots.at_idx(idx) };
                 for (const auto& edge : g.get_inputs(current_slot.node)) {
                     const auto& src_node { g.get_edge_from(edge) };
-                    if (slots.find_ref(src_node).unwalked_parent_cnt != 0) {
+                    if (slots.find_ref(src_node).unwalked_parent_cnt != PC0) {
                         goto top;
                     }
                 }
@@ -243,12 +246,12 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
                     const auto& dst_node { g.get_edge_to(edge) };
                     const auto& [dst_slot_idx, dst_slot] { slots.find(dst_node) };
                     if constexpr (debug_mode) {
-                        if (dst_slot.unwalked_parent_cnt == 0zu) {
+                        if (dst_slot.unwalked_parent_cnt == PC0) {
                             throw std::runtime_error { "Invalid number of unprocessed parents" };
                         }
                     }
-                    dst_slot.unwalked_parent_cnt = dst_slot.unwalked_parent_cnt - 1zu;
-                    if (dst_slot.unwalked_parent_cnt == 0zu) {
+                    dst_slot.unwalked_parent_cnt = dst_slot.unwalked_parent_cnt - PC1;
+                    if (dst_slot.unwalked_parent_cnt == PC0) {
                         ready_idxes.push(dst_slot_idx);
                     }
                 }

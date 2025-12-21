@@ -15,6 +15,7 @@
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/concepts.h"
+#include "offbynull/utils.h"
 
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container {
     using offbynull::aligner::concepts::weight;
@@ -29,6 +30,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         ::slot_container_heap_container_creator_pack;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_node::backtrackable_node;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
+    using offbynull::utils::check_multiplication_nonoverflow;
 
     /**
      * Container of @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot "slots", used by
@@ -110,6 +112,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             )
         } {
             if constexpr (debug_mode) {
+                check_multiplication_nonoverflow<std::size_t>(g.grid_down_cnt, g.grid_right_cnt, g.grid_depth_cnt);
                 if (std::numeric_limits<PARENT_COUNT>::max() < g.node_incoming_edge_capacity) {
                     throw std::runtime_error { "PARENT_COUNT not wide enough to support node_incoming_edge_capacity" };
                 }

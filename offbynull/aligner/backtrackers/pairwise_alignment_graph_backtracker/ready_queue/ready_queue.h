@@ -1,10 +1,7 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACKERS_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_READY_QUEUE_READY_QUEUE_H
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_READY_QUEUE_READY_QUEUE_H
 
-#include <cstddef>
 #include <utility>
-#include <limits>
-#include <stdexcept>
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/ready_queue/ready_queue_container_creator_pack.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/ready_queue/ready_queue_heap_container_creator_pack.h"
@@ -23,6 +20,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::utils::static_vector_typer;
+    using offbynull::utils::check_multiplication_nonoverflow;
 
     /**
      * Queue of node positions within an
@@ -70,10 +68,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         )
         : queue { container_creator_pack.create_queue_container(g.grid_down_cnt, g.grid_right_cnt, g.grid_depth_cnt) } {
             if constexpr (debug_mode) {
-                std::size_t max_size { g.grid_down_cnt * g.grid_right_cnt * g.grid_depth_cnt };
-                if (std::numeric_limits<SLOT_INDEX>::max() <= max_size) {
-                    throw std::runtime_error { "Type not wide enough" };
-                }
+                check_multiplication_nonoverflow<SLOT_INDEX>(g.grid_down_cnt, g.grid_right_cnt, g.grid_depth_cnt);
             }
         }
 

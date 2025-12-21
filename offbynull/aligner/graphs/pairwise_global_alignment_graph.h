@@ -60,6 +60,10 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
     >
     class pairwise_global_alignment_graph {
     private:
+        static constexpr INDEX_ I0 { static_cast<INDEX_>(0zu) };
+        static constexpr INDEX_ I1 { static_cast<INDEX_>(1zu) };
+        static constexpr INDEX_ I2 { static_cast<INDEX_>(2zu) };
+
         const grid_graph<
             debug_mode,
             INDEX_,
@@ -72,9 +76,9 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
 
     public:
         /** Element object type of downward sequence (CV-qualification and references removed). */
-        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0u])>;
+        using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>;
         /** Element object type of rightward sequence (CV-qualification and references removed). */
-        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0u])>;
+        using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::INDEX */
         using INDEX = INDEX_;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N */
@@ -245,11 +249,11 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
             const auto& [n1, n2] { e };
             const auto& [n1_grid_down, n1_grid_right] { n1 };
             const auto& [n2_grid_down, n2_grid_right] { n2 };
-            if (n1_grid_down + 1u == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+            if (n1_grid_down + I1 == n2_grid_down && n1_grid_right + I1 == n2_grid_right) {
                 return RET { { { n1_grid_down }, { n1_grid_right } } };
-            } else if (n1_grid_down + 1u == n2_grid_down && n1_grid_right == n2_grid_right) {
+            } else if (n1_grid_down + I1 == n2_grid_down && n1_grid_right == n2_grid_right) {
                 return RET { { { n1_grid_down }, std::nullopt } };
-            } else if (n1_grid_down == n2_grid_down && n1_grid_right + 1u == n2_grid_right) {
+            } else if (n1_grid_down == n2_grid_down && n1_grid_right + I1 == n2_grid_right) {
                 return RET { { std::nullopt, { n1_grid_right } } };
             }
             if constexpr (debug_mode) {
