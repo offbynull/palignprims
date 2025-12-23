@@ -9,7 +9,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         ::unimplemented_resident_segmenter_container_creator_pack {
 
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtrackable_node::backtrackable_node;
-    using offbynull::concepts::range_of_type;
+    using offbynull::concepts::forward_range_of_non_cvref;
 
     /**
      * Unimplemented
@@ -39,7 +39,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * @param resident_nodes Range of resident nodes.
          * @return Random access container containing the nodes within `resident_nodes`.
          */
-        auto create_resident_node_container(range_of_type<N> auto&& resident_nodes) const;
+        auto create_resident_node_container(forward_range_of_non_cvref<N> auto&& resident_nodes) const;
 
         /**
          * Create random access container used to store edges to/from resident nodes.

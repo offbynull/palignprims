@@ -22,7 +22,7 @@
 namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container {
     using offbynull::aligner::concepts::weight;
     using offbynull::concepts::widenable_to_size_t;
-    using offbynull::concepts::input_iterator_of_type;
+    using offbynull::concepts::input_iterator_of_non_cvref;
     using offbynull::aligner::graph::graph::graph;
     using offbynull::aligner::backtrackers::graph_backtracker::backtrackable_node::backtrackable_node;
     using offbynull::aligner::backtrackers::graph_backtracker::backtrackable_edge::backtrackable_edge;
@@ -98,7 +98,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
          */
         slot_container(
             const G& g_,
-            input_iterator_of_type<slot<N, E, WEIGHT>> auto begin,
+            input_iterator_of_non_cvref<slot<N, E, WEIGHT>> auto begin,
             std::sentinel_for<decltype(begin)> auto end,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         )

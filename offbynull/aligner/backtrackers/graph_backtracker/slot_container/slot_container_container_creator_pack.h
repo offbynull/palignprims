@@ -11,7 +11,7 @@
 
 namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container_container_creator_pack {
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::aligner::backtrackers::graph_backtracker::backtrackable_node::backtrackable_node;
     using offbynull::aligner::backtrackers::graph_backtracker::backtrackable_edge::backtrackable_edge;
@@ -39,7 +39,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
         && backtrackable_edge<E>
         && weight<WEIGHT>
         && requires(const T t, std::vector<slot<N, E, WEIGHT>> fake_range) {
-            { t.create_slot_container(fake_range.begin(), fake_range.end()) } -> random_access_range_of_type<slot<N, E, WEIGHT>>;
+            { t.create_slot_container(fake_range.begin(), fake_range.end()) } -> random_access_sequence_container<slot<N, E, WEIGHT>>;
         };
 }
 

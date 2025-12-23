@@ -129,7 +129,7 @@ namespace offbynull::aligner::sequences::zip_sequence {
      * @return Newly created @ref offbynull::aligner::sequences::zip_sequence::zip_sequence instance.
      */
     template<bool debug_mode>
-    auto create_zip_sequence(const sequence auto&... seqs) {
+    auto create_zip_sequence(const sequence auto&... seqs) {  // NOTE: No trailing return type because it's impossible to know beforehand?
         using TUPLE_PACKED_SEQ_TYPES = typename cvref_remover<decltype(seqs)...>::type;
         using ZIP_SEQUENCE_TYPE = typename zip_sequencer_typer<debug_mode, TUPLE_PACKED_SEQ_TYPES>::type;
 

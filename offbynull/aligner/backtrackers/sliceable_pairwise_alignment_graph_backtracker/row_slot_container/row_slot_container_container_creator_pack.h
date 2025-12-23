@@ -12,7 +12,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::slot::slot;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
 
     /**
@@ -34,7 +34,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && backtrackable_edge<E>
         && weight<ED>
         && requires(const T t, std::size_t grid_right_cnt, std::size_t grid_depth_cnt) {
-            { t.create_slot_container(grid_right_cnt, grid_depth_cnt) } -> random_access_range_of_type<slot<E, ED>>;
+            { t.create_slot_container(grid_right_cnt, grid_depth_cnt) } -> random_access_sequence_container<slot<E, ED>>;
         };
 }
 

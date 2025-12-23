@@ -16,6 +16,8 @@ namespace offbynull::aligner::graphs::directed_graph {
     using offbynull::aligner::graph::graph::node;
     using offbynull::aligner::graph::graph::edge;
     using offbynull::concepts::unqualified_object_type;
+    using offbynull::concepts::bidirectional_range_of_non_cvref;
+    using offbynull::aligner::graph::graph::full_input_output_range;
 
     /**
      * @ref offbynull::aligner::graph::graph::graph implementation that is *not immutable* (can be modified).
@@ -339,7 +341,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_root_nodes */
-        auto get_root_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_root_nodes() const {
             auto ret { this->get_nodes() | std::views::filter([&](const auto& n) { return !has_inputs(n); }) };
             return ret;
         }
@@ -357,7 +359,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_leaf_nodes */
-        auto get_leaf_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_leaf_nodes() const {
             auto ret { this->get_nodes() | std::views::filter([&](const auto& n) { return !has_outputs(n); }) };
             return ret;
         }
@@ -375,12 +377,12 @@ namespace offbynull::aligner::graphs::directed_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_nodes */
-        auto get_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_nodes() const {
             return this->node_outbound | std::views::transform([](const auto& p) -> const N& { return p.first; });
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_edges */
-        auto get_edges() const {
+        bidirectional_range_of_non_cvref<E> auto get_edges() const {
             return this->edges | std::views::transform([](auto& p) -> const E& { return p.first; });
         }
 
@@ -395,7 +397,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_outputs_full */
-        auto get_outputs_full(const N& n) const {
+        full_input_output_range<N, E, ED> auto get_outputs_full(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };
@@ -408,7 +410,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_inputs_full */
-        auto get_inputs_full(const N& n) const {
+        full_input_output_range<N, E, ED> auto get_inputs_full(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };
@@ -421,7 +423,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_outputs */
-        auto get_outputs(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto get_outputs(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };
@@ -432,7 +434,7 @@ namespace offbynull::aligner::graphs::directed_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_inputs */
-        auto get_inputs(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto get_inputs(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };

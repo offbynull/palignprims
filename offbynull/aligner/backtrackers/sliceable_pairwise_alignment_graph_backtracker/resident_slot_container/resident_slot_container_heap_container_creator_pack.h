@@ -18,7 +18,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtrackable_node::backtrackable_node;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::range_of_type;
+    using offbynull::concepts::forward_range_of_non_cvref;
 
     /**
      * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::row_slot_container_container_creator_pack::row_slot_container_container_creator_pack
@@ -43,7 +43,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * @copydoc offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::unimplemented_resident_slot_container_container_creator_pack::unimplemented_resident_slot_container_container_creator_pack
          */
         std::vector<resident_slot_with_node<N, E, ED>> create_slot_container(
-            range_of_type<resident_slot_with_node<N, E, ED>> auto&& r
+            forward_range_of_non_cvref<resident_slot_with_node<N, E, ED>> auto&& r
         ) const {
             if constexpr (std::ranges::sized_range<std::remove_cvref_t<decltype(r)>>) {
                 std::vector<resident_slot_with_node<N, E, ED>> ret {};

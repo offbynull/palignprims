@@ -53,8 +53,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::range_of_type;
-    using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::utils::static_vector_typer;
 

@@ -68,7 +68,7 @@ namespace offbynull::aligner::sequences::mmap_sequence {
     template<bool debug_mode>
     auto create_mmap_sequence(
         const std::string& path
-    ) {
+    ) -> mmap_sequence<debug_mode> {
         return mmap_sequence<debug_mode> { path };
     }
 }

@@ -17,7 +17,6 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_stack_container_creator_pack
         ::ready_queue_stack_container_creator_pack;
     using offbynull::concepts::widenable_to_size_t;
-    using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::utils::static_vector_typer;
     using offbynull::utils::check_multiplication_nonoverflow;

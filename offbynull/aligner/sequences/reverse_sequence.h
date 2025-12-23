@@ -54,7 +54,7 @@ namespace offbynull::aligner::sequences::reverse_sequence {
     template<bool debug_mode>
     auto create_reverse_sequence(
         const sequence auto& seq
-    ) {
+    ) -> reverse_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> {
         return reverse_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> { seq };
     }
 }

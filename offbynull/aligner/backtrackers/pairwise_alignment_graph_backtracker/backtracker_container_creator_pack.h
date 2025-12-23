@@ -18,7 +18,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_container_creator_pack
         ::ready_queue_container_creator_pack;
     using offbynull::concepts::widenable_to_size_t;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
 
     /**
@@ -54,7 +54,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         && requires(const T t, std::size_t path_edge_capacity) {
             { t.create_slot_container_container_creator_pack() } -> slot_container_container_creator_pack<N, E, ED, PARENT_COUNT>;
             { t.create_ready_queue_container_creator_pack() } -> ready_queue_container_creator_pack<SLOT_INDEX>;
-            { t.create_path_container(path_edge_capacity) } -> random_access_range_of_type<E>;
+            { t.create_path_container(path_edge_capacity) } -> random_access_sequence_container<E>;
         };
 }
 

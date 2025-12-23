@@ -16,7 +16,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker_conta
         ::slot_container_container_creator_pack;
     using offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue_container_creator_pack
         ::ready_queue_container_creator_pack;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
 
     /**
@@ -42,7 +42,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker_conta
         && requires(const T t) {
             { t.create_slot_container_container_creator_pack() } -> slot_container_container_creator_pack<N, E, WEIGHT>;
             { t.create_ready_queue_container_creator_pack() } -> ready_queue_container_creator_pack<>;
-            { t.create_path_container() } -> random_access_range_of_type<E>;
+            { t.create_path_container() } -> random_access_sequence_container<E>;
         };
 }
 

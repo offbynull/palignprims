@@ -13,6 +13,7 @@
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/forward_walker/forward_walker.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/row_slot_container/slot.h"
 #include "offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph.h"
+#include "offbynull/concepts.h"
 
 namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker {
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::sliceable_pairwise_alignment_graph;
@@ -25,6 +26,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker::forward_walker;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::slot::slot;
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
+    using offbynull::concepts::bidirectional_range_of_exact;
 
     /**
      * Bidirectional walker for
@@ -172,7 +174,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *     @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker::bidi_walker::find
          *     for that node.
          */
-        auto list() {
+        bidirectional_range_of_exact<list_entry> auto list() {
             return g.row_nodes(target_row)
                 | std::views::transform([&](const N& n) {
                     return list_entry { n, find(n) };

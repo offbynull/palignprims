@@ -78,7 +78,7 @@ namespace offbynull::aligner::sequences::prefix_pad_sequence {
         const sequence auto& seq,
         const std::remove_cvref_t<decltype(seq[0zu])> pad_value,
         const std::size_t pad_count
-    ) {
+    ) -> prefix_pad_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> {
         return prefix_pad_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> { seq, pad_value, pad_count };
     }
 }

@@ -9,7 +9,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         ::path_container_container_creator_pack {
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::element::element;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
 
     /**
@@ -28,7 +28,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         unqualified_object_type<T>
         && backtrackable_edge<E>
         && requires(const T t, std::size_t path_edge_capacity) {
-            { t.create_element_container(path_edge_capacity) } -> random_access_range_of_type<element<E>>;
+            { t.create_element_container(path_edge_capacity) } -> random_access_sequence_container<element<E>>;
         };
 }
 

@@ -77,7 +77,7 @@ namespace offbynull::aligner::sequences::substring_sequence {
         const sequence auto& seq,
         const std::size_t offset,
         const std::size_t length
-    ) {
+    ) -> substring_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> {
         return substring_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> { seq, offset, length };
     }
 }

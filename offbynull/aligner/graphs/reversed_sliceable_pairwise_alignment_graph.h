@@ -8,12 +8,15 @@
 #include <ranges>
 #include <type_traits>
 #include <stdexcept>
+#include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
 
 namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph {
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::sliceable_pairwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
+    using offbynull::concepts::bidirectional_range_of_non_cvref;
+    using offbynull::aligner::graph::graph::full_input_output_range;
 
     /**
      * View into an existing
@@ -115,7 +118,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_root_nodes */
-        auto get_root_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_root_nodes() const {
             return g.get_leaf_nodes();
         }
 
@@ -125,7 +128,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_leaf_nodes */
-        auto get_leaf_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_leaf_nodes() const {
             return g.get_root_nodes();
         }
 
@@ -135,12 +138,12 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_nodes */
-        auto get_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_nodes() const {
             return g.get_nodes();
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_edges */
-        auto get_edges() const {
+        bidirectional_range_of_non_cvref<E> auto get_edges() const {
             return g.get_edges();
         }
 
@@ -155,22 +158,22 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_outputs_full */
-        auto get_outputs_full(const N& n) const {
+        full_input_output_range<N, E, ED> auto get_outputs_full(const N& n) const {
             return g.get_inputs_full(n);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs_full */
-        auto get_inputs_full(const N& n) const {
+        full_input_output_range<N, E, ED> auto get_inputs_full(const N& n) const {
             return g.get_outputs_full(n);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_outputs */
-        auto get_outputs(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto get_outputs(const N& n) const {
             return g.get_inputs(n);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs */
-        auto get_inputs(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto get_inputs(const N& n) const {
             return g.get_outputs(n);
         }
 
@@ -219,7 +222,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_offset_to_nodes */
-        auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
+        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
             if constexpr (debug_mode) {
                 if (grid_down >= grid_down_cnt || grid_right >= grid_right_cnt) {
                     throw std::runtime_error { "Out of bounds" };
@@ -229,12 +232,12 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        auto row_nodes(INDEX grid_down) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down) const {
             return g.row_nodes(grid_down_cnt - grid_down - I1) | std::views::reverse;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
             return g.row_nodes(grid_down_cnt - grid_down - I1, leaf_node, root_node) | std::views::reverse;
         }
 
@@ -244,17 +247,17 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes */
-        auto resident_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto resident_nodes() const {
             return g.resident_nodes();
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::outputs_to_residents */
-        auto outputs_to_residents(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto outputs_to_residents(const N& n) const {
             return g.inputs_from_residents(n);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::inputs_from_residents */
-        auto inputs_from_residents(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto inputs_from_residents(const N& n) const {
             return g.outputs_to_residents(n);
         }
     };

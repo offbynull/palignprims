@@ -20,7 +20,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
     using offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container_container_creator_pack
         ::slot_container_container_creator_pack;
     using offbynull::utils::copy_to_vector;
-    using offbynull::concepts::input_iterator_of_type;
+    using offbynull::concepts::input_iterator_of_non_cvref;
 
     /**
      * @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container_container_creator_pack::slot_container_container_creator_pack
@@ -44,7 +44,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
         std::vector<
             slot<N, E, WEIGHT>
         > create_slot_container(
-            input_iterator_of_type<slot<N, E, WEIGHT>> auto begin,
+            input_iterator_of_non_cvref<slot<N, E, WEIGHT>> auto begin,
             std::sentinel_for<decltype(begin)> auto end
         ) const {
             return copy_to_vector(begin, end);

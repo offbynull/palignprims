@@ -77,7 +77,7 @@ namespace offbynull::aligner::sequences::iota_sequence {
     auto create_iota_sequence(
         const widenable_to_size_t auto offset,
         const std::remove_cvref_t<decltype(offset)> bound
-    ) {
+    ) -> iota_sequence<debug_mode, std::remove_cvref_t<decltype(offset)>> {
         return iota_sequence<debug_mode, std::remove_cvref_t<decltype(offset)>> { offset, bound };
     }
 }

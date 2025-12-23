@@ -12,7 +12,7 @@
 
 namespace offbynull::aligner::sequences::sliding_window_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
 
 
@@ -30,7 +30,7 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
     concept sliding_window_sequence_container_creator_pack =
         unqualified_object_type<T>
         && requires(const T t, std::size_t reserve_len) {
-            { t.create_result_container(reserve_len) } -> random_access_range_of_type<E>;
+            { t.create_result_container(reserve_len) } -> random_access_sequence_container<E>;
         };
 
     /**
@@ -155,7 +155,13 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
      * @return Newly created @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence instance.
      */
     template<bool debug_mode>
-    auto create_heap_sliding_window_sequence(const sequence auto& seq, std::size_t chunk_length) {
+    auto create_heap_sliding_window_sequence(
+        const sequence auto& seq,
+        std::size_t chunk_length
+    ) -> sliding_window_sequence<
+        debug_mode,
+        std::remove_cvref_t<decltype(seq)>
+    > {
         return
             sliding_window_sequence<
                 debug_mode,
@@ -173,7 +179,17 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
      * @return Newly created @ref offbynull::aligner::sequences::sliding_window_sequence::sliding_window_sequence instance.
      */
     template<bool debug_mode, std::size_t chunk_length>
-    auto create_stack_sliding_window_sequence(const sequence auto& seq) {
+    auto create_stack_sliding_window_sequence(
+        const sequence auto& seq
+    ) -> sliding_window_sequence<
+        debug_mode,
+        std::remove_cvref_t<decltype(seq)>,
+        sliding_window_sequence_stack_container_creator_pack<
+            debug_mode,
+            std::remove_cvref_t<decltype(seq[0zu])>,
+            chunk_length
+        >
+    > {
         using ELEM = std::remove_cvref_t<decltype(seq[0zu])>;
         return
              sliding_window_sequence<

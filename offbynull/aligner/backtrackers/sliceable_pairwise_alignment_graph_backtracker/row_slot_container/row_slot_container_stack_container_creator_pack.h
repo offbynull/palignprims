@@ -48,7 +48,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         /**
          * @copydoc offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::unimplemented_row_slot_container_container_creator_pack::unimplemented_row_slot_container_container_creator_pack
          */
-        auto create_slot_container(std::size_t grid_right_cnt_, std::size_t grid_depth_cnt_) const {
+        SEGMENT_CONTAINER_TYPE create_slot_container(std::size_t grid_right_cnt_, std::size_t grid_depth_cnt_) const {
             std::size_t cnt { grid_right_cnt_ * grid_depth_cnt_ };
             if constexpr (debug_mode) {
                 if (cnt > max_elem_cnt) {

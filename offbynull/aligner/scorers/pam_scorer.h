@@ -146,7 +146,7 @@ X -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -8
         pam_scorer()
         : single_character_substitution_matrix_scorer<debug_mode, 25zu, SEQ_INDEX, WEIGHT> { pick_text_table() } {}
     private:
-        static consteval auto pick_text_table() {
+        static consteval const char * pick_text_table() {
             switch (distance_) {
                 case distance::_30:
                     return text_table_30;

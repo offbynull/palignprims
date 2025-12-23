@@ -34,7 +34,6 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container::slot_container;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue::ready_queue;
-    using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
 
     /**
@@ -77,7 +76,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     requires backtrackable_node<typename G::N> &&
         backtrackable_edge<typename G::E>
     class backtracker {
-    private:
+    public:
         /** `G`'s node type. */
         using N = typename G::N;
         /** `G`'s edge type. */
@@ -86,9 +85,6 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using ED = typename G::ED;
         /** `G`'s grid coordinate type. For example, `std::uint8_t` will allow up to 255 nodes on both the down and right axis. */
         using INDEX = typename G::INDEX;
-
-        static constexpr PARENT_COUNT PC0 { static_cast<PARENT_COUNT>(0zu) };
-        static constexpr PARENT_COUNT PC1 { static_cast<PARENT_COUNT>(1zu) };
 
         /**
          * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container::slot_container
@@ -118,6 +114,9 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using PATH_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_path_container(0zu));
 
     private:
+        static constexpr PARENT_COUNT PC0 { static_cast<PARENT_COUNT>(0zu) };
+        static constexpr PARENT_COUNT PC1 { static_cast<PARENT_COUNT>(1zu) };
+
         /**
          * Container factory.
          */
@@ -260,7 +259,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             return slots;
         }
 
-        range_of_type<E> auto backtrack(
+        PATH_CONTAINER backtrack(
             const G& g,
             const SLOT_CONTAINER& slots
         ) {

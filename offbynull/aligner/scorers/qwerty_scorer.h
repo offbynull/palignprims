@@ -64,11 +64,11 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
             std::get<1zu>(sorted_alphabet_and_weights)
         } {}
 
-        static constexpr auto distance_(const point& p1, const point& p2) {
+        static constexpr double distance_(const point& p1, const point& p2) {
             return std::hypot(p2.x - p1.x, p2.y - p1.y);
         }
 
-        static constexpr auto distance_(const point& p1, const horizontal_line& l2) {
+        static constexpr double distance_(const point& p1, const horizontal_line& l2) {
             if (p1.x < l2.x_left) {
                 return distance_(p1, point { l2.x_left, l2.y });
             } else if (p1.x > l2.x_right) {
@@ -79,7 +79,7 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
             std::unreachable();
         }
 
-        static constexpr auto distance_(const horizontal_line& l1, const horizontal_line& l2) {
+        static constexpr double distance_(const horizontal_line& l1, const horizontal_line& l2) {
             if (l1.x_left >= l2.x_left && l1.x_left <= l2.x_right) {
                 return std::abs(l2.y - l1.y);
             } else if (l1.x_right >= l2.x_left && l1.x_right <= l2.x_right) {
@@ -92,7 +92,7 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
             std::unreachable();
         }
 
-        static constexpr auto distance(
+        static constexpr double distance(
             const std::variant<point, horizontal_line>& item1,
             const std::variant<point, horizontal_line>& item2
         ) {

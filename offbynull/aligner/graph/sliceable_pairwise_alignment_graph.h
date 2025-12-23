@@ -12,8 +12,7 @@
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 
 namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
-    using offbynull::concepts::range_of_one_of;
-    using offbynull::concepts::bidirectional_range_of_one_of;
+    using offbynull::concepts::bidirectional_range_of_non_cvref;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::helpers::join_bidirectional_view::join_bidirectional_view_adaptor;
@@ -90,12 +89,12 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
             typename G::INDEX grid_right
         ) {
             { g.resident_nodes_capacity } -> std::same_as<const std::size_t&>;
-            { g.row_nodes(grid_down) } -> bidirectional_range_of_one_of<typename G::N, const typename G::N&>;
-            { g.row_nodes(grid_down, node, node) } -> bidirectional_range_of_one_of<typename G::N, const typename G::N&>;
+            { g.row_nodes(grid_down) } -> bidirectional_range_of_non_cvref<typename G::N>;
+            { g.row_nodes(grid_down, node, node) } -> bidirectional_range_of_non_cvref<typename G::N>;
             { g.is_reachable(node, node) } -> std::same_as<bool>;
-            { g.resident_nodes() } -> range_of_one_of<typename G::N, const typename G::N&>;
-            { g.outputs_to_residents(node) } -> range_of_one_of<typename G::E, const typename G::E&>;
-            { g.inputs_from_residents(node) } -> range_of_one_of<typename G::E, const typename G::E&>;
+            { g.resident_nodes() } -> bidirectional_range_of_non_cvref<typename G::N>;
+            { g.outputs_to_residents(node) } -> bidirectional_range_of_non_cvref<typename G::E>;
+            { g.inputs_from_residents(node) } -> bidirectional_range_of_non_cvref<typename G::E>;
         };
 
     /**
@@ -138,7 +137,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
          * @return Nodes within `grid_down` slice. This range may be lazily evaluated, meaning the behavior of this range becomes undefined
          *     once this graph is modified in any way.
          */
-        auto row_nodes(INDEX grid_down) const;
+        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down) const;
 
         /**
          * List nodes in a slice (row) as if this graph's root node and leaf node are actually `root_node` and `leaf_node` respectively.
@@ -156,7 +155,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
          * @return Nodes within `grid_down` slice. This range may be lazily evaluated, meaning the behavior of this range becomes undefined
          *     once this graph is modified in any way.
          */
-        auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const;
+        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const;
 
         /**
          * Test if `n2` is reachable from `n1`.
@@ -171,7 +170,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
          * @return Resident nodes. This range may be lazily evaluated, meaning the behavior of this range becomes undefined once this graph
          *     is modified in any way.
          */
-        auto resident_nodes() const;
+        bidirectional_range_of_non_cvref<N> auto resident_nodes() const;
 
         /**
          * List outgoing edges from `n` to resident nodes. If `n` doesn't exist within this graph, the behavior of this function is
@@ -181,7 +180,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
          * @return Edges from `n` to resident nodes. This range may be lazily evaluated, meaning the behavior of this range becomes
          *     undefined once this graph is modified in any way.
          */
-        auto outputs_to_residents(const N& n) const;
+        bidirectional_range_of_non_cvref<E> auto outputs_to_residents(const N& n) const;
 
         /**
          * List incoming edges from resident nodes to `n`. If `n` doesn't exist within this graph, the behavior of this function is
@@ -191,7 +190,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
          * @return Edges from resident nodes to `n`. This range may be lazily evaluated, meaning the behavior of this range becomes
          *     undefined once this graph is modified in any way.
          */
-        auto inputs_from_residents(const N& n) const;
+        bidirectional_range_of_non_cvref<E> auto inputs_from_residents(const N& n) const;
     };
 
 
@@ -218,7 +217,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
         bool debug_mode,
         sliceable_pairwise_alignment_graph G
     >
-    std::ranges::bidirectional_range auto generic_row_nodes(
+    bidirectional_range_of_non_cvref<typename G::N> auto generic_row_nodes(
         const G& g,
         typename G::INDEX grid_down,
         const typename G::N& root_node,
@@ -264,7 +263,7 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
         bool debug_mode,
         sliceable_pairwise_alignment_graph G
     >
-    std::ranges::bidirectional_range auto generic_row_nodes(
+    bidirectional_range_of_non_cvref<typename G::N> auto generic_row_nodes(
         const G& g,
         typename G::INDEX grid_down
     ) {

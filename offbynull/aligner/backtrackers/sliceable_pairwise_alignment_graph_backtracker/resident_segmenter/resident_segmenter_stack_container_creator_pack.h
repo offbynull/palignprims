@@ -22,7 +22,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker
         ::bidi_walker_stack_container_creator_pack::bidi_walker_stack_container_creator_pack;
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::range_of_type;
+    using offbynull::concepts::forward_range_of_non_cvref;
     using offbynull::utils::static_vector_typer;
 
     /**
@@ -69,7 +69,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         /**
          * @copydoc offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::unimplemented_resident_segmenter_container_creator_pack::unimplemented_resident_segmenter_container_creator_pack::create_resident_node_container
          */
-        RESIDENT_NODE_CONTAINER_TYPE create_resident_node_container(range_of_type<N> auto&& resident_nodes) const {
+        RESIDENT_NODE_CONTAINER_TYPE create_resident_node_container(forward_range_of_non_cvref<N> auto&& resident_nodes) const {
             return RESIDENT_NODE_CONTAINER_TYPE(resident_nodes.begin(), resident_nodes.end());
         }
 

@@ -21,7 +21,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker::bidi_walker_container_creator_pack
         ::bidi_walker_container_creator_pack;
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
 
     /**
@@ -47,10 +47,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && weight<ED>
         && requires(const T t, std::size_t resident_nodes_capacity, const std::vector<N>& resident_nodes) {
             { t.create_bidi_walker_container_creator_pack() } -> bidi_walker_container_creator_pack<N, E, ED>;
-            { t.create_resident_node_container(resident_nodes) } -> random_access_range_of_type<N>;
-            { t.create_resident_edge_container(resident_nodes_capacity) } -> random_access_range_of_type<E>;
+            { t.create_resident_node_container(resident_nodes) } -> random_access_sequence_container<N>;
+            { t.create_resident_edge_container(resident_nodes_capacity) } -> random_access_sequence_container<E>;
             { t.create_segment_hop_chain_container(resident_nodes_capacity) }
-                -> random_access_range_of_type<std::variant<hop<E>, segment<N>>>;
+                -> random_access_sequence_container<std::variant<hop<E>, segment<N>>>;
         };
 }
 

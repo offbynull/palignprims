@@ -25,7 +25,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtrackable_node::backtrackable_node;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::utils::static_vector_typer;
 

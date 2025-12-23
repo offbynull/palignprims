@@ -19,7 +19,6 @@
 
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container {
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::aligner::graph::pairwise_alignment_graph::pairwise_alignment_graph;
@@ -31,6 +30,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_node::backtrackable_node;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
     using offbynull::utils::check_multiplication_nonoverflow;
+    using offbynull::concepts::input_iterator_of_non_cvref;
 
     /**
      * Container of @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot "slots", used by
@@ -99,8 +99,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          */
         slot_container(
             const G& g_,
-            /*input_iterator_of_type<slot<N, E, WEIGHT>>*/ auto begin,
-            /*std::sentinel_for<decltype(begin)>*/ auto end,
+            input_iterator_of_non_cvref<slot<N, E, ED, PARENT_COUNT>> auto begin,
+            std::sentinel_for<decltype(begin)> auto end,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
         : g { g_ }

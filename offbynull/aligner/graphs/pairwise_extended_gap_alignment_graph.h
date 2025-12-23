@@ -15,6 +15,7 @@
 #include <format>
 #include <type_traits>
 #include <functional>
+#include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/scorer/scorer.h"
@@ -32,6 +33,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view;
     using offbynull::utils::static_vector_typer;
     using offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view;
+    using offbynull::concepts::bidirectional_range_of_non_cvref;
+    using offbynull::aligner::graph::graph::full_input_output_range;
 
     /**
      * Node data type used by
@@ -181,7 +184,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         const EXTENDED_GAP_SCORER extended_gap_scorer;
         const FREERIDE_SCORER freeride_scorer;
 
-        auto construct_full_edge(N n1, N n2) const {
+        std::tuple<E, N, N, ED> construct_full_edge(N n1, N n2) const {
             return std::tuple<E, N, N, ED> {
                 E { n1, n2 },
                 n1,
@@ -345,7 +348,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_root_nodes */
-        auto get_root_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_root_nodes() const {
             return std::ranges::single_view {
                 N {
                     node_layer::DIAGONAL,
@@ -365,7 +368,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_leaf_nodes */
-        auto get_leaf_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_leaf_nodes() const {
             return std::ranges::single_view {
                 N {
                     node_layer::DIAGONAL,
@@ -385,7 +388,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_nodes */
-        auto get_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_nodes() const {
             auto diagonal_layer_nodes {
                 std::views::cartesian_product(
                     std::views::iota(I0, grid_down_cnt),
@@ -426,7 +429,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_edges */
-        std::ranges::bidirectional_range auto get_edges() const {
+        bidirectional_range_of_non_cvref<E> auto get_edges() const {
             auto diagonal_layer_edges {
                 std::views::cartesian_product(
                     std::array<node_layer, 3zu> { node_layer::DIAGONAL, node_layer::DOWN, node_layer::RIGHT },
@@ -543,7 +546,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_outputs_full */
-        auto get_outputs_full(const N& n) const {
+        full_input_output_range<N, E, ED> auto get_outputs_full(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };
@@ -578,7 +581,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs_full */
-        auto get_inputs_full(const N& n) const {
+        full_input_output_range<N, E, ED> auto get_inputs_full(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };
@@ -617,7 +620,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_outputs */
-        auto get_outputs(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto get_outputs(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };
@@ -627,7 +630,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs */
-        auto get_inputs(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto get_inputs(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };
@@ -677,7 +680,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::edge_to_element_offsets */
-        auto edge_to_element_offsets(
+        std::optional<
+            std::pair<
+                std::optional<INDEX>,
+                std::optional<INDEX>
+            >
+        > edge_to_element_offsets(
             const E& e
         ) const {
             if constexpr (debug_mode) {
@@ -722,7 +730,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_offset_to_nodes */
-        std::ranges::bidirectional_range auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
+        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
             if constexpr (debug_mode) {
                 if (grid_down >= grid_down_cnt || grid_right >= grid_right_cnt) {
                     throw std::runtime_error { "Out of bounds" };
@@ -810,12 +818,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
 
     public:
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        auto row_nodes(INDEX grid_down) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down) const {
             return row_nodes(grid_down, get_root_node(), get_leaf_node());
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
             if constexpr (debug_mode) {
                 if (!has_node(root_node) || !has_node(leaf_node)) {
                     throw std::runtime_error { "Bad node" };
@@ -911,17 +919,17 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes */
-        auto resident_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto resident_nodes() const {
             return std::views::empty<N>;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::outputs_to_residents */
-        auto outputs_to_residents([[maybe_unused]] const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto outputs_to_residents([[maybe_unused]] const N& n) const {
             return std::views::empty<E>;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::inputs_from_residents */
-        auto inputs_from_residents([[maybe_unused]] const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto inputs_from_residents([[maybe_unused]] const N& n) const {
             return std::views::empty<E>;
         }
     };

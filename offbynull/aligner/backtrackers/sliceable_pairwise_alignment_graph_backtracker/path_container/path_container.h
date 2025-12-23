@@ -7,7 +7,6 @@
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container/path_container_container_creator_pack.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container/path_container_heap_container_creator_pack.h"
 #include <cstddef>
-#include <ranges>
 #include <utility>
 #include <stdexcept>
 
@@ -20,6 +19,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         ::path_container_container_creator_pack::path_container_container_creator_pack;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container
         ::path_container_heap_container_creator_pack::path_container_heap_container_creator_pack;
+    using offbynull::concepts::forward_range_of_non_cvref;
 
     /**
      * Path within an
@@ -258,7 +258,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *
          * @return Range that walks stored edges in reverse.
          */
-        std::ranges::forward_range auto walk_path_backward() {
+        forward_range_of_non_cvref<E> auto walk_path_backward() {
             return backward_walker_range<E> { head, tail };
         }
     };

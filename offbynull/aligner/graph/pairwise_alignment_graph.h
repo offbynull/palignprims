@@ -13,9 +13,7 @@
 #include "offbynull/aligner/concepts.h"
 
 namespace offbynull::aligner::graph::pairwise_alignment_graph {
-    using offbynull::concepts::one_of;
-    using offbynull::concepts::range_of_one_of;
-    using offbynull::concepts::bidirectional_range_of_one_of;
+    using offbynull::concepts::bidirectional_range_of_non_cvref;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::aligner::concepts::weight;
@@ -98,7 +96,7 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
                     std::size_t
                 >
             >;
-            { g.grid_offset_to_nodes(indexer, indexer) } -> bidirectional_range_of_one_of<typename G::N, const typename G::N&>;
+            { g.grid_offset_to_nodes(indexer, indexer) } -> bidirectional_range_of_non_cvref<typename G::N>;
             { g.edge_to_element_offsets(edge) } -> std::same_as<
                 std::optional<
                     std::pair<
@@ -197,7 +195,7 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
          * @return Nodes within the layers at coordinate `(down_idx, right_idx)`, returned in topological order. This range may be lazily
          *     evaluated, meaning the behavior of this range becomes undefined once this graph is modified in any way.
          */
-        auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const;
+        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const;
 
         /**
          * Get index within downward sequence and rightward sequence associated with `e`. When `e` is associated with ...
@@ -218,7 +216,12 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
          * @return Index within downward sequence and rightward sequence associated with `e`, both of which are optional. See function body
          *     documentation above for full breakdown of expectations.
          */
-        auto edge_to_element_offsets(const typename unimplemented_graph<N_, ND_, E_, ED_>::E& e) const;
+        std::optional<
+            std::pair<
+                std::optional<INDEX>,
+                std::optional<INDEX>
+            >
+        > edge_to_element_offsets(const typename unimplemented_graph<N_, ND_, E_, ED_>::E& e) const;
     };
 }
 

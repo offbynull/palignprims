@@ -16,6 +16,7 @@
 #include <format>
 #include <type_traits>
 #include <ostream>
+#include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graphs/grid_graph.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/sequence/sequence.h"
@@ -38,6 +39,8 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
     using offbynull::helpers::concat_bidirectional_view::concat_bidirectional_view;
     using offbynull::helpers::blankable_bidirectional_view::blankable_bidirectional_view;
     using offbynull::utils::static_vector_typer;
+    using offbynull::concepts::bidirectional_range_of_non_cvref;
+    using offbynull::aligner::graph::graph::full_input_output_range;
 
     /**
      * @ref offbynull::aligner::graphs::pairwise_overlap_alignment_graph::pairwise_overlap_alignment_graph's edge type.
@@ -306,7 +309,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_root_nodes */
-        auto get_root_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_root_nodes() const {
             return g.get_root_nodes();
         }
 
@@ -316,7 +319,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_leaf_nodes */
-        auto get_leaf_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_leaf_nodes() const {
             return g.get_leaf_nodes();
         }
 
@@ -326,12 +329,12 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_nodes */
-        auto get_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto get_nodes() const {
             return g.get_nodes();
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_edges */
-        auto get_edges() const {
+        bidirectional_range_of_non_cvref<E> auto get_edges() const {
             auto from_src_range {
                 std::views::iota(I0, g.grid_down_cnt)
                 | std::views::drop(1zu) // drop 0
@@ -401,7 +404,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_outputs_full */
-        auto get_outputs_full(const N& n) const {
+        full_input_output_range<N, E, ED> auto get_outputs_full(const N& n) const {
             auto standard_outputs {
                 g.get_outputs_full(n)
                 | std::views::transform([this](const auto& raw_full_edge) {
@@ -444,7 +447,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs_full */
-        auto get_inputs_full(const N& n) const {
+        full_input_output_range<N, E, ED> auto get_inputs_full(const N& n) const {
             auto standard_inputs {
                 g.get_inputs_full(n)
                 | std::views::transform([this](const auto& raw_full_edge) {
@@ -487,7 +490,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_outputs */
-        auto get_outputs(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto get_outputs(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };
@@ -498,7 +501,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs */
-        auto get_inputs(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto get_inputs(const N& n) const {
             if constexpr (debug_mode) {
                 if (!has_node(n)) {
                     throw std::runtime_error { "Node doesn't exist" };
@@ -555,7 +558,12 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::edge_to_element_offsets */
-        auto edge_to_element_offsets(
+        std::optional<
+            std::pair<
+                std::optional<INDEX>,
+                std::optional<INDEX>
+            >
+        > edge_to_element_offsets(
             const E& e
         ) const {
             if constexpr (debug_mode) {
@@ -596,17 +604,17 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_offset_to_nodes */
-        auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
+        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
             return g.grid_offset_to_nodes(grid_down, grid_right);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        auto row_nodes(INDEX grid_down) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down) const {
             return g.row_nodes(grid_down);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
             return g.row_nodes(grid_down, root_node, leaf_node);
         }
 
@@ -616,12 +624,12 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes */
-        auto resident_nodes() const {
+        bidirectional_range_of_non_cvref<N> auto resident_nodes() const {
             return std::array<N, 2zu> { g.get_root_node(), g.get_leaf_node() };
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::outputs_to_residents */
-        auto outputs_to_residents(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto outputs_to_residents(const N& n) const {
             using CONTAINER = static_vector_typer<debug_mode, E, 2zu>::type;
             CONTAINER ret {};
             const N& leaf_node { get_leaf_node() };
@@ -639,7 +647,7 @@ namespace offbynull::aligner::graphs::pairwise_overlap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::inputs_from_residents */
-        auto inputs_from_residents(const N& n) const {
+        bidirectional_range_of_non_cvref<E> auto inputs_from_residents(const N& n) const {
             using CONTAINER = static_vector_typer<debug_mode, E, 2zu>::type;
             CONTAINER ret {};
             const N& root_node { get_root_node() };

@@ -6,14 +6,13 @@
 #include <cstddef>
 #include <array>
 #include <vector>
-#include <ranges>
 #include <type_traits>
 #include <utility>
 #include <stdexcept>
 
 namespace offbynull::aligner::sequences::chunk_sequence {
     using offbynull::aligner::sequence::sequence::sequence;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
 
 
@@ -31,9 +30,7 @@ namespace offbynull::aligner::sequences::chunk_sequence {
     concept chunk_sequence_container_creator_pack =
         unqualified_object_type<T>
         && requires(const T t, std::size_t chunk_len) {
-            // TODO: Return concept check is wrong? Random access range doesn't allow write access via [] operator, only read access? Add
-            //       check to see if std::ranges::range_reference_t<R> is a non-const reference?
-            { t.create_chunk_container(chunk_len) } -> random_access_range_of_type<E>;
+            { t.create_chunk_container(chunk_len) } -> random_access_sequence_container<E>;
         };
 
     /**
@@ -164,7 +161,10 @@ namespace offbynull::aligner::sequences::chunk_sequence {
      * @return Newly created @ref offbynull::aligner::sequences::chunk_sequence::chunk_sequence instance.
      */
     template<bool debug_mode>
-    auto create_heap_chunk_sequence(const sequence auto& seq, std::size_t chunk_length) {
+    auto create_heap_chunk_sequence(
+        const sequence auto& seq,
+        std::size_t chunk_length
+    ) -> chunk_sequence<debug_mode, std::remove_cvref_t<decltype(seq)>> {
         return
             chunk_sequence<
                 debug_mode,
@@ -182,7 +182,17 @@ namespace offbynull::aligner::sequences::chunk_sequence {
      * @return Newly created @ref offbynull::aligner::sequences::chunk_sequence::chunk_sequence instance.
      */
     template<bool debug_mode, std::size_t chunk_length>
-    auto create_stack_chunk_sequence(const sequence auto& seq) {
+    auto create_stack_chunk_sequence(
+        const sequence auto& seq
+    ) -> chunk_sequence<
+        debug_mode,
+        std::remove_cvref_t<decltype(seq)>,
+        chunk_sequence_stack_container_creator_pack<
+            debug_mode,
+            std::remove_cvref_t<decltype(seq[0zu])>,
+            chunk_length
+        >
+    > {
         using ELEM = std::remove_cvref_t<decltype(seq[0zu])>;
         return
              chunk_sequence<

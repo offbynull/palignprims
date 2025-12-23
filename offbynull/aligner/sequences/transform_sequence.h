@@ -91,7 +91,11 @@ namespace offbynull::aligner::sequences::transform_sequence {
     auto create_transform_sequence(
         const sequence auto& seq,
         const transformer<std::remove_cvref_t<decltype(seq[0zu])>> auto& transformer_
-    ) {
+    ) -> transform_sequence<
+        debug_mode,
+        std::remove_cvref_t<decltype(seq)>,
+        std::remove_cvref_t<decltype(transformer_)>
+    > {
         return transform_sequence<
                 debug_mode,
                 std::remove_cvref_t<decltype(seq)>,

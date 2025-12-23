@@ -15,7 +15,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
         ::resident_slot_with_node::resident_slot_with_node;
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
 
     /**
@@ -43,7 +43,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const T t,
             const std::vector<resident_slot_with_node<N, E, ED>>& fake_range
         ) {
-            { t.create_slot_container(fake_range) } -> random_access_range_of_type<resident_slot_with_node<N, E, ED>>;
+            { t.create_slot_container(fake_range) } -> random_access_sequence_container<resident_slot_with_node<N, E, ED>>;
         };
 }
 

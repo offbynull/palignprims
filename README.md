@@ -1,7 +1,8 @@
 TODO:
 
 * update meson based on new cookiecutter templates.
-* Add concept checks to autos
+* @tparam E and anywhere that takes an edge should be "edge identifier"
+* @tparam N and anywhere that takes an edge should be "node identifier"
 
 * enable struct packing via  a template parameter instead of a define? may cause lots of duplication. 
 

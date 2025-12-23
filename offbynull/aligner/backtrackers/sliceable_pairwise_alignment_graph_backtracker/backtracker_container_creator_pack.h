@@ -17,7 +17,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         ::resident_segmenter_container_creator_pack::resident_segmenter_container_creator_pack;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::sliced_subdivider
         ::sliced_subdivider_container_creator_pack::sliced_subdivider_container_creator_pack;
-    using offbynull::concepts::random_access_range_of_type;
+    using offbynull::concepts::random_access_sequence_container;
     using offbynull::concepts::unqualified_object_type;
 
     /**
@@ -44,7 +44,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && requires(T t, std::size_t path_edge_capacity) {
             { t.create_resident_segmenter_container_creator_pack() } -> resident_segmenter_container_creator_pack<N, E, ED>;
             { t.create_sliced_subdivider_container_creator_pack() } -> sliced_subdivider_container_creator_pack<N, E, ED>;
-            { t.create_path_container(path_edge_capacity) } -> random_access_range_of_type<E>;
+            { t.create_path_container(path_edge_capacity) } -> random_access_sequence_container<E>;
         };
 }
 

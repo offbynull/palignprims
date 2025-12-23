@@ -24,7 +24,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::bidi_walker
         ::bidi_walker_heap_container_creator_pack::bidi_walker_heap_container_creator_pack;
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::range_of_type;
+    using offbynull::concepts::forward_range_of_non_cvref;
 
     /**
      * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::resident_segmenter_container_creator_pack::resident_segmenter_container_creator_pack
@@ -61,7 +61,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         /**
          * @copydoc offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::unimplemented_resident_segmenter_container_creator_pack::unimplemented_resident_segmenter_container_creator_pack::create_resident_node_container
          */
-        std::vector<N> create_resident_node_container(range_of_type<N> auto&& resident_nodes) const {
+        std::vector<N> create_resident_node_container(forward_range_of_non_cvref<N> auto&& resident_nodes) const {
             if constexpr (std::ranges::sized_range<std::remove_cvref_t<decltype(resident_nodes)>>) {
                 std::vector<N> ret {};
                 ret.reserve(std::ranges::size(resident_nodes));

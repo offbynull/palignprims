@@ -58,7 +58,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
         ::resident_slot_container_stack_container_creator_pack::resident_slot_container_stack_container_creator_pack;
     using offbynull::aligner::concepts::weight;
-    using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::unqualified_object_type;
 

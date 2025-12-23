@@ -8,7 +8,6 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         ::unimplemented_resident_slot_container_container_creator_pack {
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot_with_node
         ::resident_slot_with_node;
-    using offbynull::concepts::range_of_type;
 
     /**
      * Unimplemented

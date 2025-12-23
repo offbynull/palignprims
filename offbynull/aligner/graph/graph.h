@@ -4,12 +4,16 @@
 #include <cstddef>
 #include <tuple>
 #include <concepts>
+#include <ranges>
+#include <type_traits>
 #include "offbynull/concepts.h"
 
 namespace offbynull::aligner::graph::graph {
-    using offbynull::concepts::one_of;
-    using offbynull::concepts::forward_range_of_one_of;
+    using offbynull::concepts::bidirectional_range_of_non_cvref;
     using offbynull::concepts::unqualified_object_type;
+    using offbynull::concepts::same_as_non_cvref;
+    using offbynull::concepts::tuple_with_3_non_cvref_children;
+    using offbynull::concepts::tuple_with_4_non_cvref_children;
 
     /**
      * Concept that's satisfied if `N` is an object type (e.g. not a reference, not CV-qualified) and has the traits of an
@@ -18,7 +22,7 @@ namespace offbynull::aligner::graph::graph {
      *  * Must be copyable / moveable.
      *  * Must be comparable using equality and inequality (`==` and `!=` operators).
      *
-     * @tparam N Type to check.
+     * @tparam N Type to check (non-cvref).
      */
     template<typename N>
     concept node = unqualified_object_type<N> && std::copyable<N> && std::equality_comparable<N>;
@@ -30,10 +34,33 @@ namespace offbynull::aligner::graph::graph {
      *  * Must be copyable / moveable.
      *  * Must be comparable using equality and inequality (`==` and `!=` operators).
      *
-     * @tparam E Type to check.
+     * @tparam E Type to check (non-cvref).
      */
     template<typename E>
     concept edge = unqualified_object_type<E> && std::copyable<E> && std::equality_comparable<E>;
+
+    /**
+     * Concept that's satisfied if `T` is a range (not a reference, not CV-qualified) of tuples, where each tuple contains the edge, from
+     * node, to node, and edge data (`tuple<E, N, N, ED>`). Const, volatile, and references are removed from each item before checking
+     * types.
+     *
+     * @tparam T Type of check (non-cvref).
+     * @tparam N Node type (non-cvref).
+     * @tparam E Edge type (non-cvref).
+     * @tparam ED Edge data type (non-cvref).
+     */
+    template<typename T, typename N, typename E, typename ED>
+    concept full_input_output_range = std::ranges::bidirectional_range<T>
+        && node<N>
+        && edge<E>
+        && unqualified_object_type<ED>
+        && tuple_with_4_non_cvref_children<
+            std::remove_cvref_t<std::ranges::range_reference_t<T>>,
+            E,
+            N,
+            N,
+            ED
+        >;
 
     /**
      * Concept that's satisfied if `G` is an object type (e.g. not a reference, not CV-qualified) and has the traits of a directed graph. A
@@ -61,38 +88,23 @@ namespace offbynull::aligner::graph::graph {
             typename G::ED;
             // { typename G::N {} } -> node;  // Commented out because it was decided that node IDs don't have to be default constructible
             // { typename G::E {} } -> edge;  // Commented out because it was decided that edge IDs don't have to be default constructible
-            { g.get_node_data(n) } -> one_of<typename G::ND, const typename G::ND&>;
-            { g.get_edge_data(e) } -> one_of<typename G::ED, const typename G::ED&>;
-            { g.get_edge_from(e) } -> one_of<typename G::N, const typename G::N&>;
-            { g.get_edge_to(e) } -> one_of<typename G::N, const typename G::N&>;
-            { g.get_edge(e) } -> one_of<
-                std::tuple<typename G::N, typename G::N, typename G::ED>,
-                std::tuple<typename G::N, typename G::N, const typename G::ED&>,
-                std::tuple<const typename G::N&, const typename G::N&, typename G::ED>,
-                std::tuple<const typename G::N&, const typename G::N&, const typename G::ED&>
-            >;
-            { g.get_root_nodes() } -> forward_range_of_one_of<typename G::N, const typename G::N&>;
-            { g.get_root_node() } -> one_of<typename G::N, const typename G::N&>;
-            { g.get_leaf_nodes() } -> forward_range_of_one_of<typename G::N, const typename G::N&>;
-            { g.get_leaf_node() } -> one_of<typename G::N, const typename G::N&>;
-            { g.get_nodes() } -> forward_range_of_one_of<typename G::N, const typename G::N&>;
-            { g.get_edges() } -> forward_range_of_one_of<typename G::E, const typename G::E&>;
+            { g.get_node_data(n) } -> same_as_non_cvref<typename G::ND>;
+            { g.get_edge_data(e) } -> same_as_non_cvref<typename G::ED>;
+            { g.get_edge_from(e) } -> same_as_non_cvref<typename G::N>;
+            { g.get_edge_to(e) } -> same_as_non_cvref<typename G::N>;
+            { g.get_edge(e) } -> tuple_with_3_non_cvref_children<typename G::N, typename G::N, typename G::ED>;
+            { g.get_root_nodes() } -> bidirectional_range_of_non_cvref<typename G::N>;
+            { g.get_root_node() } -> same_as_non_cvref<typename G::N>;
+            { g.get_leaf_nodes() } -> bidirectional_range_of_non_cvref<typename G::N>;
+            { g.get_leaf_node() } -> same_as_non_cvref<typename G::N>;
+            { g.get_nodes() } -> bidirectional_range_of_non_cvref<typename G::N>;
+            { g.get_edges() } -> bidirectional_range_of_non_cvref<typename G::E>;
             { g.has_node(n) } -> std::same_as<bool>;
             { g.has_edge(e) } -> std::same_as<bool>;
-            { g.get_outputs_full(n) } -> forward_range_of_one_of<
-                std::tuple<typename G::E, typename G::N, typename G::N, typename G::ED>,
-                std::tuple<typename G::E, typename G::N, typename G::N, const typename G::ED&>,
-                std::tuple<const typename G::E&, const typename G::N&, const typename G::N&, typename G::ED>,
-                std::tuple<const typename G::E&, const typename G::N&, const typename G::N&, const typename G::ED&>
-            >;
-            { g.get_inputs_full(n) } -> forward_range_of_one_of<
-                std::tuple<typename G::E, typename G::N, typename G::N, typename G::ED>,
-                std::tuple<typename G::E, typename G::N, typename G::N, const typename G::ED&>,
-                std::tuple<const typename G::E&, const typename G::N&, const typename G::N&, typename G::ED>,
-                std::tuple<const typename G::E&, const typename G::N&, const typename G::N&, const typename G::ED&>
-            >;
-            { g.get_outputs(n) } -> forward_range_of_one_of<typename G::E, const typename G::E&>;
-            { g.get_inputs(n) } -> forward_range_of_one_of<typename G::E, const typename G::E&>;
+            { g.get_outputs_full(n) } -> full_input_output_range<typename G::N, typename G::E, typename G::ED>;
+            { g.get_inputs_full(n) } -> full_input_output_range<typename G::N, typename G::E, typename G::ED>;
+            { g.get_outputs(n) } -> bidirectional_range_of_non_cvref<typename G::E>;
+            { g.get_inputs(n) } -> bidirectional_range_of_non_cvref<typename G::E>;
             { g.has_outputs(n) } -> std::same_as<bool>;
             { g.has_inputs(n) } -> std::same_as<bool>;
             { g.get_out_degree(n) } -> std::same_as<std::size_t>;
@@ -174,7 +186,7 @@ namespace offbynull::aligner::graph::graph {
          * @return IDs of root nodes. This range may be lazily evaluated, meaning the behavior of this range becomes undefined once this
          *     graph is modified in any way.
          */
-        auto get_root_nodes() const;
+        bidirectional_range_of_non_cvref<N> auto get_root_nodes() const;
 
         /**
          * Get root node. If this graph doesn't contain exactly 1 root node, the behavior of this function is undefined.
@@ -189,7 +201,7 @@ namespace offbynull::aligner::graph::graph {
          * @return IDs of leaf nodes. This range may be lazily evaluated, meaning the behavior of this range becomes undefined once this
          *     graph is modified in any way.
          */
-        auto get_leaf_nodes() const;
+        bidirectional_range_of_non_cvref<N> auto get_leaf_nodes() const;
 
         /**
          * Get leaf node. If this graph doesn't contain exactly 1 leaf node, the behavior of this function is undefined.
@@ -204,7 +216,7 @@ namespace offbynull::aligner::graph::graph {
          * @return Node IDs. This range may be lazily evaluated, meaning the behavior of this range becomes undefined once this graph is
          *     modified in any way.
          */
-        auto get_nodes() const;
+        bidirectional_range_of_non_cvref<N> auto get_nodes() const;
 
         /**
          * List all edges.
@@ -212,7 +224,7 @@ namespace offbynull::aligner::graph::graph {
          * @return Edge IDs. This range may be lazily evaluated, meaning the behavior of this range becomes undefined once this graph is
          *     modified in any way.
          */
-        auto get_edges() const;
+        bidirectional_range_of_non_cvref<E> auto get_edges() const;
 
         /**
          * Test if node exists.
@@ -239,7 +251,7 @@ namespace offbynull::aligner::graph::graph {
          *     IDs), and the data associated with that edge. This range may be lazily evaluated, meaning the behavior of this range becomes
          *     undefined once this graph is modified in any way.
          */
-        auto get_outputs_full(const N& n) const;
+        full_input_output_range<N, E, ED> auto get_outputs_full(const N& n) const;
 
         /**
          * List out `n`'s incoming edges, including each edge's source, destination, and data. If `n` doesn't exist within this graph, the
@@ -250,7 +262,7 @@ namespace offbynull::aligner::graph::graph {
          *     (node IDs), and the data associated with that edge. This range may be lazily evaluated, meaning the behavior of this range
          *     becomes undefined once this graph is modified in any way.
          */
-        auto get_inputs_full(const N& n) const;
+        full_input_output_range<N, E, ED> auto get_inputs_full(const N& n) const;
 
         /**
          * List out `n`'s outgoing edges. If `n` doesn't exist within this graph, the behavior of this function is undefined.
@@ -259,7 +271,7 @@ namespace offbynull::aligner::graph::graph {
          * @return IDs of edges where `n` is the source node. This range may be lazily evaluated, meaning the behavior of this range becomes
          *    undefined once this graph is modified in any way.
          */
-        auto get_outputs(const N& n) const;
+        bidirectional_range_of_non_cvref<E> auto get_outputs(const N& n) const;
 
         /**
          * List out `n`'s incoming edges. If `n` doesn't exist within this graph, the behavior of this function is undefined.
@@ -268,7 +280,7 @@ namespace offbynull::aligner::graph::graph {
          * @return IDs of edges where `n` is the destination node. This range may be lazily evaluated, meaning the behavior of this range
          *     becomes undefined once this graph is modified in any way.
          */
-        auto get_inputs(const N& n) const;
+        bidirectional_range_of_non_cvref<E> auto get_inputs(const N& n) const;
 
         /**
          * Test if `n` has any outgoing edges. If `n` doesn't exist within this graph, the behavior of this function is undefined.

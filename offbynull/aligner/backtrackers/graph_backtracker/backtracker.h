@@ -58,9 +58,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
         ::ready_queue_heap_container_creator_pack;
     using offbynull::aligner::backtrackers::graph_backtracker::ready_queue::ready_queue_stack_container_creator_pack
         ::ready_queue_stack_container_creator_pack;
-    using offbynull::concepts::range_of_type;
     using offbynull::concepts::widenable_to_size_t;
-    using offbynull::concepts::random_access_range_of_type;
     using offbynull::concepts::unqualified_object_type;
 
     /**
@@ -352,7 +350,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
          * @param end_node Node to backtrack from, which almost always should be `g`'s leaf node.
          * @return Maximally weighted path from `g`'s root node to `end_node`.
          */
-        auto backtrack(
+        PATH_CONTAINER backtrack(
                 const G& g,
                 SLOT_CONTAINER& slots,
                 const N& end_node
