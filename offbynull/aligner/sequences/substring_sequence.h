@@ -37,7 +37,10 @@ namespace offbynull::aligner::sequences::substring_sequence {
         , offset { offset_ }
         , length { length_ } {
             if constexpr (debug_mode) {
-                if (seq.length() - offset < length_) {
+                if (offset_ > seq.size()) {
+                    throw std::runtime_error { "Offset out of bounds" };
+                }
+                if (length_ > seq.size() - offset_) {
                     throw std::runtime_error { "Length out of bounds" };
                 }
             }
@@ -68,7 +71,7 @@ namespace offbynull::aligner::sequences::substring_sequence {
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
      * @param seq Underlying sequence.
-     * @param offset Index within `seq_` to start from.
+     * @param offset Index within `seq` to start from.
      * @param length Number of elements within this sequence.
      * @return Newly created @ref offbynull::aligner::sequences::substring_sequence::substring_sequence instance.
      */

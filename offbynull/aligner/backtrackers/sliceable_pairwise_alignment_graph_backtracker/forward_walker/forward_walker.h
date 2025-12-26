@@ -91,10 +91,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using E = typename G::E;
         using ND = typename G::ND;
         using ED = typename G::ED;
-        using INDEX = typename G::INDEX;
+        using N_INDEX = typename G::N_INDEX;
 
-        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
-        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+        static constexpr N_INDEX I0 { static_cast<N_INDEX>(0zu) };
+        static constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu) };
 
         using ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_row_slot_container_container_creator_pack());
@@ -124,7 +124,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          */
         static forward_walker create_and_initialize(
             const G& g_,
-            const INDEX target_row,
+            const N_INDEX target_row,
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         ) {
             if constexpr (debug_mode) {
@@ -211,7 +211,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                                 const N& n_from { g.get_edge_from(edge) };
                                 const ED& edge_weight { g.get_edge_data(edge) };
                                 slot<E, ED>& n_from_slot { find(n_from) };
-                                return { edge, n_from_slot.backtracking_weight + edge_weight };
+                                return {
+                                    edge,
+                                    static_cast<ED>(n_from_slot.backtracking_weight + edge_weight)  // Cast to prevent narrowing warning
+                                };
                             }
                         )
                     )
@@ -249,7 +252,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     resident_slot_.slot_.backtracking_weight = edge_weight;
                     resident_slot_.initialized = true;
                 } else {
-                    const ED& new_weight { row_entry_.slot_ptr->backtracking_weight + edge_weight };
+                    ED new_weight {
+                        static_cast<ED>(row_entry_.slot_ptr->backtracking_weight + edge_weight)  // Cast to prevent narrowing warning
+                    };
                     if (new_weight > resident_slot_.slot_.backtracking_weight) {
                         resident_slot_.slot_.backtracking_edge = { edge };
                         resident_slot_.slot_.backtracking_weight = new_weight;

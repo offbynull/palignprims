@@ -80,7 +80,7 @@ namespace offbynull::concepts {
     template<typename T, typename V>
     concept forward_range_of_exact = std::ranges::forward_range<T>
         && std::same_as<std::ranges::range_reference_t<T>, V>;
-    // NOTE: It turns out that std::range_reference_t returns whatever type the range's iterator deference operation returns. So, for
+    // NOTE: It turns out that std::ranges::range_reference_t returns whatever type the range's iterator deference operation returns. For
     //       example, if dereferencing returns int instead int&, std::ranges::range_reference_t<T> will resolve to int.
 
     /**
@@ -103,7 +103,7 @@ namespace offbynull::concepts {
     template<typename T, typename V>
     concept forward_range_of_non_cvref = std::ranges::forward_range<T>
         && (unqualified_object_type<V> && std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<T>>, V>);
-    // NOTE: It turns out that std::range_reference_t returns whatever type the range's iterator deference operation returns. So, for
+    // NOTE: It turns out that std::ranges::range_reference_t returns whatever type the range's iterator deference operation returns. For
     //       example, if dereferencing returns int instead int&, std::ranges::range_reference_t<T> will resolve to int.
 
     /**
@@ -116,7 +116,7 @@ namespace offbynull::concepts {
     template<typename T, typename V>
     concept bidirectional_range_of_exact = std::ranges::bidirectional_range<T>
         && std::same_as<std::ranges::range_reference_t<T>, V>;
-    // NOTE: It turns out that std::range_reference_t returns whatever type the range's iterator deference operation returns. So, for
+    // NOTE: It turns out that std::ranges::range_reference_t returns whatever type the range's iterator deference operation returns. For
     //       example, if dereferencing returns int instead int&, std::ranges::range_reference_t<T> will resolve to int.
 
     /**
@@ -139,7 +139,7 @@ namespace offbynull::concepts {
     template<typename T, typename V>
     concept bidirectional_range_of_non_cvref = std::ranges::bidirectional_range<T>
         && (unqualified_object_type<V> && std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<T>>, V>);
-    // NOTE: It turns out that std::range_reference_t returns whatever type the range's iterator deference operation returns. So, for
+    // NOTE: It turns out that std::ranges::range_reference_t returns whatever type the range's iterator deference operation returns. For
     //       example, if dereferencing returns int instead int&, std::ranges::range_reference_t<T> will resolve to int.
 
     /**
@@ -162,7 +162,7 @@ namespace offbynull::concepts {
     template<typename T, typename V>
     concept random_access_range_of_exact = std::ranges::random_access_range<T>
         && std::same_as<std::ranges::range_reference_t<T>, V>;
-    // NOTE: It turns out that std::range_reference_t returns whatever type the range's iterator deference operation returns. So, for
+    // NOTE: It turns out that std::ranges::range_reference_t returns whatever type the range's iterator deference operation returns. For
     //       example, if dereferencing returns int instead int&, std::ranges::range_reference_t<T> will resolve to int.
 
     /**
@@ -185,7 +185,7 @@ namespace offbynull::concepts {
     template<typename T, typename V>
     concept random_access_range_of_non_cvref = std::ranges::random_access_range<T>
         && (unqualified_object_type<V> && std::same_as<std::remove_cvref_t<std::ranges::range_reference_t<T>>, V>);
-    // NOTE: It turns out that std::range_reference_t returns whatever type the range's iterator deference operation returns. So, for
+    // NOTE: It turns out that std::ranges::range_reference_t returns whatever type the range's iterator deference operation returns. For
     //       example, if dereferencing returns int instead int&, std::ranges::range_reference_t<T> will resolve to int.
 
     /**
@@ -206,7 +206,7 @@ namespace offbynull::concepts {
         };
     
     /**
-     * Concept that's satisfied if `T` is can be cast to `std::size_t` without data loss / truncation.
+     * Concept that's satisfied if `T` can be cast to `std::size_t` without data loss / truncation.
      *
      * @tparam T Type to check.
      */
@@ -284,6 +284,14 @@ namespace offbynull::concepts {
         && (unqualified_object_type<V1> && std::same_as<std::remove_cvref_t<decltype(std::get<1zu>(std::declval<T>()))>, V1>)
         && (unqualified_object_type<V2> && std::same_as<std::remove_cvref_t<decltype(std::get<2zu>(std::declval<T>()))>, V2>)
         && (unqualified_object_type<V3> && std::same_as<std::remove_cvref_t<decltype(std::get<3zu>(std::declval<T>()))>, V3>);
+
+    /**
+     * Concept that's satisfied if `T` is either an integer or a floating point number.
+     *
+     * @tparam T Type to check.
+     */
+    template<typename T>
+    concept numeric = std::integral<T> || std::floating_point<T>;
 }
 
 #endif //OFFBYNULL_CONCEPTS_H

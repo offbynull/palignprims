@@ -46,7 +46,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             E,
             ED,
             minimize_allocations
-        > create_resident_segmenter_container_creator_pack() {
+        > create_resident_segmenter_container_creator_pack() const {
             return {};
         }
 
@@ -57,14 +57,14 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             debug_mode,
             E,
             ED
-        > create_sliced_subdivider_container_creator_pack() {
+        > create_sliced_subdivider_container_creator_pack() const {
             return {};
         }
 
         /**
          * @copydoc offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::unimplemented_backtracker_container_creator_pack::unimplemented_backtracker_container_creator_pack::create_path_container
          */
-        std::vector<E> create_path_container(std::size_t path_edge_capacity) {
+        std::vector<E> create_path_container(std::size_t path_edge_capacity) const {
             std::vector<E> ret {};
             if constexpr (minimize_allocations) {
                 ret.reserve(path_edge_capacity);

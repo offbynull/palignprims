@@ -56,7 +56,7 @@ namespace {
         std::cout << std::endl;
         std::cout << weight << std::endl;
         EXPECT_EQ(
-            path,
+            copy_to_vector(path),
             (std::vector<E> {
                 E { { 0zu, 0zu }, { 1zu, 1zu } },
                 E { { 1zu, 1zu }, { 1zu, 2zu } }
@@ -100,7 +100,7 @@ namespace {
         std::cout << std::endl;
         std::cout << weight << std::endl;
         EXPECT_EQ(
-            path,
+            copy_to_vector(path),
             (std::vector<E> {
                 E { { 0zu, 0zu }, { 1zu, 1zu } },
                 E { { 1zu, 1zu }, { 1zu, 2zu } }
@@ -144,7 +144,7 @@ namespace {
         std::cout << std::endl;
         std::cout << weight << std::endl;
         EXPECT_EQ(
-            path,
+            copy_to_vector(path),
             (std::vector<E> {
                 E { { 0zu, 0zu }, { 1zu, 1zu } },
                 E { { 1zu, 1zu }, { 1zu, 2zu } }

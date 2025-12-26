@@ -52,7 +52,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         && widenable_to_size_t<PARENT_COUNT>
         && widenable_to_size_t<SLOT_INDEX>
         && requires(const T t, std::size_t path_edge_capacity) {
-            { t.create_slot_container_container_creator_pack() } -> slot_container_container_creator_pack<N, E, ED, PARENT_COUNT>;
+            { t.create_slot_container_container_creator_pack() }
+                -> slot_container_container_creator_pack<N, E, ED, PARENT_COUNT, SLOT_INDEX>;
             { t.create_ready_queue_container_creator_pack() } -> ready_queue_container_creator_pack<SLOT_INDEX>;
             { t.create_path_container(path_edge_capacity) } -> random_access_sequence_container<E>;
         };

@@ -65,7 +65,7 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
      * Given a background in graph theory and alignment graphs, most of these should be self-explanatory just from the name and concept
      * restrictions. Note that, although many member variables seem useless, those member variables are ...
      *
-     *  * required for certain high-performance algorithms.
+     *  * required for high-performance algorithms.
      *  * typically computed very quickly (in constant-time) due to the mostly homogenous grid-like nature of alignment graphs.
      *
      * @tparam G Type to check.
@@ -74,25 +74,25 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
     concept pairwise_alignment_graph =
         unqualified_object_type<G>
         && graph<G>
-        && widenable_to_size_t<typename G::INDEX>
+        && widenable_to_size_t<typename G::N_INDEX>
         && weight<typename G::ED>
         && requires(
             G g,
             typename G::N node,
             typename G::E edge,
-            typename G::INDEX indexer
+            typename G::N_INDEX indexer
         ) {
-            { g.grid_down_cnt } -> std::same_as<const typename G::INDEX&>;
-            { g.grid_right_cnt } -> std::same_as<const typename G::INDEX&>;
-            { g.grid_depth_cnt } -> std::same_as<const typename G::INDEX&>;
+            { g.grid_down_cnt } -> std::same_as<const typename G::N_INDEX&>;
+            { g.grid_right_cnt } -> std::same_as<const typename G::N_INDEX&>;
+            { g.grid_depth_cnt } -> std::same_as<const typename G::N_INDEX&>;
             compile_time_constant<G::grid_depth_cnt> {};  // Enforces that grid_depth must be static compile-time const (constexpr)
             { g.path_edge_capacity } -> std::same_as<const std::size_t&>;
             { g.node_incoming_edge_capacity } -> std::same_as<const std::size_t&>;
             { g.node_outgoing_edge_capacity } -> std::same_as<const std::size_t&>;
             { g.node_to_grid_offset(node) } -> std::same_as<
                 std::tuple<
-                    typename G::INDEX,
-                    typename G::INDEX,
+                    typename G::N_INDEX,
+                    typename G::N_INDEX,
                     std::size_t
                 >
             >;
@@ -100,8 +100,8 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
             { g.edge_to_element_offsets(edge) } -> std::same_as<
                 std::optional<
                     std::pair<
-                        std::optional<typename G::INDEX>,
-                        std::optional<typename G::INDEX>
+                        std::optional<typename G::N_INDEX>,
+                        std::optional<typename G::N_INDEX>
                     >
                 >
             >;
@@ -115,14 +115,14 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
      * @tparam ND_ Node data type, used to associated data with nodes.
      * @tparam E_ Edge identifier type, used to lookup edges.
      * @tparam ED_ Edge data type, used to associated data with edges.
-     * @tparam INDEX_ Node coordinate type.
+     * @tparam N_INDEX_ Node coordinate type.
      */
     template<
         node N_,
         unqualified_object_type ND_,
         edge E_,
         unqualified_object_type ED_,
-        widenable_to_size_t INDEX_
+        widenable_to_size_t N_INDEX_
     >
     struct unimplemented_pairwise_alignment_graph : unimplemented_graph<N_, ND_, E_, ED_> {
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::N */
@@ -135,28 +135,28 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
         using ED = ED_;
         /** Grid coordinate type. For example, `std::uint8_t` will allow up to 255 nodes on both the down and right axis, meaning it'll
          * support sequences of lengths up to 255-1. */
-        using INDEX = INDEX_;
+        using N_INDEX = N_INDEX_;
 
     private:
-        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
-        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+        static constexpr N_INDEX I0 { static_cast<N_INDEX>(0zu) };
+        static constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu) };
 
     public:
         /**
          * Number of rows within the grid, which maps to downward sequence's length + 1.
          */
-        const INDEX grid_down_cnt;
+        const N_INDEX grid_down_cnt;
         /**
          * Number of columns within the grid, which maps to rightward sequence's length + 1.
          */
-        const INDEX grid_right_cnt;
+        const N_INDEX grid_right_cnt;
         /**
          * Number of layers within the grid (grid's depth). Some pairwise alignment algorithms, such as extended gap alignment, require
          * multiple layers.
          *
          * *Note that this is expected to be a compile-time constant (`constexpr`).*
          */
-        static constexpr INDEX grid_depth_cnt { I0 };
+        static constexpr N_INDEX grid_depth_cnt { I0 };
         /** Maximum number of resident nodes. */
         static constexpr std::size_t resident_nodes_capacity { 0zu };
         /** Of all paths between root and leaf, the maximum number of edges. */
@@ -172,7 +172,7 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
          * @param n Node ID.
          * @return `n`'s grid position: Down-position (row), right-position (column), layer (depth).
          */
-        std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offset(const typename unimplemented_graph<N_, ND_, E_, ED_>::N& n) const;
+        std::tuple<N_INDEX, N_INDEX, std::size_t> node_to_grid_offset(const typename unimplemented_graph<N_, ND_, E_, ED_>::N& n) const;
 
         /**
          * Get nodes residing at grid position `(down_idx, right_idx)` within graph. Note that there may be multiple nodes returned if grid
@@ -195,7 +195,7 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
          * @return Nodes within the layers at coordinate `(down_idx, right_idx)`, returned in topological order. This range may be lazily
          *     evaluated, meaning the behavior of this range becomes undefined once this graph is modified in any way.
          */
-        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const;
+        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(N_INDEX grid_down, N_INDEX grid_right) const;
 
         /**
          * Get index within downward sequence and rightward sequence associated with `e`. When `e` is associated with ...
@@ -218,8 +218,8 @@ namespace offbynull::aligner::graph::pairwise_alignment_graph {
          */
         std::optional<
             std::pair<
-                std::optional<INDEX>,
-                std::optional<INDEX>
+                std::optional<N_INDEX>,
+                std::optional<N_INDEX>
             >
         > edge_to_element_offsets(const typename unimplemented_graph<N_, ND_, E_, ED_>::E& e) const;
     };

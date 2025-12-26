@@ -44,7 +44,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             E,
             ED,
             minimize_allocations
-        > create_forward_walker_container_creator_pack() {
+        > create_forward_walker_container_creator_pack() const {
             return {};
         }
 
@@ -57,7 +57,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             E,
             ED,
             minimize_allocations
-        > create_backward_walker_container_creator_pack() {
+        > create_backward_walker_container_creator_pack() const {
             return {};
         }
     };

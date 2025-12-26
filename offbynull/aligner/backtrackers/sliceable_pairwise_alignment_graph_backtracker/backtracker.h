@@ -1,7 +1,6 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_BACKTRACKER_H
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_BACKTRACKER_H
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cmath>
@@ -16,6 +15,7 @@
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/backtracker_stack_container_creator_pack.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/resident_segmenter/resident_segmenter.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/sliced_subdivider/sliced_subdivider.h"
+#include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/concepts.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h"
@@ -45,6 +45,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::graphs::suffix_sliceable_pairwise_alignment_graph::suffix_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::concepts::backtracking_result;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::concepts
+        ::backtracking_result_without_explicit_weight;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::utils::static_vector_typer;
@@ -88,7 +91,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         /** `G`'s edge data type. */
         using ED = typename G::ED;
         /** `G`'s grid coordinate type. For example, `std::uint8_t` will allow up to 255 nodes on both the down and right axis. */
-        using INDEX = typename G::INDEX;
+        using N_INDEX = typename G::N_INDEX;
 
         /**
          * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::resident_segmenter::resident_segmenter
@@ -140,7 +143,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *     on multiple factors (e.g., which floating point type is used, expected graph size, expected magnitudes, etc..).
          * @return Maximally weighted path from `g`'s root node to `g`'s leaf node, along with that path's weight.
          */
-        std::pair<PATH_CONTAINER, ED> find_max_path(
+        backtracking_result<ED> auto find_max_path(
             const G& g,
             const ED max_path_weight_comparison_tolerance
         ) {
@@ -184,19 +187,19 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                         container_creator_pack.create_sliced_subdivider_container_creator_pack()
                     };
                     auto path_container { subdivider.subdivide() };
-                    auto size_before { path.size() };
-                    for (const E& edge : path_container.walk_path_backward()) {
+                    for (const E& edge : path_container.walk_path_forward()) {
                         path.push_back(edge);
                     }
-                    std::reverse(
-                        path.begin() + size_before,
-                        path.end()
-                    );
                 } else {
-                    throw std::runtime_error { "This should never happen" };
+                    if constexpr (debug_mode) {
+                        throw std::runtime_error { "This should never happen" };
+                    }
                 }
             }
-            return { path, final_weight };
+            return std::make_pair(
+                std::move(path),
+                final_weight
+            );  // NOTE: No dangling issues - make_pair() stores values, not refs.
         }
     };
 
@@ -218,7 +221,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         bool debug_mode,
         bool minimize_allocations
     >
-    auto heap_find_max_path(
+    backtracking_result_without_explicit_weight auto heap_find_max_path(
         const sliceable_pairwise_alignment_graph auto& g,
         typename std::remove_cvref_t<decltype(g)>::ED max_path_weight_comparison_tolerance
     ) {
@@ -262,7 +265,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         std::size_t resident_nodes_capacity,
         std::size_t path_edge_capacity
     >
-    auto stack_find_max_path(
+    backtracking_result_without_explicit_weight auto stack_find_max_path(
         const sliceable_pairwise_alignment_graph auto& g,
         typename std::remove_cvref_t<decltype(g)>::ED max_path_weight_comparison_tolerance
     ) {

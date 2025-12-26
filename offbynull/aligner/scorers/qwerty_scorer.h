@@ -208,7 +208,6 @@ namespace offbynull::aligner::scorers::qwerty_scorer {
     static_assert(
         scorer<
             qwerty_scorer<true, std::size_t, float>,
-            std::pair<int, int>,
             std::size_t,
             char,
             char,

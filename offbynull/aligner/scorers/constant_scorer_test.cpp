@@ -1,7 +1,6 @@
 #include "offbynull/aligner/scorers/constant_scorer.h"
 #include "offbynull/utils.h"
 #include "gtest/gtest.h"
-#include <tuple>
 #include <cstddef>
 
 namespace {
@@ -14,7 +13,7 @@ namespace {
         char b_ { 'b' };
         char z_ { 'z' };
         char c_ { 'c' };
-        EXPECT_EQ(5, (scorer(std::tuple<> {}, { { 0zu, { a_ } } }, { { 0zu, { b_ } } })));
-        EXPECT_EQ(5, (scorer(std::tuple<> {}, { { 0zu, { z_ } } }, { { 0zu, { c_ } } })));
+        EXPECT_EQ(5, (scorer({ { 0zu, { a_ } } }, { { 0zu, { b_ } } })));
+        EXPECT_EQ(5, (scorer({ { 0zu, { z_ } } }, { { 0zu, { c_ } } })));
     }
 }

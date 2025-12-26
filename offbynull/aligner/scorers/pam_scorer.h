@@ -166,7 +166,6 @@ X -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -8
     static_assert(
         scorer<
             pam_scorer<true, distance::_250, std::size_t, float>,
-            std::pair<int, int>,
             std::size_t,
             char,
             char,

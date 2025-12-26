@@ -1,0 +1,86 @@
+#include <cstddef>
+#include <cstdint>
+#include <stdfloat>
+#include <iostream>
+#include <ostream>
+#include <string>
+#include "offbynull/aligner/aligners/extended_gap_dynamic_programming_heap_aligner.h"
+#include "offbynull/aligner/scorers/simple_scorer.h"
+#include "offbynull/aligner/aligners/utils.h"
+#include "offbynull/aligner/aligners/concepts.h"
+#include "offbynull/utils.h"
+#include "gtest/gtest.h"
+
+namespace {
+    using offbynull::aligner::aligners::extended_gap_dynamic_programming_heap_aligner::extended_gap_dynamic_programming_heap_aligner;
+    using offbynull::aligner::scorers::simple_scorer::simple_scorer;
+    using offbynull::aligner::aligners::utils::alignment_to_stacked_string;
+    using offbynull::utils::is_debug_mode;
+
+    TEST(OAAExtendedGapDynamicProgrammingHeapAlignerTest, SanityTest) {
+        extended_gap_dynamic_programming_heap_aligner<is_debug_mode()> aligner {};
+        auto substitution_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, int>::create_substitution(10, -10) };
+        auto initial_gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, int>::create_gap(-10) };
+        auto extended_gap_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, int>::create_gap(-1) };
+        auto freeride_scorer { simple_scorer<is_debug_mode(), std::size_t, char, char, int>::create_freeride() };
+        std::string down { "TGGCGG" };
+        std::string right { "TCCCCC" };
+        const auto& [alignment, score] {
+            aligner.align(down, right, substitution_scorer, initial_gap_scorer, extended_gap_scorer, freeride_scorer)
+        };
+        EXPECT_EQ(-15, score);
+        std::cout << score << std::endl;
+        std::cout << alignment_to_stacked_string<is_debug_mode()>(down, right, alignment) << std::endl;
+    }
+
+    TEST(OAAExtendedGapDynamicProgrammingHeapAlignerTest, ParameterizationTest) {
+        extended_gap_dynamic_programming_heap_aligner<is_debug_mode()> aligner {};
+
+        std::string down { "TGGCGG" };
+        std::string right { "TCCCCC" };
+
+        auto align_ {
+            [&]<typename N_INDEX, typename WEIGHT>() {
+                auto substitution_scorer {
+                    simple_scorer<is_debug_mode(), N_INDEX, char, char, WEIGHT>::create_substitution(
+                        static_cast<WEIGHT>(10),
+                        static_cast<WEIGHT>(-10)
+                    )
+                };
+                auto initial_gap_scorer {
+                    simple_scorer<is_debug_mode(), N_INDEX, char, char, WEIGHT>::create_gap(
+                        static_cast<WEIGHT>(-10)
+                    )
+                };
+                auto extended_gap_scorer {
+                    simple_scorer<is_debug_mode(), N_INDEX, char, char, WEIGHT>::create_gap(
+                        static_cast<WEIGHT>(-1)
+                    )
+                };
+                auto freeride_scorer {
+                    simple_scorer<is_debug_mode(), N_INDEX, char, char, WEIGHT>::create_freeride()
+                };
+                const auto& [alignment, score] {
+                    aligner.align_strict<N_INDEX, WEIGHT>(down, right, substitution_scorer, initial_gap_scorer, extended_gap_scorer,
+                            freeride_scorer)
+                };
+                return score;
+            }
+        };
+
+        // small index type
+        EXPECT_EQ(-15, (align_.operator()<std::uint8_t, std::int8_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::uint8_t, std::int16_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::uint8_t, std::int32_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::uint8_t, std::int64_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::uint8_t, std::float32_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::uint8_t, std::float64_t>()));
+        // large index type
+        EXPECT_EQ(-15, (align_.operator()<std::size_t, std::int8_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::size_t, std::int16_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::size_t, std::int32_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::size_t, std::int64_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::size_t, std::float32_t>()));
+        EXPECT_EQ(-15, (align_.operator()<std::size_t, std::float64_t>()));
+    }
+}

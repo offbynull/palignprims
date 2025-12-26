@@ -18,7 +18,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * @return @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker::forward_walker
          *     container creator pack, used by the forward walker.
          */
-        auto create_forward_walker_container_creator_pack();
+        auto create_forward_walker_container_creator_pack() const;
 
         /**
          * Create
@@ -28,7 +28,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * @return @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker::forward_walker
          *     container creator pack, used by the backward walker.
          */
-        auto create_backward_walker_container_creator_pack();
+        auto create_backward_walker_container_creator_pack() const;
     };
 }
 

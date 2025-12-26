@@ -129,6 +129,11 @@ namespace offbynull::aligner::sequences::sliding_window_sequence {
          * @copydoc offbynull::aligner::sequence::sequence::unimplemented_sequence::operator[]
          */
         RESULT_CONTAINER operator[](std::size_t index) const {
+            if constexpr (debug_mode) {
+                if (index >= size()) {
+                    throw std::runtime_error { "Out of bounds" };
+                }
+            }
             RESULT_CONTAINER ret { container_creator_pack.create_result_container(window_length) };
             for (std::size_t i { 0zu }; i < window_length; i++) {
                 ret[i] = seq[index + i];

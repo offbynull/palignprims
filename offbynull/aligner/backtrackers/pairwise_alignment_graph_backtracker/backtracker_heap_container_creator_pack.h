@@ -57,7 +57,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             N,
             E,
             ED,
-            PARENT_COUNT
+            PARENT_COUNT,
+            SLOT_INDEX
         > create_slot_container_container_creator_pack() const {
             return {};
         }

@@ -37,7 +37,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && backtrackable_node<N>
         && backtrackable_edge<E>
         && weight<ED>
-        && requires(T t) {
+        && requires(const T t) {
             { t.create_forward_walker_container_creator_pack() } -> forward_walker_container_creator_pack<N, E, ED>;
             { t.create_backward_walker_container_creator_pack() } -> forward_walker_container_creator_pack<N, E, ED>;
         };

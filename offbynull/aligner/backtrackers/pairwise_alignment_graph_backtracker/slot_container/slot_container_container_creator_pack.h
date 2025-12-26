@@ -29,13 +29,16 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
      * @tparam PARENT_COUNT Graph node incoming edge counter type. Must be wide enough to hold the maximum number of incoming edges across
      *      all nodes in the underlying pairwise alignment graph instance (e.g., across all nodes in any global pairwise alignment graph, a
      *      node can have at most 3 incoming edges).
+     * @tparam SLOT_INDEX Slot indexer type. Must be wide enough to hold the value `grid_down_cnt * grid_right_cnt * grid_depth_cnt`
+     *     (variables being multiplied are the dimensions of the pairwise alignment graph).
      */
     template<
         typename T,
         typename N,
         typename E,
         typename ED,
-        typename PARENT_COUNT
+        typename PARENT_COUNT,
+        typename SLOT_INDEX
     >
     concept slot_container_container_creator_pack =
         unqualified_object_type<T>

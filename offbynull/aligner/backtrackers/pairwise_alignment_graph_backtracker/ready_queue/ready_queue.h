@@ -19,7 +19,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::unqualified_object_type;
     using offbynull::utils::static_vector_typer;
-    using offbynull::utils::check_multiplication_nonoverflow;
+    using offbynull::utils::check_multiplication_nonoverflow_throwable;
 
     /**
      * Queue of node positions within an
@@ -67,7 +67,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         )
         : queue { container_creator_pack.create_queue_container(g.grid_down_cnt, g.grid_right_cnt, g.grid_depth_cnt) } {
             if constexpr (debug_mode) {
-                check_multiplication_nonoverflow<SLOT_INDEX>(g.grid_down_cnt, g.grid_right_cnt, g.grid_depth_cnt);
+                check_multiplication_nonoverflow_throwable<SLOT_INDEX>(g.grid_down_cnt, g.grid_right_cnt, g.grid_depth_cnt);
             }
         }
 

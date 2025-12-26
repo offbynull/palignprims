@@ -60,7 +60,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using E = typename G::E;
         using ND = typename G::ND;
         using ED = typename G::ED;
-        using INDEX = typename G::INDEX;
+        using N_INDEX = typename G::N_INDEX;
         using SLOT_CONTAINER = decltype(
             std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(
                 std::declval<std::vector<resident_slot_with_node<N, E, ED>>>()

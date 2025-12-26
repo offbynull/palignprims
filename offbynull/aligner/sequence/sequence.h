@@ -28,7 +28,7 @@ namespace offbynull::aligner::sequence::sequence {
     template<typename T>
     concept sequence =
         unqualified_object_type<T>
-        && requires(T t) {
+        && requires(const T t) {
             { t[0zu] } -> convertible_to_unqualified_object_type;  // unqualified object type or convertible to one (copy constructor)
             { t.size() } -> std::same_as<std::size_t>;
         }
@@ -40,10 +40,7 @@ namespace offbynull::aligner::sequence::sequence {
 
     /**
      * Unimplemented @ref offbynull::aligner::sequence::sequence::sequence, intended for documentation.
-     *
-     * @tparam I Type of integer.
      */
-    template<widenable_to_size_t I>
     struct unimplemented_sequence {
         /**
          * Get element at index `index`.
@@ -51,7 +48,7 @@ namespace offbynull::aligner::sequence::sequence {
          * @param index Index of element.
          * @return Value at `index`.
          */
-        I operator[](std::size_t index) const;
+         decltype(auto) operator[](std::size_t index) const;
 
         /**
          * Get number of elements.

@@ -32,8 +32,8 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
     >
     class prefix_sliceable_pairwise_alignment_graph {
     public:
-        /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::INDEX */
-        using INDEX = typename G::INDEX;
+        /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N_INDEX */
+        using N_INDEX = typename G::N_INDEX;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N */
         using N = typename G::N;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::E */
@@ -44,9 +44,9 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         using ND = typename G::ND;
 
     private:
-        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
-        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
-        static constexpr INDEX I2 { static_cast<INDEX>(2zu) };
+        static constexpr N_INDEX I0 { static_cast<N_INDEX>(0zu) };
+        static constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu) };
+        static constexpr N_INDEX I2 { static_cast<N_INDEX>(2zu) };
 
         const G& g;
         const N new_leaf_node;
@@ -69,11 +69,11 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
 
     public:
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_down_cnt */
-        const INDEX grid_down_cnt;
+        const N_INDEX grid_down_cnt;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_right_cnt */
-        const INDEX grid_right_cnt;
+        const N_INDEX grid_right_cnt;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_depth_cnt */
-        static constexpr INDEX grid_depth_cnt { G::grid_depth_cnt };
+        static constexpr N_INDEX grid_depth_cnt { G::grid_depth_cnt };
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes_capacity */
         const std::size_t resident_nodes_capacity;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::path_edge_capacity */
@@ -96,8 +96,12 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         )
         : g { g_ }
         , new_leaf_node { new_leaf_node_ }
-        , grid_down_cnt { std::get<0zu>(g.node_to_grid_offset(new_leaf_node)) + I1 }
-        , grid_right_cnt { std::get<1zu>(g.node_to_grid_offset(new_leaf_node)) + I1 }
+        , grid_down_cnt {
+            static_cast<N_INDEX>(std::get<0zu>(g.node_to_grid_offset(new_leaf_node)) + I1)  // Cast to prevent narrowing warning
+        }
+        , grid_right_cnt {
+            static_cast<N_INDEX>(std::get<1zu>(g.node_to_grid_offset(new_leaf_node)) + I1)  // Cast to prevent narrowing warning
+        }
         , resident_nodes_capacity { g.resident_nodes_capacity }
         , path_edge_capacity { g.path_edge_capacity }
         , node_incoming_edge_capacity { g.node_incoming_edge_capacity }
@@ -300,19 +304,19 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::edge_to_element_offsets */
-        std::optional<std::pair<std::optional<INDEX>, std::optional<INDEX>>> edge_to_element_offsets(
+        std::optional<std::pair<std::optional<N_INDEX>, std::optional<N_INDEX>>> edge_to_element_offsets(
             const E& e
         ) const {
             return g.edge_to_element_offsets(e);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::node_to_grid_offset */
-        std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offset(const N& n) const {
+        std::tuple<N_INDEX, N_INDEX, std::size_t> node_to_grid_offset(const N& n) const {
             return g.node_to_grid_offset(n);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_offset_to_nodes */
-        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
+        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(N_INDEX grid_down, N_INDEX grid_right) const {
             if constexpr (debug_mode) {
                 if (grid_down >= grid_down_cnt || grid_right >= grid_right_cnt) {
                     throw std::runtime_error { "Out of bounds" };
@@ -327,12 +331,12 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(N_INDEX grid_down) const {
             return row_nodes(grid_down, g.get_root_node(), new_leaf_node);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(N_INDEX grid_down, const N& root_node, const N& leaf_node) const {
             if constexpr (debug_mode) {
                 if (!has_node(root_node) || !has_node(leaf_node)) {
                     throw std::runtime_error { "Node doesn't exist" };

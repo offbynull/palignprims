@@ -211,6 +211,9 @@ namespace offbynull::aligner::graph::utils {
      * @return GraphViz script.
      */
     template<graph G>
+    requires requires(const typename G::N& n) {
+        { std::format("{}", n) } -> std::convertible_to<std::string>;
+    }
     std::string graph_to_graphviz(
         const G &g
     ) {

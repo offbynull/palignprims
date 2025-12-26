@@ -4,6 +4,7 @@
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container/element.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container/backward_walker_range.h"
+#include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container/forward_walker_range.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container/path_container_container_creator_pack.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/path_container/path_container_heap_container_creator_pack.h"
 #include <cstddef>
@@ -15,6 +16,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::element::element;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::backward_walker_range
         ::backward_walker_range;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::forward_walker_range
+        ::forward_walker_range;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container
         ::path_container_container_creator_pack::path_container_container_creator_pack;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container
@@ -48,7 +51,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         ELEMENT_CONTAINER element_container;
         element<E>* head;
         element<E>* tail;
-        std::size_t next_idx;
+        std::size_t next_idx;  // TODO: What's the point of this? why not just insert elements instead of preloading and using next_idx?
+                               //       The maximum path length is being preallocated, but that's a waste in most cases? (it'll be less)
 
     public:
         /**
@@ -260,6 +264,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          */
         forward_range_of_non_cvref<E> auto walk_path_backward() {
             return backward_walker_range<E> { head, tail };
+        }
+
+        /**
+         * Get range that walks the edges contained in this path container.
+         *
+         * @return Range that walks stored edges.
+         */
+        forward_range_of_non_cvref<E> auto walk_path_forward() {
+            return forward_walker_range<E> { head, tail };
         }
     };
 }

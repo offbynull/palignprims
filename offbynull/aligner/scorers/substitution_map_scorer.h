@@ -21,17 +21,23 @@ namespace offbynull::aligner::scorers::substitution_map_scorer {
      * @ref offbynull::aligner::scorer::scorer::scorer which scores elements using a `std::map`.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam SEQ_INDEX Sequence indexer type.
+     * @tparam SEQ_INDEX_ Sequence indexer type.
      * @tparam DOWN_ELEM Pairwise alignment graph's downward sequence element type.
      * @tparam RIGHT_ELEM Pairwise alignment graph's rightward sequence element type.
-     * @tparam WEIGHT Pairwise alignment graph's edge data type (edge's weight).
+     * @tparam WEIGHT_ Pairwise alignment graph's edge data type (edge's weight).
      */
-    template<bool debug_mode, widenable_to_size_t SEQ_INDEX, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
+    template<bool debug_mode, widenable_to_size_t SEQ_INDEX_, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT_>
     requires requires (const DOWN_ELEM down_elem, const RIGHT_ELEM right_elem) {
         { down_elem < down_elem } -> std::same_as<bool>;
         { right_elem < right_elem } -> std::same_as<bool>;
     }
     class substitution_map_scorer {
+    public:
+        /** @copydoc offbynull::aligner::scorer::scorer::unimplemented_scorer::WEIGHT */
+        using WEIGHT = WEIGHT_;
+        /** @copydoc offbynull::aligner::scorer::scorer::unimplemented_scorer::SEQ_INDEX */
+        using SEQ_INDEX = SEQ_INDEX_;
+
     private:
         const std::map<std::pair<std::optional<DOWN_ELEM>, std::optional<RIGHT_ELEM>>, WEIGHT> data;
 
@@ -62,17 +68,16 @@ namespace offbynull::aligner::scorers::substitution_map_scorer {
          * @copydoc offbynull::aligner::scorer::scorer::unimplemented_scorer::operator()()
          */
         WEIGHT operator()(
-            [[maybe_unused]] const auto& edge,
             const std::optional<
                 std::pair<
                     SEQ_INDEX,
-                    std::reference_wrapper<const char>
+                    std::reference_wrapper<const DOWN_ELEM>
                 >
             > down_elem,
             const std::optional<
                 std::pair<
                     SEQ_INDEX,
-                    std::reference_wrapper<const char>
+                    std::reference_wrapper<const RIGHT_ELEM>
                 >
             > right_elem
         ) const {
@@ -107,7 +112,6 @@ namespace offbynull::aligner::scorers::substitution_map_scorer {
     static_assert(
         scorer<
             substitution_map_scorer<true, std::size_t, char, char, float>,
-            std::pair<int, int>,
             std::size_t,
             char,
             char,
