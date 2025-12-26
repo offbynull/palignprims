@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdfloat>
 #include <cstddef>
-#include "offbynull/aligner/aligner.h"
+#include "offbynull/aligner/global_aligner.h"
 
 int main() {
     using offbynull::aligner::aligner::align_heap;

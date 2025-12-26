@@ -1,7 +1,5 @@
 TODO:
 
-* user-friendly entry-points into alignments
-
 * enable struct packing via  a template parameter instead of a define? may cause lots of duplication. 
 
 * sequence implementations for the following (see seqeunce concept)
@@ -19,10 +17,4 @@ TODO:
   * did this but didn't bother going too deep into the flame graph -- make sure to turn off D_GLIBCXX_DEBUG to get true results
 
 
-* Update get_in_degree() / get_out_degree() functions to calculate directly
-
-* Integer promotion rules hit when you use types smaller than int:
-  * e.g. subtracting two chars results in an int, meaning if you have char x = c1 - c2, you'll get "warning: conversion from ‘int’ to ‘unsigned char’ may change value [-Warith-conversion]"
-  * Lots of places +1u -1u or == 0u, use offbynull::utils::constants<T> to get literals of the correct type ()
-  * option 1: you might have to forcefully static_cast every addition / subtraction?
-  * option 2: you might have to write a integer wrapper that avoids integer promotion rules (internally static_casts)? 
+* Update get_in_degree() / get_out_degree() functions to calculate directly 

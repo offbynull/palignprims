@@ -11,7 +11,7 @@
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_stack_container_creator_pack {
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::utils::static_vector_typer;
-    using offbynull::utils::check_multiplication_nonoverflow;
+    using offbynull::utils::check_multiplication_nonoverflow_throwable;
 
     /**
      * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue_container_creator_pack::ready_queue_container_creator_pack
@@ -48,8 +48,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             std::size_t grid_depth_cnt_
         ) const {
             if constexpr (debug_mode) {
-                check_multiplication_nonoverflow<std::size_t>(grid_down_cnt, grid_right_cnt, grid_depth_cnt);
-                if (grid_down_cnt != grid_down_cnt_ || grid_right_cnt != grid_right_cnt_ || grid_depth_cnt != grid_depth_cnt_) {
+                check_multiplication_nonoverflow_throwable<std::size_t>(grid_down_cnt, grid_right_cnt, grid_depth_cnt);
+                if (grid_down_cnt_ > grid_down_cnt || grid_right_cnt_ > grid_right_cnt || grid_depth_cnt_ > grid_depth_cnt) {
                     throw std::runtime_error { "Count mismatch" };
                 }
             }

@@ -41,7 +41,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         && backtrackable_node<N>
         && backtrackable_edge<E>
         && weight<ED>
-        && requires(T t) {
+        && requires(const T t) {
             { t.create_row_slot_container_container_creator_pack() } -> row_slot_container_container_creator_pack<E, ED>;
             { t.create_path_container_container_creator_pack() } -> path_container_container_creator_pack<E>;
         };

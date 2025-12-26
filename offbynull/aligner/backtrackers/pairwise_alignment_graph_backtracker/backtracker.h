@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <ranges>
-#include <algorithm>
 #include <utility>
 #include <functional>
 #include <limits>
@@ -19,6 +18,7 @@
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container/slot.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/slot_container/slot_container.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
+#include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/concepts.h"
 #include "offbynull/concepts.h"
 
 namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker {
@@ -34,6 +34,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container::slot_container;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue::ready_queue;
+    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::concepts::backtracking_result;
+    using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::concepts::backtracking_result_without_explicit_weight;
     using offbynull::concepts::widenable_to_size_t;
 
     /**
@@ -84,7 +86,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         /** `G`'s edge data type. */
         using ED = typename G::ED;
         /** `G`'s grid coordinate type. For example, `std::uint8_t` will allow up to 255 nodes on both the down and right axis. */
-        using INDEX = typename G::INDEX;
+        using N_INDEX = typename G::N_INDEX;
 
         /**
          * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container::slot_container
@@ -96,7 +98,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container::slot_container type
          * used by this backtracker implementation.
          */
-        using SLOT_CONTAINER = slot_container<debug_mode, G, PARENT_COUNT, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
+        using SLOT_CONTAINER = slot_container<debug_mode, G, PARENT_COUNT, SLOT_INDEX, SLOT_CONTAINER_CONTAINER_CREATOR_PACK>;
         /**
          * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::ready_queue::ready_queue::ready_queue container
          * factory type used by this backtracker implementation.
@@ -142,14 +144,17 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          * @param g Graph.
          * @return Maximally weighted path from `g`'s root node to `g`'s leaf node, along with that path's weight.
          */
-        std::pair<PATH_CONTAINER, ED> find_max_path(
+        backtracking_result<ED> auto find_max_path(
             const G& g
         ) {
             auto slots { populate_weights_and_backtrack_pointers(g) };
-            const auto& path { backtrack(g, slots) };
+            auto path { backtrack(g, slots) };  // NOTE: Don't use const auto& or auto&& - can't end up as const due to std::move() below
             const auto& leaf_node { g.get_leaf_node() };
             const auto& weight { slots.find_ref(leaf_node).backtracking_weight };
-            return { path, weight };
+            return std::make_pair(
+                std::move(path),  // For some reason this range can't be copied, but it can be moved?
+                weight
+            );  // NOTE: No dangling issues - make_pair() stores values, not refs.
         }
 
     private:
@@ -203,7 +208,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             // selecting highest one as the edge to backtrack to.
             top:
             while (!ready_idxes.empty()) {
-                std::size_t idx { ready_idxes.pop() };
+                SLOT_INDEX idx { ready_idxes.pop() };
                 auto& current_slot { slots.at_idx(idx) };
                 for (const auto& edge : g.get_inputs(current_slot.node)) {
                     const auto& src_node { g.get_edge_from(edge) };
@@ -249,7 +254,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
                             throw std::runtime_error { "Invalid number of unprocessed parents" };
                         }
                     }
-                    dst_slot.unwalked_parent_cnt = dst_slot.unwalked_parent_cnt - PC1;
+                    dst_slot.unwalked_parent_cnt = static_cast<PARENT_COUNT>(dst_slot.unwalked_parent_cnt - PC1);
                     if (dst_slot.unwalked_parent_cnt == PC0) {
                         ready_idxes.push(dst_slot_idx);
                     }
@@ -259,7 +264,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             return slots;
         }
 
-        PATH_CONTAINER backtrack(
+        auto backtrack(
             const G& g,
             const SLOT_CONTAINER& slots
         ) {
@@ -278,10 +283,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
                 path.push_back(node_slot.backtracking_edge);
                 next_node = g.get_edge_from(node_slot.backtracking_edge);
             }
-            // At this point, path is in reverse order (from last to first). Reverse it to get it into the forward order
-            // (from first to last).
-            std::reverse(path.begin(), path.end());
-            return path;
+            // At this point, path is in reverse order (from last to first). Reverse it (view) to get it into forward order.
+            return std::move(path) | std::views::reverse;
         }
     };
 
@@ -312,7 +315,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         widenable_to_size_t SLOT_INDEX,
         bool minimize_allocations
     >
-    auto heap_find_max_path(
+    backtracking_result_without_explicit_weight auto heap_find_max_path(
         const pairwise_alignment_graph auto& g
     ) {
         using G = std::remove_cvref_t<decltype(g)>;
@@ -360,7 +363,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         std::size_t grid_depth_cnt,
         std::size_t path_edge_capacity
     >
-    auto stack_find_max_path(
+    backtracking_result_without_explicit_weight auto stack_find_max_path(
         const pairwise_alignment_graph auto& g
     ) {
         using G = std::remove_cvref_t<decltype(g)>;

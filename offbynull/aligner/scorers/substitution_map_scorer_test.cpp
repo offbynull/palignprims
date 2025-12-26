@@ -2,7 +2,6 @@
 #include "offbynull/utils.h"
 #include "gtest/gtest.h"
 #include <optional>
-#include <tuple>
 #include <cstddef>
 
 namespace {
@@ -25,10 +24,10 @@ namespace {
         };
         char a_ { 'a' };
         char b_ { 'b' };
-        EXPECT_EQ(1, (scorer(std::tuple<> {}, { { 0zu, { a_ } } }, { { 0zu, { a_ } } })));
-        EXPECT_EQ(0, (scorer(std::tuple<> {}, { { 0zu, { a_ } } }, { { 0zu, { b_ } } })));
-        EXPECT_EQ(-1, (scorer(std::tuple<> {}, { { 0zu, { a_ } } }, { std::nullopt })));
-        EXPECT_EQ(-1, (scorer(std::tuple<> {}, { std::nullopt }, { { 0zu, { b_ } } })));
-        EXPECT_EQ(0, (scorer(std::tuple<> {}, { std::nullopt }, { std::nullopt })));
+        EXPECT_EQ(1, (scorer({ { 0zu, { a_ } } }, { { 0zu, { a_ } } })));
+        EXPECT_EQ(0, (scorer({ { 0zu, { a_ } } }, { { 0zu, { b_ } } })));
+        EXPECT_EQ(-1, (scorer({ { 0zu, { a_ } } }, { std::nullopt })));
+        EXPECT_EQ(-1, (scorer({ std::nullopt }, { { 0zu, { b_ } } })));
+        EXPECT_EQ(0, (scorer({ std::nullopt }, { std::nullopt })));
     }
 }

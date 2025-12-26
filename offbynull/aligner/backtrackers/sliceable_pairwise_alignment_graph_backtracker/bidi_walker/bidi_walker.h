@@ -66,7 +66,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using E = typename G::E;
         using ND = typename G::ND;
         using ED = typename G::ED;
-        using INDEX = typename G::INDEX;
+        using N_INDEX = typename G::N_INDEX;
 
     private:
         using FORWARD_WALKER_CONTAINER_CREATOR_PACK =
@@ -74,11 +74,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using BACKWARD_WALKER_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_backward_walker_container_creator_pack());
 
-        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
-        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
+        static constexpr N_INDEX I0 { static_cast<N_INDEX>(0zu) };
+        static constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu) };
 
         const G& g;
-        const INDEX target_row;
+        const N_INDEX target_row;
         const reversed_sliceable_pairwise_alignment_graph<debug_mode, G> reversed_g;
         forward_walker<debug_mode, G, FORWARD_WALKER_CONTAINER_CREATOR_PACK> forward_walker_;
         forward_walker<debug_mode, std::remove_const_t<decltype(reversed_g)>, BACKWARD_WALKER_CONTAINER_CREATOR_PACK> backward_walker;
@@ -103,7 +103,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          */
         static bidi_walker create_and_initialize(
             const G& g_,
-            const INDEX target_row,
+            const N_INDEX target_row,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         ) {
             if constexpr (debug_mode) {
@@ -228,7 +228,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const N& node
         ) {
             find_result_copy slots { converge(g, node) };
-            return slots.forward_slot.backtracking_weight + slots.backward_slot.backtracking_weight;
+            return static_cast<ED>(
+                slots.forward_slot.backtracking_weight + slots.backward_slot.backtracking_weight
+            );   // Cast to prevent narrowing warning
         }
 
         /**
@@ -272,8 +274,30 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
             bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g, down) };
             for (const auto& entry : bidi_walker_.list()) {
-                ED node_converged_weight { entry.slots.forward_slot.backtracking_weight + entry.slots.backward_slot.backtracking_weight };
-                if (std::abs(node_converged_weight -  max_path_weight) <= max_path_weight_comparison_tolerance) {
+                ED node_converged_weight {
+                    static_cast<ED>(
+                        entry.slots.forward_slot.backtracking_weight + entry.slots.backward_slot.backtracking_weight
+                    )  // Cast to prevent narrowing warning
+                };
+                // Why not use ...
+                //
+                //     if (std::abs(node_converged_weight -  max_path_weight) <= max_path_weight_comparison_tolerance) {
+                //         return true;
+                //     }
+                //
+                // ... instead of the block below? If ED is unsigned, std::abs() doesn't have overloads for unsigned types.
+                auto diff {
+                    [](ED a, ED b) {
+                        if (a < b) {
+                            return static_cast<ED>(b - a);  // Cast to prevent narrowing warning
+                        } else {
+                            return static_cast<ED>(a - b);  // Cast to prevent narrowing warning
+                        }
+                    }
+                };
+                // TODO: Instead of diffing against max_path_weight and checking a tolerance, just get the entry with max weight and test to
+                //       see if the node matches? That way, you can get rid of max_path_weight_comparison_tolerance entirely.
+                if (diff(node_converged_weight, max_path_weight) <= max_path_weight_comparison_tolerance) {
                     return true;
                 }
             }
@@ -283,7 +307,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     private:
         bidi_walker(
             const G& g_,
-            const INDEX target_row_,
+            const N_INDEX target_row_,
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
         : g { g_ }
@@ -299,7 +323,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         , backward_walker {
             decltype(backward_walker)::create_and_initialize(
                 reversed_g,
-                g.grid_down_cnt - I1 - target_row,
+                static_cast<N_INDEX>(g.grid_down_cnt - I1 - target_row),  // Cast to prevent narrowing warning
                 container_creator_pack_.create_backward_walker_container_creator_pack()
             )
         } {}

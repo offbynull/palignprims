@@ -29,7 +29,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         ::slot_container_heap_container_creator_pack;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_node::backtrackable_node;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
-    using offbynull::utils::check_multiplication_nonoverflow;
+    using offbynull::utils::check_multiplication_nonoverflow_throwable;
     using offbynull::concepts::input_iterator_of_non_cvref;
 
     /**
@@ -39,23 +39,31 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
      * @tparam G Graph type.
+     * @tparam PARENT_COUNT Graph node incoming edge counter type. Must be wide enough to hold the maximum number of incoming edges across
+     *      all nodes in the underlying pairwise alignment graph instance (e.g., across all nodes in any global pairwise alignment graph, a
+     *      node can have at most 3 incoming edges).
+     * @tparam SLOT_INDEX Slot indexer type. Must be wide enough to hold the value `grid_down_cnt * grid_right_cnt * grid_depth_cnt`
+     *     (variables being multiplied are the dimensions of the `G` instance).
      * @tparam CONTAINER_CREATOR_PACK Container factory type.
      */
     template<
         bool debug_mode,
         pairwise_alignment_graph G,
         widenable_to_size_t PARENT_COUNT,
+        widenable_to_size_t SLOT_INDEX,
         slot_container_container_creator_pack<
             typename G::N,
             typename G::E,
             typename G::ED,
-            PARENT_COUNT
+            PARENT_COUNT,
+            SLOT_INDEX
         > CONTAINER_CREATOR_PACK = slot_container_heap_container_creator_pack<
             debug_mode,
             typename G::N,
             typename G::E,
             typename G::ED,
-            PARENT_COUNT
+            PARENT_COUNT,
+            SLOT_INDEX
         >
     >
     class slot_container {
@@ -64,7 +72,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using E = typename G::E;
         using ND = typename G::ND;
         using ED = typename G::ED;
-        using INDEX = typename G::INDEX;
+        using N_INDEX = typename G::N_INDEX;
 
         using SLOT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(0zu, 0zu, 0zu));
 
@@ -112,7 +120,10 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             )
         } {
             if constexpr (debug_mode) {
-                check_multiplication_nonoverflow<std::size_t>(g.grid_down_cnt, g.grid_right_cnt, g.grid_depth_cnt);
+                check_multiplication_nonoverflow_throwable<SLOT_INDEX>(g.grid_down_cnt, g.grid_right_cnt, g.grid_depth_cnt);
+                if (std::numeric_limits<SLOT_INDEX>::max() < g.grid_down_cnt * g.grid_right_cnt * g.grid_depth_cnt) {
+                    throw std::runtime_error { "SLOT_INDEX not wide enough to support grid_down_cnt * grid_right_cnt * grid_depth_cnt" };
+                }
                 if (std::numeric_limits<PARENT_COUNT>::max() < g.node_incoming_edge_capacity) {
                     throw std::runtime_error { "PARENT_COUNT not wide enough to support node_incoming_edge_capacity" };
                 }
@@ -135,9 +146,13 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          * @param node Identifier of node to find.
          * @return Index of slot assigned to `node`.
          */
-        std::size_t find_idx(const N& node) const {
+        SLOT_INDEX find_idx(const N& node) const {
             const auto& [down_offset, right_offset, depth] { g.node_to_grid_offset(node) };
-            std::size_t ret { (g.grid_depth_cnt * ((down_offset * g.grid_right_cnt) + right_offset)) + depth };
+            SLOT_INDEX ret {
+                static_cast<SLOT_INDEX>(
+                    (g.grid_depth_cnt * ((down_offset * g.grid_right_cnt) + right_offset)) + depth
+                )  // Cast to prevent narrowing warning
+            };
             if constexpr (debug_mode) {
                 if (ret >= slots.size()) {
                     throw std::runtime_error { "Out of bounds" };
@@ -184,7 +199,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          * @param idx Index of slot
          * @return Reference to slot at `idx`.
          */
-        slot<N, E, ED, PARENT_COUNT>& at_idx(const std::size_t idx) {
+        slot<N, E, ED, PARENT_COUNT>& at_idx(const SLOT_INDEX idx) {
             if constexpr (debug_mode) {
                 if (idx >= slots.size()) {
                     throw std::runtime_error { "Out of bounds" };
@@ -201,7 +216,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          * @param idx Index of slot
          * @return Reference to slot at `idx`.
          */
-        const slot<N, E, ED, PARENT_COUNT>& at_idx(const std::size_t idx) const {
+        const slot<N, E, ED, PARENT_COUNT>& at_idx(const SLOT_INDEX idx) const {
             if constexpr (debug_mode) {
                 if (idx >= slots.size()) {
                     throw std::runtime_error { "Out of bounds" };
@@ -219,8 +234,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          * @param node Identifier of node to find.
          * @return Index of and reference to slot assigned to `node`.
          */
-        std::pair<std::size_t, slot<N, E, ED, PARENT_COUNT>&> find(const N& node) {
-            std::size_t idx { find_idx(node) };
+        std::pair<SLOT_INDEX, slot<N, E, ED, PARENT_COUNT>&> find(const N& node) {
+            SLOT_INDEX idx { find_idx(node) };
             slot<N, E, ED, PARENT_COUNT>& slot { slots[idx] };
             return { idx, slot };
         }
@@ -234,8 +249,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          * @param node Identifier of node to find.
          * @return Index of and reference to slot assigned to `node`.
          */
-        std::pair<std::size_t, const slot<N, E, ED, PARENT_COUNT>&> find(const N& node) const {
-            std::size_t idx { find_idx(node) };
+        std::pair<SLOT_INDEX, const slot<N, E, ED, PARENT_COUNT>&> find(const N& node) const {
+            SLOT_INDEX idx { find_idx(node) };
             const slot<N, E, ED, PARENT_COUNT>& slot { slots[idx] };
             return { idx, slot };
         }

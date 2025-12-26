@@ -32,8 +32,8 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
     >
     class reversed_sliceable_pairwise_alignment_graph {
     public:
-        /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::INDEX */
-        using INDEX = typename G::INDEX;
+        /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N_INDEX */
+        using N_INDEX = typename G::N_INDEX;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N */
         using N = typename G::N;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::E */
@@ -44,19 +44,19 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         using ND = typename G::ND;
 
     private:
-        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
-        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
-        static constexpr INDEX I2 { static_cast<INDEX>(2zu) };
+        static constexpr N_INDEX I0 { static_cast<N_INDEX>(0zu) };
+        static constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu) };
+        static constexpr N_INDEX I2 { static_cast<N_INDEX>(2zu) };
 
         const G& g;
 
     public:
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_down_cnt */
-        const INDEX grid_down_cnt;
+        const N_INDEX grid_down_cnt;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_right_cnt */
-        const INDEX grid_right_cnt;
+        const N_INDEX grid_right_cnt;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_depth_cnt */
-        static constexpr INDEX grid_depth_cnt { G::grid_depth_cnt };
+        static constexpr N_INDEX grid_depth_cnt { G::grid_depth_cnt };
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes_capacity */
         const std::size_t resident_nodes_capacity;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::path_edge_capacity */
@@ -198,7 +198,7 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::edge_to_element_offsets */
-        std::optional<std::pair<std::optional<INDEX>, std::optional<INDEX>>> edge_to_element_offsets(
+        std::optional<std::pair<std::optional<N_INDEX>, std::optional<N_INDEX>>> edge_to_element_offsets(
             const E& e
         ) const {
             auto offset { g.edge_to_element_offsets(e) };
@@ -207,38 +207,55 @@ namespace offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_grap
             }
             auto [v_idx, w_idx] { *offset };
             if (v_idx.has_value()) {
-                *v_idx = g.grid_down_cnt - *v_idx - I1;
+                *v_idx = static_cast<N_INDEX>(g.grid_down_cnt - *v_idx - I1);  // Cast to prevent narrowing warning
             }
             if (w_idx.has_value()) {
-                *w_idx = g.grid_right_cnt - *w_idx - I1;
+                *w_idx = static_cast<N_INDEX>(g.grid_right_cnt - *w_idx - I1);  // Cast to prevent narrowing warning
             }
             return offset;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::node_to_grid_offset */
-        std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offset(const N& n) const {
+        std::tuple<N_INDEX, N_INDEX, std::size_t> node_to_grid_offset(const N& n) const {
             const auto& [grid_down, grid_right, depth] { g.node_to_grid_offset(n) };
-            return { grid_down_cnt - grid_down - I1, grid_right_cnt - grid_right - I1, depth };
+            return {
+                static_cast<N_INDEX>(grid_down_cnt - grid_down - I1),  // Cast to prevent narrowing warning
+                static_cast<N_INDEX>(grid_right_cnt - grid_right - I1),  // Cast to prevent narrowing warning
+                depth
+            };
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_offset_to_nodes */
-        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
+        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(N_INDEX grid_down, N_INDEX grid_right) const {
             if constexpr (debug_mode) {
                 if (grid_down >= grid_down_cnt || grid_right >= grid_right_cnt) {
                     throw std::runtime_error { "Out of bounds" };
                 }
             }
-            return g.grid_offset_to_nodes(grid_down_cnt - grid_down - I1, grid_right_cnt - grid_right - I1);
+            return g.grid_offset_to_nodes(
+                static_cast<N_INDEX>(grid_down_cnt - grid_down - I1),  // Cast to prevent narrowing warning
+                static_cast<N_INDEX>(grid_right_cnt - grid_right - I1)  // Cast to prevent narrowing warning
+            );
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down) const {
-            return g.row_nodes(grid_down_cnt - grid_down - I1) | std::views::reverse;
+        bidirectional_range_of_non_cvref<N> auto row_nodes(N_INDEX grid_down) const {
+            return
+                g.row_nodes(
+                    static_cast<N_INDEX>(grid_down_cnt - grid_down - I1)  // Cast to prevent narrowing warning
+                )
+                | std::views::reverse;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
-            return g.row_nodes(grid_down_cnt - grid_down - I1, leaf_node, root_node) | std::views::reverse;
+        bidirectional_range_of_non_cvref<N> auto row_nodes(N_INDEX grid_down, const N& root_node, const N& leaf_node) const {
+            return
+                g.row_nodes(
+                    static_cast<N_INDEX>(grid_down_cnt - grid_down - I1),  // Cast to prevent narrowing warning
+                    leaf_node,
+                    root_node
+                )
+                | std::views::reverse;
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::is_reachable */

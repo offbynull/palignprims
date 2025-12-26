@@ -136,7 +136,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using N = typename G::N;
         using E = typename G::E;
         using ND = typename G::ND;
-        using INDEX = typename G::INDEX;
+        using N_INDEX = typename G::N_INDEX;
 
         using BIDI_WALKER_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_bidi_walker_container_creator_pack());

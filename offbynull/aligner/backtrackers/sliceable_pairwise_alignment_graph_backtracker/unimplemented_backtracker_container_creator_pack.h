@@ -21,7 +21,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *     @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_segmenter::resident_segmenter_container_creator_pack::resident_segmenter_container_creator_pack
          *     container creator pack.
          */
-        auto create_resident_segmenter_container_creator_pack();
+        auto create_resident_segmenter_container_creator_pack() const;
 
         /**
          * Create
@@ -32,7 +32,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *     @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::sliced_subdivider::sliced_subdivider_container_creator_pack::sliced_subdivider_container_creator_pack
          *     container creator pack.
          */
-        auto create_sliced_subdivider_container_creator_pack();
+        auto create_sliced_subdivider_container_creator_pack() const;
 
         /**
          * Create
@@ -44,7 +44,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *     @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::path_container::path_container_container_creator_pack::path_container_container_creator_pack
          *     container creator pack.
          */
-        auto create_path_container(std::size_t path_edge_capacity);
+        auto create_path_container(std::size_t path_edge_capacity) const;
     };
 }
 

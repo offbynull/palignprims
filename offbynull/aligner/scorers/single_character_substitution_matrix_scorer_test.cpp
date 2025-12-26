@@ -1,7 +1,6 @@
 #include "offbynull/aligner/scorers/single_character_substitution_matrix_scorer.h"
 #include "offbynull/utils.h"
 #include "gtest/gtest.h"
-#include <tuple>
 #include <cstddef>
 
 namespace {
@@ -22,8 +21,8 @@ G  -3 -10   2   8
         char c_ { 'C' };
         char t_ { 'T' };
         char g_ { 'G' };
-        EXPECT_EQ(6, (scorer(std::tuple<> {}, { { 0zu, { a_ } } }, { { 0zu, { a_ } } })));
-        EXPECT_EQ(-4, (scorer(std::tuple<> {}, { { 0zu, { a_ } } }, { { 0zu, { c_ } } })));
-        EXPECT_EQ(-10, (scorer(std::tuple<> {}, { { 0zu, { g_ } } }, { { 0zu, { t_ } } })));
+        EXPECT_EQ(6, (scorer({ { 0zu, { a_ } } }, { { 0zu, { a_ } } })));
+        EXPECT_EQ(-4, (scorer({ { 0zu, { a_ } } }, { { 0zu, { c_ } } })));
+        EXPECT_EQ(-10, (scorer({ { 0zu, { g_ } } }, { { 0zu, { t_ } } })));
     }
 }

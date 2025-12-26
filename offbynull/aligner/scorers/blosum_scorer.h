@@ -243,7 +243,6 @@ X -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -6
     static_assert(
         scorer<
             blosum_scorer<true, threshold::_45, std::size_t, float>,
-            std::pair<int, int>,
             std::size_t,
             char,
             char,

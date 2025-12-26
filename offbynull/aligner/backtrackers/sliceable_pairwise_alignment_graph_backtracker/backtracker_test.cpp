@@ -81,7 +81,7 @@ namespace {
             E { N { 1zu, 2zu }, N { 2zu, 2zu } },
             E { N { 2zu, 2zu }, N { 3zu, 3zu } }
         };
-        EXPECT_TRUE(path == option1 || path == option2);
+        EXPECT_TRUE(copy_to_vector(path) == option1 || copy_to_vector(path) == option2);
     }
 
     TEST(OABSBacktrackerTest, LocalTest) {
@@ -128,7 +128,8 @@ namespace {
             E { edge_type::NORMAL, { N { 7zu, 7zu }, N { 8zu, 8zu } } },
             E { edge_type::FREE_RIDE, { N { 8zu, 8zu }, N { 13zu, 13zu } } }
         };
-        EXPECT_EQ(expected_path, path);
+        std::vector<E> actual_path { copy_to_vector(path) };
+        EXPECT_EQ(expected_path, actual_path);
     }
 
     TEST(OABSBacktrackerTest, OverlapTest) {
@@ -175,7 +176,7 @@ namespace {
             E { edge_type::NORMAL, { N { 7zu, 2zu }, N { 8zu, 3zu } } },
             E { edge_type::FREE_RIDE, { N { 8zu, 3zu }, N { 8zu, 8zu } } }
         };
-        EXPECT_EQ(expected_path, path);
+        EXPECT_EQ(expected_path, copy_to_vector(path));
     }
 
     TEST(OABSBacktrackerTest, FittingTest) {
@@ -226,7 +227,7 @@ namespace {
             E { edge_type::NORMAL, { N { 7zu, 2zu }, N { 8zu, 3zu } } },
             E { edge_type::FREE_RIDE, { N { 8zu, 3zu }, N { 13zu, 3zu } } }
         };
-        EXPECT_EQ(expected_path, path);
+        EXPECT_EQ(expected_path, copy_to_vector(path));
     }
 
     TEST(OABSBacktrackerTest, ExtendedGapTest) {
@@ -279,7 +280,7 @@ namespace {
             }
             std::cout << std::endl;
             std::cout << weight << std::endl;
-            expected_path = path;
+            expected_path = copy_to_vector(path);
             expected_weight = weight;
         }
 
@@ -293,7 +294,7 @@ namespace {
             }
             std::cout << std::endl;
             std::cout << weight << std::endl;
-            actual_path = path;
+            actual_path = copy_to_vector(path);
             actual_weight = weight;
         }
 
@@ -376,7 +377,7 @@ namespace {
             }
             std::cout << std::endl;
             std::cout << weight << std::endl;
-            expected_path = path;
+            expected_path = copy_to_vector(path);
             expected_weight = weight;
             std::float64_t weight_summed {};
             for (const E& e : path) {
@@ -395,7 +396,7 @@ namespace {
             }
             std::cout << std::endl;
             std::cout << weight << std::endl;
-            actual_path = path;
+            actual_path = copy_to_vector(path);
             actual_weight = weight;
             std::float64_t weight_summed {};
             for (const E& e : path) {
@@ -492,7 +493,7 @@ namespace {
             }
             std::cout << std::endl;
             std::cout << weight << std::endl;
-            expected_path = path;
+            expected_path = copy_to_vector(path);
             expected_weight = weight;
             std::float64_t weight_summed {};
             for (const E& e : path) {
@@ -511,7 +512,7 @@ namespace {
             }
             std::cout << std::endl;
             std::cout << weight << std::endl;
-            actual_path = path;
+            actual_path = copy_to_vector(path);
             actual_weight = weight;
             std::float64_t weight_summed {};
             for (const E& e : path) {
@@ -592,7 +593,7 @@ namespace {
                     std::size_t
                 > backtracker_ {};
                 const auto& [path, weight] { backtracker_.find_max_path(g) };
-                expected_path = path;
+                expected_path = copy_to_vector(path);
                 // expected_weight = weight;  // don't use weight -- instead manually tally up the weight from the edges (just to be sure)
                 for (const E& e : path) {
                     expected_weight += g.get_edge_data(e);
@@ -604,7 +605,7 @@ namespace {
             {
                 backtracker<is_debug_mode(), decltype(g)> backtracker_ {};
                 const auto& [path, weight] { backtracker_.find_max_path(g, 0.000001f64) };
-                actual_path = path;
+                actual_path = copy_to_vector(path);
                 // actual_weight = weight;  // don't use weight -- instead manually tally up the weight from the edges (just to be sure)
                 for (const E& e : path) {
                     actual_weight += g.get_edge_data(e);
@@ -655,7 +656,7 @@ namespace {
         std::cout << std::endl;
         std::cout << weight << std::endl;
         EXPECT_EQ(
-            path,
+            copy_to_vector(path),
             (std::vector<E> {
                 E { { 0zu, 0zu }, { 1zu, 1zu } },
                 E { { 1zu, 1zu }, { 1zu, 2zu } }
@@ -699,7 +700,7 @@ namespace {
         std::cout << std::endl;
         std::cout << weight << std::endl;
         EXPECT_EQ(
-            path,
+            copy_to_vector(path),
             (std::vector<E> {
                 E { { 0zu, 0zu }, { 1zu, 1zu } },
                 E { { 1zu, 1zu }, { 1zu, 2zu } }

@@ -50,7 +50,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             grid_right_cnt,
             grid_depth_cnt,
             resident_nodes_capacity
-        > create_forward_walker_container_creator_pack() {
+        > create_forward_walker_container_creator_pack() const {
             return {};
         }
 
@@ -64,8 +64,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             ED,
             grid_right_cnt,
             grid_depth_cnt,
-             resident_nodes_capacity
-        > create_backward_walker_container_creator_pack() {
+            resident_nodes_capacity
+        > create_backward_walker_container_creator_pack() const {
             return {};
         }
     };

@@ -69,16 +69,16 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
      *
      * Struct is packed when `OBN_PACK_STRUCTS` macro is defined (and platform supports struct packing).
      *
-     * @tparam INDEX Node coordinate type (smaller integer types may reduce memory consumption).
+     * @tparam N_INDEX Node coordinate type (smaller integer types may reduce memory consumption).
      */
-    template<widenable_to_size_t INDEX>
+    template<widenable_to_size_t N_INDEX>
     struct node {
         /** Layer node sits in. */
         node_layer layer;
         /** Row / vertical position of node, starting from the top going downward. */
-        INDEX down;
+        N_INDEX down;
         /** Column / horizontal position of node, starting from the left going rightward. */
-        INDEX right;
+        N_INDEX right;
         /** Enable spaceship operator. */
         auto operator<=>(const node&) const = default;
     }
@@ -91,14 +91,14 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
      *
      * Struct is packed when `OBN_PACK_STRUCTS` macro is defined (and platform supports struct packing).
      *
-     * @tparam INDEX Node coordinate type.
+     * @tparam N_INDEX Node coordinate type.
      */
-    template<widenable_to_size_t INDEX>
+    template<widenable_to_size_t N_INDEX>
     struct edge {
         /** Source node's identifier. */
-        node<INDEX> source;
+        node<N_INDEX> source;
         /** Destination node's identifier. */
-        node<INDEX> destination;
+        node<N_INDEX> destination;
         /** Enable spaceship operator. */
         auto operator<=>(const edge&) const = default;
     }
@@ -109,7 +109,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
      * pairwise extended gap sequence alignment graph.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam INDEX_ Node coordinate type.
+     * @tparam N_INDEX_ Node coordinate type.
      * @tparam WEIGHT Edge data type (edge's weight).
      * @tparam DOWN_SEQ Downward sequence type.
      * @tparam RIGHT_SEQ Rightward sequence type.
@@ -123,34 +123,30 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
      */
     template<
         bool debug_mode,
-        widenable_to_size_t INDEX_,
+        widenable_to_size_t N_INDEX_,
         weight WEIGHT,
         sequence DOWN_SEQ,
         sequence RIGHT_SEQ,
         scorer<
-            edge<INDEX_>,
-            INDEX_,
+            N_INDEX_,
             std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
             std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > SUBSTITUTION_SCORER,
         scorer<
-            edge<INDEX_>,
-            INDEX_,
+            N_INDEX_,
             std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
             std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > INITIAL_GAP_SCORER,
         scorer<
-            edge<INDEX_>,
-            INDEX_,
+            N_INDEX_,
             std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
             std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > EXTENDED_GAP_SCORER,
         scorer<
-            edge<INDEX_>,
-            INDEX_,
+            N_INDEX_,
             std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
             std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
@@ -162,22 +158,22 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>;
         /** Element object type of rightward sequence (CV-qualification and references removed). */
         using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>;
-        /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::INDEX */
-        using INDEX = INDEX_;
+        /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N_INDEX */
+        using N_INDEX = N_INDEX_;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N */
-        using N = node<INDEX>;
+        using N = node<N_INDEX>;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::ND */
         using ND = empty_node_data;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::E */
-        using E = edge<INDEX>;
+        using E = edge<N_INDEX>;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::ED */
         using ED = WEIGHT;
 
     private:
-        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
-        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
-        static constexpr INDEX I2 { static_cast<INDEX>(2zu) };
-        static constexpr INDEX I3 { static_cast<INDEX>(3zu) };
+        static constexpr N_INDEX I0 { static_cast<N_INDEX>(0zu) };
+        static constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu) };
+        static constexpr N_INDEX I2 { static_cast<N_INDEX>(2zu) };
+        static constexpr N_INDEX I3 { static_cast<N_INDEX>(3zu) };
         
         const DOWN_SEQ& down_seq;
         const RIGHT_SEQ& right_seq;
@@ -195,7 +191,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             };
         }
 
-        std::size_t to_raw_idx(INDEX down_idx, INDEX right_idx) const {
+        std::size_t to_raw_idx(N_INDEX down_idx, N_INDEX right_idx) const {
             std::size_t down_idx_widened { down_idx };
             std::size_t right_idx_widened { right_idx };
             return (down_idx_widened * grid_right_cnt) + right_idx_widened;
@@ -203,11 +199,11 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
 
     public:
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_down_cnt */
-        const INDEX grid_down_cnt;
+        const N_INDEX grid_down_cnt;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_right_cnt */
-        const INDEX grid_right_cnt;
+        const N_INDEX grid_right_cnt;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_depth_cnt */
-        static constexpr INDEX grid_depth_cnt { I3 };
+        static constexpr N_INDEX grid_depth_cnt { I3 };
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes_capacity */
         static constexpr std::size_t resident_nodes_capacity { 0zu };
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::path_edge_capacity */
@@ -245,8 +241,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         , initial_gap_scorer { initial_gap_scorer_ }
         , extended_gap_scorer { extended_gap_scorer_ }
         , freeride_scorer { freeride_scorer_ }
-        , grid_down_cnt { down_seq.size() + I1 }
-        , grid_right_cnt { right_seq.size() + I1 }
+        , grid_down_cnt { static_cast<N_INDEX>(down_seq.size() + I1) }  // Cast to prevent narrowing warning
+        , grid_right_cnt { static_cast<N_INDEX>(right_seq.size() + I1) }  // Cast to prevent narrowing warning
         , path_edge_capacity { (grid_right_cnt - 1zu) * 2zu + (grid_down_cnt - 1zu) * 2zu }
         , node_incoming_edge_capacity { 3zu }
         , node_outgoing_edge_capacity { 3zu } {}
@@ -272,43 +268,36 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             const auto& [n2_layer, n2_grid_down, n2_grid_right] { e.destination };
             if (n1_layer == node_layer::DIAGONAL && n2_layer == node_layer::DIAGONAL) {  // match
                 return substitution_scorer(
-                    e,
                     { { n1_grid_down, { down_seq[n1_grid_down] } } },
                     { { n1_grid_right, { right_seq[n1_grid_right] } } }
                 );
             } else if (n1_layer == node_layer::DOWN && n2_layer == node_layer::DOWN) {  // gap
                 return extended_gap_scorer(
-                    e,
                     { { n1_grid_down, { down_seq[n1_grid_down] } } },
                     { std::nullopt }
                 );
             } else if (n1_layer == node_layer::RIGHT && n2_layer == node_layer::RIGHT) {  // gap
                 return extended_gap_scorer(
-                    e,
                     { std::nullopt },
                     { { n1_grid_right, { right_seq[n1_grid_right] } } }
                 );
             } else if (n1_layer == node_layer::DIAGONAL && n2_layer == node_layer::DOWN) {  // indel
                 return initial_gap_scorer(
-                    e,
                     { { n1_grid_down, { down_seq[n1_grid_down] } } },
                     { std::nullopt }
                 );
             } else if (n1_layer == node_layer::DIAGONAL && n2_layer == node_layer::RIGHT) {  // indel
                 return initial_gap_scorer(
-                    e,
                     { std::nullopt },
                     { { n1_grid_right, { right_seq[n1_grid_right] } } }
                 );
             } else if (n1_layer == node_layer::DOWN && n2_layer == node_layer::DIAGONAL) {  // freeride
                 return freeride_scorer(
-                    e,
                     { std::nullopt },
                     { std::nullopt }
                 );
             } else if (n1_layer == node_layer::RIGHT && n2_layer == node_layer::DIAGONAL) {  // freeride
                 return freeride_scorer(
-                    e,
                     { std::nullopt },
                     { std::nullopt }
                 );
@@ -374,8 +363,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             return std::ranges::single_view {
                 N {
                     node_layer::DIAGONAL,
-                    grid_down_cnt - I1,
-                    grid_right_cnt - I1
+                    static_cast<N_INDEX>(grid_down_cnt - I1),  // Cast to prevent narrowing warning
+                    static_cast<N_INDEX>(grid_right_cnt - I1)  // Cast to prevent narrowing warning
                 }
             };
         }
@@ -384,8 +373,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         N get_leaf_node() const {
             return N {
                 node_layer::DIAGONAL,
-                grid_down_cnt - I1,
-                grid_right_cnt - I1
+                static_cast<N_INDEX>(grid_down_cnt - I1),  // Cast to prevent narrowing warning
+                static_cast<N_INDEX>(grid_right_cnt - I1)  // Cast to prevent narrowing warning
             };
         }
 
@@ -442,11 +431,32 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     const auto& [n2_layer, n1_grid_down, n1_grid_right] { tuple };
                     const N n1 { node_layer::DIAGONAL, n1_grid_down, n1_grid_right };
                     if (n2_layer == node_layer::DIAGONAL) {
-                        return E { n1, N { n2_layer, n1_grid_down + I1, n1_grid_right + I1 } };
+                        return E {
+                            n1,
+                            N {
+                                n2_layer,
+                                static_cast<N_INDEX>(n1_grid_down + I1),  // Cast to prevent narrowing warning
+                                static_cast<N_INDEX>(n1_grid_right + I1)  // Cast to prevent narrowing warning
+                            }
+                        };
                     } else if (n2_layer == node_layer::DOWN) {
-                        return E { n1, N { n2_layer, n1_grid_down + I1, n1_grid_right } };
+                        return E {
+                            n1,
+                            N {
+                                n2_layer,
+                                static_cast<N_INDEX>(n1_grid_down + I1),  // Cast to prevent narrowing warning
+                                n1_grid_right
+                            }
+                        };
                     } else if (n2_layer == node_layer::RIGHT) {
-                        return E { n1, N { n2_layer, n1_grid_down, n1_grid_right + I1 } };
+                        return E {
+                            n1,
+                            N {
+                                n2_layer,
+                                n1_grid_down,
+                                static_cast<N_INDEX>(n1_grid_right + I1)  // Cast to prevent narrowing warning
+                            }
+                        };
                     }
                     std::unreachable();
                 })
@@ -465,9 +475,23 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     const auto& [n2_layer, n1_grid_down, n1_grid_right] { tuple };
                     const N n1 { node_layer::DOWN, n1_grid_down, n1_grid_right };
                     if (n2_layer == node_layer::DIAGONAL) {
-                        return E { n1, N { n2_layer, n1_grid_down, n1_grid_right } };
+                        return E {
+                            n1,
+                            N {
+                                n2_layer,
+                                n1_grid_down,
+                                n1_grid_right
+                            }
+                        };
                     } else if (n2_layer == node_layer::DOWN) {
-                        return E { n1, N { n2_layer, n1_grid_down + I1, n1_grid_right } };
+                        return E {
+                            n1,
+                            N {
+                                n2_layer,
+                                static_cast<N_INDEX>(n1_grid_down + I1),  // Cast to prevent narrowing warning
+                                n1_grid_right
+                            }
+                        };
                     }
                     std::unreachable();
                 })
@@ -486,9 +510,23 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     const auto& [n2_layer, n1_grid_down, n1_grid_right] { tuple };
                     const N n1 { node_layer::RIGHT, n1_grid_down, n1_grid_right };
                     if (n2_layer == node_layer::DIAGONAL) {
-                        return E { n1, N { n2_layer, n1_grid_down, n1_grid_right } };
+                        return E {
+                            n1,
+                            N {
+                                n2_layer,
+                                n1_grid_down,
+                                n1_grid_right
+                            }
+                        };
                     } else if (n2_layer == node_layer::RIGHT) {
-                        return E { n1, N { n2_layer, n1_grid_down, n1_grid_right + I1 } };
+                        return E {
+                            n1,
+                            N {
+                                n2_layer,
+                                n1_grid_down,
+                                static_cast<N_INDEX>(n1_grid_right + I1)  // Cast to prevent narrowing warning
+                            }
+                        };
                     }
                     std::unreachable();
                 })
@@ -560,23 +598,103 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 if (n1_grid_down == grid_down_cnt - I1 && n1_grid_right == grid_right_cnt - I1) {
                     // do nothing
                 } else if (n1_grid_down < grid_down_cnt - I1 && n1_grid_right < grid_right_cnt - I1) {
-                    ret.push_back(construct_full_edge(n, { node_layer::DIAGONAL, n1_grid_down + I1, n1_grid_right + I1 }));
-                    ret.push_back(construct_full_edge(n, { node_layer::DOWN, n1_grid_down + I1, n1_grid_right }));
-                    ret.push_back(construct_full_edge(n, { node_layer::RIGHT, n1_grid_down, n1_grid_right + I1 }));
+                    ret.push_back(
+                        construct_full_edge(
+                            n,
+                            {
+                                node_layer::DIAGONAL,
+                                static_cast<N_INDEX>(n1_grid_down + I1),  // Cast to prevent narrowing warning
+                                static_cast<N_INDEX>(n1_grid_right + I1)  // Cast to prevent narrowing warning
+                            }
+                        )
+                    );
+                    ret.push_back(
+                        construct_full_edge(
+                            n,
+                            {
+                                node_layer::DOWN,
+                                static_cast<N_INDEX>(n1_grid_down + I1),  // Cast to prevent narrowing warning
+                                n1_grid_right
+                            }
+                        )
+                    );
+                    ret.push_back(
+                        construct_full_edge(
+                            n,
+                            {
+                                node_layer::RIGHT,
+                                n1_grid_down,
+                                static_cast<N_INDEX>(n1_grid_right + I1)
+                            }
+                        )
+                    );
                 } else if (n1_grid_right == grid_right_cnt - I1) {
-                    ret.push_back(construct_full_edge(n, { node_layer::DOWN, n1_grid_down + I1, n1_grid_right }));
+                    ret.push_back(
+                        construct_full_edge(
+                            n,
+                            {
+                                node_layer::DOWN,
+                                static_cast<N_INDEX>(n1_grid_down + I1),  // Cast to prevent narrowing warning
+                                n1_grid_right
+                            }
+                        )
+                    );
                 } else if (n1_grid_down == grid_down_cnt - I1) {
-                    ret.push_back(construct_full_edge(n, { node_layer::RIGHT, n1_grid_down, n1_grid_right + I1 }));
+                    ret.push_back(
+                        construct_full_edge(
+                            n,
+                            {
+                                node_layer::RIGHT,
+                                n1_grid_down,
+                                static_cast<N_INDEX>(n1_grid_right + I1)  // Cast to prevent narrowing warning
+                            }
+                        )
+                    );
                 }
             } else if (n1_layer == node_layer::DOWN) {
-                ret.push_back(construct_full_edge(n, { node_layer::DIAGONAL, n1_grid_down, n1_grid_right }));
+                ret.push_back(
+                    construct_full_edge(
+                        n,
+                        {
+                            node_layer::DIAGONAL,
+                            n1_grid_down,
+                            n1_grid_right
+                        }
+                    )
+                );
                 if (n1_grid_down < grid_down_cnt - I1) {
-                    ret.push_back(construct_full_edge(n, { node_layer::DOWN, n1_grid_down + I1, n1_grid_right }));
+                    ret.push_back(
+                        construct_full_edge(
+                            n, {
+                                node_layer::DOWN,
+                                static_cast<N_INDEX>(n1_grid_down + I1),  // Cast to prevent narrowing warning
+                                n1_grid_right
+                            }
+                        )
+                    );
                 }
             } else if (n1_layer == node_layer::RIGHT) {
-                ret.push_back(construct_full_edge(n, { node_layer::DIAGONAL, n1_grid_down, n1_grid_right }));
+                ret.push_back(
+                    construct_full_edge(
+                        n,
+                        {
+                            node_layer::DIAGONAL,
+                            n1_grid_down,
+                            n1_grid_right
+                        }
+                    )
+                );
                 if (n1_grid_right < grid_right_cnt - I1) {
-                    ret.push_back(construct_full_edge(n, { node_layer::RIGHT, n1_grid_down, n1_grid_right + I1 }));
+                    ret.push_back(
+                        construct_full_edge(
+                            n,
+                            {
+                                node_layer::RIGHT,
+                                n1_grid_down,
+                                static_cast<N_INDEX>(n1_grid_right + I1)
+                            }
+                        )
+                    );
                 }
             }
             return ret;
@@ -595,27 +713,108 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 if (n2_grid_down == I0 && n2_grid_right == I0) {
                     // do nothing
                 } else if (n2_grid_down > I0 && n2_grid_right > I0) {
-                    ret.push_back(construct_full_edge({ node_layer::DIAGONAL, n2_grid_down - I1, n2_grid_right - I1 }, n));
-                    ret.push_back(construct_full_edge({ node_layer::DOWN, n2_grid_down, n2_grid_right }, n));
-                    ret.push_back(construct_full_edge({ node_layer::RIGHT, n2_grid_down, n2_grid_right }, n));
+                    ret.push_back(
+                        construct_full_edge(
+                            {
+                                node_layer::DIAGONAL,
+                                static_cast<N_INDEX>(n2_grid_down - I1),  // Cast to prevent narrowing warning
+                                static_cast<N_INDEX>(n2_grid_right - I1)  // Cast to prevent narrowing warning
+                            },
+                            n
+                        )
+                    );
+                    ret.push_back(
+                        construct_full_edge(
+                            {
+                                node_layer::DOWN,
+                                n2_grid_down,
+                                n2_grid_right
+                            },
+                            n
+                        )
+                    );
+                    ret.push_back(
+                        construct_full_edge(
+                            {
+                                node_layer::RIGHT,
+                                n2_grid_down,
+                                n2_grid_right
+                            },
+                            n
+                        )
+                    );
                 } else if (n2_grid_right > I0) {
-                    ret.push_back(construct_full_edge({ node_layer::RIGHT, n2_grid_down, n2_grid_right }, n));
+                    ret.push_back(
+                        construct_full_edge(
+                            {
+                                node_layer::RIGHT,
+                                n2_grid_down,
+                                n2_grid_right
+                            },
+                            n
+                        )
+                    );
                 } else if (n2_grid_down > I0) {
-                    ret.push_back(construct_full_edge({ node_layer::DOWN, n2_grid_down, n2_grid_right }, n));
+                    ret.push_back(
+                        construct_full_edge(
+                            {
+                                node_layer::DOWN,
+                                n2_grid_down,
+                                n2_grid_right
+                            },
+                            n
+                        )
+                    );
                 }
             } else if (n2_layer == node_layer::DOWN) {
                 if (n2_grid_down > I0) {
-                    ret.push_back(construct_full_edge({ node_layer::DIAGONAL, n2_grid_down - I1, n2_grid_right }, n));
+                    ret.push_back(
+                        construct_full_edge(
+                            {
+                                node_layer::DIAGONAL,
+                                static_cast<N_INDEX>(n2_grid_down - I1),  // Cast to prevent narrowing warning
+                                n2_grid_right
+                            },
+                            n
+                        )
+                    );
                 }
                 if (n2_grid_down > I1) {
-                    ret.push_back(construct_full_edge({ node_layer::DOWN, n2_grid_down - I1, n2_grid_right }, n));
+                    ret.push_back(
+                        construct_full_edge(
+                            {
+                                node_layer::DOWN,
+                                static_cast<N_INDEX>(n2_grid_down - I1),  // Cast to prevent narrowing warning
+                                n2_grid_right
+                            },
+                            n
+                        )
+                    );
                 }
             } else if (n2_layer == node_layer::RIGHT) {
                 if (n2_grid_right > I0) {
-                    ret.push_back(construct_full_edge({ node_layer::DIAGONAL, n2_grid_down, n2_grid_right - I1 }, n));
+                    ret.push_back(
+                        construct_full_edge(
+                            {
+                                node_layer::DIAGONAL,
+                                n2_grid_down,
+                                static_cast<N_INDEX>(n2_grid_right - I1)  // Cast to prevent narrowing warning
+                            },
+                            n
+                        )
+                    );
                 }
                 if (n2_grid_right > I1) {
-                    ret.push_back(construct_full_edge({ node_layer::RIGHT, n2_grid_down, n2_grid_right - I1 }, n));
+                    ret.push_back(
+                        construct_full_edge(
+                            {
+                                node_layer::RIGHT,
+                                n2_grid_down,
+                                static_cast<N_INDEX>(n2_grid_right - I1)  // Cast to prevent narrowing warning
+                            },
+                            n
+                        )
+                    );
                 }
             }
             return ret;
@@ -684,8 +883,8 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::edge_to_element_offsets */
         std::optional<
             std::pair<
-                std::optional<INDEX>,
-                std::optional<INDEX>
+                std::optional<N_INDEX>,
+                std::optional<N_INDEX>
             >
         > edge_to_element_offsets(
             const E& e
@@ -695,7 +894,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
-            using OPT_INDEX = std::optional<INDEX>;
+            using OPT_INDEX = std::optional<N_INDEX>;
             using RET = std::optional<std::pair<OPT_INDEX, OPT_INDEX>>;
 
             const auto& [n1, n2] { e };
@@ -726,13 +925,13 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::node_to_grid_offset */
-        std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offset(const N& n) const {
+        std::tuple<N_INDEX, N_INDEX, std::size_t> node_to_grid_offset(const N& n) const {
             const auto& [layer, down_offset, right_offset] { n };
             return { down_offset, right_offset, static_cast<std::size_t>(layer) };
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_offset_to_nodes */
-        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
+        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(N_INDEX grid_down, N_INDEX grid_right) const {
             if constexpr (debug_mode) {
                 if (grid_down >= grid_down_cnt || grid_right >= grid_right_cnt) {
                     throw std::runtime_error { "Out of bounds" };
@@ -768,21 +967,53 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             const auto& [layer_, grid_down, grid_right] { node };
             N next_node;
             if (grid_down == I0 && grid_right == I0 && layer_ == node_layer::DIAGONAL) {
-                next_node = { node_layer::RIGHT, grid_down, grid_right + I1 };
+                next_node = {
+                    node_layer::RIGHT,
+                    grid_down,
+                    static_cast<N_INDEX>(grid_right + I1)  // Cast to prevent narrowing warning
+                };
             } else if (grid_down == I0 && layer_ == node_layer::RIGHT) {
-                next_node = { node_layer::DIAGONAL, grid_down, grid_right };
+                next_node = {
+                    node_layer::DIAGONAL,
+                    grid_down,
+                    grid_right
+                };
             } else if (grid_down == I0 && layer_ == node_layer::DIAGONAL) {
-                next_node = { node_layer::RIGHT, grid_down, grid_right + I1 };
+                next_node = {
+                    node_layer::RIGHT,
+                    grid_down,
+                    static_cast<N_INDEX>(grid_right + I1)  // Cast to prevent narrowing warning
+                };
             } else if (grid_right == I0 && layer_ == node_layer::DOWN) {
-                next_node = { node_layer::DIAGONAL, grid_down, grid_right };
+                next_node = {
+                    node_layer::DIAGONAL,
+                    grid_down,
+                    grid_right
+                };
             } else if (grid_right == I0 && layer_ == node_layer::DIAGONAL) {
-                next_node = { node_layer::DOWN, grid_down, grid_right + I1 };
+                next_node = {
+                    node_layer::DOWN,
+                    grid_down,
+                    static_cast<N_INDEX>(grid_right + I1)  // Cast to prevent narrowing warning
+                };
             } else if (layer_ == node_layer::DOWN) {
-                next_node = { node_layer::RIGHT, grid_down, grid_right };
+                next_node = {
+                    node_layer::RIGHT,
+                    grid_down,
+                    grid_right
+                };
             } else if (layer_ == node_layer::RIGHT) {
-                next_node = { node_layer::DIAGONAL, grid_down, grid_right };
+                next_node = {
+                    node_layer::DIAGONAL,
+                    grid_down,
+                    grid_right
+                };
             } else if (layer_ == node_layer::DIAGONAL) {
-                next_node = { node_layer::DOWN, grid_down, grid_right + I1 };
+                next_node = {
+                    node_layer::DOWN,
+                    grid_down,
+                    static_cast<N_INDEX>(grid_right + I1)  // Cast to prevent narrowing warning
+                };
             } else {
                 if constexpr (debug_mode) {
                     throw std::runtime_error { "This should never happen" };
@@ -795,21 +1026,53 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
             const auto& [layer_, grid_down, grid_right] { node };
             N prev_node;
             if (grid_down == I0 && grid_right == I1 && layer_ == node_layer::RIGHT) {
-                prev_node = { node_layer::DIAGONAL, grid_down, grid_right - I1 };
+                prev_node = {
+                    node_layer::DIAGONAL,
+                    grid_down,
+                    static_cast<N_INDEX>(grid_right - I1)  // Cast to prevent narrowing warning
+                };
             } else if (grid_down == I0 && layer_ == node_layer::DIAGONAL) {
-                prev_node = { node_layer::RIGHT, grid_down, grid_right };
+                prev_node = {
+                    node_layer::RIGHT,
+                    grid_down,
+                    grid_right
+                };
             } else if (grid_down == I0 && layer_ == node_layer::RIGHT) {
-                prev_node = { node_layer::DIAGONAL, grid_down, grid_right - I1 };
+                prev_node = {
+                    node_layer::DIAGONAL,
+                    grid_down,
+                    static_cast<N_INDEX>(grid_right - I1)  // Cast to prevent narrowing warning
+                };
             } else if (grid_right == I0 && layer_ == node_layer::DIAGONAL) {
-                prev_node = { node_layer::DOWN, grid_down, grid_right };
+                prev_node = {
+                    node_layer::DOWN,
+                    grid_down,
+                    grid_right
+                };
             } else if (grid_right == I0 && layer_ == node_layer::DOWN) {
-                prev_node = { node_layer::DIAGONAL, grid_down, grid_right - I1 };
+                prev_node = {
+                    node_layer::DIAGONAL,
+                    grid_down,
+                    static_cast<N_INDEX>(grid_right - I1)  // Cast to prevent narrowing warning
+                };
             } else if (layer_ == node_layer::DOWN) {
-                prev_node = { node_layer::DIAGONAL, grid_down, grid_right - I1 };
+                prev_node = {
+                    node_layer::DIAGONAL,
+                    grid_down,
+                    static_cast<N_INDEX>(grid_right - I1)  // Cast to prevent narrowing warning
+                };
             } else if (layer_ == node_layer::RIGHT) {
-                prev_node = { node_layer::DOWN, grid_down, grid_right };
+                prev_node = {
+                    node_layer::DOWN,
+                    grid_down,
+                    grid_right
+                };
             } else if (layer_ == node_layer::DIAGONAL) {
-                prev_node = { node_layer::RIGHT, grid_down, grid_right };
+                prev_node = {
+                    node_layer::RIGHT,
+                    grid_down,
+                    grid_right
+                };
             } else {
                 if constexpr (debug_mode) {
                     throw std::runtime_error { "This should never happen" };
@@ -820,12 +1083,12 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
 
     public:
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(N_INDEX grid_down) const {
             return row_nodes(grid_down, get_root_node(), get_leaf_node());
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(N_INDEX grid_down, const N& root_node, const N& leaf_node) const {
             if constexpr (debug_mode) {
                 if (!has_node(root_node) || !has_node(leaf_node)) {
                     throw std::runtime_error { "Bad node" };
@@ -942,7 +1205,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
      * template parameters are deduced / inferred from arguments passed in.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam INDEX Node coordinate type.
+     * @tparam N_INDEX Node coordinate type.
      * @param down_seq Downward sequence.
      * @param right_seq Rightward sequence.
      * @param substitution_scorer Scorer for sequence alignment substitutions.
@@ -953,47 +1216,42 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
      */
     template<
         bool debug_mode,
-        widenable_to_size_t INDEX
+        widenable_to_size_t N_INDEX
     >
     auto create_pairwise_extended_gap_alignment_graph(
         const sequence auto& down_seq,
         const sequence auto& right_seq,
         const scorer_without_explicit_weight<
-            edge<INDEX>,
-            INDEX,
+            N_INDEX,
             std::remove_cvref_t<decltype(down_seq[0zu])>,
             std::remove_cvref_t<decltype(right_seq[0zu])>
         > auto& substitution_scorer,
         const scorer_without_explicit_weight<
-            edge<INDEX>,
-            INDEX,
+            N_INDEX,
             std::remove_cvref_t<decltype(down_seq[0zu])>,
             std::remove_cvref_t<decltype(right_seq[0zu])>
         > auto& initial_gap_scorer,
         const scorer_without_explicit_weight<
-            edge<INDEX>,
-            INDEX,
+            N_INDEX,
             std::remove_cvref_t<decltype(down_seq[0zu])>,
             std::remove_cvref_t<decltype(right_seq[0zu])>
         > auto& extended_gap_scorer,
         const scorer_without_explicit_weight<
-            edge<INDEX>,
-            INDEX,
+            N_INDEX,
             std::remove_cvref_t<decltype(down_seq[0zu])>,
             std::remove_cvref_t<decltype(right_seq[0zu])>
         > auto& freeride_scorer
     ) {
         using DOWN_SEQ = std::remove_cvref_t<decltype(down_seq)>;
         using DOWN_ELEM = std::remove_cvref_t<decltype(down_seq[0zu])>;
-        using RIGHT_SEQ = std::remove_cvref_t<decltype(down_seq)>;
+        using RIGHT_SEQ = std::remove_cvref_t<decltype(right_seq)>;
         using RIGHT_ELEM = std::remove_cvref_t<decltype(right_seq[0zu])>;
         using WEIGHT_1 = decltype(
             substitution_scorer(
-                std::declval<const edge<INDEX>&>(),
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const DOWN_ELEM>
                         >
                     >
@@ -1001,7 +1259,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const RIGHT_ELEM>
                         >
                     >
@@ -1010,11 +1268,10 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         );
         using WEIGHT_2 = decltype(
             initial_gap_scorer(
-                std::declval<const edge<INDEX>&>(),
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const DOWN_ELEM>
                         >
                     >
@@ -1022,7 +1279,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const RIGHT_ELEM>
                         >
                     >
@@ -1031,11 +1288,10 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         );
         using WEIGHT_3 = decltype(
             extended_gap_scorer(
-                std::declval<const edge<INDEX>&>(),
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const DOWN_ELEM>
                         >
                     >
@@ -1043,7 +1299,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const RIGHT_ELEM>
                         >
                     >
@@ -1052,11 +1308,10 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         );
         using WEIGHT_4 = decltype(
             freeride_scorer(
-                std::declval<const edge<INDEX>&>(),
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const DOWN_ELEM>
                         >
                     >
@@ -1064,7 +1319,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const RIGHT_ELEM>
                         >
                     >
@@ -1076,7 +1331,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         static_assert(std::is_same_v<WEIGHT_1, WEIGHT_4>, "Scorers must return the same weight type");
         return pairwise_extended_gap_alignment_graph<
             debug_mode,
-            INDEX,
+            N_INDEX,
             WEIGHT_1,
             DOWN_SEQ,
             RIGHT_SEQ,
@@ -1097,10 +1352,10 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
 
 // Struct must be defined outside of namespace block above, otherwise compiler will treat it as part of that namespace.
 // NOTE: Inheriting from std::formatter<std::string_view> instead of std::formatter<std::string> because -Wabi-tag warning.
-template<offbynull::concepts::widenable_to_size_t INDEX>
-struct std::formatter<offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<INDEX>> : std::formatter<std::string_view> {
+template<offbynull::concepts::widenable_to_size_t N_INDEX>
+struct std::formatter<offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<N_INDEX>> : std::formatter<std::string_view> {
     auto format(
-        const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<INDEX>& n,
+        const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<N_INDEX>& n,
         std::format_context& ctx
     ) const {
         const char* layer_str;
@@ -1121,25 +1376,25 @@ struct std::formatter<offbynull::aligner::graphs::pairwise_extended_gap_alignmen
     }
 };
 
-template<offbynull::concepts::widenable_to_size_t INDEX>
-std::ostream& operator<<(std::ostream& os, const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<INDEX>& n) {
+template<offbynull::concepts::widenable_to_size_t N_INDEX>
+std::ostream& operator<<(std::ostream& os, const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::node<N_INDEX>& n) {
     return os << std::format("{}", n);
 }
 
 // Struct must be defined outside of namespace block above, otherwise compiler will treat it as part of that namespace.
 // NOTE: Inheriting from std::formatter<std::string_view> instead of std::formatter<std::string> because -Wabi-tag warning.
-template<offbynull::concepts::widenable_to_size_t INDEX>
-struct std::formatter<offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<INDEX>> : std::formatter<std::string_view> {
+template<offbynull::concepts::widenable_to_size_t N_INDEX>
+struct std::formatter<offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<N_INDEX>> : std::formatter<std::string_view> {
     auto format(
-        const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<INDEX>& e,
+        const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<N_INDEX>& e,
         std::format_context& ctx
     ) const {
         return std::format_to(ctx.out(), "{}->{}", e.source, e.destination);
     }
 };
 
-template<offbynull::concepts::widenable_to_size_t INDEX>
-std::ostream& operator<<(std::ostream& os, const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<INDEX>& e) {
+template<offbynull::concepts::widenable_to_size_t N_INDEX>
+std::ostream& operator<<(std::ostream& os, const offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph::edge<N_INDEX>& e) {
     return os << std::format("{}", e);
 }
 

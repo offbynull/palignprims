@@ -63,6 +63,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             E,
             ED,
             PARENT_COUNT,
+            SLOT_INDEX,
             grid_down_cnt,
             grid_right_cnt,
             grid_depth_cnt
@@ -91,8 +92,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          */
         PATH_CONTAINER_TYPE create_path_container(std::size_t path_edge_capacity_) const {
             if constexpr (debug_mode) {
-                if (path_edge_capacity != path_edge_capacity_) {
-                    throw std::runtime_error { "Size mismatch" };
+                if (path_edge_capacity_ > path_edge_capacity) {
+                    throw std::runtime_error { "Path edge capacity too large" };
                 }
             }
             return {};

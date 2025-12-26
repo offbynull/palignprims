@@ -58,7 +58,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             grid_right_cnt,
             grid_depth_cnt,
             resident_nodes_capacity
-        > create_resident_segmenter_container_creator_pack() {
+        > create_resident_segmenter_container_creator_pack() const {
             return {};
         }
 
@@ -73,7 +73,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             grid_right_cnt,
             grid_depth_cnt,
             path_edge_capacity
-        > create_sliced_subdivider_container_creator_pack() {
+        > create_sliced_subdivider_container_creator_pack() const {
             return {};
         }
 
@@ -83,10 +83,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         /**
          * @copydoc offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::unimplemented_backtracker_container_creator_pack::unimplemented_backtracker_container_creator_pack::create_path_container
          */
-        PATH_CONTAINER_TYPE create_path_container(std::size_t path_edge_capacity_) const  {
+        PATH_CONTAINER_TYPE create_path_container(std::size_t path_edge_capacity_) const {
             if constexpr (debug_mode) {
-                if (path_edge_capacity != path_edge_capacity_) {
-                    throw std::runtime_error { "Size mismatch" };
+                if (path_edge_capacity_ > path_edge_capacity) {
+                    throw std::runtime_error { "Path edge capacity too large" };
                 }
             }
             return {};

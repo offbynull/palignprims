@@ -47,15 +47,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using E = typename G::E;
         using ND = typename G::ND;
         using ED = typename G::ED;
-        using INDEX = typename G::INDEX;
+        using N_INDEX = typename G::N_INDEX;
 
-        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
+        static constexpr N_INDEX I0 { static_cast<N_INDEX>(0zu) };
 
         row_slot_container<debug_mode, G, ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slots1;
         row_slot_container<debug_mode, G, ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK> slots2;
         row_slot_container<debug_mode, G, ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK>* previous_slots;  // row above current row
         row_slot_container<debug_mode, G, ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK>* current_slots;  // current row
-        INDEX grid_down_offset;
+        N_INDEX grid_down_offset;
 
     public:
         /**
@@ -163,7 +163,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *
          * @return Lesser row index being tracked.
          */
-        INDEX down_offset() const {
+        N_INDEX down_offset() const {
             return grid_down_offset;
         }
     };

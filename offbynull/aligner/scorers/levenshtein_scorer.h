@@ -1,8 +1,8 @@
 #ifndef OFFBYNULL_ALIGNER_SCORERS_LEVENSHTEIN_SCORER_H
 #define OFFBYNULL_ALIGNER_SCORERS_LEVENSHTEIN_SCORER_H
 
-#include <utility>
 #include <cstddef>
+#include <type_traits>
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
@@ -24,22 +24,22 @@ namespace offbynull::aligner::scorers::levenshtein_scorer {
      * @tparam WEIGHT Pairwise alignment graph's edge data type (edge's weight).
      */
     template<bool debug_mode, widenable_to_size_t SEQ_INDEX, typename DOWN_ELEM, typename RIGHT_ELEM, weight WEIGHT>
+    requires std::is_signed_v<WEIGHT>  // Must be signed because -1 used
     class levenshtein_scorer : public simple_scorer<debug_mode, SEQ_INDEX, DOWN_ELEM, RIGHT_ELEM, WEIGHT> {
     public:
         levenshtein_scorer()
         : simple_scorer<debug_mode, SEQ_INDEX, DOWN_ELEM, RIGHT_ELEM, WEIGHT> {
+            static_cast<WEIGHT>(0),
             static_cast<WEIGHT>(-1),
-            static_cast<WEIGHT>(0),
-            static_cast<WEIGHT>(0),
-            static_cast<WEIGHT>(0),
-            static_cast<WEIGHT>(0)
+            static_cast<WEIGHT>(-1),
+            static_cast<WEIGHT>(-1),
+            static_cast<WEIGHT>(-1)
         } {}
     };
 
     static_assert(
         scorer<
             simple_scorer<true, std::size_t, char, char, float>,
-            std::pair<int, int>,
             std::size_t,
             char,
             char,

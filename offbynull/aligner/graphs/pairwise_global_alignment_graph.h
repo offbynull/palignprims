@@ -33,7 +33,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
      * pairwise global sequence alignment graph.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam INDEX_ Node coordinate type.
+     * @tparam N_INDEX_ Node coordinate type.
      * @tparam WEIGHT Edge data type (edge's weight).
      * @tparam DOWN_SEQ Downward sequence type.
      * @tparam RIGHT_SEQ Rightward sequence type.
@@ -42,20 +42,18 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
      */
     template<
         bool debug_mode,
-        widenable_to_size_t INDEX_,
+        widenable_to_size_t N_INDEX_,
         weight WEIGHT,
         sequence DOWN_SEQ,
         sequence RIGHT_SEQ,
         scorer<
-            edge<INDEX_>,
-            INDEX_,
+            N_INDEX_,
             std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
             std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
         > SUBSTITUTION_SCORER,
         scorer<
-            edge<INDEX_>,
-            INDEX_,
+            N_INDEX_,
             std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>,
             std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>,
             WEIGHT
@@ -63,13 +61,13 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
     >
     class pairwise_global_alignment_graph {
     private:
-        static constexpr INDEX_ I0 { static_cast<INDEX_>(0zu) };
-        static constexpr INDEX_ I1 { static_cast<INDEX_>(1zu) };
-        static constexpr INDEX_ I2 { static_cast<INDEX_>(2zu) };
+        static constexpr N_INDEX_ I0 { static_cast<N_INDEX_>(0zu) };
+        static constexpr N_INDEX_ I1 { static_cast<N_INDEX_>(1zu) };
+        static constexpr N_INDEX_ I2 { static_cast<N_INDEX_>(2zu) };
 
         const grid_graph<
             debug_mode,
-            INDEX_,
+            N_INDEX_,
             WEIGHT,
             DOWN_SEQ,
             RIGHT_SEQ,
@@ -82,23 +80,23 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         using DOWN_ELEM = std::remove_cvref_t<decltype(std::declval<DOWN_SEQ>()[0zu])>;
         /** Element object type of rightward sequence (CV-qualification and references removed). */
         using RIGHT_ELEM = std::remove_cvref_t<decltype(std::declval<RIGHT_SEQ>()[0zu])>;
-        /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::INDEX */
-        using INDEX = INDEX_;
+        /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N_INDEX */
+        using N_INDEX = N_INDEX_;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::N */
-        using N = node<INDEX>;
+        using N = node<N_INDEX>;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::E */
-        using E = edge<INDEX>;
+        using E = edge<N_INDEX>;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::ND */
         using ND = empty_node_data;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::ED */
         using ED = WEIGHT;
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_down_cnt */
-        const INDEX grid_down_cnt;
+        const N_INDEX grid_down_cnt;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_right_cnt */
-        const INDEX grid_right_cnt;
+        const N_INDEX grid_right_cnt;
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_depth_cnt */
-        static constexpr INDEX grid_depth_cnt { decltype(g)::grid_depth_cnt };  // 0
+        static constexpr N_INDEX grid_depth_cnt { decltype(g)::grid_depth_cnt };  // 0
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes_capacity */
         static constexpr std::size_t resident_nodes_capacity { decltype(g)::resident_nodes_capacity };  // 0
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::path_edge_capacity */
@@ -240,8 +238,8 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::edge_to_element_offsets */
         std::optional<
             std::pair<
-                std::optional<INDEX>,
-                std::optional<INDEX>
+                std::optional<N_INDEX>,
+                std::optional<N_INDEX>
             >
         > edge_to_element_offsets(
             const E& e
@@ -251,7 +249,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
                     throw std::runtime_error { "Edge doesn't exist" };
                 }
             }
-            using OPT_INDEX = std::optional<INDEX>;
+            using OPT_INDEX = std::optional<N_INDEX>;
             using RET = std::optional<std::pair<OPT_INDEX, OPT_INDEX>>;
 
             const auto& [n1, n2] { e };
@@ -271,22 +269,22 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::node_to_grid_offset */
-        std::tuple<INDEX, INDEX, std::size_t> node_to_grid_offset(const N& n) const {
+        std::tuple<N_INDEX, N_INDEX, std::size_t> node_to_grid_offset(const N& n) const {
             return g.node_to_grid_offset(n);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::grid_offset_to_nodes */
-        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(INDEX grid_down, INDEX grid_right) const {
+        bidirectional_range_of_non_cvref<N> auto grid_offset_to_nodes(N_INDEX grid_down, N_INDEX grid_right) const {
             return g.grid_offset_to_nodes(grid_down, grid_right);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(N_INDEX grid_down) const {
             return g.row_nodes(grid_down);
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::row_nodes */
-        bidirectional_range_of_non_cvref<N> auto row_nodes(INDEX grid_down, const N& root_node, const N& leaf_node) const {
+        bidirectional_range_of_non_cvref<N> auto row_nodes(N_INDEX grid_down, const N& root_node, const N& leaf_node) const {
             return g.row_nodes(grid_down, root_node, leaf_node);
         }
 
@@ -316,7 +314,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
      * parameters are deduced / inferred from arguments passed in.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
-     * @tparam INDEX Node coordinate type.
+     * @tparam N_INDEX Node coordinate type.
      * @param down_seq Downward sequence.
      * @param right_seq Rightward sequence.
      * @param substitution_scorer Scorer for sequence alignment substitutions.
@@ -325,35 +323,32 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
      */
     template<
         bool debug_mode,
-        widenable_to_size_t INDEX
+        widenable_to_size_t N_INDEX
     >
     auto create_pairwise_global_alignment_graph(
         const sequence auto& down_seq,
         const sequence auto& right_seq,
         const scorer_without_explicit_weight<
-            edge<INDEX>,
-            INDEX,
+            N_INDEX,
             std::remove_cvref_t<decltype(down_seq[0zu])>,
             std::remove_cvref_t<decltype(right_seq[0zu])>
         > auto& substitution_scorer,
         const scorer_without_explicit_weight<
-            edge<INDEX>,
-            INDEX,
+            N_INDEX,
             std::remove_cvref_t<decltype(down_seq[0zu])>,
             std::remove_cvref_t<decltype(right_seq[0zu])>
         > auto& gap_scorer
     ) {
         using DOWN_SEQ = std::remove_cvref_t<decltype(down_seq)>;
         using DOWN_ELEM = std::remove_cvref_t<decltype(down_seq[0zu])>;
-        using RIGHT_SEQ = std::remove_cvref_t<decltype(down_seq)>;
+        using RIGHT_SEQ = std::remove_cvref_t<decltype(right_seq)>;
         using RIGHT_ELEM = std::remove_cvref_t<decltype(right_seq[0zu])>;
         using WEIGHT_1 = decltype(
             substitution_scorer(
-                std::declval<const edge<INDEX>&>(),
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const DOWN_ELEM>
                         >
                     >
@@ -361,7 +356,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const RIGHT_ELEM>
                         >
                     >
@@ -370,11 +365,10 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         );
         using WEIGHT_2 = decltype(
             gap_scorer(
-                std::declval<const edge<INDEX>&>(),
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const DOWN_ELEM>
                         >
                     >
@@ -382,7 +376,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
                 std::declval<
                     const std::optional<
                         std::pair<
-                            INDEX,
+                            N_INDEX,
                             std::reference_wrapper<const RIGHT_ELEM>
                         >
                     >
@@ -392,7 +386,7 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         static_assert(std::is_same_v<WEIGHT_1, WEIGHT_2>, "Scorers must return the same weight type");
         return pairwise_global_alignment_graph<
             debug_mode,
-            INDEX,
+            N_INDEX,
             WEIGHT_1,
             DOWN_SEQ,
             RIGHT_SEQ,

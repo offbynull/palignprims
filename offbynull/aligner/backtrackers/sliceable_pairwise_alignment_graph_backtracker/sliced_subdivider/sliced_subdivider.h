@@ -122,11 +122,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using E = typename G::E;
         using ND = typename G::ND;
         using ED = typename G::ED;
-        using INDEX = typename G::INDEX;
+        using N_INDEX = typename G::N_INDEX;
 
-        static constexpr INDEX I0 { static_cast<INDEX>(0zu) };
-        static constexpr INDEX I1 { static_cast<INDEX>(1zu) };
-        static constexpr INDEX I2 { static_cast<INDEX>(2zu) };
+        static constexpr N_INDEX I0 { static_cast<N_INDEX>(0zu) };
+        static constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu) };
+        static constexpr N_INDEX I2 { static_cast<N_INDEX>(2zu) };
 
         using ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK =
             decltype(std::declval<CONTAINER_CREATOR_PACK>().create_row_slot_container_container_creator_pack());
@@ -228,8 +228,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     throw std::runtime_error { "Root doesn't reach leaf" };
                 }
             }
-            INDEX mid_down_offset {
-                (sub_graph.grid_down_cnt - I1) / I2
+            N_INDEX mid_down_offset {
+                static_cast<N_INDEX>((sub_graph.grid_down_cnt - I1) / I2)  // Cast to prevent narrowing warning
             };
 
             if (root_node == leaf_node) {
@@ -259,10 +259,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 };
                 struct override_bidi_walker_container_creator_pack {
                     BACKING_SSC_CCP_TYPE backing_ssc_ccp;
-                    auto create_forward_walker_container_creator_pack() {
+                    auto create_forward_walker_container_creator_pack() const {
                         return override_forward_walker_container_creator_pack { backing_ssc_ccp };
                     }
-                    auto create_backward_walker_container_creator_pack() {
+                    auto create_backward_walker_container_creator_pack() const {
                         return override_forward_walker_container_creator_pack { backing_ssc_ccp };
                     }
                 };
@@ -291,21 +291,29 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 }
                 for (const N& node : mid_row) {
                     const auto& [forward_slot, backward_slot] { bidi_walker_.find(node) };
-                    const auto new_potential_path_weight {
-                        existing_weight_at_root + forward_slot.backtracking_weight + backward_slot.backtracking_weight
-                        + existing_weight_at_leaf
+                    const ED new_potential_path_weight {
+                        static_cast<ED>(
+                            existing_weight_at_root
+                            + forward_slot.backtracking_weight
+                            + backward_slot.backtracking_weight
+                            + existing_weight_at_leaf
+                        )  // Cast to prevent narrowing warning
                     };
                     if (!max_edge_assigned || new_potential_path_weight > max_path_weight) {
                         if (forward_slot.backtracking_edge.has_value()) {
                             max_edge = *forward_slot.backtracking_edge;
                             max_edge_weight = sub_graph.get_edge_data(max_edge);
-                            before_max_edge_weight = forward_slot.backtracking_weight - max_edge_weight;
+                            before_max_edge_weight = static_cast<ED>(
+                                forward_slot.backtracking_weight - max_edge_weight
+                            );  // Cast to prevent narrowing warning
                             after_max_edge_weight = backward_slot.backtracking_weight;
                         } else if (backward_slot.backtracking_edge.has_value()) {
                             max_edge = *backward_slot.backtracking_edge;
                             max_edge_weight = sub_graph.get_edge_data(max_edge);
                             before_max_edge_weight = forward_slot.backtracking_weight;
-                            after_max_edge_weight = backward_slot.backtracking_weight - max_edge_weight;
+                            after_max_edge_weight = static_cast<ED>(
+                                backward_slot.backtracking_weight - max_edge_weight
+                            );  // Cast to prevent narrowing warning
                         } else [[unlikely]] {
                             throw std::runtime_error { "This should never happen" };
                         }
@@ -357,7 +365,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 sub_graph.get_root_node(),
                 sub_graph.get_edge_from(max_edge),
                 existing_weight_at_root,
-                existing_weight_at_leaf + after_max_edge_weight + max_edge_weight
+                static_cast<ED>(existing_weight_at_leaf + after_max_edge_weight + max_edge_weight)  // Cast to prevent narrowing warning
             );
             // std::cout << indent_str << " bottomright" << std::endl;
             subdivide(
@@ -366,7 +374,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 walk_direction::SUFFIX,
                 sub_graph.get_edge_to(max_edge),
                 sub_graph.get_leaf_node(),
-                existing_weight_at_root + before_max_edge_weight + max_edge_weight,
+                static_cast<ED>(existing_weight_at_root + before_max_edge_weight + max_edge_weight),  // Cast to prevent narrowing warning
                 existing_weight_at_leaf
             );
             // indent--;

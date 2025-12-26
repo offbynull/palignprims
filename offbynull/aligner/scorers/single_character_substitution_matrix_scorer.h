@@ -30,11 +30,17 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
      * @tparam alphabet_size Number of characters (must be <= 255).
-     * @tparam SEQ_INDEX Sequence indexer type.
-     * @tparam WEIGHT Pairwise alignment graph's edge data type (edge's weight).
+     * @tparam SEQ_INDEX_ Sequence indexer type.
+     * @tparam WEIGHT_ Pairwise alignment graph's edge data type (edge's weight).
      */
-    template<bool debug_mode, std::size_t alphabet_size, widenable_to_size_t SEQ_INDEX, weight WEIGHT>
+    template<bool debug_mode, std::size_t alphabet_size, widenable_to_size_t SEQ_INDEX_, weight WEIGHT_>
     class single_character_substitution_matrix_scorer {
+    public:
+        /** @copydoc offbynull::aligner::scorer::scorer::unimplemented_scorer::WEIGHT */
+        using WEIGHT = WEIGHT_;
+        /** @copydoc offbynull::aligner::scorer::scorer::unimplemented_scorer::SEQ_INDEX */
+        using SEQ_INDEX = SEQ_INDEX_;
+
     private:
         static_assert(alphabet_size <= 255zu, "Alphabet greater than 255 symbols");
 
@@ -248,7 +254,6 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
          * @copydoc offbynull::aligner::scorer::scorer::unimplemented_scorer::operator()()
          */
         WEIGHT operator()(
-            [[maybe_unused]] const auto& edge,
             const std::optional<
                 std::pair<
                     SEQ_INDEX,
@@ -283,7 +288,6 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
     static_assert(
         scorer<
             single_character_substitution_matrix_scorer<true, 95zu, std::size_t, float>,
-            std::pair<int, int>,
             std::size_t,
             char,
             char,

@@ -35,7 +35,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             std::size_t grid_down_cnt,
             std::size_t grid_right_cnt,
             std::size_t grid_depth_cnt
-        );
+        ) const;
     };
 }
 #endif //OFFBYNULL_ALIGNER_BACKTRACKERS_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_READY_QUEUE_UNIMPLEMENTED_READY_QUEUE_CONTAINER_CREATOR_PACK_H

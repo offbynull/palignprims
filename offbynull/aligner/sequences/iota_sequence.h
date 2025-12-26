@@ -27,8 +27,8 @@ namespace offbynull::aligner::sequences::iota_sequence {
 
     public:
         /**
-         * Construct an offbynull::aligner::sequences::iota_sequence::iota_sequence instance where the range begins at `offset_` and ends at
-         * `std::numeric_limits<I>::max()` (inclusive).
+         * Construct an offbynull::aligner::sequences::iota_sequence::iota_sequence instance with the range
+         * `[offset_, std::numeric_limits<I>::max())`.
          *
          * @param offset_ Range start.
          */
@@ -36,18 +36,17 @@ namespace offbynull::aligner::sequences::iota_sequence {
         : iota_sequence { offset_, std::numeric_limits<I>::max() } {}
 
         /**
-         * Construct an offbynull::aligner::sequences::iota_sequence::iota_sequence instance where the range begins at `offset_` and ends at
-         * `bound_` (inclusive).
+         * Construct an offbynull::aligner::sequences::iota_sequence::iota_sequence instance with the range `[offset_, bound_)`.
          *
          * @param offset_ Range start.
-         * @param bound_ Range end (inclusive).
+         * @param bound_ Range end (exclusive).
          */
         iota_sequence(I offset_, I bound_)
         : offset { offset_ }
         , bound { bound_ } {
             if constexpr (debug_mode) {
                 if (offset > bound) {
-                    throw std::runtime_error { "Value exceeds bound" };
+                    throw std::runtime_error { "Offset exceeds bound" };
                 }
             }
         }
@@ -56,6 +55,11 @@ namespace offbynull::aligner::sequences::iota_sequence {
          * @copydoc offbynull::aligner::sequence::sequence::unimplemented_sequence::operator[]
          */
         I operator[](std::size_t index) const {
+            if constexpr (debug_mode) {
+                if (index >= size()) {
+                    throw std::runtime_error { "Out of bounds" };
+                }
+            }
             return static_cast<I>(index + offset);
         }
 
@@ -71,6 +75,8 @@ namespace offbynull::aligner::sequences::iota_sequence {
      * Convenience function to create an @ref offbynull::aligner::sequences::iota_sequence::iota_sequence instance.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
+     * @param offset Range start.
+     * @param bound Range end (exclusive).
      * @return Newly created @ref offbynull::aligner::sequences::iota_sequence::iota_sequence instance.
      */
     template<bool debug_mode>

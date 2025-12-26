@@ -2,6 +2,9 @@
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_RESIDENT_SLOT_CONTAINER_RESIDENT_SLOT_CONTAINER_STACK_CONTAINER_CREATOR_PACK_H
 
 #include <cstddef>
+#include <ranges>
+#include <stdexcept>
+#include <concepts>
 #include "offbynull/concepts.h"
 #include "offbynull/utils.h"
 #include "offbynull/aligner/concepts.h"
@@ -27,7 +30,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
      * @tparam N Graph node identifier type.
      * @tparam E Graph edge identifier type.
      * @tparam ED Graph edge data type (edge weight).
-     * @tparam resident_nodes_capacity Expected resident nodes capacitiy of the underlying sliceable pairwise alignment graph instance.
+     * @tparam resident_nodes_capacity Expected resident nodes capacity of the underlying sliceable pairwise alignment graph instance.
      */
     template<
         bool debug_mode,
@@ -50,6 +53,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * @copydoc offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::unimplemented_resident_slot_container_container_creator_pack::unimplemented_resident_slot_container_container_creator_pack
          */
         CONTAINER_TYPE create_slot_container(forward_range_of_non_cvref<resident_slot_with_node<N, E, ED>> auto&& r) const  {
+            if constexpr (debug_mode) {
+                std::integral auto dist { std::ranges::distance(r) };  // This is signed? but resident_nodes_capacity is unsigned?
+                if (dist > static_cast<decltype(dist)>(resident_nodes_capacity)) {
+                    throw std::runtime_error { "More resident nodes than expected" };
+                }
+            }
             return CONTAINER_TYPE(r.begin(), r.end());
         }
     };
