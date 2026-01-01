@@ -1,0 +1,112 @@
+# NOTE: If you change something in this workflow (e.g., bug fix, workaround, optimization, ...), make sure the cookiecutter is updated as
+#       well.
+name: setup-linux-gcc
+inputs:
+  python-version:
+    description: "Python version"
+    required: true
+    default: "PYTHON_VERSION_NOT_SET"  # Setting required=true seems to do nothing, so set a bad default to make things not work (not
+                                       # setting a default will cause the default to be an empty string - workflow will pass with empty
+                                       # string, but it won't be right).
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    # NOTE: At the time of writing, "apt install g++" on ubuntu-latest gives you g++ v13. The desired g++ version is >=14, and the only
+    #       way to do that at this point is to explicitly run "apt install g++-14". In the future, it may be that ubuntu-latest changes 
+    #       to a version of Ubuntu where "apt install g++" installs g++ v14 instead of v13, or even a later version than v14 (at which
+    #       point we'd be pointing to an outdate version / the package might have been removed).
+    - name: Install deps
+      shell: bash
+      run: |
+        sudo apt-get update
+        # Install g++ and gcc.
+        sudo apt-get install -y gcc-14 g++-14
+        GCC_VER="$(gcc-14 -dumpfullversion | xargs)"
+        echo "GCC_VER=$GCC_VER" >> "$GITHUB_ENV"
+        # Register g++-14/gcc-14 as the system default g++/gcc-14.
+        #
+        # NOTE: You may be able to replace this step by simply running the following before invoking meson in the step below this one:
+        #
+        #         export CC="gcc-14"
+        #         export CXX="g++-14"
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100  # Include g++-14 as an alernative to g++
+        sudo update-alternatives --set g++ /usr/bin/g++-14                       # Select g++-14 as the alternative for gcc
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100  # Include gcc-14 as alternative to gcc
+        sudo update-alternatives --set gcc /usr/bin/gcc-14                       # Select gcc-14 as the alternative for gcc
+        # Install meson and deps required by meson.
+        sudo apt-get install -y pkg-config  # Required by meson to find dependencies?
+        python -m pip install --upgrade pip
+        python -m pip install meson ninja   # Install meson - ninja is needed by meson to do the actual compiling
+        # Install python requirements.
+        python -m pip install build  # Required for building python extension
+        python -m pip install numpy
+        # Set boost version.
+        #
+        # WARNING: Do not install pre-built boost binaries via a package manager. Pre-built boost binaries may not be complete unless built
+        #          from scratch with certain dependendencies present (e.g., NumPy boost component requires your python installation to have
+        #          numpy installed). Instead, set the version of boost to install (installation happens in subsequent steps).
+        
+        BOOST_VER="1.89.0"
+        echo "BOOST_VER=$BOOST_VER" >> "$GITHUB_ENV"
+        # Install doxygen.
+        sudo apt-get install -y doxygen graphviz  # Required for building docs
+    - name: Cache Boost
+      id: boost-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/boost-gcc
+        key: boost-${{ env.BOOST_VER }}-gcc${{ env.GCC_VER }}-py${{ inputs.python-version  }}-${{ runner.os }}-${{ runner.arch }}
+    - name: Build Boost if cache miss
+      if: steps.boost-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        # Download boost.
+        curl -L "https://archives.boost.io/release/${BOOST_VER}/source/boost_${BOOST_VER//./_}.tar.bz2" | tar -xj -C "$RUNNER_TEMP"
+        cd "$RUNNER_TEMP"/boost_*
+        # Build boost.
+        #
+        # NOTE: The arguments used below have the following meaning...
+        #
+        #        * -j controls how many cores are used to build.
+        #        * variant builds boost library in either "debug" mode or "release" mode.
+        #        * link builds a boost library as either a "static" library (so or DLL) or "static" library.
+        #        * runtime-link builds a boost library against either a "static" CRT or a "static" CRT. This only applies to Windows, where
+        #          the CRT type used for boost must match the CRT type of whatever it is pulling it in. On Linux/Mac, it's silently
+        #          ignored.
+        #        * address-model builds a boost library that's either "32" or "64" bit.
+        #        * threading-multi builds a thread-aware version of boost. Note that thread-aware does not mean thread-safe: Thread-safe
+        #          means that access to the same object from multiple threads is safe, while thread-aware means that boost objects work
+        #          fine when used solely within a single thread of a multithreaded application.
+        #          (https://stackoverflow.com/a/20991533)
+        #
+        #       Because wheels are intended to be self contained, create static library (link=static). To be safe, keep it thread-aware
+        #       (threading=multi). Don't bother supporting older 32-bit CPUs (address-model=64).
+        #
+        # WARNING: If you're building outside of GitHub Actions runners (e.g., as a non-privledged user on your own PC), be careful because
+        #          b2 may not detect numpy and as such silently skip the building of the boost numpy component. b2's default install
+        #          location is "/usr/local/...", which requires root permissions to write to. The obvious solution is to run "sudo b2 ...",
+        #          but that introduces a new problem: Running a command through sudo runs that command on root environment instead of the
+        #          actual user's environment. When b2 queries python to see if numpy is installed, the query will check to see if numpy has
+        #          been installed _for the root user_ as opposed to the actual user's environment (python packages live in the actual
+        #          user's home directory, typically under "~/.local/lib/python<major>.<minor>/site-packages/").
+        #
+        #          This isn't problem inside of the GitHub Actions runners because the user running things has privledged access. For
+        #          non-privledged users use "sudo -E ./b2 ..." so that the command runs against the actual user's environment (as opposed
+        #          to the root user's environment).
+        ./bootstrap.sh --with-toolset=gcc --with-python=python3 --prefix="$HOME/boost-gcc"
+        ./b2 \
+            -j"$(nproc)" \
+            variant=release link=static runtime-link=static,shared threading=multi address-model=64 \
+            install
+    - name: Prime for building
+      shell: bash
+      run: |
+        # Prime env for compiled boost.
+        BOOST_ROOT="$HOME/boost-gcc"
+        echo "BOOST_ROOT=$BOOST_ROOT" >> "$GITHUB_ENV"
+        echo "CPATH=$BOOST_ROOT/include:${CPATH:-}" >> "$GITHUB_ENV"
+        echo "LIBRARY_PATH=$BOOST_ROOT/lib:${LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+        echo "LD_LIBRARY_PATH=$BOOST_ROOT/lib:${LD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"

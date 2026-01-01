@@ -1,0 +1,116 @@
+# NOTE: If you change something in this workflow (e.g., bug fix, workaround, optimization, ...), make sure the cookiecutter is updated as
+#       well.
+name: setup-windows-msvc
+inputs:
+  python-version:
+    description: "Python version"
+    required: true
+    default: "PYTHON_VERSION_NOT_SET"  # Setting required=true seems to do nothing, so set a bad default to make things not work (not
+                                       # setting a default will cause the default to be an empty string - workflow will pass with empty
+                                       # string, but it won't be right).
+runs:
+  using: composite
+  steps:
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Setup env for MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Install deps
+      shell: pwsh
+      run: |
+        # Force non-zero exit codes to stop task (similar to how linux/mac runners work).
+        $PSNativeCommandUseErrorActionPreference = $true
+        $ErrorActionPreference = 'Stop'
+        # Install packages
+        # DO NOT INSTALL PYTHON HERE - Should have been installed in previous task.
+        choco install -y --no-progress curl
+        # Install meson and deps required by meson.
+        python -m pip install --upgrade pip
+        python -m pip install meson ninja   # Install meson - ninja is needed by meson to do the actual compiling
+        # Install python requirements.
+        python -m pip install build  # Required for building python extension
+        python -m pip install numpy
+        # Set boost version.
+        #
+        # WARNING: Do not install pre-built boost binaries via a package manager. Pre-built boost binaries may not be complete unless built
+        #          from scratch with certain dependendencies present (e.g., NumPy boost component requires your python installation to have
+        #          numpy installed). Instead, set the version of boost to install (installation happens in subsequent steps).
+        
+        $BOOST_VER="1.89.0"
+        Add-Content $Env:GITHUB_ENV "BOOST_VER=$BOOST_VER"
+        # Install doxygen.
+        choco install -y --no-progress doxygen.install
+        choco install -y --no-progress graphviz
+        # Extract MSVC version
+        $MSVC_VER = (cl 2>&1 | Select-String -Pattern 'Compiler Version\s*([0-9.]+)' -CaseSensitive:$false).Matches[0].Groups[1].Value
+        Add-Content $Env:GITHUB_ENV "MSVC_VER=$MSVC_VER"
+    - name: Cache Boost
+      id: boost-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/boost-msvc
+        key: boost-${{ env.BOOST_VER }}-msvc${{ env.MSVC_VER }}-py${{ inputs.python-version  }}-${{ runner.os }}-${{ runner.arch }}
+    - name: Build Boost if cache miss
+      if: steps.boost-cache.outputs.cache-hit != 'true'
+      shell: pwsh
+      run: |
+        # Force non-zero exit codes to stop task (similar to how linux/mac runners work).
+        $PSNativeCommandUseErrorActionPreference = $true
+        $ErrorActionPreference = 'Stop'
+        # Download boost and build.
+        #
+        # NOTE: The b2 arguments used below have the following meaning...
+        #
+        #        * -j controls how many cores are used to build.
+        #        * variant builds boost library in either "debug" mode or "release" mode.
+        #        * link builds a boost library as either a "static" library (so or DLL) or "static" library.
+        #        * runtime-link builds a boost library against either a "static" CRT or a "static" CRT. This only applies to Windows, where
+        #          the CRT type used for boost must match the CRT type of whatever it is pulling it in. On Linux/Mac, it's silently
+        #          ignored.
+        #        * address-model builds a boost library that's either "32" or "64" bit.
+        #        * threading-multi builds a thread-aware version of boost. Note that thread-aware does not mean thread-safe: Thread-safe
+        #          means that access to the same object from multiple threads is safe, while thread-aware means that boost objects work
+        #          fine when used solely within a single thread of a multithreaded application.
+        #          (https://stackoverflow.com/a/20991533)
+        #
+        #       Because wheels are intended to be self contained, create static library (link=static). To be safe, keep it thread-aware
+        #       (threading=multi). Don't bother supporting older 32-bit CPUs (address-model=64).
+        #
+        # NOTE: Unlike on Mac and Linux, Boost's b2 doesn't use --prefix from bootstrap on Windows. Apparently, it expects that you pass
+        #       --prefix into b2 (in addition to bootstrap?).
+        #       (see https://beta.boost.org/doc/libs/1_87_0/more/getting_started/windows.html#id38)
+        #
+        # NOTE: Unlike on Mac and Linux, Boost's b2 seems to place files in versioned directories when running on windows (e.g.,
+        #       --prefix=C:\Users\runneradmin\boost-msvc will place includes in
+        #       C:\Users\runneradmin\boost-msvc\include\boost-1_87\boost instead of
+        #       C:\Users\runneradmin\boost-msvc\include\boost). Apparently, on Linux and Mac, the default is --layout=system while on
+        #       Windows it's --layout=versioned. To keep things consistent, --layout=system is explicitly being set.
+        #       (see https://manpages.debian.org/bullseye-backports/libboost1.81-tools-dev/b2.1.en.html#The)
+        #
+        # WARNING: On Windows, code compiled in debug mode requires libraries that have also been compiled in debug mode? As such, running
+        #          "./b2 variant=release" instead of "./b2 variant=debug,release" will produce boost libs in release mode, meaning code
+        #          compiled in debug mode will fail to link against boost libs in release mode. 
+        
+        $BOOST_VER=$env:BOOST_VER
+        $ver_us = $BOOST_VER -replace '\.','_'
+        $bundle_url = "https://archives.boost.io/release/$BOOST_VER/source/boost_$ver_us.tar.bz2"
+        $bundle_dst = Join-Path $env:TEMP "boost_$ver_us.tar.bz2"
+        curl.exe -L "$bundle_url" -o "$bundle_dst"
+        tar -xjf "$bundle_dst" -C "$env:TEMP"
+        $boost_src_dir = Get-ChildItem -Path (Join-Path $env:TEMP "boost_*") -Directory | Select-Object -First 1
+        Set-Location $boost_src_dir.FullName
+        $BOOST_ROOT = Join-Path $HOME 'boost-msvc'
+        ./bootstrap.bat --with-toolset=msvc  --with-python=python --prefix=$BOOST_ROOT
+        ./b2 -j $env:NUMBER_OF_PROCESSORS variant=debug,release link=static runtime-link=static,shared threading=multi address-model=64 --prefix=$BOOST_ROOT --layout=system install
+    - name: Prime for building
+      shell: pwsh
+      run: |
+        # Prime env for compiled boost.
+        $env:BOOST_ROOT = Join-Path $HOME 'boost-msvc'
+        $env:BOOST_INCLUDEDIR = Join-Path $env:BOOST_ROOT 'include'
+        $env:BOOST_LIBRARYDIR = Join-Path $env:BOOST_ROOT 'lib'
+        Add-Content $env:GITHUB_ENV "BOOST_ROOT=$env:BOOST_ROOT"
+        Add-Content $env:GITHUB_ENV "BOOST_INCLUDEDIR=$env:BOOST_INCLUDEDIR"
+        Add-Content $env:GITHUB_ENV "BOOST_LIBRARYDIR=$env:BOOST_LIBRARYDIR"

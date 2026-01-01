@@ -1,0 +1,105 @@
+# NOTE: If you change something in this workflow (e.g., bug fix, workaround, optimization, ...), make sure the cookiecutter is updated as
+#       well.
+name: setup-macos-gcc
+inputs:
+  python-version:
+    description: "Python version"
+    required: true
+    default: "PYTHON_VERSION_NOT_SET"  # Setting required=true seems to do nothing, so set a bad default to make things not work (not
+                                       # setting a default will cause the default to be an empty string - workflow will pass with empty
+                                       # string, but it won't be right).
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Install deps
+      shell: bash
+      run: |
+        BREW_BIN="$(brew --prefix)/bin"
+        echo "BREW_BIN=$BREW_BIN" >> "$GITHUB_ENV"
+        brew update
+        # Install g++ and gcc.
+        brew install gcc
+        GCC_BIN="$(ls "$BREW_BIN"/gcc-[0-9]* | sort -V | tail -n1)"  # Find gcc binary with ver in name - running "gcc" directly runs clang
+        GCC_VER="$($GCC_BIN -dumpfullversion | xargs)"
+        echo "GCC_VER=$GCC_VER" >> "$GITHUB_ENV"
+        # Install meson and deps required by meson.
+        brew install pkg-config
+        python -m pip install --upgrade pip
+        python -m pip install meson ninja
+        # Install python requirements.
+        python -m pip install build  # Required for building python extension
+        python -m pip install numpy
+        # Set boost version.
+        #
+        # WARNING: Do not install pre-built boost binaries via a package manager. Pre-built boost binaries may not be complete unless built
+        #          from scratch with certain dependendencies present (e.g., NumPy boost component requires your python installation to have
+        #          numpy installed). Instead, set the version of boost to install (installation happens in subsequent steps).
+        
+        BOOST_VER="1.89.0"
+        echo "BOOST_VER=$BOOST_VER" >> "$GITHUB_ENV"
+        # Install doxygen.
+        brew install graphviz doxygen    # Required for building docs
+    - name: Cache Boost
+      id: boost-cache
+      uses: actions/cache@v4
+      with:
+        path: ~/boost-gcc
+        key: boost-${{ env.BOOST_VER }}-gcc${{ env.GCC_VER }}-py${{ inputs.python-version  }}-${{ runner.os }}-${{ runner.arch }}
+    - name: Build Boost if cache miss
+      if: steps.boost-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        # Download boost.
+        curl -L "https://archives.boost.io/release/${BOOST_VER}/source/boost_${BOOST_VER//./_}.tar.bz2" | tar -xj -C "$RUNNER_TEMP"
+        cd "$RUNNER_TEMP"/boost_*
+        # Build boost.
+        #
+        # NOTE: The arguments used below have the following meaning...
+        #
+        #        * -j controls how many cores are used to build.
+        #        * variant builds boost library in either "debug" mode or "release" mode.
+        #        * link builds a boost library as either a "static" library (so or DLL) or "static" library.
+        #        * runtime-link builds a boost library against either a "static" CRT or a "static" CRT. This only applies to Windows, where
+        #          the CRT type used for boost must match the CRT type of whatever it is pulling it in. On Linux/Mac, it's silently
+        #          ignored.
+        #        * address-model builds a boost library that's either "32" or "64" bit.
+        #        * threading-multi builds a thread-aware version of boost. Note that thread-aware does not mean thread-safe: Thread-safe
+        #          means that access to the same object from multiple threads is safe, while thread-aware means that boost objects work
+        #          fine when used solely within a single thread of a multithreaded application.
+        #          (https://stackoverflow.com/a/20991533)
+        #
+        #       Because wheels are intended to be self contained, create static library (link=static). To be safe, keep it thread-aware
+        #       (threading=multi). Don't bother supporting older 32-bit CPUs (address-model=64).
+        export CC="$BREW_BIN/gcc-$GCC_MAJOR_VER"
+        export CXX="$BREW_BIN/g++-$GCC_MAJOR_VER"
+        ./bootstrap.sh --with-toolset=gcc --with-python=python3 --prefix="$HOME/boost-gcc"
+        ./b2 \
+            -j"$(sysctl -n hw.logicalcpu)" \
+            variant=release link=static runtime-link=static,shared threading=multi address-model=64 \
+            install
+    - name: Prime for building
+      shell: bash
+      run: |
+        # Pull out major version of installed gcc
+        GCC_MAJOR_VER="$(echo "$GCC_VER" | cut -d. -f1)"
+        # Prime env for compiled boost.
+        BOOST_ROOT="$HOME/boost-gcc"
+        echo "BOOST_ROOT=$BOOST_ROOT" >> "$GITHUB_ENV"
+        echo "CPATH=$BOOST_ROOT/include:${CPATH:-}" >> "$GITHUB_ENV"
+        echo "LIBRARY_PATH=$BOOST_ROOT/lib:${LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+        echo "DYLD_LIBRARY_PATH=$BOOST_ROOT/lib:${DYLD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+        # Prime env such that gcc/g++ is used by meson.
+        echo "CC=$BREW_BIN/gcc-$GCC_MAJOR_VER" >> "$GITHUB_ENV"
+        echo "CXX=$BREW_BIN/g++-$GCC_MAJOR_VER" >> "$GITHUB_ENV"
+        # Prime env such that gcc's version of binary utilities is used by meson.
+        #
+        # NOTE: According to o3, AR and RANLIB are not required because we're not building a static library (this is an executable). LD
+        #       also isn't required because meson links via the compiler? This doesn't seem to be entierly true. g++ points meson to
+        #       Apple's clang linker if LD isn't set? But boost build built above is built static (as the time of this writing) - should
+        #       this be moved up?
+        echo "AR=$BREW_BIN/gcc-ar-$GCC_MAJOR_VER" >> "$GITHUB_ENV"
+        echo "RANLIB=$BREW_BIN/gcc-ranlib-$GCC_MAJOR_VER" >> "$GITHUB_ENV"
+        echo "LD=$BREW_BIN/g++-$GCC_MAJOR_VER" >> "$GITHUB_ENV"

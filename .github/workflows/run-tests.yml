@@ -1,0 +1,91 @@
+# NOTE: If you change something in this workflow (e.g., bug fix, workaround, optimization, ...), make sure the cookiecutter is updated as
+#       well.
+name: run-tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  # Define meson build types
+  # ------------------------
+  # Each job further below this one builds and runs on a specific operating system / architecture. To ensure nothing wonky happens with C++
+  # optimizations, each of those jobs should be run multiple times, once for each meson build profile (e.g., release, debug, minSize,
+  # etc..). Given that GitHub Actions doesn't let you set a "matrix strategy" across all jobs (it only allows it per job), the "matrix
+  # strategy" is defined once here as its own job and re-used in other jobs further down from it (source:
+  # https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations#using-an-output-to-define-two-matrices)
+  define-build-type-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      build-types: ${{ steps.define-build-types.outputs.build-types }}
+      python-version: ${{ steps.define-build-types.outputs.python-version }}
+    steps:
+      - name: Define build types
+        id: define-build-types
+        run: |
+          echo 'build-types=["debug", "release"]' >> "$GITHUB_OUTPUT"
+          echo 'python-version=["3.13"]' >> "$GITHUB_OUTPUT"
+  test-linux-gcc:
+    runs-on: ubuntu-latest
+    needs: define-build-type-matrix
+    strategy:
+      matrix:
+        build-type: ${{ fromJSON(needs.define-build-type-matrix.outputs.build-types) }}
+        python-version: ${{ fromJSON(needs.define-build-type-matrix.outputs.python-version) }}
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/workflows/setup-linux-gcc
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run unittests
+        run: |
+          # Compile and run.
+          meson setup --reconfigure buildDir --buildtype=${{ matrix.build-type }}
+          meson test -C buildDir -v gtest
+  test-windows-msvc:
+    runs-on: windows-latest
+    needs: define-build-type-matrix
+    strategy:
+      matrix:
+        build-type: ${{ fromJSON(needs.define-build-type-matrix.outputs.build-types) }}
+        python-version: ${{ fromJSON(needs.define-build-type-matrix.outputs.python-version) }}
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/workflows/setup-windows-msvc
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run unittests
+        shell: pwsh
+        run: |
+          # Force non-zero exit codes to stop task (similar to how linux/mac runners work).
+          $PSNativeCommandUseErrorActionPreference = $true
+          $ErrorActionPreference = 'Stop'
+          # Compile and run.
+          meson setup --reconfigure buildDir --buildtype=${{ matrix.build-type }}
+          meson test -C buildDir -v gtest
+  test-macos-gcc:
+    runs-on: macos-latest
+    needs: define-build-type-matrix
+    strategy:
+      matrix:
+        build-type: ${{ fromJSON(needs.define-build-type-matrix.outputs.build-types) }}
+        python-version: ${{ fromJSON(needs.define-build-type-matrix.outputs.python-version) }}
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/workflows/setup-macos-gcc
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run unittests
+        run: |
+          # Compile and run.
+          meson setup --reconfigure buildDir --buildtype=${{ matrix.build-type }}
+          meson test -C buildDir -v gtest
