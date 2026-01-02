@@ -34,7 +34,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
 
     /**
      * Container of @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot "slots", used by
-     * @ref offbynull::aligner:b:acktrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker to track the backtracking state
+     * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker to track the backtracking state
      * of each node within a graph.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
@@ -74,7 +74,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         using ED = typename G::ED;
         using N_INDEX = typename G::N_INDEX;
 
-        using SLOT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(0zu, 0zu, 0zu));
+        using SLOT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(0zu, 0zu, 0zu, std::declval<ED>()));
 
         const G& g;
         SLOT_CONTAINER slots;
@@ -103,12 +103,14 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          *     parents have been walked yet).
          * @param end End iterator containing slots for `g_` (elements must be initialized to each node within `g_`, where no node's parents
          *     have been walked yet).
+         * @param zero_weight Initial edge weight, equivalent to 0 for numeric weights.
          * @param container_creator_pack Container factory.
          */
         slot_container(
             const G& g_,
             input_iterator_of_non_cvref<slot<N, E, ED, PARENT_COUNT>> auto begin,
             std::sentinel_for<decltype(begin)> auto end,
+            ED zero_weight,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
         : g { g_ }
@@ -116,7 +118,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             container_creator_pack.create_slot_container(
                 g.grid_down_cnt,
                 g.grid_right_cnt,
-                g.grid_depth_cnt
+                g.grid_depth_cnt,
+                zero_weight
             )
         } {
             if constexpr (debug_mode) {

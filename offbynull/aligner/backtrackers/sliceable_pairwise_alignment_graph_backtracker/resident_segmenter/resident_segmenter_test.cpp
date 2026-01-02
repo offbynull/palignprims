@@ -63,7 +63,7 @@ namespace {
         resident_segmenter<is_debug_mode(), decltype(g)> segmenter {};
         using hop_ = hop<E>;
         using segment_ = segment<N>;
-        const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points(g, 0.000001f64) };
+        const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points(g, 0.000001f64, 0.0f64) };
         std::cout << final_weight << std::endl;
         for (const auto& part : parts) {
             if (const hop_* hop_ptr = std::get_if<hop_>(&part)) {
@@ -135,7 +135,7 @@ namespace {
         resident_segmenter<is_debug_mode(), decltype(g)> segmenter {};
         using hop_ = hop<E>;
         using segment_ = segment<N>;
-        const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points(g, 0.000001f64) };
+        const auto& [parts, final_weight] { segmenter.backtrack_segmentation_points(g, 0.000001f64, 0.0f64) };
         std::cout << final_weight << std::endl;
         for (const auto& part : parts) {
             if (const hop_* hop_ptr = std::get_if<hop_>(&part)) {

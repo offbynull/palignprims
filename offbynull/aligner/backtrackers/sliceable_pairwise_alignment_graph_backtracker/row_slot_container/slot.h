@@ -1,22 +1,20 @@
 #ifndef OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_ROW_SLOT_CONTAINER_SLOT_H
 #define OFFBYNULL_ALIGNER_BACKTRACKERS_SLICEABLE_PAIRWISE_ALIGNMENT_GRAPH_BACKTRACKER_ROW_SLOT_CONTAINER_SLOT_H
 
-#include <optional>
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/utils.h"
+#include <optional>
 
 namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::slot {
     using offbynull::aligner::concepts::weight;
     using offbynull::utils::packable_optional;
-
-    // TODO: Change WEIGHT to ED? Everything else seems to be ED.
 
     PACK_STRUCT_START
     /**
      * Element within
      * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::row_slot_container::row_slot_container.
      * A slot tracks the
-     * @ref offbynull::aligner:backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker::backtracker "backtracking algorithm's"
+     * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker::backtracker "backtracking algorithm's"
      * status for some node, holding on to the incoming edge with the highest accumulated weight.
      *
      * Struct is packed when `OBN_PACK_STRUCTS` macro is defined (and platform supports struct packing).
@@ -45,11 +43,13 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         /**
          * Construct an
          * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::slot::slot instance
-         * with default values. Unusable in this state, but useful in certain circumstances where a default constructor is needed.
+         * where edge doesn't exist (equivalent ot default initialization).
+         *
+         * @param initial_backtracking_weight_ Initial weight, equivalent to 0 for numeric weights.
          */
-        slot()
+        slot(std::nullopt_t, ED initial_backtracking_weight_)
         : backtracking_edge { std::nullopt }
-        , backtracking_weight {} {}
+        , backtracking_weight { initial_backtracking_weight_ } {}
 
         bool operator==(const slot&) const = default;
     }

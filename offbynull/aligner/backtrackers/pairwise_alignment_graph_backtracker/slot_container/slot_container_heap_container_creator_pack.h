@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <vector>
 #include <limits>
+#include <ranges>
 #include <stdexcept>
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/backtrackable_node.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/backtrackable_edge.h"
@@ -21,6 +22,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtrackable_edge::backtrackable_edge;
     using offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot;
     using offbynull::utils::check_multiplication_nonoverflow_throwable;
+    using offbynull::utils::copy_to_vector;
 
     /**
      * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot_container_container_creator_pack::slot_container_container_creator_pack
@@ -51,7 +53,8 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         std::vector<slot<N, E, ED, PARENT_COUNT>> create_slot_container(
             std::size_t grid_down_cnt,
             std::size_t grid_right_cnt,
-            std::size_t grid_depth_cnt
+            std::size_t grid_depth_cnt,
+            ED zero_weight
         ) const {
             if constexpr (debug_mode) {
                 check_multiplication_nonoverflow_throwable<std::size_t>(grid_down_cnt, grid_right_cnt, grid_depth_cnt);
@@ -62,7 +65,10 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
                     throw std::runtime_error { "SLOT_INDEX not wide enough to support grid_down_cnt * grid_right_cnt * grid_depth_cnt" };
                 }
             }
-            return std::vector<slot<N, E, ED, PARENT_COUNT>>(cnt);
+            return copy_to_vector(
+                std::views::iota(0zu, cnt)
+                | std::views::transform([=](const auto&) { return slot<N, E, ED, PARENT_COUNT> { {}, {}, zero_weight }; })
+            );
         }
     };
 }

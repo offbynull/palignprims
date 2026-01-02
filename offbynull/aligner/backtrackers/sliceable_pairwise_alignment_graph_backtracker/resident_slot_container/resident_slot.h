@@ -14,7 +14,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     /**
      * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::slot::slot for a node
      * that's always required to be tracked by the
-     * @ref offbynull::aligner:backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker::backtracker "backtracking algorithm",
+     * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker::backtracker "backtracking algorithm",
      * referred to as a resident node.
      *
      * Struct is packed when `OBN_PACK_STRUCTS` macro is defined (and platform supports struct packing).

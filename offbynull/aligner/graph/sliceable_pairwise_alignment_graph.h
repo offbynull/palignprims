@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include "offbynull/concepts.h"
 #include "offbynull/helpers/join_bidirectional_view.h"
+#include "offbynull/helpers/filter_bidirectional_view.h"
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/pairwise_alignment_graph.h"
 
@@ -15,7 +16,8 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
     using offbynull::concepts::bidirectional_range_of_non_cvref;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::unqualified_object_type;
-    using offbynull::helpers::join_bidirectional_view::join_bidirectional_view_adaptor;
+    using offbynull::helpers::join_bidirectional_view::join_bidirectional;
+    using offbynull::helpers::filter_bidirectional_view::filter_bidirectional;
     using offbynull::aligner::graph::pairwise_alignment_graph::pairwise_alignment_graph;
     using offbynull::aligner::graph::pairwise_alignment_graph::unimplemented_pairwise_alignment_graph;
     using offbynull::aligner::graph::graph::node;
@@ -297,8 +299,8 @@ namespace offbynull::aligner::graph::sliceable_pairwise_alignment_graph {
             | std::views::transform([&g, grid_down](const auto& grid_right) {
                 return g.grid_offset_to_nodes(grid_down, grid_right);
             })
-            | join_bidirectional_view_adaptor {}
-            | std::views::filter([&g, root_node, leaf_node](const N& node) {
+            | join_bidirectional()
+            | filter_bidirectional([&g, root_node, leaf_node](const N& node) {
                 return g.is_reachable(root_node, node) && g.is_reachable(node, leaf_node);
             });
     }

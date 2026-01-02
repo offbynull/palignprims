@@ -20,6 +20,7 @@
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/graph/graph.h"
+#include "offbynull/helpers/filter_bidirectional_view.h"
 
 namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::concepts::widenable_to_size_t;
@@ -31,6 +32,7 @@ namespace offbynull::aligner::graphs::grid_graph {
     using offbynull::utils::static_vector_typer;
     using offbynull::concepts::bidirectional_range_of_non_cvref;
     using offbynull::aligner::graph::graph::full_input_output_range;
+    using offbynull::helpers::filter_bidirectional_view::filter_bidirectional;
 
     /** Node data type used by @ref offbynull::aligner::graphs::grid_graph::grid_graph, which is an empty type (no data kept for nodes). */
     using empty_node_data = std::tuple<>;
@@ -340,7 +342,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                     std::views::iota(I0, I2),
                     std::views::iota(I0, I2)
                 )
-                | std::views::filter([](const auto& tuple) {
+                | filter_bidirectional([](const auto& tuple) {
                     const auto& [grid_down_idx, grid_right_idx, down_offset, right_offset] { tuple };
                     return !(down_offset == I0 && right_offset == I0);
                 })
@@ -357,7 +359,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                         }
                     };
                 })
-                | std::views::filter([this](const E& edge) {
+                | filter_bidirectional([this](const E& edge) {
                     return has_edge(edge);
                 });
         }
@@ -390,7 +392,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                     std::views::iota(I0, I2)
                 )
                 | std::views::drop(1zu)
-                | std::views::filter([node = n, this](const auto& offset) {
+                | filter_bidirectional([node = n, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [grid_down, grid_right] { node };
                     if (down_offset == I1 && grid_down == grid_down_cnt - I1) {
@@ -425,7 +427,7 @@ namespace offbynull::aligner::graphs::grid_graph {
                     std::views::iota(I0, I2)
                 )
                 | std::views::drop(1zu)
-                | std::views::filter([node = n, this](const auto& offset) {
+                | filter_bidirectional([node = n, this](const auto& offset) {
                     const auto& [down_offset, right_offset] { offset };
                     const auto& [grid_down, grid_right] { node };
                     if (down_offset == I1 && grid_down == I0) {

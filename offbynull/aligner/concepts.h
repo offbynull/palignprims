@@ -2,13 +2,9 @@
 #define OFFBYNULL_ALIGNER_CONCEPTS_H
 
 #include <concepts>
+#include <type_traits>
 #include "offbynull/concepts.h"
 
-/**
- * Common aligner concepts.
- *
- * @author Kasra Faghihi
- */
 namespace offbynull::aligner::concepts {
     using offbynull::concepts::unqualified_object_type;
 
@@ -25,10 +21,19 @@ namespace offbynull::aligner::concepts {
     template<typename T>
     concept weight =
         unqualified_object_type<T>
+        && std::is_copy_constructible_v<T>
+        && std::is_copy_assignable_v<T>
+        && std::is_move_constructible_v<T>
+        && std::is_move_assignable_v<T>
         && requires(const T t) {
             { t + t } -> std::convertible_to<T>;
             { t - t } -> std::convertible_to<T>;
             { t < t } -> std::same_as<bool>;
+            { t <= t } -> std::same_as<bool>;
+            { t > t } -> std::same_as<bool>;
+            { t >= t } -> std::same_as<bool>;
+            { t == t } -> std::same_as<bool>;
+            { t != t } -> std::same_as<bool>;
         };
 }
 

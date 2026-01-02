@@ -3,6 +3,8 @@
 
 #include <cstddef>
 #include <stdexcept>
+#include <ranges>
+#include <optional>
 #include "offbynull/utils.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker/row_slot_container/slot.h"
@@ -48,14 +50,18 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         /**
          * @copydoc offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::unimplemented_row_slot_container_container_creator_pack::unimplemented_row_slot_container_container_creator_pack
          */
-        SEGMENT_CONTAINER_TYPE create_slot_container(std::size_t grid_right_cnt_, std::size_t grid_depth_cnt_) const {
+        SEGMENT_CONTAINER_TYPE create_slot_container(std::size_t grid_right_cnt_, std::size_t grid_depth_cnt_, ED zero_weight) const {
             std::size_t cnt { grid_right_cnt_ * grid_depth_cnt_ };
             if constexpr (debug_mode) {
                 if (cnt > max_elem_cnt) {
                     throw std::runtime_error { "Bad element count" };
                 }
             }
-            return SEGMENT_CONTAINER_TYPE(cnt);
+            auto r {
+                std::views::iota(0zu, cnt)
+                | std::views::transform([=](const auto&) { return slot<E, ED> { std::nullopt, zero_weight }; })
+            };
+            return SEGMENT_CONTAINER_TYPE(r.begin(), r.end());
         }
     };
 }

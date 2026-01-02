@@ -23,6 +23,7 @@
 #include "offbynull/helpers/concat_bidirectional_view.h"
 #include "offbynull/utils.h"
 #include "offbynull/helpers/simple_value_bidirectional_view.h"
+#include "offbynull/helpers/filter_bidirectional_view.h"
 
 namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::aligner::concepts::weight;
@@ -35,6 +36,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view;
     using offbynull::concepts::bidirectional_range_of_non_cvref;
     using offbynull::aligner::graph::graph::full_input_output_range;
+    using offbynull::helpers::filter_bidirectional_view::filter_bidirectional;
 
     /**
      * Node data type used by
@@ -460,7 +462,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     }
                     std::unreachable();
                 })
-                | std::views::filter([this](const E& edge) {
+                | filter_bidirectional([this](const E& edge) {
                     return has_edge(edge);
                 })
             };
@@ -495,7 +497,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     }
                     std::unreachable();
                 })
-                | std::views::filter([this](const E& edge) {
+                | filter_bidirectional([this](const E& edge) {
                     return has_edge(edge);
                 })
             };
@@ -530,7 +532,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
                     }
                     std::unreachable();
                 })
-                | std::views::filter([this](const E& edge) {
+                | filter_bidirectional([this](const E& edge) {
                     return has_edge(edge);
                 })
             };

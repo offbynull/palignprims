@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <limits>
+#include <ranges>
 #include <stdexcept>
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/backtrackable_node.h"
 #include "offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker/backtrackable_edge.h"
@@ -68,9 +69,10 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
          * @copydoc offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::unimplemented_slot_container_container_creator_pack::unimplemented_slot_container_container_creator_pack::create_slot_container
          */
         CONTAINER_TYPE create_slot_container(
-            const std::size_t grid_down_cnt,
-            const std::size_t grid_right_cnt,
-            const std::size_t grid_depth_cnt
+            std::size_t grid_down_cnt,
+            std::size_t grid_right_cnt,
+            std::size_t grid_depth_cnt,
+            ED zero_weight
         ) const {
             if constexpr (debug_mode) {
                 check_multiplication_nonoverflow_throwable<std::size_t>(grid_down_cnt, grid_right_cnt, grid_depth_cnt);
@@ -84,7 +86,11 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
                     throw std::runtime_error { "Bad element count" };
                 }
             }
-            return CONTAINER_TYPE(cnt);
+            auto r {
+                std::views::iota(0zu, cnt)
+                | std::views::transform([=](const auto&) { return slot<N, E, ED, PARENT_COUNT> { {}, {}, zero_weight }; })
+            };
+            return CONTAINER_TYPE(r.begin(), r.end());
         }
     };
 }

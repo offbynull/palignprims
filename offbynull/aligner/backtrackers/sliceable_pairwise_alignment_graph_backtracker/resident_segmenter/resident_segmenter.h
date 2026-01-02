@@ -54,6 +54,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
     using offbynull::concepts::unqualified_object_type;
+    using offbynull::concepts::numeric;
     using offbynull::utils::static_vector_typer;
 
     /**
@@ -179,17 +180,20 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *     when the type used for edge weights is a floating point type (must be finite). It helps mitigate floating point rounding
          *     errors when `g` is large / has large magnitude differences across `g`'s edge weights. The value this should be set to depends
          *     on multiple factors (e.g., which floating point type is used, expected graph size, expected magnitudes, etc..).
-         * @return `true` if `node` sits on any of the maximally-weighted path between `g`'s root node and leaf node, `false` otherwise.
+         * @param zero_weight Initial weight, equivalent to 0 for numeric weights.
          * @return A pair where the first element is a container holding the segment-hop chain and the second element is the weight of the
          *     maximally-weighted path identified.
          */
         std::pair<SEGMENT_HOP_CHAIN_CONTAINER, ED> backtrack_segmentation_points(
             const G& g,
-            const ED max_path_weight_comparison_tolerance
+            const ED max_path_weight_comparison_tolerance,
+            const ED zero_weight
         ) {
             if constexpr (debug_mode) {
-                if (!std::isfinite(max_path_weight_comparison_tolerance)) {
-                    throw std::runtime_error { "Tolerance not finite" };
+                if constexpr (numeric<ED>) {
+                    if (!std::isfinite(max_path_weight_comparison_tolerance)) {
+                        throw std::runtime_error { "Tolerance not finite" };
+                    }
                 }
             }
 
@@ -200,7 +204,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     BIDI_WALKER_CONTAINER_CREATOR_PACK
                 >::converge_weight(
                     g,
-                    g.get_leaf_node()
+                    g.get_leaf_node(),
+                    zero_weight
                 )
             };
 
@@ -244,7 +249,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                             g,
                             resident_node,
                             max_path_weight,
-                            max_path_weight_comparison_tolerance
+                            max_path_weight_comparison_tolerance,
+                            zero_weight
                         )
                     };
                     if (!on_max_path) {
@@ -270,7 +276,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                             BIDI_WALKER_CONTAINER_CREATOR_PACK
                         >::converge(
                             sub_graph,
-                            resident_node
+                            resident_node,
+                            zero_weight
                         )
                     };
                     if (!sub_graph.has_node(resident_node)) { // if node isn't visible, skip

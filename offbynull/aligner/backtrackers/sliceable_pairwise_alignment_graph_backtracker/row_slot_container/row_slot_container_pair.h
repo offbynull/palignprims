@@ -66,16 +66,18 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * Defaults to tracking nodes within first 2 rows of `g`. See `move_down()` to change tracked rows.
          *
          * @param g Graph.
+         * @param zero_weight Initial weight, equivalent to 0 for numeric weights.
          * @param row_slot_container_creator_pack Container factory (for internal
          *      @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::row_slot_container::row_slot_container
          *      instances).
          */
         row_slot_container_pair(
             const G& g,
+            ED zero_weight,
             ROW_SLOT_CONTAINER_CONTAINER_CREATOR_PACK row_slot_container_creator_pack = {}
         )
-        : slots1 { g, row_slot_container_creator_pack }
-        , slots2 { g, row_slot_container_creator_pack }
+        : slots1 { g, zero_weight, row_slot_container_creator_pack }
+        , slots2 { g, zero_weight, row_slot_container_creator_pack }
         , previous_slots { &slots1 }
         , current_slots { &slots2 }
         , grid_down_offset { I0 } {}

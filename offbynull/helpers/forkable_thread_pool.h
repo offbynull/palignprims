@@ -16,12 +16,6 @@
 #include <stdexcept>
 #include <chrono>
 
-/**
- * Forkable thread pool, similar to Java's
- * [ForkJoinPool](https://docs.oracle.com/en/java/javase/21/docs/api///java.base/java/util/concurrent/ForkJoinPool.html).
- *
- * @author Kasra Faghihi
- */
 namespace offbynull::helpers::forkable_thread_pool {
     template<bool debug_mode, typename TASK_RESULT>
     class worker;

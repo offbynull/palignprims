@@ -50,6 +50,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         ::backtracking_result_without_explicit_weight;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::unqualified_object_type;
+    using offbynull::concepts::numeric;
     using offbynull::utils::static_vector_typer;
 
     /**
@@ -113,6 +114,11 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     private:
         /**
+         * Initial edge weight (e.g., 0).
+         */
+        ED zero_weight;
+
+        /**
          * Container factory.
          */
         CONTAINER_CREATOR_PACK container_creator_pack;
@@ -122,12 +128,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * Construct an @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker::backtracker
          * instance.
          *
+         * @param zero_weight_ Initial weight, equivalent to 0 for numeric weights. Defaults to `ED`'s default constructor, assuming it
+         *     exists.
          * @param container_creator_pack_ Container factory.
          */
         backtracker(
+            ED zero_weight_ = {},
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
-        : container_creator_pack { container_creator_pack_ } {}
+        : zero_weight { zero_weight_ }
+        , container_creator_pack { container_creator_pack_ } {}
 
         /**
          * Determine the maximally-weighted path (path with the highest sum of edge weights) connecting a sliceable pairwise alignment
@@ -148,8 +158,10 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const ED max_path_weight_comparison_tolerance
         ) {
             if constexpr (debug_mode) {
-                if (!std::isfinite(max_path_weight_comparison_tolerance)) {
-                    throw std::runtime_error { "Tolerance not finite" };
+                if constexpr (numeric<ED>) {
+                    if (!std::isfinite(max_path_weight_comparison_tolerance)) {
+                        throw std::runtime_error { "Tolerance not finite" };
+                    }
                 }
             }
             resident_segmenter<
@@ -160,7 +172,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 container_creator_pack.create_resident_segmenter_container_creator_pack()
             };
             const auto& [parts, final_weight] {
-                resident_segmenter_.backtrack_segmentation_points(g, max_path_weight_comparison_tolerance)
+                resident_segmenter_.backtrack_segmentation_points(g, max_path_weight_comparison_tolerance, zero_weight)
             };
             // NOTE: I spent the better part of a day trying to get parts to stream back instead of putting it in a PATH_CONTAINER and
             //       sending it back. It wasn't doable because in the end I couldn't make the stream copy assignable. The work is in a
@@ -185,6 +197,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                         SLICED_SUBDIVIDER_CONTAINER_CREATOR_PACK
                     > subdivider {
                         g_segment,
+                        zero_weight,
                         container_creator_pack.create_sliced_subdivider_container_creator_pack()
                     };
                     auto path_container { subdivider.subdivide() };

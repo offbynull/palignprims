@@ -17,7 +17,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
     /**
      * Concept that's satisfied if `T` has the traits for creating the containers required by
-     * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::row_slot_container::row_slot_container::row_slot_container,
+     * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::row_slot_container::row_slot_container,
      * referred to as a container creator pack.
      *
      * @tparam T Type to check.
@@ -33,8 +33,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         unqualified_object_type<T>
         && backtrackable_edge<E>
         && weight<ED>
-        && requires(const T t, std::size_t grid_right_cnt, std::size_t grid_depth_cnt) {
-            { t.create_slot_container(grid_right_cnt, grid_depth_cnt) } -> random_access_sequence_container<slot<E, ED>>;
+        && requires(const T t, std::size_t grid_right_cnt, std::size_t grid_depth_cnt, ED zero_weight) {
+            { t.create_slot_container(grid_right_cnt, grid_depth_cnt, zero_weight) } -> random_access_sequence_container<slot<E, ED>>;
         };
 }
 

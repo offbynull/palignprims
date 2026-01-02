@@ -50,7 +50,7 @@ namespace {
         using E = typename decltype(g)::E;
 
         // walk
-        sliced_subdivider<is_debug_mode(), decltype(g)> subdivider { g };
+        sliced_subdivider<is_debug_mode(), decltype(g)> subdivider { g, 0.0f64 };
         auto path { subdivider.subdivide() };
         auto backward_path_view { path.walk_path_backward() };
         std::vector<E> forward_path(backward_path_view.begin(), backward_path_view.end());
@@ -109,7 +109,7 @@ namespace {
         };
 
         // walk
-        sliced_subdivider<is_debug_mode(), decltype(g)> subdivider { g };
+        sliced_subdivider<is_debug_mode(), decltype(g)> subdivider { g, 0.0f64 };
         auto path { subdivider.subdivide() };
         auto backward_path_view { path.walk_path_backward() };
         std::vector<E> forward_path(backward_path_view.begin(), backward_path_view.end());

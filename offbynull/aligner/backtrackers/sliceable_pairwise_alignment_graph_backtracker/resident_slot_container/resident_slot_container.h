@@ -27,12 +27,13 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         ::resident_slot_with_node_comparator::resident_slot_with_node_comparator;
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container
         ::resident_slot::resident_slot;
+    using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::slot::slot;
 
     /**
      * Container of
      * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::resident_slot_container::resident_slot::resident_slot "resident slots",
      * used by
-     * @ref offbynull::aligner:backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker::backtracker to track the
+     * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker::backtracker to track the
      * backtracking state of nodes within graph which need their backtracking state constantly available.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
@@ -76,19 +77,27 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * instance.
          *
          * @param g Graph.
+         * @param zero_weight Initial weight, equivalent to 0 for numeric weights.
          * @param container_creator_pack Container factory.
          */
         resident_slot_container(
             const G& g,
+            ED zero_weight,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
         : slots {
             container_creator_pack.create_slot_container(
                 g.resident_nodes()
-                | std::views::transform([](const N& node) {
+                | std::views::transform([=](const N& node) {
                     return resident_slot_with_node<N, E, ED> {
                         node,
-                        {}
+                        resident_slot<E, ED> {
+                            false,  // initialized
+                            slot<E, ED> {
+                                E {},  // backtracking edge
+                                zero_weight
+                            }
+                        }
                     };
                 })
             )

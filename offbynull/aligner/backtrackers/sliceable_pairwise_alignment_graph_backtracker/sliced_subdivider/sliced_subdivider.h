@@ -135,6 +135,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
 
         const G& whole_graph;
 
+        const ED zero_weight;
+
         CONTAINER_CREATOR_PACK container_creator_pack;
 
         enum class walk_direction {
@@ -159,13 +161,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          * @ref offbynull::aligner::graphs::middle_sliceable_pairwise_alignment_graph::middle_sliceable_pairwise_alignment_graph).
          *
          * @param g Graph (view of a segment).
+         * @param zero_weight_ Initial weight, equivalent to 0 for numeric weights.
          * @param container_creator_pack_ Container factory.
          */
         sliced_subdivider(
             const G& g,
+            const ED zero_weight_,
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
         : whole_graph { g }
+        , zero_weight { zero_weight_ }
         , container_creator_pack { container_creator_pack_ } {
             if constexpr (debug_mode) {
                 for (const auto& resident_node : whole_graph.resident_nodes()) {
@@ -192,7 +197,9 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                 nullptr,
                 walk_direction::INITIALIZE,
                 whole_graph.get_root_node(),
-                whole_graph.get_leaf_node()
+                whole_graph.get_leaf_node(),
+                zero_weight,
+                zero_weight
             );
 
             return path_container_;
@@ -205,8 +212,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             const walk_direction dir,
             const N& root_node,
             const N& leaf_node,
-            const ED existing_weight_at_root = {},
-            const ED existing_weight_at_leaf = {}
+            const ED existing_weight_at_root,
+            const ED existing_weight_at_leaf
         ) {
             // std::string indent_str {};
             // static int indent { 0 };
@@ -233,13 +240,13 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             };
 
             if (root_node == leaf_node) {
-                return ED { 0zu };
+                return zero_weight;
             }
-            ED max_path_weight;
-            E max_edge;
-            ED max_edge_weight;
-            ED before_max_edge_weight;
-            ED after_max_edge_weight;
+            ED max_path_weight { zero_weight };
+            E max_edge {};
+            ED max_edge_weight { zero_weight };
+            ED before_max_edge_weight { zero_weight };
+            ED after_max_edge_weight { zero_weight };
             {
                 bool max_edge_assigned {};
                 // whole_graph expected to have 2 resident nodes at most (one at root and one at leaf) -- override the
@@ -276,6 +283,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
                     BIDI_WALKER_TYPE::create_and_initialize(
                         sub_graph,
                         mid_down_offset,
+                        zero_weight,
                         override_bidi_walker_container_creator_pack {
                             container_creator_pack
                                 .create_row_slot_container_container_creator_pack()

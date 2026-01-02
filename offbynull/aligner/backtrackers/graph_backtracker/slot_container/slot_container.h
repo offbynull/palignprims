@@ -35,7 +35,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
 
     /**
      * Container of @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot::slot "slots", used by
-     * @ref offbynull::aligner:backtrackers::graph_backtracker::backtracker::backtracker to track the backtracking state of each node
+     * @ref offbynull::aligner::backtrackers::graph_backtracker::backtracker::backtracker to track the backtracking state of each node
      * within a graph.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.

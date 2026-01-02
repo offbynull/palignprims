@@ -10,6 +10,7 @@
 #include <utility>
 #include <concepts>
 #include "offbynull/aligner/graph/graph.h"
+#include "offbynull/helpers/filter_bidirectional_view.h"
 #include "offbynull/concepts.h"
 
 namespace offbynull::aligner::graphs::directed_graph {
@@ -18,6 +19,7 @@ namespace offbynull::aligner::graphs::directed_graph {
     using offbynull::concepts::unqualified_object_type;
     using offbynull::concepts::bidirectional_range_of_non_cvref;
     using offbynull::aligner::graph::graph::full_input_output_range;
+    using offbynull::helpers::filter_bidirectional_view::filter_bidirectional;
 
     /**
      * @ref offbynull::aligner::graph::graph::graph implementation that is *not immutable* (can be modified).
@@ -342,7 +344,7 @@ namespace offbynull::aligner::graphs::directed_graph {
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_root_nodes */
         bidirectional_range_of_non_cvref<N> auto get_root_nodes() const {
-            auto ret { this->get_nodes() | std::views::filter([&](const auto& n) { return !has_inputs(n); }) };
+            auto ret { this->get_nodes() | filter_bidirectional([&](const auto& n) { return !has_inputs(n); }) };
             return ret;
         }
 
@@ -360,7 +362,7 @@ namespace offbynull::aligner::graphs::directed_graph {
 
         /** @copydoc offbynull::aligner::graph::graph::unimplemented_graph::get_leaf_nodes */
         bidirectional_range_of_non_cvref<N> auto get_leaf_nodes() const {
-            auto ret { this->get_nodes() | std::views::filter([&](const auto& n) { return !has_outputs(n); }) };
+            auto ret { this->get_nodes() | filter_bidirectional([&](const auto& n) { return !has_outputs(n); }) };
             return ret;
         }
 

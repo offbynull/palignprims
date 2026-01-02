@@ -50,9 +50,10 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             const T t,
             std::size_t grid_down_cnt,
             std::size_t grid_right_cnt,
-            std::size_t grid_depth_cnt
+            std::size_t grid_depth_cnt,
+            ED zero_weight
         ) {
-            { t.create_slot_container(grid_down_cnt, grid_right_cnt, grid_depth_cnt) } -> random_access_sequence_container<
+            { t.create_slot_container(grid_down_cnt, grid_right_cnt, grid_depth_cnt, zero_weight) } -> random_access_sequence_container<
                 slot<N, E, ED, PARENT_COUNT>
             >;
         };

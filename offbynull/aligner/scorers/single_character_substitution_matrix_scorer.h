@@ -14,6 +14,7 @@
 #include <utility>
 #include <functional>
 #include <stdexcept>
+#include "offbynull/helpers/filter_bidirectional_view.h"
 #include "offbynull/aligner/scorer/scorer.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/utils.h"
@@ -24,6 +25,7 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
     using offbynull::aligner::scorer::scorer::scorer;
     using offbynull::utils::type_displayer;
     using offbynull::concepts::widenable_to_size_t;
+    using offbynull::helpers::filter_bidirectional_view::filter_bidirectional;
 
     /**
      * @ref offbynull::aligner::scorer::scorer::scorer which scores single character elements based on a space-delimited ASCII table.
@@ -65,10 +67,10 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
         static auto split_lines_and_words(const auto& text) {
             auto text_normalized_ends {
                 text
-                | std::views::filter([](const auto& ch) { return ch != '\r'; })
+                | filter_bidirectional([](const auto& ch) { return ch != '\r'; })
             };
             return
-                std::views::split(text_normalized_ends, '\n')
+                std::views::split(text_normalized_ends, '\n')  // FORCES BIDIRECTIONAL RANGE TO FORWARD RANGE
                 | std::views::transform([](const auto& line) {
                     static_assert(std::is_same_v<decltype(*line.begin()), const char&>); // ensure you're getting back a REFERENCE to the
                                                                                          // original data when you access
@@ -81,13 +83,16 @@ namespace offbynull::aligner::scorers::single_character_substitution_matrix_scor
                 | std::views::transform([](const std::string_view& line) {
                     return trim_whitespace(line);  // trim whitespace from line
                 })
-                | std::views::filter([](const std::string_view& line) {
+                | std::views::filter([](const std::string_view& line) {  // std::views::split forces the range to be a forward range, so
+                                                                         // filter_bidirectional will fail here if used. It doesn't matter
+                                                                         // the range being returned here is forward. It's only being used
+                                                                         // internally anyways (doesn't escape).
                     return line.begin() != line.end();  // remove if empty line
                 })
                 | std::views::transform([](const std::string_view& line) {
                     return
                         std::views::split(line, ' ')
-                        | std::views::filter([](const auto& s) {
+                        | std::views::filter([](const auto& s) {  // std::views::split forces the range to be a forward range
                             return s.begin() != s.end();
                         });
                 });

@@ -5,14 +5,8 @@
 #include <ranges>
 #include <iterator>
 #include <concepts>
-#include <utility>
 #include "offbynull/concepts.h"
 
-/**
- * Simplified interface for STL bidirectional view.
- *
- * @author Kasra Faghihi
- */
 namespace offbynull::helpers::simple_value_bidirectional_view {
     using offbynull::concepts::unqualified_object_type;
 
@@ -152,38 +146,6 @@ namespace offbynull::helpers::simple_value_bidirectional_view {
      */
     template<state STATE>
     simple_value_bidirectional_view(STATE&&, STATE&&) -> simple_value_bidirectional_view<STATE>;
-
-    /**
-     * `const` @ref offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view range pipe operator, where the `v`
-     * is fed into `adaptor`.
-     *
-     * @tparam STATE Type backing @ref offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view that's being
-     * piped from.
-     * @tparam Adaptor Type being piped to.
-     * @param v Range to pipe from.
-     * @param adaptor Range adaptor to pipe into.
-     * @return `v` piped into `adaptor`.
-     */
-    template<state STATE, typename Adaptor>
-    auto operator|(const simple_value_bidirectional_view<STATE>& v, Adaptor adaptor) {
-        return adaptor(std::views::all(v));
-    }
-
-    /**
-     * @ref offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view range pipe operator, where `v` is fed into
-     * `adaptor` (via move).
-     *
-     * @tparam STATE Type backing @ref offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view that's being
-     * piped from.
-     * @tparam Adaptor Type being piped to.
-     * @param v Range to pipe from.
-     * @param adaptor Range adaptor to pipe into.
-     * @return `v` piped into `adaptor`.
-     */
-    template<state STATE, typename Adaptor>
-    auto operator|(simple_value_bidirectional_view<STATE>&& v, Adaptor adaptor) {
-        return adaptor(std::views::all(std::move(v)));
-    }
 }
 
 #endif //OFFBYNULL_HELPERS_SIMPLE_VALUE_BIDIRECTIONAL_VIEW_H

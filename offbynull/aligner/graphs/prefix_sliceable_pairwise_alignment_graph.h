@@ -11,12 +11,14 @@
 #include "offbynull/aligner/graph/graph.h"
 #include "offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h"
 #include "offbynull/aligner/concepts.h"
+#include "offbynull/helpers/filter_bidirectional_view.h"
 
 namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph {
     using offbynull::aligner::graph::sliceable_pairwise_alignment_graph::sliceable_pairwise_alignment_graph;
     using offbynull::aligner::concepts::weight;
     using offbynull::concepts::bidirectional_range_of_non_cvref;
     using offbynull::aligner::graph::graph::full_input_output_range;
+    using offbynull::helpers::filter_bidirectional_view::filter_bidirectional;
 
     /**
      * View into an existing
@@ -196,13 +198,13 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_nodes */
         bidirectional_range_of_non_cvref<N> auto get_nodes() const {
             return g.get_nodes()
-                | std::views::filter([&](const N& node) { return !node_out_of_bound(node); });
+                | filter_bidirectional([&](const N& node) { return !node_out_of_bound(node); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_edges */
         bidirectional_range_of_non_cvref<E> auto get_edges() const {
             return g.get_edges()
-                | std::views::filter([&](const E& edge) { return !edge_out_of_bound(edge); });
+                | filter_bidirectional([&](const E& edge) { return !edge_out_of_bound(edge); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::has_node */
@@ -223,7 +225,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             return g.get_outputs_full(n)
-                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<0zu>(vals)); });
+                | filter_bidirectional([&](const auto& vals) { return !edge_out_of_bound(std::get<0zu>(vals)); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs_full */
@@ -234,7 +236,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             return g.get_inputs_full(n)
-                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(std::get<0zu>(vals)); });
+                | filter_bidirectional([&](const auto& vals) { return !edge_out_of_bound(std::get<0zu>(vals)); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_outputs */
@@ -245,7 +247,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             return g.get_outputs(n)
-                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(vals); });
+                | filter_bidirectional([&](const auto& vals) { return !edge_out_of_bound(vals); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_inputs */
@@ -256,7 +258,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             return g.get_inputs(n)
-                | std::views::filter([&](const auto& vals) { return !edge_out_of_bound(vals); });
+                | filter_bidirectional([&](const auto& vals) { return !edge_out_of_bound(vals); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::has_outputs */
@@ -325,7 +327,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
             N root_node { g.get_root_node() };
             N leaf_node { g.get_leaf_node() };
             return g.grid_offset_to_nodes(grid_down, grid_right)
-                | std::views::filter([this, root_node, leaf_node](const N& node) {
+                | filter_bidirectional([this, root_node, leaf_node](const N& node) {
                     return g.is_reachable(root_node, node) && g.is_reachable(node, leaf_node);
                 });
         }
@@ -343,7 +345,7 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
                 }
             }
             return g.row_nodes(grid_down, root_node, leaf_node)
-                | std::views::filter([&](const N& node) { return !node_out_of_bound(node); });
+                | filter_bidirectional([&](const N& node) { return !node_out_of_bound(node); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::is_reachable */
@@ -359,19 +361,19 @@ namespace offbynull::aligner::graphs::prefix_sliceable_pairwise_alignment_graph 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::resident_nodes */
         bidirectional_range_of_non_cvref<N> auto resident_nodes() const {
             return g.resident_nodes()
-                | std::views::filter([&](const N& node) { return !node_out_of_bound(node); });
+                | filter_bidirectional([&](const N& node) { return !node_out_of_bound(node); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::outputs_to_residents */
         bidirectional_range_of_non_cvref<E> auto outputs_to_residents(const N& n) const {
             return g.outputs_to_residents(n)
-                | std::views::filter([&](const E& edge) { return !edge_out_of_bound(edge); });
+                | filter_bidirectional([&](const E& edge) { return !edge_out_of_bound(edge); });
         }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::inputs_from_residents */
         bidirectional_range_of_non_cvref<E> auto inputs_from_residents(const N& n) const {
             return g.inputs_from_residents(n)
-                | std::views::filter([&](const E& edge) { return !edge_out_of_bound(edge); });
+                | filter_bidirectional([&](const E& edge) { return !edge_out_of_bound(edge); });
         }
     };
 

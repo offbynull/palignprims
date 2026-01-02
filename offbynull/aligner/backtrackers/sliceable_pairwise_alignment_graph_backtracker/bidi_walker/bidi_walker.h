@@ -27,6 +27,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     using offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::slot::slot;
     using offbynull::aligner::graphs::reversed_sliceable_pairwise_alignment_graph::reversed_sliceable_pairwise_alignment_graph;
     using offbynull::concepts::bidirectional_range_of_exact;
+    using offbynull::concepts::numeric;
 
     /**
      * Bidirectional walker for
@@ -97,13 +98,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *
          * @param g_ Graph.
          * @param target_row Row within `g`.
+         * @param zero_weight Initial weight, equivalent to 0 for numeric weights.
          * @param container_creator_pack Container factory.
          * @return @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker
          *     instance primed to `g`'s `target_row` row.
          */
         static bidi_walker create_and_initialize(
             const G& g_,
-            const N_INDEX target_row,
+            N_INDEX target_row,
+            ED zero_weight,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         ) {
             if constexpr (debug_mode) {
@@ -114,6 +117,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             bidi_walker ret {
                 g_,
                 target_row,
+                zero_weight,
                 container_creator_pack
             };
             return ret;
@@ -201,14 +205,16 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *
          * @param g Graph.
          * @param node Node identifier within `g`.
+         * @param zero_weight Initial weight, equivalent to 0 for numeric weights.
          * @return Identifier of final edge within path and overall path weight (of maximally-weighted path) to `node`, for both directions.
          */
         static find_result_copy converge(
             const G& g,
-            const N& node
+            const N& node,
+            ED zero_weight
         ) {
             const auto& [down, right, depth] { g.node_to_grid_offset(node) };
-            bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g, down) };
+            bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g, down, zero_weight) };
             find_result found { bidi_walker_.find(node) };
             return find_result_copy { found.forward_slot, found.backward_slot };
         }
@@ -221,13 +227,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *
          * @param g Graph.
          * @param node Node identifier within `g`.
+         * @param zero_weight Initial weight, equivalent to 0 for numeric weights.
          * @return Overall path weight (of maximally-weighted path) to `node`, for both directions, summed.
          */
         static ED converge_weight(
             const G& g,
-            const N& node
+            const N& node,
+            ED zero_weight
         ) {
-            find_result_copy slots { converge(g, node) };
+            find_result_copy slots { converge(g, node, zero_weight) };
             return static_cast<ED>(
                 slots.forward_slot.backtracking_weight + slots.backward_slot.backtracking_weight
             );   // Cast to prevent narrowing warning
@@ -253,26 +261,30 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *     when the type used for edge weights is a floating point type (must be finite). It helps mitigate floating point rounding
          *     errors when `g` is large / has large magnitude differences across `g`'s edge weights. The value this should be set to depends
          *     on multiple factors (e.g., which floating point type is used, expected graph size, expected magnitudes, etc..).
+         * @param zero_weight Initial weight, equivalent to 0 for numeric weights.
          * @return `true` if `node` sits on any of the maximally-weighted path between `g`'s root node and leaf node, `false` otherwise.
          */
         static bool is_node_on_max_path(
             const G& g,
             const N& node,
             const ED max_path_weight,
-            const ED max_path_weight_comparison_tolerance
+            const ED max_path_weight_comparison_tolerance,
+            const ED zero_weight
         ) {
             if constexpr (debug_mode) {
-                if (!std::isfinite(max_path_weight)) {
-                    throw std::runtime_error { "Max weight not finite" };
-                }
-                if (!std::isfinite(max_path_weight_comparison_tolerance)) {
-                    throw std::runtime_error { "Tolerance not finite" };
+                if constexpr (numeric<ED>) {
+                    if (!std::isfinite(max_path_weight)) {
+                        throw std::runtime_error { "Max weight not finite" };
+                    }
+                    if (!std::isfinite(max_path_weight_comparison_tolerance)) {
+                        throw std::runtime_error { "Tolerance not finite" };
+                    }
                 }
             }
 
             const auto& [down, right, depth] { g.node_to_grid_offset(node) };
 
-            bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g, down) };
+            bidi_walker bidi_walker_ { bidi_walker::create_and_initialize(g, down, zero_weight) };
             for (const auto& entry : bidi_walker_.list()) {
                 ED node_converged_weight {
                     static_cast<ED>(
@@ -307,7 +319,8 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     private:
         bidi_walker(
             const G& g_,
-            const N_INDEX target_row_,
+            N_INDEX target_row_,
+            ED zero_weight,
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
         : g { g_ }
@@ -317,6 +330,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             decltype(forward_walker_)::create_and_initialize(
                 g,
                 target_row,
+                zero_weight,
                 container_creator_pack_.create_forward_walker_container_creator_pack()
             )
         }
@@ -324,6 +338,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             decltype(backward_walker)::create_and_initialize(
                 reversed_g,
                 static_cast<N_INDEX>(g.grid_down_cnt - I1 - target_row),  // Cast to prevent narrowing warning
+                zero_weight,
                 container_creator_pack_.create_backward_walker_container_creator_pack()
             )
         } {}

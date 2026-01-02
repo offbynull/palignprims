@@ -4,11 +4,6 @@
 #include <ranges>
 #include <utility>
 
-/**
- * View that wraps a bidirectional range, optionally making it appear as if its blank.
- *
- * @author Kasra Faghihi
- */
 namespace offbynull::helpers::blankable_bidirectional_view {
 
     /**

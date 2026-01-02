@@ -118,13 +118,15 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *
          * @param g_ Graph.
          * @param target_row Row within `g`.
+         * @param zero_weight Initial weight, equivalent to 0 for numeric weights.
          * @param container_creator_pack_ Container factory.
          * @return @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::forward_walker::forward_walker
          *     instance primed to `g`'s `target_row` row.
          */
         static forward_walker create_and_initialize(
             const G& g_,
-            const N_INDEX target_row,
+            N_INDEX target_row,
+            ED zero_weight,
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         ) {
             if constexpr (debug_mode) {
@@ -134,6 +136,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
             }
             forward_walker ret {
                 g_,
+                zero_weight,
                 container_creator_pack_
             };
             while (ret.row_slots.down_offset() != target_row || ret.row_it != ret.row.end()) {
@@ -151,7 +154,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
          *  * `node` doesn't exist within `g`.
          *  * `node` is neither a node in the row targeted nor a resident node before the row targeted.
          *
-         * @param node Idntifier of node within graph. This node must be either a non-resident node within the row targeted or a resident
+         * @param node Identifier of node within graph. This node must be either a non-resident node within the row targeted or a resident
          *     node leading up to the row targeted.
          * @return Identifier of final edge within path and overall path weight (of maximally-weighted path between the root node and
          *     `node`).
@@ -174,11 +177,12 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     private:
         forward_walker(
             const G& g_,
+            ED zero_weight,
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
         : g { g_ }
-        , resident_slots { g, container_creator_pack_.create_resident_slot_container_container_creator_pack() }
-        , row_slots { g, container_creator_pack_.create_row_slot_container_container_creator_pack() }
+        , resident_slots { g, zero_weight, container_creator_pack_.create_resident_slot_container_container_creator_pack() }
+        , row_slots { g, zero_weight, container_creator_pack_.create_row_slot_container_container_creator_pack() }
         , row { g.row_nodes(I0) }
         , row_it { row.begin() }
         , row_entry_ {} {

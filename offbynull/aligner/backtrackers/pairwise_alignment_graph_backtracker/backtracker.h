@@ -120,6 +120,11 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         static constexpr PARENT_COUNT PC1 { static_cast<PARENT_COUNT>(1zu) };
 
         /**
+         * Initial edge weight (e.g., 0).
+         */
+        ED zero_weight;
+
+        /**
          * Container factory.
          */
         CONTAINER_CREATOR_PACK container_creator_pack;
@@ -128,12 +133,16 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
         /**
          * Construct an @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker instance.
          *
+         * @param zero_weight_ Initial weight, equivalent to 0 for numeric weights. Defaults to `ED`'s default constructor, assuming it
+         *     exists.
          * @param container_creator_pack_ Container factory.
          */
         backtracker(
+            ED zero_weight_ = {},
             CONTAINER_CREATOR_PACK container_creator_pack_ = {}
         )
-        : container_creator_pack { container_creator_pack_ } {}
+        : zero_weight { zero_weight_ }
+        , container_creator_pack { container_creator_pack_ } {}
 
         /**
          * Determine the maximally-weighted path (path with the highest sum of edge weights) connecting a pairwise alignment graph's root
@@ -176,14 +185,15 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
                                 throw std::runtime_error { "Type not wide enough" };
                             }
                         }
-                        return { n, static_cast<PARENT_COUNT>(in_degree) };
+                        return { n, static_cast<PARENT_COUNT>(in_degree), zero_weight };
                     })
                 )
             };
             SLOT_CONTAINER slots {
                 g,
                 slots_lazy.begin(),
-                slots_lazy.end()
+                slots_lazy.end(),
+                zero_weight
             };
             // Create "ready_idxes" queue
             // --------------------------
@@ -196,7 +206,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
             const auto& [root_slot_idx, root_slot] { slots.find(root_node) };
             ready_idxes.push(root_slot_idx);
             // static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 required"); // Require for inf and nan?
-            root_slot.backtracking_weight = static_cast<ED>(0zu);
+            root_slot.backtracking_weight = zero_weight;
             // Find max path within graph
             // --------------------------
             // Using the backtracking algorithm, find the path within graph that has the maximum weight. If more than one such

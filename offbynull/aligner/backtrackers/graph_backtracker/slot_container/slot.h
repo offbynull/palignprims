@@ -19,7 +19,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
     /**
      * Element within @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot_container::slot_container. Each slot is
      * for a single node in the graph, tracking the
-     * @ref offbynull::aligner:backtrackers::graph_backtracker::backtracker::backtracker "backtracking algorithm's" status for that node:
+     * @ref offbynull::aligner::backtrackers::graph_backtracker::backtracker::backtracker "backtracking algorithm's" status for that node:
      * Either the backtracking algorithm has parent nodes that need to be processed before it can process this node, or the backtracking
      * algorithm has processed all parent nodes and this node as well (holding on to the incoming edge with the highest accumulated weight).
      *
@@ -47,22 +47,17 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::slot_container::s
          * @param node_ Identifier of node to be assigned to this slot.
          * @param unwalked_parent_cnt_ `node_`'s incoming edge count, assumed to all be unprocessed by the owning backtracker at time of
          *     creation.
+         * @param backtracking_weight_ Initial backtracking weight, equivalent to 0 for numeric weights.
          */
-        slot(N node_, std::size_t unwalked_parent_cnt_)  // TODO: Should this change to const N& node_
+        slot(
+            N node_,
+            std::size_t unwalked_parent_cnt_,
+            WEIGHT backtracking_weight_
+        )  // TODO: Should this change to const N& node_
         : node { node_ }
         , unwalked_parent_cnt { unwalked_parent_cnt_ }
         , backtracking_edge {}
-        , backtracking_weight {} {}
-
-        /**
-         * Construct an @ref offbynull::aligner::backtrackers::graph_backtracker::slot_container::slot::slot instance with default values.
-         * Unusable in this state, but useful in certain circumstances where a default constructor is needed.
-         */
-        slot()
-        : node {}
-        , unwalked_parent_cnt {}
-        , backtracking_edge {}
-        , backtracking_weight {} {}
+        , backtracking_weight { backtracking_weight_ } {}
     }
     PACK_STRUCT_STOP;
 }

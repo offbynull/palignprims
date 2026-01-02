@@ -11,11 +11,6 @@
 #include <utility>
 #include <vector>
 
-/**
- * Common concepts.
- *
- * @author Kasra Faghihi
- */
 namespace offbynull::concepts {
     /**
      * Concept that's satisfied if `T` matches one of the types within `Vs`.
@@ -285,13 +280,21 @@ namespace offbynull::concepts {
         && (unqualified_object_type<V2> && std::same_as<std::remove_cvref_t<decltype(std::get<2zu>(std::declval<T>()))>, V2>)
         && (unqualified_object_type<V3> && std::same_as<std::remove_cvref_t<decltype(std::get<3zu>(std::declval<T>()))>, V3>);
 
+
+    /**
+     * Concept that's satisfied is `T` is an integer type, including extended integer types that would normally return false on
+     * std::integral (e.g., __int128).
+     */
+    template<typename T>
+    concept any_integer = std::numeric_limits<T>::is_integer || std::integral<T>;
+
     /**
      * Concept that's satisfied if `T` is either an integer or a floating point number.
      *
      * @tparam T Type to check.
      */
     template<typename T>
-    concept numeric = std::integral<T> || std::floating_point<T>;
+    concept numeric = std::floating_point<T> || any_integer<T>;
 }
 
 #endif //OFFBYNULL_CONCEPTS_H

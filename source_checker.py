@@ -65,6 +65,7 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::ranges::copy': 'ranges',
     'std::ranges::single_view': 'ranges',
     'std::ranges::common_view': 'ranges',
+    'std::ranges::common_range': 'ranges',
     'std::ranges::view_interface': 'ranges',
     'std::views::empty': 'ranges',
     'std::views::single': 'ranges',
@@ -81,7 +82,10 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::views::concat': 'ranges',
     'std::views::enumerate': 'ranges',
     'std::views::all': 'ranges',
+    'std::views::all_t': 'ranges',
     'std::views::join': 'ranges',
+    'std::ranges::sentinel_t': 'ranges',
+    'std::ranges::iterator_t': 'ranges',
     'std::same_as': 'concepts',
     'std::floating_point': 'concepts',
     'std::integral': 'concepts',
@@ -92,6 +96,7 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::copyable': 'concepts',
     'std::movable': 'concepts',
     'std::equality_comparable': 'concepts',
+    'std::default_initializable': 'concepts',
     'std::is_void_v': 'type_traits',
     'std::is_same_v': 'type_traits',
     'std::is_object_v': 'type_traits',
@@ -100,6 +105,13 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::is_lvalue_reference_v': 'type_traits',
     'std::is_reference_v': 'type_traits',
     'std::is_signed_v': 'type_traits',
+    'std::is_default_constructible_v': 'type_traits',
+    'std::is_copy_constructible_v': 'type_traits',
+    'std::is_copy_assignable_v': 'type_traits',
+    'std::is_move_constructible_v': 'type_traits',
+    'std::is_move_assignable_v': 'type_traits',
+    'std::common_type_t': 'type_traits',
+    'std::common_reference_t': 'type_traits',
     'std::integral_constant': 'type_traits',
     'std::remove_reference_t': 'type_traits',
     'std::remove_cvref_t': 'type_traits',
@@ -124,6 +136,8 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::back_inserter': 'iterator',
     'std::sized_sentinel_for': 'iterator',
     'std::iter_reference_t': 'iterator',
+    'std::iter_value_t': 'iterator',
+    'std::iter_difference_t': 'iterator',
     'std::iterator_traits': 'iterator',
     'std::lower_bound': 'algorithm',
     'std::reverse': 'algorithm',
@@ -175,6 +189,8 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::forward': 'utility',
     'std::move': 'utility',
     'std::unreachable': 'utility',
+    'std::in_place': 'utility',
+    'std::in_place_t': 'utility',
     'std::tuple': 'tuple',
     'std::tuple_element_t': 'tuple',
     'std::tuple_size': 'tuple',
@@ -229,6 +245,7 @@ SYSTEM_TYPE_TO_HEADER_MAPPING = {
     'std::any_cast': 'any',
     'std::unique_ptr': 'memory',
     'std::make_unique': 'memory',
+    'std::addressof': 'memory',
     'boost::container::small_vector': 'boost/container/small_vector.hpp',
     'boost::container::static_vector': 'boost/container/static_vector.hpp',
     'boost::container::static_vector_options': 'boost/container/static_vector.hpp',
@@ -297,12 +314,41 @@ def check_line_length(path: Path, content: str):
     return result
 
 
+def check_doxygen_refs(path: Path, content: str):
+    assert(path.name.endswith('.h'))
+    content = content.strip()
+    content_lines = [line for line in content.splitlines(keepends=False) if line]
+    base_path = Path(__file__).resolve().parent
+    path = path.relative_to(base_path)
+    result = CheckResult.SUCCESS
+    for line in content_lines:
+        for ref in re.findall(r'@ref\s+((?:[a-z0-9_]+::)+[a-z0-9_]+)', line):
+            search_path = ref.split('::')
+            extras = []
+            while search_path:
+                ref_path = base_path / Path('/'.join(search_path) + '.h')
+                if ref_path.is_file():
+                    text = ref_path.read_text()
+                    for extra in extras:
+                        if extra not in text:
+                            print(f'{path}: Bad ref tag {ref} (searched {ref_path})')
+                            result = CheckResult.FAIL
+                    break
+                extras += [search_path.pop()]
+            if not search_path:
+                print(f'{path}: Bad ref tag {ref} (not found)')
+                result = CheckResult.FAIL
+    return result
+
+
 def main():
     result = CheckResult.SUCCESS
     base_path = Path(__file__).resolve().parent / 'offbynull'
     for source_path in base_path.rglob('*'):
         if source_path.suffix == '.h':
             if check_guards(source_path, source_path.read_text()) == CheckResult.FAIL:
+                result = CheckResult.FAIL
+            if check_doxygen_refs(source_path, source_path.read_text()) == CheckResult.FAIL:
                 result = CheckResult.FAIL
         if source_path.name.endswith('_test.cpp'):
             if check_test_group_name(source_path, source_path.read_text()) == CheckResult.FAIL:

@@ -17,11 +17,6 @@
 #include <stdexcept>
 #include "offbynull/concepts.h"
 
-/**
- * Unordered thread pool.
- *
- * @author Kasra Faghihi
- */
 namespace offbynull::helpers::unordered_thread_pool {
     template<bool debug_mode, typename TASK_RESULT>
     class unordered_thread_pool;

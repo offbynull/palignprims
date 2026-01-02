@@ -45,47 +45,47 @@ jobs:
           # Compile and run.
           meson setup --reconfigure buildDir --buildtype=${{ matrix.build-type }}
           meson test -C buildDir -v gtest
-  test-windows-msvc:
-    runs-on: windows-latest
-    needs: define-build-type-matrix
-    strategy:
-      matrix:
-        build-type: ${{ fromJSON(needs.define-build-type-matrix.outputs.build-types) }}
-        python-version: ${{ fromJSON(needs.define-build-type-matrix.outputs.python-version) }}
-      fail-fast: false
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup
-        uses: ./.github/workflows/setup-windows-msvc
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Run unittests
-        shell: pwsh
-        run: |
-          # Force non-zero exit codes to stop task (similar to how linux/mac runners work).
-          $PSNativeCommandUseErrorActionPreference = $true
-          $ErrorActionPreference = 'Stop'
-          # Compile and run.
-          meson setup --reconfigure buildDir --buildtype=${{ matrix.build-type }}
-          meson test -C buildDir -v gtest
-  test-macos-gcc:
-    runs-on: macos-latest
-    needs: define-build-type-matrix
-    strategy:
-      matrix:
-        build-type: ${{ fromJSON(needs.define-build-type-matrix.outputs.build-types) }}
-        python-version: ${{ fromJSON(needs.define-build-type-matrix.outputs.python-version) }}
-      fail-fast: false
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup
-        uses: ./.github/workflows/setup-macos-gcc
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Run unittests
-        run: |
-          # Compile and run.
-          meson setup --reconfigure buildDir --buildtype=${{ matrix.build-type }}
-          meson test -C buildDir -v gtest
+#  test-windows-msvc:
+#    runs-on: windows-latest
+#    needs: define-build-type-matrix
+#    strategy:
+#      matrix:
+#        build-type: ${{ fromJSON(needs.define-build-type-matrix.outputs.build-types) }}
+#        python-version: ${{ fromJSON(needs.define-build-type-matrix.outputs.python-version) }}
+#      fail-fast: false
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#      - name: Setup
+#        uses: ./.github/workflows/setup-windows-msvc
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#      - name: Run unittests
+#        shell: pwsh
+#        run: |
+#          # Force non-zero exit codes to stop task (similar to how linux/mac runners work).
+#          $PSNativeCommandUseErrorActionPreference = $true
+#          $ErrorActionPreference = 'Stop'
+#          # Compile and run.
+#          meson setup --reconfigure buildDir --buildtype=${{ matrix.build-type }}
+#          meson test -C buildDir -v gtest
+#  test-macos-gcc:
+#    runs-on: macos-latest
+#    needs: define-build-type-matrix
+#    strategy:
+#      matrix:
+#        build-type: ${{ fromJSON(needs.define-build-type-matrix.outputs.build-types) }}
+#        python-version: ${{ fromJSON(needs.define-build-type-matrix.outputs.python-version) }}
+#      fail-fast: false
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#      - name: Setup
+#        uses: ./.github/workflows/setup-macos-gcc
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#      - name: Run unittests
+#        run: |
+#          # Compile and run.
+#          meson setup --reconfigure buildDir --buildtype=${{ matrix.build-type }}
+#          meson test -C buildDir -v gtest

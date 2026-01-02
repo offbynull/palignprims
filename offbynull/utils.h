@@ -37,15 +37,11 @@ static_assert(false, "Struct packing not supported by compiler. Turn off OBN_PAC
 #define PACK_STRUCT_STOP
 #endif
 
-/**
- * Utility / helper functions.
- *
- * @author Kasra Faghihi
- */
 namespace offbynull::utils {
     using offbynull::concepts::unqualified_object_type;
     using offbynull::concepts::widenable_to_size_t;
     using offbynull::concepts::numeric;
+    using offbynull::concepts::any_integer;
 
     /**
      * Unimplemented class template used as a hack to determine what some unknown type `T` is. Because this class template remains
@@ -148,12 +144,12 @@ namespace offbynull::utils {
      */
     auto copy_to_vector(std::ranges::range auto&& range) -> std::vector<std::remove_cvref_t<decltype(*range.begin())>> {
         using ELEM = std::remove_cvref_t<decltype(*range.begin())>;
-        std::vector<ELEM> ret(0zu);
+        std::vector<ELEM> ret {};
         if constexpr (std::ranges::sized_range<decltype(range)>) {
             ret.reserve(std::ranges::size(range));
         }
         for (auto&& e : range) {
-            ret.emplace_back(std::forward<decltype(e)>(e));
+            ret.push_back(e);
         }
         return ret;
     }
@@ -182,13 +178,13 @@ namespace offbynull::utils {
         //               auto copy_to_vector(I&& begin, S&& end) { ... }
     ) -> std::vector<std::remove_cvref_t<decltype(*begin)>> {
         using ELEM = std::remove_cvref_t<decltype(*begin)>;
-        std::vector<ELEM> ret(0zu);
+        std::vector<ELEM> ret {};
         if constexpr (std::sized_sentinel_for<decltype(begin), decltype(end)>) {
             auto dist { end - begin };
             ret.reserve(static_cast<std::size_t>(dist));
         }
         while (begin != end) {
-            ret.emplace_back(*begin);
+            ret.push_back(*begin);
             ++begin;
         }
         return ret;
@@ -434,13 +430,17 @@ namespace offbynull::utils {
      * @tparam FROM Source numeric type (type being assigned from).
      * @tparam TO Destination numeric type (type being assigned to).
      */
+    template<typename FROM, typename TO>
+    struct fits;
+
     template<numeric FROM, numeric TO>
-    struct fits {
-        /** `true` if all `FROM` values are assignable to `TO` without loss of information / narrowing, `false` otherwise. */
-        static constexpr bool value { false };
+    requires (std::is_same_v<FROM, TO>)
+    struct fits<FROM, TO> {
+        static constexpr bool value { true };
     };
 
     template<std::floating_point FROM, std::floating_point TO>
+    requires (!std::is_same_v<FROM, TO>)
     struct fits<FROM, TO> {
         static constexpr bool value {
             std::numeric_limits<FROM>::is_iec559 && std::numeric_limits<TO>::is_iec559  // Want non-iec559 support? Creat your own overloads
@@ -450,7 +450,8 @@ namespace offbynull::utils {
         };
     };
 
-    template<std::integral FROM, std::integral TO>
+    template<any_integer FROM, any_integer TO>
+    requires (!std::is_same_v<FROM, TO>)
     struct fits<FROM, TO> {
         static constexpr bool value {
             std::numeric_limits<FROM>::lowest() >= std::numeric_limits<TO>::lowest()

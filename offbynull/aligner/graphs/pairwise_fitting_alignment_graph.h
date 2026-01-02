@@ -555,7 +555,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     throw std::runtime_error { "Node doesn't exist" };
                 }
             }
-            auto outputs { std::ranges::common_view { this->get_outputs(n) } };
+            auto outputs { this->get_outputs(n) };
             auto dist { std::ranges::distance(outputs) };
             return static_cast<std::size_t>(dist);
         }
@@ -567,7 +567,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
                     throw std::runtime_error { "Node doesn't exist" };
                 }
             }
-            auto inputs { std::ranges::common_view { this->get_inputs(n) } };
+            auto inputs { this->get_inputs(n) };
             auto dist { std::ranges::distance(inputs) };
             return static_cast<std::size_t>(dist);
         }

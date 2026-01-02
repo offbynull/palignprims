@@ -31,7 +31,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     /**
      * Container of @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::slot "slots",
      * used by
-     * @ref offbynull::aligner:backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker::backtracker to track the
+     * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::backtracker::backtracker to track the
      * backtracking state of each node within a specific row of a graph.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.
@@ -57,7 +57,7 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
         using ND = typename G::ND;
         using ED = typename G::ED;
         using N_INDEX = typename G::N_INDEX;
-        using SLOT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(0zu, 0zu));
+        using SLOT_CONTAINER = decltype(std::declval<CONTAINER_CREATOR_PACK>().create_slot_container(0zu, 0zu, std::declval<ED>()));
 
         const G& g;
         SLOT_CONTAINER slots;
@@ -66,23 +66,26 @@ namespace offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_b
     public:
         /**
          * Construct an
-         * @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::row_slot_container::row_slot_container::row_slot_container
+         * @ref offbynull::aligner::backtrackers::sliceable_pairwise_alignment_graph_backtracker::row_slot_container::row_slot_container::row_slot_container
          * instance.
          *
          * Defaults to tracking nodes within first row of `g`. See `reset()` to change tracked row.
          *
          * @param g_ Graph.
+         * @param zero_weight Initial weight, equivalent to 0 for numeric weights.
          * @param container_creator_pack Container factory.
          */
         row_slot_container(
             const G& g_,
+            ED zero_weight,
             CONTAINER_CREATOR_PACK container_creator_pack = {}
         )
         : g { g_ }
         , slots {
             container_creator_pack.create_slot_container(
                 g.grid_right_cnt,
-                g.grid_depth_cnt
+                g.grid_depth_cnt,
+                zero_weight
             )
         }
         , grid_down {} {}

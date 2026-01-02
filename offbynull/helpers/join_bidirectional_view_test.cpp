@@ -7,7 +7,7 @@
 
 namespace {
     using offbynull::helpers::join_bidirectional_view::join_bidirectional_view;
-    using offbynull::helpers::join_bidirectional_view::join_bidirectional_view_adaptor;
+    using offbynull::helpers::join_bidirectional_view::join_bidirectional;
     using offbynull::utils::copy_to_vector;
 
     TEST(OHJoinBidirectionalViewTest, WithVectorTest) {
@@ -94,7 +94,7 @@ namespace {
             | std::views::transform([](const int i) {
                 return std::views::iota(i*2+1, i*2+3);
             })
-            | join_bidirectional_view_adaptor {}
+            | join_bidirectional()
         };
         EXPECT_EQ(
             copy_to_vector(join_range),
@@ -109,14 +109,14 @@ namespace {
     TEST(OHJoinBidirectionalViewTest, WithIotaViewPipeTest) {
         auto join_range {
             std::vector<std::vector<int>> { {1, 2}, {3, 4}, {5, 6} }
-            | join_bidirectional_view_adaptor {}
+            | join_bidirectional()
         };
         EXPECT_EQ(
             copy_to_vector(join_range),
             (std::vector<int> { 1, 2, 3, 4, 5, 6 })
         );
         EXPECT_EQ(
-            copy_to_vector(join_range | std::views::reverse),
+            copy_to_vector(std::move(join_range) | std::views::reverse),
             (std::vector<int> { 6, 5, 4, 3, 2, 1 })
         );
     }

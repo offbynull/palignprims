@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <optional>
 
 namespace offbynull::aligner::aligners::utils {
     using offbynull::concepts::widenable_to_size_t;
@@ -45,7 +46,7 @@ namespace offbynull::aligner::aligners::utils {
         const bidirectional_range_of_alignment_index_pairs auto& alignment_indices,
         const std::string separator = std::string {},
         const std::string gap = std::string { "-" },
-        const std::string freeride = std::string { "-" },
+        const std::optional<std::string> freeride = std::nullopt,
         const char padding = ' '
     ) {
         std::vector<std::string> d_elem_strs {};
@@ -72,8 +73,10 @@ namespace offbynull::aligner::aligners::utils {
                     }
                 }
             } else {
-                d_elem_strs.push_back(freeride);
-                r_elem_strs.push_back(freeride);
+                if (freeride.has_value()) {
+                    d_elem_strs.push_back(*freeride);
+                    r_elem_strs.push_back(*freeride);
+                }
             }
         }
 
@@ -87,12 +90,12 @@ namespace offbynull::aligner::aligners::utils {
         };
         std::string d_final_str {};
         for (const auto& s: d_elem_strs) {
-            d_final_str += s + std::string(s.size() - max_size, padding) + separator;
+            d_final_str += s + std::string(max_size - s.size(), padding) + separator;
         }
         d_final_str.erase(d_final_str.size() - separator.size());  // remove trailing separator
         std::string r_final_str {};
         for (const auto& s: r_elem_strs) {
-            r_final_str += s + std::string(s.size() - max_size, padding) + separator;
+            r_final_str += s + std::string(max_size - s.size(), padding) + separator;
         }
         r_final_str.erase(r_final_str.size() - separator.size());  // remove trailing separator
 

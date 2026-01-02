@@ -63,7 +63,7 @@ namespace {
 
 
         // walk
-        std::float64_t weight { bidi_walker<is_debug_mode(), decltype(g)>::converge_weight(g, { 50zu, 50zu }) };
+        std::float64_t weight { bidi_walker<is_debug_mode(), decltype(g)>::converge_weight(g, { 50zu, 50zu }, 0.0f64) };
         std::cout << weight << std::endl;
     }
 
@@ -94,7 +94,7 @@ namespace {
         // walk
         for (unsigned int down_offset { 0u }; down_offset < g.grid_down_cnt; down_offset++) {
             bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset)
+                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset, 0.0f64)
             };
             for (unsigned int right_offset { 0u }; right_offset < g.grid_right_cnt; right_offset++) {
                 const auto& [weight, forward_walk_edge, backward_walk_edge] {
@@ -121,7 +121,7 @@ namespace {
         }
 
         bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, 3u)
+            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, 3u, 0.0f64)
         };
         const auto& [weight, forward_walk_edge, backward_walk_edge] { walk_to_node(bidi_walker_,  N { 3u, 3u }) };
         std::cout << std::endl;
@@ -159,7 +159,7 @@ namespace {
         // walk
         for (unsigned int down_offset { 0u }; down_offset < g.grid_down_cnt; down_offset++) {
             bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset)
+                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset, 0.0f64)
             };
             for (unsigned int right_offset { 0u }; right_offset < g.grid_right_cnt; right_offset++) {
                 const auto& [weight, forward_walk_edge, backward_walk_edge] {
@@ -220,7 +220,7 @@ namespace {
         // walk
         for (unsigned int down_offset { 0u }; down_offset < g.grid_down_cnt; down_offset++) {
             bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset)
+                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset, 0.0f64)
             };
             for (unsigned int right_offset { 0u }; right_offset < g.grid_right_cnt; right_offset++) {
                 const auto& [weight, forward_walk_edge, backward_walk_edge] {
@@ -248,7 +248,7 @@ namespace {
 
         // test
         bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, g.grid_down_cnt - 1u)
+            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, g.grid_down_cnt - 1u, 0.0f64)
         };
         auto final_weight { std::get<0>(walk_to_node(bidi_walker_, g.get_leaf_node())) };
         std::cout << "final weight: " << final_weight << std::endl;
@@ -306,7 +306,7 @@ namespace {
         // walk
         for (unsigned int down_offset { 0u }; down_offset < g.grid_down_cnt; down_offset++) {
             bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset)
+                bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, down_offset, 0.0f64)
             };
             for (unsigned int right_offset { 0u }; right_offset < g.grid_right_cnt; right_offset++) {
                 const auto& [weight, forward_walk_edge, backward_walk_edge] {
@@ -334,7 +334,7 @@ namespace {
 
         // test
         bidi_walker<is_debug_mode(), decltype(g)> bidi_walker_ {
-            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, g.grid_down_cnt - 1u)
+            bidi_walker<is_debug_mode(), decltype(g)>::create_and_initialize(g, g.grid_down_cnt - 1u, 0.0f64)
         };
         auto final_weight { std::get<0>(walk_to_node(bidi_walker_, g.get_leaf_node())) };
         std::cout << "final weight: " << final_weight << std::endl;

@@ -192,11 +192,14 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
          *
          * @param g Graph.
          * @param edge_weight_accessor Edge weight accessor for `g` (maps each edge to its weight).
+         * @param zero_weight Initial edge weight, equivalent to 0 for numeric weights. Defaults to `WEIGHT`'s default constructor, assuming
+         *     it exists.
          * @return For each node N within `g`, N's backtracking edge and the weight for the maximally weighted path from root to N.
          */
         SLOT_CONTAINER populate_weights_and_backtrack_pointers(
             const G& g,
-            const EDGE_WEIGHT_ACCESSOR& edge_weight_accessor
+            const EDGE_WEIGHT_ACCESSOR& edge_weight_accessor,
+            const WEIGHT zero_weight = {}
         ) {
             // Create "slots" list
             // -------------------
@@ -214,7 +217,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
                         //         throw std::runtime_error { "Input count narrowing led to information loss" };
                         //     }
                         // }
-                        return { n, in_degree };
+                        return { n, in_degree, zero_weight };
                     })
                 )
             };
@@ -237,7 +240,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
             const auto& [root_slot_idx, root_slot] { slots.find(root_node) };
             ready_idxes.push(root_slot_idx);
             // static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 required"); // Require for inf and nan?
-            root_slot.backtracking_weight = static_cast<WEIGHT>(0zu);
+            root_slot.backtracking_weight = zero_weight;
             // Find max path within graph
             // --------------------------
             // Using the backtracking algorithm, find the path within graph that has the maximum weight. If more than one such

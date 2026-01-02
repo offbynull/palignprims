@@ -50,8 +50,8 @@ namespace offbynull::aligner::aligners::fitting_sliced_subdivision_stack_aligner
          * @tparam max_down_seq_size Maximum allowed length for downward sequence.
          * @tparam max_right_seq_size Maximum allowed length for rightward sequence.
          * @tparam N_INDEX Alignment graph node coordinate type (must be wide enough to hold `std::max(down.size(), right.size()) + 1zu`).
-         * @param down Sequence 1.
-         * @param right Sequence 2.
+         * @param down Sequence 1 (sequence to fit against).
+         * @param right Sequence 2 (sequence to fit).
          * @param substitution_scorer Match/mismatch (substitution) scorer.
          * @param gap_scorer Gap (indel) scorer.
          * @param freeride_scorer Freeride scorer.
@@ -152,8 +152,8 @@ namespace offbynull::aligner::aligners::fitting_sliced_subdivision_stack_aligner
          * @tparam max_right_seq_size Maximum allowed length for rightward sequence.
          * @tparam WEIGHT Alignment graph edge weight type.
          * @tparam N_INDEX Alignment graph node coordinate type (must be wide enough to hold `std::max(down.size(), right.size()) + 1zu`).
-         * @param down Sequence 1.
-         * @param right Sequence 2.
+         * @param down Sequence 1 (sequence to fit against).
+         * @param right Sequence 2 (sequence to fit).
          * @param substitution_scorer Match/mismatch (substitution) scorer.
          * @param gap_scorer Gap (indel) scorer.
          * @param freeride_scorer Freeride scorer.
