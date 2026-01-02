@@ -237,7 +237,7 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
             const auto& [root_slot_idx, root_slot] { slots.find(root_node) };
             ready_idxes.push(root_slot_idx);
             // static_assert(std::numeric_limits<float>::is_iec559, "IEEE 754 required"); // Require for inf and nan?
-            root_slot.backtracking_weight = ED { 0zu };
+            root_slot.backtracking_weight = static_cast<WEIGHT>(0zu);
             // Find max path within graph
             // --------------------------
             // Using the backtracking algorithm, find the path within graph that has the maximum weight. If more than one such
@@ -247,14 +247,15 @@ namespace offbynull::aligner::backtrackers::graph_backtracker::backtracker {
             // all of its parent nodes have already been walked, where the process of "walking a node" is inspecting how much
             // weight has been accumulated within each incoming edge (weight at parent + the edge from parent to the node), and
             // selecting highest one as the edge to backtrack to.
-            top:
             while (!ready_idxes.empty()) {
                 std::size_t idx { ready_idxes.pop() };
                 auto& current_slot { slots.at_idx(idx) };
-                for (const auto& edge : g.get_inputs(current_slot.node)) {
-                    const auto& src_node { g.get_edge_from(edge) };
-                    if (slots.find_ref(src_node).unwalked_parent_cnt != 0zu) {
-                        goto top;
+                if constexpr (debug_mode) {
+                    for (const auto& edge : g.get_inputs(current_slot.node)) {
+                        const auto& src_node { g.get_edge_from(edge) };
+                        if (slots.find_ref(src_node).unwalked_parent_cnt != 0zu) {
+                            throw std::runtime_error { "Source nodes not fully walked" };
+                        }
                     }
                 }
                 auto incoming_accumulated {

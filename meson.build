@@ -174,6 +174,7 @@ gtest = executable(
                 'offbynull/aligner/sequences/iota_sequence_test.cpp',
                 'offbynull/aligner/sequences/transform_sequence_test.cpp',
                 'offbynull/aligner/sequences/reverse_sequence_test.cpp',
+                'offbynull/aligner/sequences/repeat_sequence_test.cpp',
                 'offbynull/aligner/sequences/prefix_pad_sequence_test.cpp',
                 'offbynull/aligner/sequences/suffix_pad_sequence_test.cpp',
                 'offbynull/aligner/sequences/substring_sequence_test.cpp',

@@ -34,7 +34,7 @@ namespace offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker
 
     /**
      * Container of @ref offbynull::aligner::backtrackers::pairwise_alignment_graph_backtracker::slot_container::slot::slot "slots", used by
-     * @ref offbynull::aligner:backtrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker to track the backtracking state
+     * @ref offbynull::aligner:b:acktrackers::pairwise_alignment_graph_backtracker::backtracker::backtracker to track the backtracking state
      * of each node within a graph.
      *
      * @tparam debug_mode `true` to enable debugging logic, `false` otherwise.

@@ -49,7 +49,7 @@ namespace offbynull::aligner::graphs::pairwise_fitting_alignment_graph {
     enum class edge_type : std::uint8_t {
         /** Free-ride edge. */
         FREE_RIDE,
-        /** Normal edge (indel or gap). */
+        /** Normal edge (substitution or indel). */
         NORMAL
     };
 
