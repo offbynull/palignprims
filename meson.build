@@ -1,5 +1,5 @@
 project(
-        'palignforge',
+        'palignprims',
         'cpp',
         version : '1.0.0',
         default_options : ['warning_level=everything', 'cpp_std=c++23']
