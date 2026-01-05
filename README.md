@@ -20,11 +20,63 @@ Choose a path:
 
 ----
 
-PAlignPrims comes with multiple high-level aligners, ready to use out of the box. Each aligner is in its own header file. All aligners carry the same interface.
+PAlignPrims comes ready to use with high-level aligners, all of which live within [offbynull::aligner::aligners](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/aligners). Each aligner type is isolated to its own header file, configured as: `{type}_{algorithm}_{allocation}.h`, where ...
+
+ * **type** is the type of alignment being performed: [global](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Global%20Alignment), [local](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Local%20Alignment), [overlap](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Overlap%20Alignment), [fitting](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Fitting%20Alignment), [extended gap](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Extended%20Gap%20Scoring), rotational (more may be added).
+ * **algorithm** is the algorithm performing the alignment: [dynamic programming](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Backtrack%20Algorithm) vs [sliced subdivision](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Divide-and-Conquer%20Algorithm).
+ * **allocation** is the type of memory used to do the alignment: [heap](https://en.wikipedia.org/wiki/Memory_management#HEAP) vs [stack](https://en.wikipedia.org/wiki/Stack-based_memory_allocation).
+
+For example, [global_dynamic_programming_heap_aligner.h](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/aligners/global_dynamic_programming_heap_aligner.h) is configured to perform a global alignment using the dynamic programming algorithm where all memory is allocated on the heap.
+
+```c++
+#include <cstddef>
+#include <cstdint>
+#include <stdfloat>
+#include <iostream>
+#include <ostream>
+#include <string>
+#include "offbynull/aligner/aligners/global_dynamic_programming_heap_aligner.h"
+#include "offbynull/aligner/scorers/simple_scorer.h"
+#include "offbynull/aligner/aligners/utils.h"
+#include "offbynull/aligner/aligners/concepts.h"
+#include "offbynull/utils.h"
+#include "gtest/gtest.h"
+
+int main(void) {
+    using offbynull::aligner::aligners::global_dynamic_programming_heap_aligner::global_dynamic_programming_heap_aligner;
+    using offbynull::aligner::scorers::simple_scorer::simple_scorer;
+    using offbynull::aligner::aligners::utils::alignment_to_stacked_string;
+    using offbynull::utils::is_debug_mode;
+
+    constexpr bool debug_mode { is_debug_mode() };  // Is NDEBUG set? 
+
+    global_dynamic_programming_heap_aligner<debug_mode> aligner {};
+
+    using SCORER = simple_scorer<
+        debug_mode,
+        std::size_t,
+        char,
+        char,
+        int
+    >;
+    auto substitution_scorer { SCORER::create_substitution(1, 0) };
+    auto gap_scorer { SCORER::create_gap(0) };
+
+    std::string down { "panama" };
+    std::string right { "banana" };
+    const auto& [alignment, score] {
+        aligner.align(down, right, substitution_scorer, gap_scorer)
+    };
+    std::cout << score << std::endl;
+    std::cout << alignment_to_stacked_string<is_debug_mode()>(down, right, alignment) << std::endl;
+
+    return 0;
+}
+```
 
 
 
-High-level APIs for commonly used aligners are available in the [offbynull::aligner::aligners](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/aligners)
+
 
  * <details><summary>Modern design.</summary>
  
