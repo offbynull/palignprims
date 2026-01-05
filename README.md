@@ -50,7 +50,7 @@ The Pairwise Alignment Primitives project (PAlignPrims) is a modern C++ header-o
    
  * <details><summary>Generic sequences.</summary>
  
-   PAlignPrims's [sequence interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequence/sequence.h) can hold any element type. For example, a PAlignPrims sequence can hold ...
+   PAlignPrims's [sequence interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequence/sequence.h) is flexible enough to hold any element type. For example, a PAlignPrims sequence can hold ...
    
    * characters (e.g., DNA bases, amino acids).
    * musical notes.
@@ -58,7 +58,7 @@ The Pairwise Alignment Primitives project (PAlignPrims) is a modern C++ header-o
    * waveform features (e.g., peaks and frequencies).
    * log events (elements are events, not text).
    * network packets (elements are packets, not bytes).
-   * a combination of multiple element types (e.g., musical score paired with sensor readings).
+   * a combination of multiple element types (e.g., musical note paired with sensor readings).
    
    As long as it's a finite sequence, PAlignPrims can represent it.
    
@@ -80,7 +80,11 @@ The Pairwise Alignment Primitives project (PAlignPrims) is a modern C++ header-o
     
  * <details><summary>Generic scoring.</summary>
  
-   PAlignPrims's [scorer interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorer/scorer.h) scores elements using custom logic. It also allows scores to be any type [vaguely resembling a number](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/concepts.h): Integers, floats, or anything with the required type traits.
+   PAlignPrims's [scorer interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorer/scorer.h) is deeply flexible:
+
+   * Elements scored using logic, not a substitution matrix.
+   * Elements scored can be of different types (e.g., score an image against a number).
+   * Resulting score can be any type vaguely resembling a number: Integers, floats, or [any type with the required type traits](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/concepts.h).
    
    PAlignPrims comes bundled with several scorer adapters and implementations, including ...
    
