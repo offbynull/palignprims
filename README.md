@@ -4,11 +4,11 @@
 
 The Pairwise Alignment Primitives project (PAlignPrims) is a C++ header-only library that provides building blocks for assembling [pairwise](https://en.wiktionary.org/wiki/pairwise) [sequence aligners](https://en.wikipedia.org/wiki/Sequence_alignment). PAlignPrims generalizes alignment beyond bioinformatics, extending it to other domains while supporting broader bioinformatics use cases.
 
- * **Generic and composable**: Interfaces designed for composition, bundled with reusable adapters and implementations.
+ * **Composable**: Interfaces designed for composition, bundled with reusable adapters and implementations.
  * **Batteries included**: Sequences, scorers, graphs, and algorithms provided out of the box.
- * **Efficient and tunable**: Tight control over algorithms, types, memory layout, and memory allocation.
+ * **Configurable**: Tight control over algorithms, types, memory layout, and memory allocation.
  * **Safe**: Strong compile-time constraints with optional but equally strong runtime checks.
- * **Documented and tested**: Documented APIs, with unit tests that double as usage examples.
+ * **Verified**: Documented APIs, with unit tests that double as usage examples.
  * **Modern**: Built using C++23, with stylistic / structural conventions from higher-level languages.
 
 ----
