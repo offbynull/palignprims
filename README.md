@@ -1,7 +1,6 @@
+<p align="center"><img src="palignprims.png" alt="Project logo"></p>
 
 # Pairwise Alignment Primitives
-
-<p align="center"><img src="palignprims.png" alt="Project logo" width="240"></p>
 
 The Pairwise Alignment Primitives project (PAlignPrims) is a modern C++ header-only library that provides building blocks for constructing [pairwise](https://en.wiktionary.org/wiki/pairwise) [sequence aligners](https://en.wikipedia.org/wiki/Sequence_alignment). PAlignPrims extends the idea of sequence alignments past bioinformatics, providing a level of generality that both enables aligners for other domains and enables more robust aligners for bioinformatics.
 
