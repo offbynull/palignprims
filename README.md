@@ -20,6 +20,12 @@ Choose a path:
 
 ----
 
+PAlignPrims comes with multiple high-level aligners, ready to use out of the box. Each aligner is in its own header file. All aligners carry the same interface.
+
+
+
+High-level APIs for commonly used aligners are available in the [offbynull::aligner::aligners](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/aligners)
+
  * <details><summary>Modern design.</summary>
  
    PAlignPrims adopts modern infrastructure and design choices:
