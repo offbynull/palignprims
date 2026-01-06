@@ -20,6 +20,9 @@ Choose a path:
 
 ----
 
+> [!WARNING]
+> C++ proficiency and familiarity with sequence alignment concepts are recommended.
+
 PAlignPrims comes ready to use with high-level aligners, all of which live within [offbynull::aligner::aligners](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/aligners). Each aligner type is isolated to its own header file, configured as: `{type}_{algorithm}_{allocation}.h`, where ...
 
  * **type** is the type of alignment being performed: [global](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Global%20Alignment), [local](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Local%20Alignment), [overlap](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Overlap%20Alignment), [fitting](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Fitting%20Alignment), [extended gap](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Extended%20Gap%20Scoring), rotational (more may be added).
@@ -28,19 +31,18 @@ PAlignPrims comes ready to use with high-level aligners, all of which live withi
 
 For example, [global_dynamic_programming_heap_aligner.h](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/aligners/global_dynamic_programming_heap_aligner.h) is configured to perform a global alignment using the dynamic programming algorithm where all memory is allocated on the heap.
 
+<details><summary>Usage example: global alignment (dynamic programming, heap)</summary>
+    
 ```c++
 #include <cstddef>
 #include <cstdint>
-#include <stdfloat>
 #include <iostream>
-#include <ostream>
 #include <string>
 #include "offbynull/aligner/aligners/global_dynamic_programming_heap_aligner.h"
 #include "offbynull/aligner/scorers/simple_scorer.h"
 #include "offbynull/aligner/aligners/utils.h"
 #include "offbynull/aligner/aligners/concepts.h"
 #include "offbynull/utils.h"
-#include "gtest/gtest.h"
 
 int main(void) {
     using offbynull::aligner::aligners::global_dynamic_programming_heap_aligner::global_dynamic_programming_heap_aligner;
@@ -68,12 +70,13 @@ int main(void) {
         aligner.align(down, right, substitution_scorer, gap_scorer)
     };
     std::cout << score << std::endl;
-    std::cout << alignment_to_stacked_string<is_debug_mode()>(down, right, alignment) << std::endl;
+    std::cout << alignment_to_stacked_string<debug_mode>(down, right, alignment) << std::endl;
 
     return 0;
 }
 ```
 
+</details>
 
 
 
