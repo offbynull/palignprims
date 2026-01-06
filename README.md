@@ -15,19 +15,19 @@ Why PAlignPrims?
 
 Choose a path:
 
-- **I want to run an alignment →** [Quickstart](#quickstart)
-- **I want to build an aligner →** [Building a custom aligner](#building-a-custom-aligner)
+* **[I want to run an alignment](#high-level-aligners)**.
+* **[I want to build an aligner](#core-api)**.
 
 ----
 
 > [!WARNING]
 > C++ proficiency and familiarity with sequence alignment concepts are recommended.
 
-PAlignPrims comes ready to use with high-level aligners, all of which live within [offbynull::aligner::aligners](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/aligners). Each aligner type is isolated to its own header file, configured as: `{type}_{algorithm}_{allocation}.h`, where ...
+PAlignPrims comes ready to use with several high-level aligners, all of which live within [offbynull::aligner::aligners](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/aligners). Each aligner type is isolated to its own header file, configured as: `{type}_{algorithm}_{allocation}.h`, where ...
 
- * **type** is the type of alignment being performed: [global](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Global%20Alignment), [local](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Local%20Alignment), [overlap](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Overlap%20Alignment), [fitting](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Fitting%20Alignment), [extended gap](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Extended%20Gap%20Scoring), rotational (more may be added).
- * **algorithm** is the algorithm performing the alignment: [dynamic programming](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Backtrack%20Algorithm) vs [sliced subdivision](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Divide-and-Conquer%20Algorithm).
- * **allocation** is the type of memory used to do the alignment: [heap](https://en.wikipedia.org/wiki/Memory_management#HEAP) vs [stack](https://en.wikipedia.org/wiki/Stack-based_memory_allocation).
+ * **{type}** is the type of alignment being performed: [global](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Global%20Alignment), [local](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Local%20Alignment), [overlap](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Overlap%20Alignment), [fitting](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Fitting%20Alignment), [extended gap](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Extended%20Gap%20Scoring), rotational (more may be added).
+ * **{algorithm}** is the algorithm performing the alignment: [dynamic programming](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Backtrack%20Algorithm) vs [sliced subdivision](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Divide-and-Conquer%20Algorithm).
+ * **{allocation}** is the type of memory used to do the alignment: [heap](https://en.wikipedia.org/wiki/Memory_management#HEAP) vs [stack](https://en.wikipedia.org/wiki/Stack-based_memory_allocation).
 
 For example, [global_dynamic_programming_heap_aligner.h](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/aligners/global_dynamic_programming_heap_aligner.h) is configured to perform a global alignment using the dynamic programming algorithm where all memory is allocated on the heap.
 
@@ -42,33 +42,52 @@ For example, [global_dynamic_programming_heap_aligner.h](https://github.com/offb
 #include "offbynull/aligner/scorers/simple_scorer.h"
 #include "offbynull/aligner/aligners/utils.h"
 #include "offbynull/aligner/aligners/concepts.h"
-#include "offbynull/utils.h"
 
 int main(void) {
     using offbynull::aligner::aligners::global_dynamic_programming_heap_aligner::global_dynamic_programming_heap_aligner;
     using offbynull::aligner::scorers::simple_scorer::simple_scorer;
     using offbynull::aligner::aligners::utils::alignment_to_stacked_string;
-    using offbynull::utils::is_debug_mode;
 
-    constexpr bool debug_mode { is_debug_mode() };  // Is NDEBUG set? 
+    // Most PAlignPrims structs, classes, and free functions accept a "debug_mode" template parameter. When debug_mode is set
+    // to ...
+    //
+    //  * true, runtime checks are enabled to ensure state and inputs are valid.
+    //  * false, runtime checks are disabled to increase performance.
+    //
+    // Enable debug_mode during development and testing, and disable it when transitioning to production.
+    constexpr bool debug_mode { true };
 
+    // Create the aligner.
     global_dynamic_programming_heap_aligner<debug_mode> aligner {};
 
+    // Create the scorers. These particular scorers produce 1 on match and 0 on mismatch/gap.
     using SCORER = simple_scorer<
         debug_mode,
-        std::size_t,
-        char,
-        char,
-        int
+        std::size_t,  // Graph's node indexer type (keep this at std::size_t)
+        char,         // Downward sequence's element type.
+        char,         // Rightward sequence's elment type.
+        int           // Score type.
     >;
     auto substitution_scorer { SCORER::create_substitution(1, 0) };
     auto gap_scorer { SCORER::create_gap(0) };
 
+    // Align two sequences made of characters (strings).
+    //
+    // NOTE: Although this example is for global_dynamic_programming_heap_aligner, the other aligners have a similar 
+    //       usage pattern: An `align()` function that accepts a pair of sequences along with scorers and returns a
+    //       maximally scored  alignment path (there may be more than one, one is selected) along with that path's
+    //       score. The only difference is that ...
+    //
+    //        * other aligners may require additional scorers (e.g., freeride scoring, extended gap scoring).
+    //        * sliced subdivision aligners accept a score tolerance value, which is important to mitigate rounding
+    //          errors when the score type is floating point.
     std::string down { "panama" };
     std::string right { "banana" };
     const auto& [alignment, score] {
         aligner.align(down, right, substitution_scorer, gap_scorer)
     };
+
+    // Print out the alignment and its score.
     std::cout << score << std::endl;
     std::cout << alignment_to_stacked_string<debug_mode>(down, right, alignment) << std::endl;
 
@@ -77,6 +96,33 @@ int main(void) {
 ```
 
 </details>
+
+The example above aligns two character strings, but chances are that you're looking at this library to align more than just strings. PAlignPrims's [sequence interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequence/sequence.h) and [scorer interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorer/scorer.h) are flexible enough to hold any element type. For example, a PAlignPrims sequence can hold ...
+   
+ * characters (e.g., DNA bases, amino acids).
+ * musical notes.
+ * sensor readings (e.g., weather samples).
+ * waveform features (e.g., peaks and frequencies).
+ * log events (elements are events, not text).
+ * network packets (elements are packets, not bytes).
+ * a combination of multiple element types (e.g., musical note paired with sensor readings).
+   
+As long as it's a finite sequence, PAlignPrims can represent it.
+   
+In addition, PAlignPrims comes bundled with sequence adapters and implementations, including ...
+   
+ * [chunk sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/chunk_sequence.h): Transforms an underlying sequence such that its elements are fixed-sized chunks.
+ * [sliding window sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/sliding_window_sequence.h): Transforms an underlying sequence such that its elements are a fixed-sized window slid over the underlying sequence.
+ * [prefix pad sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/prefix_pad_sequence.h): Pads an underlying sequence's prefix.
+ * [suffix pad sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/suffix_pad_sequence.h): Pads an underlying sequence's suffix.
+ * [substring sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/substring_sequence.h): Pulls a substring from an underlying sequence (truncates prefix and suffix).
+ * [transform sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/transform_sequence.h): Transforms the elements of a sequence via a user-supplied transformation function.
+ * [zip sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/zip_sequence.h): Brings a list of underlying sequences together, such that each element is a tuple of the corresponding elements in the underlying sequences.
+ * [iota sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/iota_sequence.h): Returns incrementally increasing integers as a sequence.
+ * [mmap sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/mmap_sequence.h): Returns the bytes of a memory mapped file as a sequence.
+   
+These bundled sequences are building blocks for constructing new and more accurate alignments. For example, if you have the [origin and terminus points](https://en.wikipedia.org/wiki/Circular_chromosome) of two bacterial genomes, you can [zip](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/zip_sequence.h) each with its corresponding genome sequence such that your pairwise alignment's scoring can account for [GC skew](https://en.wikipedia.org/wiki/GC_skew).
+
 
 
 
