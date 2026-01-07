@@ -165,13 +165,13 @@ namespace offbynull::aligner::scorers::simple_scorer {
             const std::optional<
                 std::pair<
                     SEQ_INDEX,
-                    std::reference_wrapper<const char>
+                    std::reference_wrapper<const DOWN_ELEM>
                 >
             > down_elem,
             const std::optional<
                 std::pair<
                     SEQ_INDEX,
-                    std::reference_wrapper<const char>
+                    std::reference_wrapper<const RIGHT_ELEM>
                 >
             > right_elem
         ) const {
