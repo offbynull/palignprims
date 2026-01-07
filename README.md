@@ -94,13 +94,13 @@ For example, [global_dynamic_programming_heap_aligner.h](https://github.com/offb
 >
 > Which algorithm should you choose?
 >
-> * Use dynamic programming to run alignments fast.
-> * Use sliced subdivision to run alignments slower but allow for much larger sequences.
+> * Choose dynamic programming to run alignments fast.
+> * Choose sliced subdivision to run alignments slower but allow for much larger sequences.
 >
 > Which allocation strategy should you choose?
 >
-> * When performing many tiny alignments, use the stack to avoid heap memory allocation overhead.
-> * When performing a few large alignments, use the heap to ensure enough memory is available.
+> * When performing many tiny alignments, choose stack to avoid heap memory allocation overhead.
+> * When performing a few large alignments, choose heap to ensure enough memory is available.
 > 
 > Choose what's right for your use case. When in doubt, dynamic programming on the heap is a safe bet.
 
