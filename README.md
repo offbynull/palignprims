@@ -18,6 +18,16 @@ Choose a path:
 * [I want to run an alignment](#running-alignments).
 * [I want to build an aligner](#building-aligners).
 
+## Table of Contents
+
+* [Pairwise Alignment Primitives](#pairwise-alignment-primitives)
+  * [Table of Contents](#table-of-contents)
+  * [Running Alignments](#running-alignments)
+    *  [Choosing a Preconfigured Aligner](#choosing-a-preconfigured-aligner)
+    *  [Customizing Sequences and Scorers](#customizing-sequences-and-scorers)
+    *  [Performance and Efficiency](#performance-and-efficiency)
+  * [Building Aligners](#building-aligners)
+
 ## Running Alignments
 
 > [!WARNING]
@@ -142,8 +152,8 @@ The following techniques can improve PAlignPrims performance. Some are library-s
 
    PAlignPrims aligners support allocating memory either on the heap or the stack.
 
-   * If performing many tiny alignments, use the stack to avoid heap memory allocation overhead.
-   * If performing larger alignments, use the heap to ensure enough memory is available.
+   * When performing many tiny alignments, choose the stack to avoid heap memory allocation overhead.
+   * When performing larger alignments, choose the heap to ensure enough memory is available.
 
  * **Choose the right algorithm.**
 
