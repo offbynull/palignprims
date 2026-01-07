@@ -78,7 +78,7 @@ PAlignPrims comes ready to use with several preconfigured aligners, all of which
 
  * preconfigured aligners, see [Choosing a Preconfigured Aligner](#choosing-a-preconfigured-aligner).
  * applying alignments to other domains, see [Customizing Sequences and Scorers](#customizing-sequences-and-scorers).
- * getting the best possible performance, see [Performance](#performance).
+ * getting the best possible performance, see [Performance and Efficiency](#performance-and-efficiency).
 
 ### Choosing a Preconfigured Aligner
 
@@ -88,11 +88,21 @@ PAlignPrims comes ready to use with several preconfigured aligners, all of which
  * **{algorithm}** is the algorithm performing the alignment: [dynamic programming](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Backtrack%20Algorithm) vs [sliced subdivision](https://offbynull.com/docs/data/learn/Bioinformatics/output/output.html#H_Divide-and-Conquer%20Algorithm).
  * **{allocation}** is the type of memory used to do the alignment: heap vs stack.
 
+For example, [global_dynamic_programming_heap_aligner.h](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/aligners/global_dynamic_programming_heap_aligner.h) performs global alignment using the dynamic programming algorithm with heap allocation.
+
 > [!TIP]
 >
-> [Performance](#performance) covers more information on which algorithm and allocation option to use.
-
-For example, [global_dynamic_programming_heap_aligner.h](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/aligners/global_dynamic_programming_heap_aligner.h) performs global alignment using the dynamic programming algorithm with heap allocation.
+> Which algorithm should you choose?
+>
+> * Use dynamic programming to run alignments fast.
+> * Use sliced subdivision to run alignments slower but allow for much larger sequences.
+>
+> Which allocation strategy should you choose?
+>
+> * When performing many tiny alignments, use the stack to avoid heap memory allocation overhead.
+> * When performing a few large alignments, use the heap to ensure enough memory is available.
+> 
+> Choose what's right for your use case. When in doubt, dynamic programming on the heap is a safe bet.
 
 Regardless of which you choose, all preconfigured aligners have the same basic usage pattern: An align() function accepts a pair of sequences along with scorers and returns a maximally scored alignment path along with that path's score. The only difference is that ...
 
@@ -103,57 +113,49 @@ Each aligner's corresponding test file shows end-to-end examples for that aligne
 
 ### Customizing Sequences and Scorers
 
-The initial example in parent section focused on aligning two character strings, but chances are that you're looking at PAlignPrims because you need to do more than just align characters. PAlignPrims's [sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequence/sequence.h) interface is flexible enough to work with any element type (e.g., musical notes, sensor reading, waveform features, log events). As long as it's a finite sequence, PAlignPrims can represent it.
+The [parent section's introductory example](#running-alignments) focused on aligning two character strings, but chances are that you're looking at PAlignPrims because you need to do more than just align characters. PAlignPrims's [sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequence/sequence.h) interface is flexible enough to work with any element type (e.g., musical notes, sensor reading, waveform features, log events). As long as it's a finite sequence, PAlignPrims can represent it.
 
-Likewise, PAlignPrims's [scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorer/scorer.h) interface is flexible enough to work with any element type and supports custom scoring logic. This allows implementations to capture nuance instead of being limited to hardcoded substitution matrices.
+Likewise, PAlignPrims's [scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorer/scorer.h) interface is flexible enough to work with any element type and supports custom scoring logic, allowing implementations to capture nuance instead of being boxed into hardcoded substitution matrices.
 
 PAlignPrims comes bundled with common sequence and scorer implementations, living within [offbynull::aligner::sequences](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/sequences) and [offbynull::aligner::scorers](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/scorers) respectively. These bundled implementations are building blocks for constructing new and more accurate alignments. For example, if you have the [origin and terminus points](https://en.wikipedia.org/wiki/Circular_chromosome) of two bacterial genomes, you can pair each with its corresponding genome using [zip sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/zip_sequence.h) such that your pairwise alignment's scoring can account for [GC skew](https://en.wikipedia.org/wiki/GC_skew).
 
-### Performance
+### Performance and Efficiency
 
-A few tips to get the best possible performance for your platform:
+The following techniques can improve PAlignPrims performance. Some are library-specific. Others are general best practices.
 
-<details><summary>Disable debug_mode.</summary>
+ * **Disable debug_mode.**
 
-Most PAlignPrims structs, classes, and free functions accept a debug_mode template parameter. When debug_mode is set to ...
+   Most PAlignPrims structs, classes, and free functions accept a debug_mode template parameter.
 
- * true, runtime checks are enabled to ensure state and inputs are valid.
- * false, runtime checks are disabled to increase performance.
+   * When debug_mode=true, runtime checks are enabled to ensure state and inputs are valid.
+   * When debug_mode=false, runtime checks are disabled to increase performance.
 
-Enable debug_mode during development, and disable it when transitioning to production. 
-</details>
+   Enable debug_mode during development, and disable it when transitioning to production. 
 
-<details><summary>Enable OBN_PACK_STRUCTS.</summary>
+ * **Enable OBN_PACK_STRUCTS.**
 
-PAlignPrims aligners automatically attempt to pick the narrowest types required to perform an alignment. Even then, memory usage may still be an issue. Heavily instantiated PAlignPrims structs and classes are often packable, enabling better memory utilization at the expense of unaligned memory access.
+   PAlignPrims aligners automatically attempt to pick the narrowest types required to perform an alignment. Even then, memory usage may still be an issue. Heavily instantiated PAlignPrims structs and classes are often packable, enabling better memory utilization at the expense of unaligned memory access.
 
-If your platform supports unaligned memory access, struct packing can be enabled via the OBN_PACK_STRUCTS define.
-</details>
+   If your platform supports unaligned memory access, struct packing can be enabled via the OBN_PACK_STRUCTS define.
 
-<details><summary>Choose the right memory allocation strategy.</summary>
+ * **Choose the right memory allocation strategy.**
 
-PAlignPrims aligners can target either the heap or the stack for their memory needs. If you're ...
+   PAlignPrims aligners support allocating memory either on the heap or the stack.
 
- * ripping through many small alignments, use the stack to avoid heap memory allocation overhead.
- * performing a few large alignments, use the heap to ensure enough memory is available.
+   * If performing many tiny alignments, use the stack to avoid heap memory allocation overhead.
+   * If performing larger alignments, use the heap to ensure enough memory is available.
 
-Choose the right memory allocation strategy for your use case.
-</details>
+ * **Choose the right algorithm.**
 
-<details><summary>Choose the right algorithm.</summary>
+   PAlignPrims aligners support different alignment algorithms.
 
-PAlignPrims aligner can target different alignment algorithms. Use the ...
+   * Choose dynamic programming to run alignments fast.
+   * Choose sliced subdivision to run alignments slower but allow for much larger sequences.
 
- * dynamic programming to run alignments fast.
- * sliced subdivision to run alignments slower but allow for much larger sequences.
+ * **Enable compiler optimizations.**
 
-Choose the right algorithm for your use case.
-</details>
+   When moving to production or doing real world testing, enable aggressive compiler optimizations such as -O3, link-time optimization, profile-guided optimization, and whatever other optimizations are available on your compiler / platform.
 
-<details><summary>Enable compiler optimizations.</summary>
-
-When moving to production or doing real world testing, don't be afraid to enable aggressive compiler optimizations such as -O3, link-time optimization, profile-guided optimization, and whatever other optimizations are available on your compiler / platform.
-</details>
 
 
 
