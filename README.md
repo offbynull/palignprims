@@ -18,6 +18,9 @@ Choose a path:
 * [I want to run an alignment](#running-alignments).
 * [I want to build an aligner](#building-aligners).
 
+> [!WARNING]
+> C++ proficiency and familiarity with sequence alignment concepts are recommended.
+
 ## Table of Contents
 
 * [Pairwise Alignment Primitives](#pairwise-alignment-primitives)
@@ -29,9 +32,6 @@ Choose a path:
   * [Building Aligners](#building-aligners)
 
 ## Running Alignments
-
-> [!WARNING]
-> C++ proficiency and familiarity with sequence alignment concepts are recommended.
 
 The easiest way to use PAlignPrims is through one of its preconfigured aligners. The example below runs a global alignment on two character strings.
 
@@ -87,8 +87,8 @@ int main(void) {
 PAlignPrims comes ready to use with several preconfigured aligners, all of which live within [offbynull::aligner::aligners](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/aligners). To learn more about ...
 
  * preconfigured aligners, see [Choosing a Preconfigured Aligner](#choosing-a-preconfigured-aligner).
- * applying alignments to other domains, see [Customizing Sequences and Scorers](#customizing-sequences-and-scorers).
- * getting the best possible performance, see [Performance and Efficiency](#performance-and-efficiency).
+ * applying alignments to other domains (e.g., non-character sequences), see [Customizing Sequences and Scorers](#customizing-sequences-and-scorers).
+ * squeezing the best possible performance, see [Performance and Efficiency](#performance-and-efficiency).
 
 ### Choosing a Preconfigured Aligner
 
@@ -119,19 +119,69 @@ Regardless of which you choose, all preconfigured aligners have the same basic u
  * other aligners may require additional scorers (e.g., extended gap scoring).
  * subdivision aligners accept a score tolerance, which is important to mitigate rounding errors when the score type is floating point.
 
-Each aligner's corresponding test file shows end-to-end examples for that aligner.
+Each aligner’s test file includes an end-to-end usage example.
 
 ### Customizing Sequences and Scorers
 
-The [parent section's introductory example](#running-alignments) focused on aligning two character strings, but chances are that you're looking at PAlignPrims because you need to do more than just align characters. PAlignPrims's [sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequence/sequence.h) interface is flexible enough to work with any element type (e.g., musical notes, sensor reading, waveform features, log events). As long as it's a finite sequence, PAlignPrims can represent it.
+The [parent section's introductory example](#running-alignments) focused on aligning two character strings, but chances are that you're looking at PAlignPrims because you need to do more than just align characters. PAlignPrims's [sequence interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequence/sequence.h) is flexible enough to work with any element type (e.g., musical notes, sensor reading, waveform features, log events). As long as it's a finite sequence, PAlignPrims can represent it.
 
-Likewise, PAlignPrims's [scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorer/scorer.h) interface is flexible enough to work with any element type and supports custom scoring logic, allowing implementations to capture nuance instead of being boxed into hardcoded substitution matrices.
+Likewise, PAlignPrims's [scorer interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorer/scorer.h) is flexible enough to work with any element type and supports custom scoring logic, allowing implementations to capture nuance instead of being boxed into hardcoded substitution matrices. The elements being compared don't even have to be the same type (e.g., compare musical notes against sensor readings).
 
 PAlignPrims comes bundled with common sequence and scorer implementations, living within [offbynull::aligner::sequences](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/sequences) and [offbynull::aligner::scorers](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/scorers) respectively. These bundled implementations are building blocks for constructing new and more accurate alignments. For example, if you have the [origin and terminus points](https://en.wikipedia.org/wiki/Circular_chromosome) of two bacterial genomes, you can pair each with its corresponding genome using [zip sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/zip_sequence.h) such that your pairwise alignment's scoring can account for [GC skew](https://en.wikipedia.org/wiki/GC_skew).
 
+<details><summary>Illustrative example: scoring zipped sequences</summary>
+
+```c++
+///////////////////////////////////////////////////////////////////////////////////
+// Illustrative example (not biologically correct, not complete, not compilable) //
+///////////////////////////////////////////////////////////////////////////////////
+
+// Create two zip sequences. The zip augments genome by pairing each bases with its
+// distance from ori.
+auto seq1 { create_zip_sequence<debug_mode>(genome1, distance_to_ori1) };
+auto seq2 { create_zip_sequence<debug_mode>(genome2, distance_to_ori2) };
+
+// Create scorer to score elements from the zipped sequences.
+struct gc_scorer {
+    using WEIGHT = float;
+    using SEQ_INDEX = std::size_t;
+
+    WEIGHT operator()(auto&& down, auto&& right) const {
+        if (!down || !right) {
+            return -3.0f;  // Gap score
+        }
+
+        // Extract down element components.
+        const auto& [down_idx, down_elem] { *down };
+        const auto& [down_base, down_ori_dist] { down_elem };
+        
+        // Extract right element components.
+        const auto& [right_idx, right_elem] { *right };
+        const auto& [right_base, right_ori_dist] { right_elem };
+
+        if (down_base == right_base) {
+            return 1.0f;  // Match score
+        }
+
+        bool is_gc_pair {
+            (down_base == 'G' && right_base == 'C') ||
+            (down_base == 'C' && right_base == 'G')
+        };
+        if (is_gc_pair) {
+            float ori_dist = std::min(down_ori_dist, right_ori_dist);
+            return ori_dist;  // GC-aware score
+        }
+
+        return -1.0f;  // Mismatch score
+    }
+};
+```
+
+</details>
+
 ### Performance and Efficiency
 
-The following techniques can improve PAlignPrims performance. Some are library-specific. Others are general best practices.
+The following techniques can improve PAlignPrims performance. Some are library-specific, while others are general best practices.
 
  * **Disable debug_mode.**
 
@@ -166,155 +216,45 @@ The following techniques can improve PAlignPrims performance. Some are library-s
 
    When moving to production or doing real world testing, enable aggressive compiler optimizations such as -O3, link-time optimization, profile-guided optimization, and whatever other optimizations are available on your compiler / platform.
 
+## Building Aligners
 
+> [!TIP]
+> This section focuses on defining new alignment graph types. Familiarity with [Running Alignments](#running-alignments) is recommended. If you only need to apply existing aligners to new domains, see that section instead.
 
+PAlignPrims has four core components that act as building blocks to create new pairwise aligners.
 
+```mermaid
+classDiagram
+    AlignmentGraph "1" -- "2" Sequence : references
+    AlignmentGraph "1" -- "1+" Scorer : uses
+    Backtracker "1" -- "1" AlignmentGraph : operates on
+```
 
-
-
-
-
-
-
-
-
-
-
-
-----
-
- * <details><summary>Modern design.</summary>
+ * **[Sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequence/sequence.h)**: Ordered list of elements, with a finite size and randomly accessible.
+ * **[Scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorer/scorer.h)**: Function that computes the distance (score) between two sequence elements.
+ * **[Alignment Graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graph/pairwise_alignment_graph.h)**: [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph) enumerating all possible choices for a pairwise alignment.
+ * **[Backtracker](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/backtrackers)**: Function that computes a maximally scored path through an alignment graph.
  
-   PAlignPrims adopts modern infrastructure and design choices:
+As illustrated in the diagram above, these components are abstract, flexible, and composable. Components are expected to be swappable, allowing low-friction creation of new aligners and re-application of existing aligners to different domains.
 
-   * C++23 standard.
-   * Meson build system.
-   * Compile-time polymorphism.
-   * Compile-time constraint checking.
-   * Runtime constraint checking (guardrails to prevent footguns).
-   * Documentation styled after high-level languages (e.g., doxygen comment structure mimics Javadocs / Python docstrings).
-   * Hierarchical structuring styled after high-level languages (e.g., namespaces mimic Java / Python package naming standards).
-   * Import patterns styled after high-level languages (e.g., mimics importing modules in Java / Python).
+The core component responsible for new pairwise alignment models is the alignment graph. An alignment graph encodes and enumerates the way two sequences can be aligned (e.g., local alignment vs global alignment). There are multiple [alignment graph interfaces](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graph), each intended to work with a specific [backtracker](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/backtrackers): 
 
-   </details>
+ * [graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graph/graph.h) → [graph backtracker](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/backtrackers/graph_backtracker).
+ * [pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graph/pairwise_alignment_graph.h) → [pairwise alignment graph backtracker](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker).
+ * [sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h) → [sliceable pairwise alignment graph backtracker](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker).
    
- * <details><summary>Efficient design.</summary>
+Each alignment graph interface builds on the one before it, either constraining it or extending it based on the requirements of the accompanying backtracking algorithm. For more information, see documentation embedded within source files and look through the unit tests for usage examples.
+   
+PAlignPrims comes bundled with several alignment graph adapters and implementations, including ...
  
-   PAlignPrims design choices target efficiency and customizability, providing several knobs to get the best performance for the specific use case and target platform:
-   
-   * <details><summary>No runtime polymorphism.</summary>
-   
-     PAlignPrims avoids the use of virtual functions, removing unnecessary indirection to get faster performance.
-     
-     </details>
-     
-   * <details><summary>Optional safety.</summary>
-   
-     PAlignPrims provides several guardrails to prevent common misuse. These guardrails can be disabled (`debug_mode` template parameter), enabling the compiler to make much better optimization choices.
-     
-     </details>
-
-   * <details><summary>Optimal memory strategy.</summary>
-   
-     PAlignPrims classes are heavily templated, allowing users to ...
-     
-     * select types best for their specific use case.
-     * select a memory allocation strategy that's best for their specific use case (heap vs stack).
-     * optionally pack structs, if it's deemed beneficial for their specific use case / platform.
-     
-     For example, if an alignment will only be performed on small sequences, the alignment algorithm can perform its operations using narrower integer types and exclusively use the stack. The narrower integer types will save memory and stack allocation will save potentially expensive heap allocation overhead.
-     
-     </details>
-
-   </details>
-   
- * <details><summary>Generic sequences.</summary>
- 
-   PAlignPrims's [sequence interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequence/sequence.h) is flexible enough to hold any element type. For example, a PAlignPrims sequence can hold ...
-   
-   * characters (e.g., DNA bases, amino acids).
-   * musical notes.
-   * sensor readings (e.g., weather samples).
-   * waveform features (e.g., peaks and frequencies).
-   * log events (elements are events, not text).
-   * network packets (elements are packets, not bytes).
-   * a combination of multiple element types (e.g., musical note paired with sensor readings).
-   
-   As long as it's a finite sequence, PAlignPrims can represent it.
-   
-   In addition, PAlignPrims comes bundled with sequence adapters and implementations, including ...
-   
-   * [chunk sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/chunk_sequence.h): Transforms an underlying sequence such that its elements are fixed-sized chunks.
-   * [sliding window sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/sliding_window_sequence.h): Transforms an underlying sequence such that its elements are a fixed-sized window slid over the underlying sequence.
-   * [prefix pad sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/prefix_pad_sequence.h): Pads an underlying sequence's prefix.
-   * [suffix pad sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/suffix_pad_sequence.h): Pads an underlying sequence's suffix.
-   * [substring sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/substring_sequence.h): Pulls a substring from an underlying sequence (truncates prefix and suffix).
-   * [transform sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/transform_sequence.h): Transforms the elements of a sequence via a user-supplied transformation function.
-   * [zip sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/zip_sequence.h): Brings a list of underlying sequences together, such that each element is a tuple of the corresponding elements in the underlying sequences.
-   * [iota sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/iota_sequence.h): Returns incrementally increasing integers as a sequence.
-   * [mmap sequence](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/mmap_sequence.h): Returns the bytes of a memory mapped file as a sequence.
-   
-   These bundled sequences are building blocks for constructing new and more accurate pairwise sequence aligners. For example, if you have the [origin and terminus points](https://en.wikipedia.org/wiki/Circular_chromosome) of two bacterial genomes, you can [zip](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/zip_sequence.h) each with its corresponding genome sequence such that your pairwise alignment's scoring can account for [GC skew](https://en.wikipedia.org/wiki/GC_skew).
-
-    </details>
+ * [pairwise global alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_global_alignment_graph.h).
+ * [pairwise local alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_local_alignment_graph.h).
+ * [pairwise fitting alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_fitting_alignment_graph.h).
+ * [pairwise overlap alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_overlap_alignment_graph.h).
+ * [pairwise extended gap alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h).
+ *  [prefix sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h): Prefix view of a sliceable pairwise alignment graph (suffix truncated).
+ *  [suffix sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h): Prefix view of a sliceable pairwise alignment graph (prefix truncated).
+ *  [middle sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/middle_sliceable_pairwise_alignment_graph.h): Middle view of a sliceable pairwise alignment graph (prefix and suffix truncated).
+ *  [reversed sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph.h): Reversed view of a sliceable pairwise alignment graph (root becomes leaf and vice versa).
     
- * <details><summary>Generic scoring.</summary>
- 
-   PAlignPrims's [scorer interface](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorer/scorer.h) is deeply flexible:
-
-   * Elements scored using logic, not a substitution matrix.
-   * Elements scored can be of different types (e.g., score an image against a number).
-   * Resulting score can be any type vaguely resembling a number: Integers, floats, or [any type with the required type traits](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/concepts.h).
-   
-   PAlignPrims comes bundled with several scorer adapters and implementations, including ...
-   
-    * [PAM scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/pam_scorer.h).
-    * [BLOSUM scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/blosum_scorer.h).
-    * [QWERTY scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/qwerty_scorer.h): Scoring based on where keys are positioned on a QWERTY keyboard.
-    * [Levenshtein distance scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/levenshtein_scorer.h): Scoring based on Levenshtein distance (string distance).
-    * [single character substitution matrix scorer ](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/single_character_substitution_matrix_scorer.h): Loads an arbitrary substitution matrix encoded as a text table (single character elements).
-    * [simple scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/simple_scorer.h) / [constant scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/constant_scorer.h) / [substitution scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/substitution_map_scorer.h): Returns hardcoded scores based on criteria.
-    * [consumption gating scorer](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/consumption_gating_scorer.h): Wraps an underlying scorer, gating progress based on how many sequence elements were consumed by the alignment.
-
-   These bundled scorers are building blocks for constructing new and more accurate pairwise sequence aligners. For example, if you have the [origin and terminus points](https://en.wikipedia.org/wiki/Circular_chromosome) of two bacterial genomes, you can [zip](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/sequences/zip_sequence.h) each with its corresponding genome sequence and augment a DNA-based [single character substitution matrix scorer ](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/scorers/single_character_substitution_matrix_scorer.h) to account for [GC skew](https://en.wikipedia.org/wiki/GC_skew).
-
-   </details>
-   
- * <details><summary>Generic alignment graphs.</summary>
-
-   PAlignPrims comes bundled with several [alignment graph interfaces](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/concepts.h), each intended to work with a specific variant of the [backtracking algorithm](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/backtrackers): 
-
-   * Graph: [graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graph/graph.h) / [backtracker](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/backtrackers/graph_backtracker).
-   * Pairwise alignment graph: [graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graph/pairwise_alignment_graph.h) / [backtracker](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/backtrackers/pairwise_alignment_graph_backtracker).
-   * Sliceable pairwise alignment graph: [graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graph/sliceable_pairwise_alignment_graph.h) / [backtracker](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/backtrackers/sliceable_pairwise_alignment_graph_backtracker).
-   
-   Each interface builds on the one before it, either constraining it or extending it based on the requirements of the accompanying backtracking algorithm. For more information, see documentation embedded within source files.
-   
-   PAlignPrims comes bundled with several graph adapters and implementations, including ...
- 
-    * [pairwise global alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_global_alignment_graph.h).
-    * [pairwise local alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_local_alignment_graph.h).
-    * [pairwise fitting alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_fitting_alignment_graph.h).
-    * [pairwise overlap alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_overlap_alignment_graph.h).
-    * [pairwise extended gap alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/pairwise_extended_gap_alignment_graph.h)
-    *  [prefix sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/prefix_sliceable_pairwise_alignment_graph.h): Prefix view of a sliceable pairwise alignment graph (suffix truncated).
-    *  [suffix sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h): Prefix view of a sliceable pairwise alignment graph (prefix truncated).
-    *  [middle sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/middle_sliceable_pairwise_alignment_graph.h): Middle view of a sliceable pairwise alignment graph (prefix and suffix truncated).
-    *  [reversed sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph.h): Reversed view of a sliceable pairwise alignment graph (root becomes leaf and vice versa).
-    
-   These bundled graphs are building blocks for constructing new and more accurate pairwise sequence aligners. For example, the fitting alignment graph can easily be extended to perform [rotational alignment](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/aligners/rotational_dynamic_programming_heap_aligner.h).
-
-   </details>
-
- * <details><summary>Documented, tested, and many usage examples</summary>
-
-   Virtually all header files ...
-
-   * are documented with doxygen-style comments, detailing what each class is for, what each function does, and what each parameter is for.
-   * come bundled with accompanying GUnit tests, intended both as a testing suite and as a usage example guide.
-  
-   </details>
-
-
- [Batteries included](https://en.wiktionary.org/wiki/batteries-included): PAlignPrims comes bundled with everything needed for pairwise aligners, including sequences, scorers, alignment graphs, and algorithms to operate on those alignment graphs.
-
+Alignment graphs can either be built from scratch or one of the bundled implementations can be a base for constructing new and more accurate aligners. For example, the fitting alignment graph can be used as a base to perform [rotational alignment](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/aligners/rotational_dynamic_programming_heap_aligner.h).
