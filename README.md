@@ -77,7 +77,7 @@ int main(void) {
 PAlignPrims comes ready to use with several preconfigured aligners, all of which live within [offbynull::aligner::aligners](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/aligners). To learn more about ...
 
  * preconfigured aligners, see [Choosing a Preconfigured Aligner](#choosing-a-preconfigured-aligner).
- * to apply alignments to other domains, see [Customizing Sequences and Scorers](#customizing-sequences-and-scorers).
+ * applying alignments to other domains, see [Customizing Sequences and Scorers](#customizing-sequences-and-scorers).
  * getting the best possible performance, see [Performance](#performance).
 
 ### Choosing a Preconfigured Aligner
