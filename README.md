@@ -84,7 +84,7 @@ int main(void) {
 }
 ```
 
-PAlignPrims comes ready to use with several preconfigured aligners, all of which live within [offbynull::aligner::aligners](https://github.com/offbynull/aligner/tree/main/offbynull/aligner/aligners). To learn more about ...
+PAlignPrims comes ready to use with several preconfigured aligners. To learn more about ...
 
  * preconfigured aligners, see [Choosing a Preconfigured Aligner](#choosing-a-preconfigured-aligner).
  * applying alignments to other domains (e.g., non-character sequences), see [Customizing Sequences and Scorers](#customizing-sequences-and-scorers).
