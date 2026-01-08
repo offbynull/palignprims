@@ -30,8 +30,8 @@ int main(int /*argc*/, char** /*argv*/) {
     static_assert(false, "One must be defined: BENCHMARK_UINT8_INDEX or BENCHMARK_SIZE_T_INDEX");
 #endif
 
-    qwerty_scorer<false, float> substitution_scorer {};
-    constant_scorer<false, char, char, float> indel_scorer { 0.0f };
+    qwerty_scorer<false, std::size_t, float> substitution_scorer {};
+    constant_scorer<false, std::size_t, char, char, float> indel_scorer { 0.0f };
     const std::string chars { "abcdefghijklmnopqrstuvwxyz0123456789" };
     const std::string test_string { "zazaza" };
     auto test_string_windows { create_stack_sliding_window_sequence<false, 4zu>(test_string) };
