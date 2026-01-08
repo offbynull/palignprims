@@ -311,7 +311,7 @@ namespace offbynull::aligner::aligners::rotational_sliced_subdivision_heap_align
                             // (what the user originally passed in to this align function).
                             N_INDEX down_double_idx { *std::get<0>(*offsets) };
                             if (down_double_idx >= down_single_size) {
-                                down_double_idx -= down_single_size;
+                                down_double_idx = static_cast<N_INDEX>(down_double_idx - down_single_size);
                                 std::get<0>(*offsets) = std::optional<N_INDEX> { down_double_idx };
                             }
                             return offsets;
