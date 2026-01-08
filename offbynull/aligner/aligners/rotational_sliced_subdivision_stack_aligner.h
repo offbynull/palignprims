@@ -279,7 +279,9 @@ namespace offbynull::aligner::aligners::rotational_sliced_subdivision_stack_alig
                     max_path_weight_comparison_tolerance
                 )
             };
-            N_INDEX down_single_size { down.size() };
+            N_INDEX down_single_size {
+                static_cast<N_INDEX>(down.size())
+            };
             return std::make_pair(
                 std::move(path)  // move() needed to ensure that transform operation below owns path
                     | std::views::transform(
@@ -363,6 +365,9 @@ namespace offbynull::aligner::aligners::rotational_sliced_subdivision_stack_alig
                 debug_mode,
                 std::remove_cvref_t<decltype(down)>
             > down_double { down, 2zu };
+            N_INDEX down_double_size {
+                static_cast<N_INDEX>(down_double.size())
+            };
             using G = pairwise_fitting_alignment_graph<
                 debug_mode,
                 N_INDEX,
@@ -392,7 +397,7 @@ namespace offbynull::aligner::aligners::rotational_sliced_subdivision_stack_alig
             auto fw {
                 forward_walker<debug_mode, G, FORWARD_WALKER_CONTAINER_CREATOR_PACK>::create_and_initialize(
                     graph,
-                    down_double.size(),
+                    down_double_size,
                     WEIGHT {}
                 )
             };

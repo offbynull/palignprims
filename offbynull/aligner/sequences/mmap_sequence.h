@@ -53,6 +53,7 @@ namespace offbynull::aligner::sequences::mmap_sequence {
             return file.size();
         }
 
+        // No need for this? When this object gets destroyed, its members get destroyed. file's destructor should automatically calls close?
         ~mmap_sequence() {
             file.close();
         }

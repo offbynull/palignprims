@@ -54,15 +54,20 @@ namespace offbynull::aligner::aligners::internal_utils {
         }
         // Check N_INDEX to ensure it can hold sequence
         if constexpr (debug_mode) {
+            // Ensure sizes both are std::size_t. Why? because seq.size() only requires the return be widenably to std::size_t (as opposed
+            // to actually being size_t), and so std::max won't work if the types being input are different (requies both  inputs to be of
+            // the exact same type).
+            std::size_t down_size { down.size() };
+            std::size_t right_size { right.size() };
             // Will +1 cause the sequence to extend past std::size_t's max?
             // TODO: Remove this? No reasonably this can happen.
-            if (std::max(down.size(), right.size()) == std::numeric_limits<std::size_t>::max()) {
+            if (std::max(down_size, right_size) == std::numeric_limits<std::size_t>::max()) {
                 throw std::runtime_error { "Sequence too large" };
             }
             // Sequence's size fits into scorers's SEQ_INDEX type?
             // TODO: +1zu not required here? This is SEQ_INDEX, not N_INDEX. But, if you don't do this, you'll potentially get narrowing
             //       warnings?
-            std::size_t index_max { std::max(down.size(), right.size()) + 1zu };
+            std::size_t index_max { std::max(down_size, right_size) + 1zu };
             if (((index_max > std::numeric_limits<typename std::remove_cvref_t<scorers_>::SEQ_INDEX>::max()) || ...)) {
                 throw std::runtime_error { "Scorer's sequence index type too narrow to support a sequence this large" };
             }

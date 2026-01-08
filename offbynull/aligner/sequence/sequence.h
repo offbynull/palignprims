@@ -30,7 +30,7 @@ namespace offbynull::aligner::sequence::sequence {
         unqualified_object_type<T>
         && requires(const T t) {
             { t[0zu] } -> convertible_to_unqualified_object_type;  // unqualified object type or convertible to one (copy constructor)
-            { t.size() } -> std::same_as<std::size_t>;
+            { t.size() } -> widenable_to_size_t;
         }
         && std::regular<
             std::remove_cvref_t<

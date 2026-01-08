@@ -12,6 +12,7 @@
 #include <string>
 #include <stdexcept>
 #include <optional>
+#include <cstddef>
 
 namespace offbynull::aligner::aligners::utils {
     using offbynull::concepts::widenable_to_size_t;
@@ -80,8 +81,12 @@ namespace offbynull::aligner::aligners::utils {
             }
         }
 
-        auto d_elem_str_sizes { d_elem_strs | std::views::transform([](const auto& s){ return s.size(); }) };
-        auto r_elem_str_sizes { r_elem_strs | std::views::transform([](const auto& s){ return s.size(); }) };
+        // NOTE: "-> std::size_t" is required for the transform lambdas below because s.size()'s may be narrower than std::size_t. That is,
+        //       sequence's return type requirement for size() is that it be widenable to std::size_t, not actually be std::size_t. The
+        //       "-> std::size_t" explicitly widens to a std::size_t so std::max and std::ranges::max_element can work (they require types
+        //       of inputs to all be the same).
+        auto d_elem_str_sizes { d_elem_strs | std::views::transform([](const auto& s) -> std::size_t { return s.size(); }) };
+        auto r_elem_str_sizes { r_elem_strs | std::views::transform([](const auto& s) -> std::size_t { return s.size(); }) };
         const auto max_size {
             std::max(
                 *std::ranges::max_element(d_elem_str_sizes),
