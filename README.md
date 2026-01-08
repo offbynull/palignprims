@@ -109,8 +109,8 @@ For example, [global_dynamic_programming_heap_aligner.h](https://github.com/offb
 >
 > Which allocation strategy should you choose?
 >
-> * When performing many tiny alignments, choose stack to avoid heap memory allocation overhead.
-> * When performing a few large alignments, choose heap to ensure enough memory is available.
+> * When aligning many tiny sequences, choose stack to avoid heap memory allocation overhead.
+> * When aligning large sequences, choose heap to ensure enough memory is available.
 > 
 > Choose what's right for your use case. When in doubt, dynamic programming on the heap is a safe bet.
 
