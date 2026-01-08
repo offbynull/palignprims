@@ -87,7 +87,7 @@ int main(void) {
 PAlignPrims comes ready to use with several preconfigured aligners. To learn more about ...
 
  * preconfigured aligners, see [Choosing a Preconfigured Aligner](#choosing-a-preconfigured-aligner).
- * applying alignments to other domains (e.g., non-character sequences), see [Customizing Sequences and Scorers](#customizing-sequences-and-scorers).
+ * applying alignments to other domains, see [Customizing Sequences and Scorers](#customizing-sequences-and-scorers).
  * squeezing the best possible performance, see [Performance and Efficiency](#performance-and-efficiency).
 
 ### Choosing a Preconfigured Aligner
