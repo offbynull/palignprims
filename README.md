@@ -256,5 +256,5 @@ PAlignPrims comes bundled with several alignment graph adapters and implementati
  *  [suffix sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/suffix_sliceable_pairwise_alignment_graph.h): Prefix view of a sliceable pairwise alignment graph (prefix truncated).
  *  [middle sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/middle_sliceable_pairwise_alignment_graph.h): Middle view of a sliceable pairwise alignment graph (prefix and suffix truncated).
  *  [reversed sliceable pairwise alignment graph](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/graphs/reversed_sliceable_pairwise_alignment_graph.h): Reversed view of a sliceable pairwise alignment graph (root becomes leaf and vice versa).
-    
-Alignment graphs can either be built from scratch or one of the bundled implementations can be a base for constructing new and more accurate aligners. For example, the fitting alignment graph can be used as a base to perform [rotational alignment](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/aligners/rotational_dynamic_programming_heap_aligner.h).
+
+Alignment graphs can either be built from scratch or by using an existing alignment graph as a base. For example, a fitting alignment graph can be used as a base for performing [rotational alignment](https://github.com/offbynull/aligner/blob/main/offbynull/aligner/aligners/rotational_dynamic_programming_heap_aligner.h).
