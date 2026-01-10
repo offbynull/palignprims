@@ -60,7 +60,7 @@ namespace offbynull::aligner::aligners::internal_utils {
             std::size_t down_size { down.size() };
             std::size_t right_size { right.size() };
             // Will +1 cause the sequence to extend past std::size_t's max?
-            // TODO: Remove this? No reasonably this can happen.
+            // TODO: Remove this? No reasonable way this can happen.
             if (std::max(down_size, right_size) == std::numeric_limits<std::size_t>::max()) {
                 throw std::runtime_error { "Sequence too large" };
             }
