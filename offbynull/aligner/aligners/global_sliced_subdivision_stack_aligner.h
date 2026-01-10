@@ -189,10 +189,10 @@ namespace offbynull::aligner::aligners::global_sliced_subdivision_stack_aligner 
                 typename G::N,
                 typename G::E,
                 typename G::ED,
-                max_right_seq_size + 1zu,
-                1zu,  // 1 depth
-                0zu,  // no resident nodes
-                max_down_seq_size + max_right_seq_size
+                G::axis_node_length(max_right_seq_size),  // max_right_seq_size + 1zu
+                G::grid_depth_cnt,  // 1 depth
+                G::resident_nodes_capacity,  // no resident nodes
+                G::maximum_path_edge_count(max_down_seq_size, max_right_seq_size)
             >;
             backtracker<
                 debug_mode,

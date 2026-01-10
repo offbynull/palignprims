@@ -242,10 +242,10 @@ namespace offbynull::aligner::aligners::extended_gap_sliced_subdivision_stack_al
                 typename G::N,
                 typename G::E,
                 typename G::ED,
-                max_right_seq_size + 1zu,
-                3zu,  // 3 depth
-                0zu,  // no resident nodes
-                (max_down_seq_size + max_right_seq_size) * 3zu
+                G::axis_node_length(max_right_seq_size),  // max_right_seq_size + 1zu
+                G::grid_depth_cnt,  // 3 depth
+                G::resident_nodes_capacity,  // no resident nodes
+                G::maximum_path_edge_count(max_down_seq_size, max_right_seq_size)
             >;
             backtracker<
                 debug_mode,

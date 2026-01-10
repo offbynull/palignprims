@@ -293,7 +293,7 @@ namespace offbynull::aligner::aligners::rotational_sliced_subdivision_heap_align
                             if (e.type == edge_type::FREE_RIDE) {
                                 offsets = { std::nullopt };
                             }
-                            constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu )};
+                            constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu) };
                             const auto& [n1, n2] { e.inner_edge };
                             const auto& [n1_grid_down, n1_grid_right] { n1 };
                             const auto& [n2_grid_down, n2_grid_right] { n2 };

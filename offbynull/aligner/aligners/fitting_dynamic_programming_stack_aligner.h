@@ -209,10 +209,10 @@ namespace offbynull::aligner::aligners::fitting_dynamic_programming_stack_aligne
                 typename G::ED,
                 typename fitting_dynamic_programming_alignment_type_parameterizer<N_INDEX>::PARENT_COUNT,
                 typename fitting_dynamic_programming_alignment_type_parameterizer<N_INDEX>::SLOT_INDEX,
-                max_down_seq_size + 1zu,
-                max_right_seq_size + 1zu,
-                1zu,
-                max_down_seq_size + max_right_seq_size
+                G::axis_node_length(max_down_seq_size),  // max_down_seq_size + 1zu
+                G::axis_node_length(max_right_seq_size),  // max_right_seq_size + 1zu
+                G::grid_depth_cnt,  // 1 depth
+                G::maximum_path_edge_count(max_down_seq_size, max_right_seq_size)
             >;
             backtracker<
                 debug_mode,

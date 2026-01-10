@@ -15,7 +15,9 @@
 #include <format>
 #include <type_traits>
 #include <functional>
+#include <limits>
 #include "offbynull/aligner/graph/graph.h"
+#include "offbynull/aligner/graphs/grid_graph.h"
 #include "offbynull/aligner/concepts.h"
 #include "offbynull/aligner/sequence/sequence.h"
 #include "offbynull/aligner/scorer/scorer.h"
@@ -36,6 +38,7 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
     using offbynull::helpers::simple_value_bidirectional_view::simple_value_bidirectional_view;
     using offbynull::concepts::bidirectional_range_of_non_cvref;
     using offbynull::aligner::graph::graph::full_input_output_range;
+    using offbynull::aligner::graphs::grid_graph::grid_graph;
     using offbynull::helpers::filter_bidirectional_view::filter_bidirectional;
 
     /**
@@ -243,9 +246,9 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         , initial_gap_scorer { initial_gap_scorer_ }
         , extended_gap_scorer { extended_gap_scorer_ }
         , freeride_scorer { freeride_scorer_ }
-        , grid_down_cnt { static_cast<N_INDEX>(down_seq.size() + I1) }  // Cast to prevent narrowing warning
-        , grid_right_cnt { static_cast<N_INDEX>(right_seq.size() + I1) }  // Cast to prevent narrowing warning
-        , path_edge_capacity { (grid_right_cnt - 1zu) * 2zu + (grid_down_cnt - 1zu) * 2zu }
+        , grid_down_cnt { static_cast<N_INDEX>(axis_node_length(down_seq_.size())) }  // Cast to prevent narrowing warning
+        , grid_right_cnt { static_cast<N_INDEX>(axis_node_length(right_seq_.size())) }  // Cast to prevent narrowing warning
+        , path_edge_capacity { maximum_path_edge_count(down_seq_.size(), right_seq_.size()) }
         , node_incoming_edge_capacity { 3zu }
         , node_outgoing_edge_capacity { 3zu } {}
 
@@ -1198,6 +1201,26 @@ namespace offbynull::aligner::graphs::pairwise_extended_gap_alignment_graph {
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::inputs_from_residents */
         bidirectional_range_of_non_cvref<E> auto inputs_from_residents([[maybe_unused]] const N& n) const {
             return std::views::empty<E>;
+        }
+
+        // NOTE: This graph isn't backed by grid_graph, but the documentation for the two functions below are copied from grid_graph because
+        //       that documentation matches.
+        /** @copydoc offbynull::aligner::graphs::grid_graph::grid_graph::axis_node_length */
+        static constexpr std::size_t axis_node_length(std::size_t seq_len) {
+            std::size_t ret { seq_len + 1zu };
+            if constexpr (debug_mode) {
+                if (ret >= std::numeric_limits<N_INDEX>::max()) {
+                    throw std::runtime_error { "Sequence too large for index type" };
+                }
+            }
+            return ret;
+        }
+
+        /** @copydoc offbynull::aligner::graphs::grid_graph::grid_graph::maximum_path_edge_count */
+        static constexpr std::size_t maximum_path_edge_count(std::size_t down_seq_len, std::size_t right_seq_len) {
+            std::size_t grid_down_cnt { axis_node_length(down_seq_len) };
+            std::size_t grid_right_cnt { axis_node_length(right_seq_len) };
+            return (grid_right_cnt - 1zu) * 2zu + (grid_down_cnt - 1zu) * 2zu;
         }
     };
 

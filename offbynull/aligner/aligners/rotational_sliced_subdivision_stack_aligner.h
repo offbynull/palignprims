@@ -263,10 +263,10 @@ namespace offbynull::aligner::aligners::rotational_sliced_subdivision_stack_alig
                 PREFIX_G_N,
                 PREFIX_G_E,
                 PREFIX_G_ED,
-                max_right_seq_size + 1zu,
-                1zu,  // 1 depth
-                2zu,  // at most 2 resident nodes
-                max_double_down_seq_size + max_right_seq_size
+                G::axis_node_length(max_right_seq_size),  // max_right_seq_size + 1zu
+                G::grid_depth_cnt,  // 1 depth
+                G::resident_nodes_capacity,  // at most 2 resident nodes
+                G::maximum_path_edge_count(max_double_down_seq_size, max_right_seq_size)
             >;
             backtracker<
                 debug_mode,
@@ -304,7 +304,7 @@ namespace offbynull::aligner::aligners::rotational_sliced_subdivision_stack_alig
                             if (e.type == edge_type::FREE_RIDE) {
                                 offsets = { std::nullopt };
                             }
-                            constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu )};
+                            constexpr N_INDEX I1 { static_cast<N_INDEX>(1zu) };
                             const auto& [n1, n2] { e.inner_edge };
                             const auto& [n1_grid_down, n1_grid_right] { n1 };
                             const auto& [n2_grid_down, n2_grid_right] { n2 };
@@ -390,9 +390,9 @@ namespace offbynull::aligner::aligners::rotational_sliced_subdivision_stack_alig
                 typename G::N,
                 typename G::E,
                 typename G::ED,
-                max_right_seq_size + 1zu,
-                1zu,  // 1 depth
-                2zu  // at most 2 resident nodes
+                G::axis_node_length(max_right_seq_size),  // max_right_seq_size + 1zu
+                G::grid_depth_cnt,  // 1 depth
+                G::resident_nodes_capacity  // at most 2 resident nodes
             >;
             auto fw {
                 forward_walker<debug_mode, G, FORWARD_WALKER_CONTAINER_CREATOR_PACK>::create_and_initialize(

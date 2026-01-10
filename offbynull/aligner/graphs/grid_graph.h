@@ -195,18 +195,11 @@ namespace offbynull::aligner::graphs::grid_graph {
         , right_seq { right_seq_ }
         , substitution_scorer { substitution_scorer_ } // Copying object, not the ref
         , gap_scorer { gap_scorer_ } // Copying object, not the ref
-        , grid_down_cnt { static_cast<N_INDEX>(down_seq_.size() + I1) }  // Cast to prevent narrowing warning
-        , grid_right_cnt { static_cast<N_INDEX>(right_seq_.size() + I1) }  // Cast to prevent narrowing warning
-        , path_edge_capacity { (grid_right_cnt - 1zu ) + (grid_down_cnt - 1zu ) }
+        , grid_down_cnt { static_cast<N_INDEX>(axis_node_length(down_seq_.size())) }  // Cast to prevent narrowing warning
+        , grid_right_cnt { static_cast<N_INDEX>(axis_node_length(right_seq_.size())) }  // Cast to prevent narrowing warning
+        , path_edge_capacity { maximum_path_edge_count(down_seq_.size(), right_seq_.size()) }
         , node_incoming_edge_capacity { grid_down_cnt == 1zu || grid_right_cnt == 1zu ? 1zu : 3zu }
-        , node_outgoing_edge_capacity { grid_down_cnt == 1zu || grid_right_cnt == 1zu ? 1zu : 3zu } {
-            if constexpr (debug_mode) {
-                if (down_seq_.size() + 1zu >= std::numeric_limits<N_INDEX>::max()
-                        || right_seq_.size() + 1zu  >= std::numeric_limits<N_INDEX>::max()) {
-                    throw std::runtime_error { "Sequence too large for index type" };
-                }
-            }
-        }
+        , node_outgoing_edge_capacity { grid_down_cnt == 1zu || grid_right_cnt == 1zu ? 1zu : 3zu } {}
 
         // grid_graph(DOWN_SEQ&&, RIGHT_SEQ&&, const SUBSTITUTION_SCORER&, const GAP_SCORER&) = delete;
         // grid_graph(const DOWN_SEQ&&, RIGHT_SEQ&&, const SUBSTITUTION_SCORER&, const GAP_SCORER&)
@@ -580,6 +573,42 @@ namespace offbynull::aligner::graphs::grid_graph {
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::inputs_from_residents */
         bidirectional_range_of_non_cvref<E> auto inputs_from_residents([[maybe_unused]] const N& n) const {
             return std::views::empty<E>;
+        }
+
+        /**
+         * Get graph axis's node count from the sequence representing that axis. For example, when the right sequence is ACTT, the number of
+         * nodes on the right axis of the graph is 5. The individual elements (letters) represent transitions while the nodes connect those
+         * transitions.
+         *
+         * ```
+         *    A      C      T      T
+         * *----->*----->*----->*----->*
+         * ```
+         *
+         * @param seq_len Sequence length.
+         * @return Number of nodes needed to represent a sequence of length `seq_len`.
+         */
+        static constexpr std::size_t axis_node_length(std::size_t seq_len) {
+            std::size_t ret { seq_len + 1zu };
+            if constexpr (debug_mode) {
+                if (ret >= std::numeric_limits<N_INDEX>::max()) {
+                    throw std::runtime_error { "Sequence too large for index type" };
+                }
+            }
+            return ret;
+        }
+
+        /**
+         * Get the maximum edge count for a path through a graph, from root to leaf.
+         *
+         * @param down_seq_len Down sequence's length.
+         * @param right_seq_len  Right sequence's length.
+         * @return Maximum number of edges for a path going from root to leaf.
+         */
+        static constexpr std::size_t maximum_path_edge_count(std::size_t down_seq_len, std::size_t right_seq_len) {
+            std::size_t down_edge_cnt { down_seq_len };
+            std::size_t right_edge_cnt { right_seq_len };
+            return down_edge_cnt + right_edge_cnt;
         }
     };
 

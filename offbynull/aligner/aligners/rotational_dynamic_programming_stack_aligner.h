@@ -255,10 +255,10 @@ namespace offbynull::aligner::aligners::rotational_dynamic_programming_stack_ali
                 typename G::ED,
                 typename fitting_dynamic_programming_alignment_type_parameterizer<N_INDEX>::PARENT_COUNT,
                 typename fitting_dynamic_programming_alignment_type_parameterizer<N_INDEX>::SLOT_INDEX,
-                max_double_down_seq_size + 1zu,
-                max_right_seq_size + 1zu,
-                1zu,
-                max_double_down_seq_size + max_right_seq_size
+                G::axis_node_length(max_double_down_seq_size),  // max_double_down_seq_size + 1zu
+                G::axis_node_length(max_right_seq_size),  // max_right_seq_size + 1zu
+                G::grid_depth_cnt,  // 1 depth
+                G::maximum_path_edge_count(max_double_down_seq_size, max_right_seq_size)
             >;
             consumption_gating_limits<debug_mode, N_INDEX> gating_limits {
                 static_cast<N_INDEX>(down.size()),

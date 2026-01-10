@@ -235,10 +235,10 @@ namespace offbynull::aligner::aligners::extended_gap_dynamic_programming_stack_a
                 typename G::ED,
                 typename extended_gap_dynamic_programming_alignment_type_parameterizer<N_INDEX>::PARENT_COUNT,
                 typename extended_gap_dynamic_programming_alignment_type_parameterizer<N_INDEX>::SLOT_INDEX,
-                max_down_seq_size + 1zu,
-                max_right_seq_size + 1zu,
-                3zu,  // 3 depth
-            (max_down_seq_size + max_right_seq_size) * 3zu
+                G::axis_node_length(max_down_seq_size),  // max_down_seq_size + 1zu
+                G::axis_node_length(max_right_seq_size),  // max_right_seq_size + 1zu
+                G::grid_depth_cnt,  // 3 depth
+                G::maximum_path_edge_count(max_down_seq_size, max_right_seq_size)
             >;
             backtracker<
                 debug_mode,

@@ -128,7 +128,15 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         , grid_right_cnt { g.grid_right_cnt }
         , path_edge_capacity { g.path_edge_capacity }
         , node_incoming_edge_capacity { g.node_incoming_edge_capacity }
-        , node_outgoing_edge_capacity { g.node_outgoing_edge_capacity } {}
+        , node_outgoing_edge_capacity { g.node_outgoing_edge_capacity } {
+            if constexpr (debug_mode) {
+                if (g.grid_down_cnt != axis_node_length(down_seq_.size())
+                        || g.grid_right_cnt != axis_node_length(right_seq_.size())
+                        || g.path_edge_capacity != maximum_path_edge_count(down_seq_.size(), right_seq_.size())) {
+                    throw std::runtime_error { "Parameter mismatch" };
+                }
+            }
+        }
 
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::get_node_data */
         ND get_node_data(const N& n) const {
@@ -306,6 +314,16 @@ namespace offbynull::aligner::graphs::pairwise_global_alignment_graph {
         /** @copydoc offbynull::aligner::graph::sliceable_pairwise_alignment_graph::unimplemented_sliceable_pairwise_alignment_graph::inputs_from_residents */
         bidirectional_range_of_non_cvref<E> auto inputs_from_residents(const N& n) const {
             return g.inputs_from_residents(n);
+        }
+
+        /** @copydoc offbynull::aligner::graphs::grid_graph::grid_graph::axis_node_length */
+        static constexpr std::size_t axis_node_length(std::size_t seq_len) {
+            return decltype(g)::axis_node_length(seq_len);
+        }
+
+        /** @copydoc offbynull::aligner::graphs::grid_graph::grid_graph::maximum_path_edge_count */
+        static constexpr std::size_t maximum_path_edge_count(std::size_t down_seq_len, std::size_t right_seq_len) {
+            return decltype(g)::maximum_path_edge_count(down_seq_len, right_seq_len);
         }
     };
 
