@@ -1,5 +1,3 @@
-<p align="center"><img src="palignprims.png" alt="Project logo"></p>
-
 # Pairwise Alignment Primitives
 
 The Pairwise Alignment Primitives project (PAlignPrims) is a C++ header-only library that provides the building blocks for assembling [pairwise](https://en.wiktionary.org/wiki/pairwise) [sequence aligners](https://en.wikipedia.org/wiki/Sequence_alignment). PAlignPrims generalizes alignment beyond bioinformatics, extending it to other domains while supporting broader bioinformatics use cases.
@@ -12,6 +10,8 @@ Why PAlignPrims?
  * **Safe**: Strong compile-time constraints with optional but equally strong runtime checks.
  * **Verified**: Tested and documented APIs, with tests doubling as usage examples.
  * **Modern**: Built using C++23, with stylistic / structural conventions from higher-level languages.
+
+PAlignPrims is 0% vibe coded. Every line of code and documentation is deliberate, written with care and consideration.
 
 Choose a path:
 
@@ -119,7 +119,7 @@ Regardless of which you choose, all preconfigured aligners have the same basic u
  * other aligners may require additional scorers (e.g., extended gap scoring).
  * subdivision aligners accept a score tolerance, which is important to mitigate rounding errors when the score type is floating point.
 
-Each aligner’s test file includes an end-to-end usage example.
+Each aligner's test file includes an end-to-end usage example.
 
 ### Customizing Sequences and Scorers
 
