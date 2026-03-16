@@ -11,7 +11,7 @@ Why PAlignPrims?
  * **Verified**: Tested and documented APIs, with tests doubling as usage examples.
  * **Modern**: Built using C++23, with stylistic / structural conventions from higher-level languages.
 
-PAlignPrims is 0% vibe coded. Every line of code and documentation is deliberate, written with care and consideration.
+PAlignPrims is human-designed and human-written, not vibecoded. Every line of code and documentation is deliberate, written with care and consideration.
 
 Choose a path:
 
